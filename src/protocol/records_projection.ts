@@ -92,11 +92,14 @@ export class ProjectionPolicy {
     ]);
   }
 
-  /** Strictly decodes one policy reference (projection.rs:743-763). */
+  /** Strictly decodes one policy reference (projection.rs:743-763; contract.rs:20-30). */
   static fromValue(value: PortableValue, path: string): ProjectionPolicy {
     const fields = exactFields(value, ['id', 'version', 'arguments'], path);
     const id = stringOf(fields[0], `${path}.id`);
     const version = unsigned32(fields[1], `${path}.version`);
+    if (version === 0) {
+      throw invalid(`${path}.version`, 'version must be non-zero');
+    }
     const argumentsValue = objectOf(fields[2], `${path}.arguments`);
     const arguments_ = new Map<string, PortableValue>();
     for (const entry of argumentsValue.entries) {
@@ -889,16 +892,18 @@ function referenceValue(contract: { readonly id: string; readonly version: numbe
   ]);
 }
 
-/** Parses a `{id, version}` reference record (projection.rs:718-724). */
+/** Parses a `{id, version}` reference record (projection.rs:718-724; contract.rs:20-30). */
 function parseReference(
   value: PortableValue,
   path: string,
 ): { readonly id: string; readonly version: number } {
   const fields = exactFields(value, ['id', 'version'], path);
-  return {
-    id: stringOf(fields[0], `${path}.id`),
-    version: unsigned32(fields[1], `${path}.version`),
-  };
+  const id = stringOf(fields[0], `${path}.id`);
+  const version = unsigned32(fields[1], `${path}.version`);
+  if (version === 0) {
+    throw invalid(`${path}.version`, 'version must be non-zero');
+  }
+  return { id, version };
 }
 
 /** Parses one provenance relation spelling (projection.rs:1041-1053). */
