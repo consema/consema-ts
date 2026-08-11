@@ -1,0 +1,29 @@
+{
+  "name": "@consema/consema",
+  "version": "0.14.0",
+  "description": "TypeScript implementation of the language-neutral Consema configuration-processing contracts (RFC 0016; docs/multi-language-implementation-plan.md)",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=26"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "node --test src/"
+  },
+  "keywords": [
+    "consema",
+    "configuration",
+    "language-neutral"
+  ],
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "~5.9.0"
+  }
+}
