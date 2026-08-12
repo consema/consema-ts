@@ -90,6 +90,9 @@ export interface Graph {
   readonly edgeCount: number;
 }
 
+/** The RFC 0006 contract name of the immutable graph value; aliases Graph so the API freezes the same vocabulary across languages (RFC 0006 §2; the Go `type PortableGraph = Graph` and Kotlin `typealias PortableGraph = Graph` counterparts). */
+export type PortableGraph = Graph;
+
 /** Resolves one graph-local node ID; undefined when the ID belongs elsewhere or is out of range. */
 export function nodeAt(graph: Graph, id: NodeID): Node | undefined {
   if (id.graph !== graph.identity) {

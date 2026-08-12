@@ -561,9 +561,9 @@ export class SourceSnapshot {
     return SourceSnapshot.fromRaw(bytes, EncodingRequest.binary(), limits);
   }
 
-  /** Exact retained source bytes; logically immutable (source.rs:578-582) — the snapshot never mutates the retained view; treat the returned buffer as read-only. */
+  /** Exact retained source bytes; returns a defensive copy each call so callers can never mutate the snapshot's internal buffer (source.rs:578-582; Kotlin `raw.copyOf()` precedent). */
   bytes(): Uint8Array {
-    return this.#bytes;
+    return this.#bytes.slice();
   }
 
   /** Stable SHA-256 identity of exact retained bytes (source.rs:584-588). */
