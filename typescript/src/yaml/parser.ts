@@ -648,7 +648,15 @@ class Parser {
       return null;
     }
     if (!this.#atLineStart()) {
-      this.#failSyntax();
+      // The first entry of a block mapping may be opened mid-line at the
+      // explicit-key indicator: `parseBlockNodeWithProps` and
+      // `parseInlineValue` skip the indentation before dispatching
+      // (`a:\n  ? x\n  : 1`, `- ? x : 1`). No other mid-line entry start is
+      // legal in a block mapping.
+      if (!(this.#current() === '?' && this.#followedBySeparation(1))) {
+        this.#failSyntax();
+      }
+      return this.#parseExplicitEntry(indent);
     }
     const lineIndent = this.#lineIndentAt(this.#pos);
     if (lineIndent < indent) {
@@ -690,16 +698,17 @@ class Parser {
     } else if (this.#atEOF() || this.#current() === '\r' || this.#current() === '\n' || this.#current() === '#') {
       const saved = this.#pos;
       this.#skipBlankLines();
-      if (
-        !this.#atEOF() &&
-        this.#atLineStart() &&
-        this.#lineIndentAt(this.#pos) === indent &&
-        this.#current() === ':' &&
-        this.#followedBySeparation(1)
-      ) {
-        colonFound = true;
-        this.#pos += 1;
+      if (!this.#atEOF() && this.#atLineStart() && this.#lineIndentAt(this.#pos) === indent) {
+        // The value indicator may sit on the next line at the mapping's
+        // indentation; step past that line's indentation to the indicator.
         this.#skipSeparationInline();
+        if (this.#current() === ':' && this.#followedBySeparation(1)) {
+          colonFound = true;
+          this.#pos += 1;
+          this.#skipSeparationInline();
+        } else {
+          this.#pos = saved;
+        }
       } else {
         this.#pos = saved;
       }

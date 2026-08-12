@@ -193,3 +193,72 @@ test('edit — wrong snapshot is rejected before any output', () => {
     },
   );
 });
+
+// Block-style mapping insertion: `prepareMappingInsertion` emits the
+// two-line explicit-key fragment (`? key` / `: value`) when the target
+// mapping renders in block style. The parser must accept that fragment as a
+// nested block-mapping entry at any position (audit: nested block
+// insertions failed with core.edit.formation-failed@1 on both LF and CRLF
+// sources). Reference: Rust edit.rs
+// `block_insertions_are_style_aware_and_reversible_with_crlf_comments`.
+function assertBlockInsertionRoundTrips(source: string, newline: string) {
+  const document = core(source);
+  const root = document.document(0)!.root();
+  const mapping = root.mappingEntry(0)!.value();
+  const builder = new EditTransactionBuilder(document);
+  builder.insertMappingEntry(
+    mapping.nodeRef(),
+    stringValue('newkey'),
+    integerValue(42n),
+    { kind: 'End' },
+  );
+  const commit = commitEdits(document, builder.build());
+  assert.equal(
+    render(commit.document()),
+    `outer:${newline}  inner: 1${newline}  ? !!str "newkey"${newline}  : !!int "42"${newline}`,
+  );
+  // The rendered target re-parses with both associations present.
+  const reparsed = core(render(commit.document()));
+  const entries = reparsed.document(0)!.root().mappingEntry(0)!.value();
+  assert.equal(entries.mappingLen(), 2);
+}
+
+test('edit — block mapping insertion at End succeeds and re-parses (LF source)', () => {
+  assertBlockInsertionRoundTrips('outer:\n  inner: 1\n', '\n');
+});
+
+test('edit — block mapping insertion at End succeeds and re-parses (CRLF source)', () => {
+  assertBlockInsertionRoundTrips('outer:\r\n  inner: 1\r\n', '\r\n');
+});
+
+test('edit — block mapping insertion at Start succeeds (nested first entry)', () => {
+  const document = core('outer:\n  inner: 1\n');
+  const mapping = document.document(0)!.root().mappingEntry(0)!.value();
+  const builder = new EditTransactionBuilder(document);
+  builder.insertMappingEntry(
+    mapping.nodeRef(),
+    stringValue('newkey'),
+    integerValue(42n),
+    { kind: 'Start' },
+  );
+  const commit = commitEdits(document, builder.build());
+  assert.equal(
+    render(commit.document()),
+    'outer:\n  ? !!str "newkey"\n  : !!int "42"\n  inner: 1\n',
+  );
+  const reparsed = core(render(commit.document()));
+  const entries = reparsed.document(0)!.root().mappingEntry(0)!.value();
+  assert.equal(entries.mappingLen(), 2);
+});
+
+test('edit — block mapping insertion into a sequence-item mapping succeeds', () => {
+  const document = core('- name: first\n  count: 1\n');
+  const mapping = document.document(0)!.root().sequenceItem(0)!.node();
+  const builder = new EditTransactionBuilder(document);
+  builder.insertMappingEntry(mapping.nodeRef(), stringValue('newkey'), integerValue(42n), { kind: 'End' });
+  const commit = commitEdits(document, builder.build());
+  assert.equal(
+    render(commit.document()),
+    '- name: first\n  count: 1\n  ? !!str "newkey"\n  : !!int "42"\n',
+  );
+});

@@ -126,6 +126,56 @@ test('native.arbitrary-duplicate-mapping — explicit keys and duplicates (yaml-
   assert.equal(root.mappingEntry(2)!.value().scalar()!.decoded(), 'three');
 });
 
+// Explicit-key entries are accepted as the first entry of a nested block
+// mapping (`a:\n  ? x\n  : 1`) and with the value indicator on the next
+// line at the mapping's indentation (`edit` inserts these two-line forms
+// into block-style mappings; Rust edit.rs round trips the same fragments).
+test('block mapping — two-line explicit key as nested first entry', () => {
+  const document = core('outer:\n  ? k1\n  : 1\n');
+  const mapping = document.document(0)!.root().mappingEntry(0)!.value();
+  assert.equal(mapping.mappingLen(), 1);
+  assert.equal(mapping.mappingEntry(0)!.key().scalar()!.decoded(), 'k1');
+  assert.equal(mapping.mappingEntry(0)!.value().scalar()!.decoded(), '1');
+});
+
+test('block mapping — two-line explicit key as nested later entry', () => {
+  const document = core('outer:\n  inner: 1\n  ? k2\n  : 2\n');
+  const mapping = document.document(0)!.root().mappingEntry(0)!.value();
+  assert.equal(mapping.mappingLen(), 2);
+  assert.equal(mapping.mappingEntry(1)!.key().scalar()!.decoded(), 'k2');
+  assert.equal(mapping.mappingEntry(1)!.value().scalar()!.decoded(), '2');
+});
+
+test('block mapping — single-line explicit key as nested first entry', () => {
+  const document = core('outer:\n  ? k : v\n  inner: 1\n');
+  const mapping = document.document(0)!.root().mappingEntry(0)!.value();
+  assert.equal(mapping.mappingLen(), 2);
+  assert.equal(mapping.mappingEntry(0)!.key().scalar()!.decoded(), 'k');
+  assert.equal(mapping.mappingEntry(0)!.value().scalar()!.decoded(), 'v');
+});
+
+test('block mapping — two-line explicit keys round trip with CRLF and multiple entries', () => {
+  const document = core('a:\r\n  ? x\r\n  : 1\r\n  ? y\r\n  : 2\r\n');
+  const mapping = document.document(0)!.root().mappingEntry(0)!.value();
+  assert.equal(mapping.mappingLen(), 2);
+  assert.equal(mapping.mappingEntry(1)!.key().scalar()!.decoded(), 'y');
+});
+
+test('block mapping — explicit key inside a sequence item (compact and two-line)', () => {
+  const compact = core('- ? k : v\n- next\n');
+  assert.equal(compact.document(0)!.root().sequenceLen(), 2);
+  assert.equal(
+    compact.document(0)!.root().sequenceItem(0)!.node().mappingEntry(0)!.value().scalar()!.decoded(),
+    'v',
+  );
+  const twoLine = core('- ? k\n  : v\n');
+  assert.equal(twoLine.document(0)!.root().sequenceLen(), 1);
+  assert.equal(
+    twoLine.document(0)!.root().sequenceItem(0)!.node().mappingEntry(0)!.value().scalar()!.decoded(),
+    'v',
+  );
+});
+
 test('formation.undefined-alias — syntax failure, no document (yaml-v1.json:41-44)', () => {
   assert.throws(
     () => core('[*missing]\n'),
