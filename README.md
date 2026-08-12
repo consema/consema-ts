@@ -5,6 +5,9 @@ Consema 语言中立契约（RFC 0016）的 **TypeScript 实现**仓库。本仓
 [github.com/consema/consema](https://github.com/consema/consema)；本仓承载
 TypeScript 实现与跨语言差分验证工具。
 
+Version: 0.14.0（`typescript/package.json` version；CI
+check-version-consistency job 断言与 README 一致）。
+
 ## 布局
 
 - `typescript/`：TypeScript 包（node 26，`tsc --noEmit` strict，运行时零依赖）。

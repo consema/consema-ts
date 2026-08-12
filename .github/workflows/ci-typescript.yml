@@ -2,7 +2,9 @@
 # TypeScript implementation joins the release gate with three explicit jobs
 # (the design rejects a single shared matrix, §5.2). ts-gates runs the
 # strict tsc check, the full node --test suite and the zero-runtime-
-# dependency policy; ts-conformance runs the TS runner over the 18 shared
+# dependency policy; ts-compiler-matrix re-runs `tsc --noEmit` under the
+# 5.8/5.9 compiler line (zod mode) so newer-only compiler usage fails CI;
+# ts-conformance runs the TS runner over the 18 shared
 # suites / 508 cases (the aggregate digest 35bebc8d…, the 18/508 inventory
 # and the per-suite counts are pinned inside the runner test,
 # typescript/src/conformance/runner.test.ts, §2.2/§4.2); ts-differential
@@ -36,6 +38,14 @@ on:
 concurrency:
   group: ts-ci-${{ github.ref }}
   cancel-in-progress: true
+
+# Top-tier P0: minimal token scope. Every job here only reads repository
+# contents (checkout + multi-repo checkouts + running repo scripts); none
+# uploads artifacts or writes check runs, so the global minimum suffices
+# (cache restore works with contents: read; cache save denial is a warning
+# only, per the actions/cache contract).
+permissions:
+  contents: read
 
 env:
   CARGO_TERM_COLOR: always
@@ -111,6 +121,40 @@ jobs:
             throw "runtime dependencies found: $($deps.PSObject.Properties.Name -join ', ')"
           }
           Write-Output 'zero runtime dependencies: npm ls --omit=dev shows none'
+
+  # TS compiler matrix (zod mode): the repo pins typescript ~5.9.0
+  # (package.json devDependencies); this job reinstalls the compiler at each
+  # matrix version after `npm ci` and re-runs the strict `tsc --noEmit`
+  # check, so accidentally relying on newer-only compiler syntax/API fails
+  # CI even when the lockfile is untouched. Versions verified locally
+  # (2026-08-12): 5.8.x and 5.9.x both compile the tree clean with
+  # @types/node 26.2.0. npm 7+ resolves a trailing `.x` range, and the
+  # install writes only the gitignored node_modules + lockfile, so the
+  # checkout stays pristine between legs.
+  ts-compiler-matrix:
+    name: tsc --noEmit (typescript ${{ matrix.ts }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        ts: ['5.8.x', '5.9.x']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.x'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      - name: npm install -D typescript@${{ matrix.ts }} (compiler matrix leg)
+        working-directory: typescript
+        run: npm install -D "typescript@${{ matrix.ts }}"
+      - name: npm run check (tsc --noEmit, strict)
+        working-directory: typescript
+        run: npm run check
 
   ts-conformance:
     name: ts conformance runner (18 suites / 508 cases)
@@ -234,3 +278,50 @@ jobs:
           $script = Join-Path $env:GITHUB_WORKSPACE 'scripts/ts-verify-protocol-exchange.ps1'
           & $script
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  # Version-consistency gate (tokio check-readme pattern): the README
+  # "Version:" line must equal the typescript/package.json version, so a
+  # version bump that forgets the README fails CI.
+  check-version-consistency:
+    name: check README version vs package.json (version consistency)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: assert package.json version == README Version line
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -m1 '"version"' typescript/package.json | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+          if [ -z "$version" ]; then
+            echo "::error::no 'version' found in typescript/package.json"
+            exit 1
+          fi
+          grep -qF "Version: $version" README.md || {
+            echo "::error::README.md does not declare 'Version: $version'"
+            exit 1
+          }
+          echo "README version consistent with package.json: $version"
+
+  # Alls-green aggregate gate (tokio/pydantic pattern): `check (all gates
+  # green)` is the SINGLE required check for branch protection on this
+  # repository; every other job stays non-required. `if: always()` is
+  # mandatory — otherwise GitHub skips this job when a dependency fails and
+  # a skipped check can be treated as success. `jobs: ${{ toJSON(needs) }}`
+  # is the action's mandatory input (it does not read the needs context
+  # automatically). No job here uses continue-on-error, so the
+  # allowed-failures list is empty.
+  check:
+    name: check (all gates green)
+    if: always()
+    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, check-version-consistency]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@v1
+        with:
+          allowed-failures: ''
+          jobs: ${{ toJSON(needs) }}
