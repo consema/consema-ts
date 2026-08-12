@@ -7,7 +7,9 @@
 # ts-conformance runs the TS runner over the 18 shared
 # suites / 519 cases (the aggregate digest cfd6e296…, the 18/519 inventory
 # and the per-suite counts are pinned inside the runner test,
-# typescript/src/conformance/runner.test.ts, §2.2/§4.2); ts-differential
+# typescript/src/conformance/runner.test.ts, §2.2/§4.2); ts-package runs
+# the L5 packaging gate (npm pack --dry-run — the tarball must contain the
+# shipped src/ files, §1.1 package row / §5.3 L5 row); ts-differential
 # runs the bidirectional scripts/ts-verify-*.ps1 harnesses against the Rust
 # emitters (byte parity + normalized + protocol exchange). The verify
 # scripts are Windows PowerShell 5.1 compatible and pass native Windows
@@ -411,6 +413,43 @@ jobs:
         working-directory: typescript
         run: node examples/sdk_chain.ts
 
+  # L5 packaging gate (five-language-ci-design.md §1.1 package row / §5.3
+  # L5 row): `npm pack --dry-run` must succeed and the tarball must
+  # actually contain the shipped src/ files (package.json "files": ["src"]).
+  # Dry-run only — nothing is published here, no repository secrets are
+  # used, and no conformance data is needed (packaging is data-independent).
+  ts-package:
+    name: "ts package (npm pack --dry-run, files: src)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '26.x'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      - name: npm pack --dry-run (tarball must include src/)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = npm pack --dry-run --json 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            throw "npm pack --dry-run failed (exit $LASTEXITCODE)"
+          }
+          $pack = @($out | ConvertFrom-Json)[0]
+          $files = @($pack.files | ForEach-Object { $_.path })
+          $srcEntries = @($files | Where-Object { $_ -like 'src/*' })
+          if ($srcEntries.Count -eq 0) {
+            throw 'npm pack tarball must include src/ (package.json "files": ["src"])'
+          }
+          Write-Output "npm pack --dry-run ok: $($pack.files.Count) files, $($srcEntries.Count) under src/ (e.g. $($srcEntries[0]))"
+
   # Alls-green aggregate gate (tokio/pydantic pattern): `check (all gates
   # green)` is the SINGLE required check for branch protection on this
   # repository; every other job stays non-required. `if: always()` is
@@ -422,7 +461,7 @@ jobs:
   check:
     name: check (all gates green)
     if: always()
-    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, check-version-consistency, examples]
+    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, check-version-consistency, examples, ts-package]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
