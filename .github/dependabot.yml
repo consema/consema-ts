@@ -1,0 +1,19 @@
+# Dependabot version updates: npm ecosystem. The TypeScript package lives at
+# typescript/ (lockfile typescript/package-lock.json is committed). Weekly
+# cadence, at most 5 open PRs, minor and patch updates grouped into a single
+# PR per week. Update PRs run the full CI gate (ci-typescript.yml, including
+# the ts-compiler-matrix job that re-checks tsc under the pinned compiler
+# line).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /typescript
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
