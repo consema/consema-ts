@@ -31,7 +31,9 @@ function parseTomlCase(case_: VectorCase): TomlDocument {
 
 function fixtureBytes(relative: string): Uint8Array {
   if (relative === 'Cargo.toml') {
-    return readFileSync(`${repoRootDir()}Cargo.toml`);
+    // The corpus case input is the committed fixture (single authority,
+    // consema repo): conformance/fixtures/toml/Cargo.toml.
+    return readFileSync(`${repoRootDir()}conformance/fixtures/toml/Cargo.toml`);
   }
   // The vector fixture field already carries the repository-relative path
   // ("conformance/fixtures/toml/all-values.toml").

@@ -378,7 +378,9 @@ test('toml.corpus.cargo-manifest and pyproject parse completely and render byte-
     assert.equal(document.formationStatus(), 'Complete');
     assert.deepEqual(document.render(), bytes);
   }
-  const cargo = new Uint8Array(readFileSync(resolve(HERE, '../../../Cargo.toml')));
+  const cargo = new Uint8Array(
+    readFileSync(resolve(HERE, '../../../conformance/fixtures/toml/Cargo.toml')),
+  );
   const document = parseToml(cargo, TomlProfile.TOML_10_V1, DEFAULT_PARSE_LIMITS);
   assert.equal(document.formationStatus(), 'Complete');
   assert.deepEqual(document.render(), cargo);
