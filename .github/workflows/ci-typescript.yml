@@ -438,10 +438,13 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $out = npm pack --dry-run --json 2>$null
+          $errFile = Join-Path $env:RUNNER_TEMP 'npm-pack-stderr.txt'
+          $out = & npm pack --dry-run --json 2>$errFile
           if ($LASTEXITCODE -ne 0) {
-            throw "npm pack --dry-run failed (exit $LASTEXITCODE)"
+            $err = if (Test-Path -LiteralPath $errFile) { Get-Content -LiteralPath $errFile -Raw } else { '' }
+            throw "npm pack --dry-run failed (exit $LASTEXITCODE):`n$err"
           }
+          Remove-Item -LiteralPath $errFile -ErrorAction SilentlyContinue
           $pack = @($out | ConvertFrom-Json)[0]
           $files = @($pack.files | ForEach-Object { $_.path })
           $srcEntries = @($files | Where-Object { $_ -like 'src/*' })
