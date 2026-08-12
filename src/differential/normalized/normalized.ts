@@ -248,7 +248,7 @@ export function repoRootDir(): string {
 
 /** The checked-in differential case file. */
 export function defaultCasesFile(): string {
-  return `${repoRootDir()}go/conformance/differential/normalized/cases.json`;
+  return `${repoRootDir()}conformance/differential/normalized/cases.json`;
 }
 
 /** Loads and validates the checked-in case set (manifest, count, ids). */

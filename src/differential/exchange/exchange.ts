@@ -117,7 +117,7 @@ export function repoRootDir(): string {
 
 /** The checked-in differential case file. */
 export function defaultCasesFile(): string {
-  return `${repoRootDir()}go/conformance/differential/protocol-exchange/cases.json`;
+  return `${repoRootDir()}conformance/differential/protocol-exchange/cases.json`;
 }
 
 /** Loads and validates the checked-in case set (manifest, count, ids, coverage). */

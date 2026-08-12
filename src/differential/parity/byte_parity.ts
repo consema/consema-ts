@@ -3,7 +3,7 @@
  * docs/five-language-ci-design.md §3.2; Go precedent:
  * go/conformance/differential/differential_test.go).
  *
- * The shared case set (go/conformance/differential/cases.json, 68 cases: 51
+ * The shared case set (conformance/differential/cases.json, 68 cases: 51
  * PVCE + 17 PGCE) is encoded by both sides. The Rust encoder's bytes
  * (crates/consema-conformance/examples/emit_parity_bytes.rs, provisioned by
  * scripts/ts-verify-byte-parity.ps1 into the directory named by
@@ -74,7 +74,7 @@ export function repoRootDir(): string {
 
 /** The checked-in differential case file. */
 export function defaultCasesFile(): string {
-  return `${repoRootDir()}go/conformance/differential/cases.json`;
+  return `${repoRootDir()}conformance/differential/cases.json`;
 }
 
 /**
