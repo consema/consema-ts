@@ -365,6 +365,33 @@ jobs:
           }
           echo "README version consistent with package.json: $version"
 
+  # SDK examples gate: typescript/examples/sdk_chain.ts is the committed
+  # five-language SDK chain example (parse -> native query -> best-exact
+  # projection -> semantic edit -> canonical materialization -> TOML
+  # conversion; language-neutral contract reference: consema repository
+  # docs/cookbook.md). node 26 runs .ts files natively, and the example must
+  # exit 0. The example is a pure SDK chain (no conformance data), so no
+  # multi-repo checkout or provision step is needed.
+  examples:
+    name: examples (node examples/sdk_chain.ts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '26.x'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      - name: node examples/sdk_chain.ts (must exit 0)
+        working-directory: typescript
+        run: node examples/sdk_chain.ts
+
   # Alls-green aggregate gate (tokio/pydantic pattern): `check (all gates
   # green)` is the SINGLE required check for branch protection on this
   # repository; every other job stays non-required. `if: always()` is
@@ -376,7 +403,7 @@ jobs:
   check:
     name: check (all gates green)
     if: always()
-    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, check-version-consistency]
+    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, check-version-consistency, examples]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
