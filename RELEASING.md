@@ -58,3 +58,11 @@ npm publish --tag canary --provenance
 发布包即源码（类型与实现天然同源，无 dist 漂移风险）。若未来需要
 降级兼容（如浏览器打包器需要 JS），再切换为 tsc 预编译 dist 形态，
 届时需同步修改 main/types/exports/files 并增加 build 步骤。
+
+## 5. API reference 文档（决策：typedoc 待发布时引入）
+
+API reference 的 typedoc 构建**尚未接线**（2026-08-12 决策）：typedoc 不是
+devDependency，package.json 也没有 docs 脚本；引入 typedoc 属于依赖改动，
+按"发布时引入"处理（与 rustdoc docs.yml artifact job 对标的文档产物在
+typedoc 引入后补建 `.github/workflows/docs.yml`）。当前依赖面审计由
+`.github/workflows/audit.yml`（npm audit）覆盖。

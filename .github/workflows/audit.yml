@@ -1,0 +1,57 @@
+# Dependency audit for the TypeScript implementation (npm audit), mirroring
+# the consema-rs audit.yml shape (daily cron + push/PR manifest filters).
+#
+# The package declares ZERO runtime dependencies (package.json has only
+# devDependencies — @types/node, typescript — per §1.3 zero-runtime-
+# dependency policy, asserted in ci-typescript.yml), so `npm audit` in full
+# (no --omit=dev) covers the complete dependency surface: the
+# devDependencies and their transitive tree are the whole graph. The
+# osv-scanner alternative was considered and not needed: npm audit queries
+# the npm registry advisory database with the same coverage for this
+# dependency shape.
+#
+# Failures are red: any advisory (including low severity) fails the job —
+# the surface is small (dev-only), so a strict bar is affordable. No
+# repository secrets are required.
+name: Dependency audit (npm audit)
+
+on:
+  schedule:
+    - cron: '37 3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - typescript/package.json
+      - typescript/package-lock.json
+  pull_request:
+    paths:
+      - typescript/package.json
+      - typescript/package-lock.json
+
+concurrency:
+  group: ts-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  npm-audit:
+    name: npm audit (npm advisory DB, daily + manifest push/PR)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '26.x'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      - name: npm audit (full — devDependencies are the entire dependency surface)
+        working-directory: typescript
+        run: npm audit
