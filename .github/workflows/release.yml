@@ -1,0 +1,53 @@
+# Consema TypeScript release: tag-triggered npm publish of @consema/consema
+# (top-tier bar: 半自动发布, pydantic precedent; zod canary publishing is
+# a later P2 option, see RELEASING.md §3).
+#
+# Publishing shape (decision, 1.0 前保持源码直发): the package ships the
+# TypeScript sources directly (package.json files = ["src"], main/types/
+# exports point at ./src/index.ts) — zero build step, node 26 runs TS
+# natively; npm installs the sources as-is.
+#
+# Credentials: npm access token via the NPM_TOKEN repository secret
+# (Settings → Secrets and variables → Actions), exposed to npm through
+# setup-node's registry-url + NODE_AUTH_TOKEN. Provenance (npm 9.5+,
+# Sigstore) is enabled via `npm publish --provenance`: it requires
+# id-token: write (declared below) and a public npm registry; the
+# publishConfig.provenance flag in package.json keeps it on for manual
+# publishes too. User-side setup steps: see RELEASING.md §2.
+name: Release to npm
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: npm ci + test + publish (provenance)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26.x'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      - name: npm run check (tsc --noEmit, strict)
+        working-directory: typescript
+        run: npm run check
+      - name: npm test (node --test, full suite)
+        working-directory: typescript
+        run: npm test
+      - name: npm publish (provenance, public access)
+        working-directory: typescript
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
