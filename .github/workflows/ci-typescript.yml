@@ -435,6 +435,7 @@ jobs:
         working-directory: typescript
         run: npm ci
       - name: npm pack --dry-run (tarball must include src/)
+        working-directory: typescript
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
