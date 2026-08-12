@@ -20,7 +20,12 @@ test('conformance: 18 suites / 519 cases, digest match, zero failures', () => {
   assert.equal(result.digest.cases, 519, '519 cases');
   assert.equal(result.digestOk, true, 'digest and inventory must match the manifest');
   assert.equal(result.failed, 0, `zero failures, observed ${result.failed}`);
-  assert.equal(result.passed + result.skipped, 519, 'every case executes (passed or documented skip)');
+  // L5 zero documented skip (five-language-ci-design.md §5.3 L5 row): the
+  // whole 519-case inventory executes with no capability gaps — a case that
+  // lands in documented skip makes the assertion red, so a new capability
+  // gap cannot be introduced silently.
+  assert.equal(result.passed, 519, `all 519 cases pass, observed ${result.passed}`);
+  assert.equal(result.skipped, 0, `zero documented skips at L5, observed ${result.skipped}`);
 });
 
 test('conformance: per-suite counts match the published inventory', () => {
