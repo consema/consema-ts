@@ -14,7 +14,10 @@
 # paths to node, so the differential job runs on windows-latest. The
 # shared-conformance script (scripts/ts-verify-shared-conformance.ps1,
 # §3.6/§7.2) lands with the runner-CLI batch and slots in as a fourth
-# differential step. No repository secrets are required.
+# differential step. The coverage job (node 26 built-in test coverage)
+# measures the src/ modules exercised by the suite with a 60% line-coverage
+# threshold — initial threshold, tightened as coverage improves. No
+# repository secrets are required.
 #
 # This repository carries the TypeScript implementation only, so every job
 # uses the multi-repo checkout mode: it checks out consema/consema (the spec
@@ -56,12 +59,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: consema/consema
           path: consema-repo
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '26.x'
           cache: npm
@@ -122,6 +125,63 @@ jobs:
           }
           Write-Output 'zero runtime dependencies: npm ls --omit=dev shows none'
 
+  # Coverage gate (gate plan §4 M3 standing toolchain; roadmap §18.3
+  # "Coverage 不替代语义证明"): node 26's built-in test coverage
+  # (--experimental-test-coverage) measures the files loaded by the suite;
+  # node_modules and the matching test files are excluded from the report by
+  # default, so the percentage reflects the src/ modules the tests exercise.
+  # --test-coverage-lines=60 fails the run (exit 1) when line coverage drops
+  # below 60% — the threshold assertion is built into the test runner
+  # (initial threshold, tightened as coverage improves). The conformance
+  # tests need the provisioned conformance data, so the multi-repo checkout
+  # + provision steps of ts-gates are replicated.
+  coverage:
+    name: coverage (node built-in coverage, lines >= 60%)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          repository: consema/consema
+          path: consema-repo
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '26.x'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: provision conformance data from the consema spec repository
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\conformance'
+          $target = Join-Path $env:GITHUB_WORKSPACE 'conformance'
+          if (-not (Test-Path -LiteralPath $source)) {
+            throw "conformance data not found in the consema checkout: $source"
+          }
+          Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
+          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
+          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
+          if (-not (Test-Path -LiteralPath $manifest)) {
+            throw "fc-manifest not found in the consema checkout: $manifest"
+          }
+          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
+          # The toml.corpus.cargo-manifest case reads the committed fixture
+          # conformance/fixtures/toml/Cargo.toml (single authority), which is
+          # included in the conformance/ copy above; no workspace-root
+          # Cargo.toml is provisioned anymore.
+          $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
+          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      # Glob form (node 26 resolves --test arguments as glob patterns) with
+      # the coverage switch and the 60% line threshold: the run fails (exit
+      # 1) when line coverage of the loaded src/ modules drops below 60%.
+      - name: node --test with built-in coverage (lines >= 60%)
+        working-directory: typescript
+        run: node --test --experimental-test-coverage --test-coverage-lines=60 "src/**/*.test.ts"
+
   # TS compiler matrix (zod mode): the repo pins typescript ~5.9.0
   # (package.json devDependencies); this job reinstalls the compiler at each
   # matrix version after `npm ci` and re-runs the strict `tsc --noEmit`
@@ -140,8 +200,8 @@ jobs:
       matrix:
         ts: ['5.8.x', '5.9.x']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '26.x'
           cache: npm
@@ -161,12 +221,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: consema/consema
           path: consema-repo
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '26.x'
           cache: npm
@@ -213,20 +273,22 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: consema/consema-rs
           path: consema-rs
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: consema/consema
           path: consema-repo
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+        with:
+          toolchain: stable
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           workspaces: consema-rs
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '26.x'
       - name: provision conformance data from the consema spec repository
@@ -287,7 +349,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: assert package.json version == README Version line
         shell: bash
         run: |
@@ -314,14 +376,14 @@ jobs:
   check:
     name: check (all gates green)
     if: always()
-    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, check-version-consistency]
+    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, check-version-consistency]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - name: decide whether the needed jobs succeeded or failed
-        uses: re-actors/alls-green@v1.2.2
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           allowed-failures: ''
           jobs: ${{ toJSON(needs) }}
