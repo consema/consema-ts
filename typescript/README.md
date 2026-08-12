@@ -37,9 +37,9 @@ ts-compiler-matrix legs (currently 5.8.x / 5.9.x) can be extended to
 
 ## Conformance
 
-18 suites / 508 cases / aggregate digest `35bebc8d…` are pinned inside the
+18 suites / 519 cases / aggregate digest `cfd6e296…` are pinned inside the
 runner test (`src/conformance/runner.test.ts`, against
-conformance/vectors/ by repo-relative path); 508/508 pass in CI
+conformance/vectors/ by repo-relative path); 519/519 pass in CI
 (ci-typescript.yml, ts-conformance job).
 
 ## References

@@ -39,7 +39,7 @@ npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 ## CI 门禁
 
 `.github/workflows/ci-typescript.yml`：fmt / type（`tsc --noEmit` strict）/
-单测 / 零依赖门禁、conformance runner 门禁（18 suites / 508 cases）与
+单测 / 零依赖门禁、conformance runner 门禁（18 suites / 519 cases）与
 TS-Rust 差分门禁（windows-latest 多仓 checkout）。push 到 main 或 PR 均
 触发；PR 另受 pr-labels.yml 的 kind 标签门禁约束（标签见规范仓
 .github/LABELS.md）。

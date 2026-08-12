@@ -1905,12 +1905,57 @@ function conversionCase(case_: VectorCase): void {
   }
 }
 
+/**
+ * plist.limit@1 — one declared-limit case: the parse must fail fatally and
+ * the failure must carry the expected `plist.limit.*@1` code (plist_v1.rs
+ * run_limit; RFC 0013 §11).
+ */
+function limitCase(case_: VectorCase): void {
+  const profile = caseField(case_, 'profile') as string;
+  const hex = caseField(case_, 'hex') as string;
+  const limits = caseField(case_, 'limits') as Record<string, number>;
+  const expectedDiagnostic = expectedFieldOptional(case_, 'diagnostic') as string | undefined;
+  const parseLimits = { ...DEFAULT_PLIST_PARSE_LIMITS };
+  for (const [name, value] of Object.entries(limits)) {
+    switch (name) {
+      case 'max_container_depth':
+        parseLimits.maxContainerDepth = value;
+        break;
+      case 'max_object_count':
+        parseLimits.maxObjectCount = value;
+        break;
+      case 'max_string_code_units':
+        parseLimits.maxStringCodeUnits = value;
+        break;
+      case 'max_data_bytes':
+        parseLimits.maxDataBytes = value;
+        break;
+      default:
+        fail(`unknown plist limit ${name}`);
+    }
+  }
+  try {
+    parse(hexToBytes(hex), profile === 'plist.binary@1' ? 'BinaryV1' : 'XmlV1', PROFILE_DEFAULT_ENCODING, parseLimits);
+  } catch (error) {
+    const accessor = (error as { diagnostics?: () => readonly { code: string }[] }).diagnostics;
+    const observed = accessor?.call(error);
+    if (expectedDiagnostic !== undefined && observed !== undefined && observed.some((d) => d.code === expectedDiagnostic)) {
+      return;
+    }
+    fail(`limit diagnostic ${expectedDiagnostic} not found: ${String(error)}`);
+  }
+  fail('parse must fail fatally under the declared limits');
+}
+
 export const runPlistV1: SuiteExecutor = {
   runCase(case_: VectorCase): void {
     switch (case_.capability) {
       case 'plist.xml-formation@1':
       case 'plist.binary-formation@1':
         formationCase(case_);
+        return;
+      case 'plist.limit@1':
+        limitCase(case_);
         return;
       case 'plist.conversion@1':
         conversionCase(case_);

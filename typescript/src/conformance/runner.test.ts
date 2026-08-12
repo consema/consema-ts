@@ -1,6 +1,6 @@
 /**
  * Conformance runner test (L4; authority: docs/five-language-ci-design.md
- * §2.2 — the runner test asserts the digest, the 18/508 inventory, the
+ * §2.2 — the runner test asserts the digest, the 18/519 inventory, the
  * per-suite counts, and executes every case; conformance/README.md:81-82
  * "每个 suite 必须验证 case 数量").
  */
@@ -13,14 +13,14 @@ import {
   runAll,
 } from './runner.ts';
 
-test('conformance: 18 suites / 508 cases, digest match, zero failures', () => {
+test('conformance: 18 suites / 519 cases, digest match, zero failures', () => {
   const result = runAll();
   assert.equal(result.digest.digest, RECORDED_AGGREGATE_DIGEST, 'aggregate digest must match the manifest');
   assert.equal(result.digest.suites, 18, '18 suites');
-  assert.equal(result.digest.cases, 508, '508 cases');
+  assert.equal(result.digest.cases, 519, '519 cases');
   assert.equal(result.digestOk, true, 'digest and inventory must match the manifest');
   assert.equal(result.failed, 0, `zero failures, observed ${result.failed}`);
-  assert.equal(result.passed + result.skipped, 508, 'every case executes (passed or documented skip)');
+  assert.equal(result.passed + result.skipped, 519, 'every case executes (passed or documented skip)');
 });
 
 test('conformance: per-suite counts match the published inventory', () => {

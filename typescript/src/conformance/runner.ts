@@ -6,7 +6,7 @@
  * counts; docs/fc-manifest-0.13.0.json:38-40 — the aggregate digest
  * algorithm).
  *
- * The runner reads conformance/vectors/*.json (18 files / 508 cases) by
+ * The runner reads conformance/vectors/*.json (18 files / 519 cases) by
  * explicit repository-relative path (no embedded copy — a second authority
  * would drift), verifies the aggregate digest, validates suite ids, case
  * id uniqueness, and per-suite counts, then dispatches every case to its
@@ -74,10 +74,10 @@ export const SUITE_EXPECTED_COUNTS: Readonly<Record<string, number>> = Object.fr
   'cli-v1.json': 40,
   'hcl-v1.json': 57,
   'ini-v1.json': 20,
-  'java-properties-v1.json': 22,
+  'java-properties-v1.json': 25,
   'json-family-v2.json': 33,
   'operations-v1.json': 35,
-  'plist-v1.json': 45,
+  'plist-v1.json': 49,
   'portable-graph-v1.json': 10,
   'protocol-v1.json': 32,
   'protocol-v2.json': 11,
@@ -88,11 +88,11 @@ export const SUITE_EXPECTED_COUNTS: Readonly<Record<string, number>> = Object.fr
   'toml-v1.json': 18,
   'v1.json': 30,
   'xml-1-0-safe-v1.json': 34,
-  'yaml-v1.json': 27,
+  'yaml-v1.json': 31,
 });
 
 /** The recorded aggregate digest (docs/fc-manifest-0.13.0.json:38). */
-export const RECORDED_AGGREGATE_DIGEST = '35bebc8d384d71740f7c1a886bc50f4e095ff52fe05d2a407f04b842ee6922fa';
+export const RECORDED_AGGREGATE_DIGEST = 'cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a';
 
 /** The repository-relative vectors directory (resolved from this file). */
 export function vectorsDir(): string {
@@ -342,7 +342,7 @@ export function runAll(dir = vectorsDir()): RunResult {
   return {
     reports,
     digest,
-    digestOk: digest.digest === RECORDED_AGGREGATE_DIGEST && digest.suites === 18 && digest.cases === 508,
+    digestOk: digest.digest === RECORDED_AGGREGATE_DIGEST && digest.suites === 18 && digest.cases === 519,
     totalCases: digest.cases,
     passed,
     failed,
@@ -380,7 +380,7 @@ export function main(argv: readonly string[]): number {
   );
   console.log(`suites: ${result.digest.suites}, cases: ${result.totalCases}`);
   console.log(`total: ${result.passed} passed, ${result.skipped} skipped, ${result.failed} failed`);
-  if (!result.digestOk || result.failed > 0 || result.digest.cases !== 508) {
+  if (!result.digestOk || result.failed > 0 || result.digest.cases !== 519) {
     return 2;
   }
   return 0;

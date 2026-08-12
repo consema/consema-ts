@@ -1,5 +1,5 @@
 /**
- * `consema.java-properties.conformance@1` runner (22 cases; mirror of
+ * `consema.java-properties.conformance@1` runner (25 cases; mirror of
  * crates/consema-conformance/src/properties_v1.rs).
  */
 
@@ -209,8 +209,47 @@ function parseSample(sample: { source?: string; source_hex?: string; encoding?: 
   return parse(bytes, 'ReaderV1', readerSelection(utf8Encoding()), DEFAULT_PROPERTIES_PARSE_LIMITS);
 }
 
+/**
+ * formation.invalid-encoding-sequence / formation.bom-conflict
+ * (properties_v1.rs formation_fatal_encoding): bytes that cannot be decoded
+ * under the explicit Reader encoding (`core.source.invalid-sequence@1`) or a
+ * BOM that contradicts it (`core.source.encoding-conflict@1`) fail the whole
+ * parse fatally before any document forms.
+ */
+function fatalEncodingCase(case_: VectorCase): void {
+  const encoding = caseField(case_, 'encoding') as string;
+  const sourceHex = caseField(case_, 'source_hex') as string;
+  const code = expectedFieldOptional(case_, 'code') as string | undefined;
+  let selection: import('../../properties/parser.ts').PropertiesEncodingSelection;
+  if (encoding === 'Utf8') {
+    selection = readerSelection(utf8Encoding());
+  } else if (encoding === 'Utf16Le') {
+    selection = readerSelection({ kind: 'Utf16Le' });
+  } else if (encoding === 'Utf16Be') {
+    selection = readerSelection({ kind: 'Utf16Be' });
+  } else {
+    fail(`unsupported encoding ${encoding}`);
+    return;
+  }
+  try {
+    parse(hexToBytes(sourceHex), 'ReaderV1', selection, DEFAULT_PROPERTIES_PARSE_LIMITS);
+  } catch (error) {
+    const accessor = (error as { diagnostics?: () => readonly { code: string }[] }).diagnostics;
+    const observed = accessor?.call(error);
+    if (code !== undefined && observed !== undefined && observed[0]?.code === code) {
+      return;
+    }
+    fail(`fatal encoding code differed: ${String(error)}`);
+  }
+  fail('parse must fail fatally');
+}
+
 /** java-properties.formation@1 */
 function formationCase(case_: VectorCase): void {
+  if (case_.id === 'formation.invalid-encoding-sequence' || case_.id === 'formation.bom-conflict') {
+    fatalEncodingCase(case_);
+    return;
+  }
   const samples = caseFieldOptional(case_, 'samples') as string[] | undefined;
   if (samples !== undefined) {
     const formations = expectedFieldOptional(case_, 'formations') as string[] | undefined;
@@ -256,6 +295,10 @@ function formationCase(case_: VectorCase): void {
   const formation = expectedFieldOptional(case_, 'formation') as string | undefined;
   if (formation !== undefined && document.formationStatus() !== formation) {
     fail(`formation: expected ${formation}, observed ${document.formationStatus()}`);
+  }
+  const properties = expectedFieldOptional(case_, 'properties') as number | undefined;
+  if (properties !== undefined && document.properties().length !== properties) {
+    fail(`properties: expected ${properties}, observed ${document.properties().length}`);
   }
   const keys = expectedFieldOptional(case_, 'keys') as string[] | undefined;
   if (keys !== undefined) {

@@ -5,7 +5,7 @@
 # dependency policy; ts-compiler-matrix re-runs `tsc --noEmit` under the
 # 5.8/5.9 compiler line (zod mode) so newer-only compiler usage fails CI;
 # ts-conformance runs the TS runner over the 18 shared
-# suites / 508 cases (the aggregate digest 35bebc8d…, the 18/508 inventory
+# suites / 519 cases (the aggregate digest cfd6e296…, the 18/519 inventory
 # and the per-suite counts are pinned inside the runner test,
 # typescript/src/conformance/runner.test.ts, §2.2/§4.2); ts-differential
 # runs the bidirectional scripts/ts-verify-*.ps1 harnesses against the Rust
@@ -225,7 +225,7 @@ jobs:
         run: npm run check
 
   ts-conformance:
-    name: ts conformance runner (18 suites / 508 cases)
+    name: ts conformance runner (18 suites / 519 cases)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -269,8 +269,8 @@ jobs:
         run: npm ci
       # The runner test (typescript/src/conformance/runner.test.ts) verifies
       # the aggregate digest
-      # 35bebc8d384d71740f7c1a886bc50f4e095ff52fe05d2a407f04b842ee6922fa
-      # (fc-manifest-0.13.0.json:38), the 18 suites / 508 cases inventory,
+      # cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a
+      # (fc-manifest-0.13.0.json:38), the 18 suites / 519 cases inventory,
       # the per-suite counts, and executes every case (zero failures,
       # documented skips only) — the §4.2 hard pins live in the runner.
       # Glob form: node 26 resolves --test arguments as glob patterns, not

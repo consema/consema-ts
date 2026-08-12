@@ -1,5 +1,5 @@
 /**
- * `consema.yaml.conformance@1` runner (27 cases; mirror of
+ * `consema.yaml.conformance@1` runner (31 cases; mirror of
  * crates/consema-conformance/src/yaml_v1.rs).
  */
 
@@ -11,7 +11,7 @@ import { parse as parseYaml } from '../../yaml/parser.ts';
 import type { YamlDocument } from '../../yaml/document.ts';
 import { DEFAULT_PARSE_LIMITS } from '../../document/formation.ts';
 import { resolveImplicit } from '../../yaml/scalar.ts';
-import { projectGraph, projectGraphWithProvenance, projectValueComplete, ValueProjectionRequest, GraphProjectionRequest, defaultGraphProjectionLimits } from '../../yaml/projection.ts';
+import { projectGraph, projectGraphWithProvenance, projectValueComplete, ValueProjectionRequest, GraphProjectionRequest, defaultGraphProjectionLimits, defaultValueProjectionLimits } from '../../yaml/projection.ts';
 import { encodePGCE } from '../../graph/pgce.ts';
 import { materializeGraph, materializeValue } from '../../yaml/materialization.ts';
 import { MaterializationRequest, MaterializationStyleId } from '../../document/materialization.ts';
@@ -197,9 +197,16 @@ function fatalFormationCode(error: unknown): string | undefined {
 /** yaml.formation@1 */
 function formationCase(case_: VectorCase): void {
   const maxSourceBytes = caseFieldOptional(case_, 'max_source_bytes') as number | undefined;
+  const maxNestingDepth = caseFieldOptional(case_, 'max_nesting_depth') as number | undefined;
   const code = expectedFieldOptional(case_, 'code') as string | undefined;
-  if (maxSourceBytes !== undefined) {
-    const limits = { ...DEFAULT_PARSE_LIMITS, maxSourceBytes };
+  if (maxSourceBytes !== undefined || maxNestingDepth !== undefined) {
+    const limits = { ...DEFAULT_PARSE_LIMITS };
+    if (maxSourceBytes !== undefined) {
+      limits.maxSourceBytes = maxSourceBytes;
+    }
+    if (maxNestingDepth !== undefined) {
+      limits.maxNestingDepth = maxNestingDepth;
+    }
     try {
       parseYaml(utf8(caseField(case_, 'source') as string), profileOf(case_), limits);
     } catch (error) {
@@ -209,7 +216,7 @@ function formationCase(case_: VectorCase): void {
       }
       return skip(
         case_.capability ?? 'yaml.formation@1',
-        `the parse-source-bytes fatal failure code is not exposed on the TS fatal failure: ${String(error)}`,
+        `the parse-limit fatal failure code is not exposed on the TS fatal failure: ${String(error)}`,
       );
     }
     fail('expected a resource-limit failure');
@@ -363,7 +370,14 @@ function queryCase(case_: VectorCase): void {
 /** yaml.projection.best-exact-value@1 */
 function valueProjection(case_: VectorCase): void {
   const document = parseCase(case_);
-  const request = ValueProjectionRequest.bestExactV1();
+  const maxAmplificationRatio = caseFieldOptional(case_, 'max_amplification_ratio') as number | undefined;
+  let request = ValueProjectionRequest.bestExactV1();
+  if (maxAmplificationRatio !== undefined) {
+    request = request.withLimits({
+      ...defaultValueProjectionLimits(),
+      maxAmplificationRatio,
+    });
+  }
   const result = projectValueComplete(document, request);
   const code =
     (expectedFieldOptional(case_, 'code') as string | undefined) ??
