@@ -29,7 +29,7 @@ check-version-consistency job 断言与 README 一致）。
 cd typescript
 npm ci
 npm run check        # tsc --noEmit (strict)
-npm test             # node --test src/
+npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 ```
 
 ## 链接

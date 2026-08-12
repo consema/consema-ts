@@ -24,7 +24,7 @@
   },
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "node --test src/",
+    "test": "node --test \"src/**/*.test.ts\"",
     "test:byte-parity": "node --test \"src/differential/parity/**/*.test.ts\"",
     "test:normalized": "node --test \"src/differential/normalized/**/*.test.ts\"",
     "test:exchange": "node --test \"src/differential/exchange/**/*.test.ts\"",

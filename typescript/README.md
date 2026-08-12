@@ -13,7 +13,7 @@ Go, Python or Kotlin implementations.
 cd typescript
 npm ci
 npm run check        # tsc --noEmit (strict)
-npm test             # node --test src/
+npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 npm run test:differential   # byte parity / normalized / protocol exchange
                             # (require CONSEMA_DIFFERENTIAL_* golden env vars;
                             # missing env = documented skip, never silent)
