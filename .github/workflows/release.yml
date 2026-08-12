@@ -44,6 +44,21 @@ jobs:
           # cache-poisoning); the CI workflows keep the cache.
           package-manager-cache: false
 
+      # Release guard (rc 前六角色审计 P1, 2026-08-12): the tag minus the
+      # leading v must equal the package.json version, otherwise a mismatched
+      # tag could publish the wrong version to npm.
+      - name: verify tag matches manifest version (package.json)
+        working-directory: typescript
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest="$(node -p "require('./package.json').version")"
+          tag="${GITHUB_REF_NAME#v}"
+          if [[ "$tag" != "$manifest" ]]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $manifest"
+            exit 1
+          fi
+          echo "tag $GITHUB_REF_NAME matches package.json version $manifest"
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
