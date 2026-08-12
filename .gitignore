@@ -1,0 +1,3 @@
+# consema-ts: minimal .gitignore for the split repository.
+node_modules/
+*.pyc
