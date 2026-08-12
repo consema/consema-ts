@@ -1,5 +1,9 @@
 # Consema TypeScript（consema-ts）
 
+![CI](https://img.shields.io/github/actions/workflow/status/consema/consema-ts/ci-typescript.yml?branch=main)
+![Version](https://img.shields.io/github/v/tag/consema/consema-ts)
+![License](https://img.shields.io/github/license/consema/consema-ts)
+
 Consema 语言中立契约（RFC 0016）的 **TypeScript 实现**仓库。本仓库是 Consema 六仓
 拆分中的 TypeScript 仓：规范权威（RFC、docs、路线图、跨语言 conformance suites）在
 [github.com/consema/consema](https://github.com/consema/consema)；本仓承载

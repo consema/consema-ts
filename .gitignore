@@ -1,3 +1,10 @@
 # consema-ts: minimal .gitignore for the split repository.
 node_modules/
 *.pyc
+
+# IDE / OS artifacts
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
