@@ -47,3 +47,5 @@ conformance/vectors/ by repo-relative path); 508/508 pass in CI
 - Language plan: `docs/multi-language-implementation-plan.md` (L0-L5 closed
   for all three new languages, 2026-08-12)
 - CI and cross-language verification design: `docs/five-language-ci-design.md`
+
+<!-- labeler smoke test marker (branch test/labeler-smoke, will be closed) -->
