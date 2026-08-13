@@ -59,7 +59,7 @@ body:
       label: 环境信息
       description: |
         - `node --version`、`npm --version`（node 26）
-        - `typescript/package.json` version（当前 0.14.0）
+        - `typescript/package.json` version（当前 1.0.0-rc.1）
         - OS / 平台
       placeholder: |
         - node: ...

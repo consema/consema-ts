@@ -15,7 +15,7 @@ Consema 将资源上限作为执行策略，不把截断包装成成功：
 
 超限分别返回 `FatalFormationFailure`、`DecodeError::ResourceLimit`、`QueryFailure::ResourceLimitExceeded` 或 failed projection。取消不会被报告为完成。
 
-解析器和 decoder 禁止 `unsafe`，严格检查 UTF‑8、长度溢出、非最短 varint、非规范整数/Decimal、容器计数和嵌套深度。`consema-conformance` 包含 55 个恶意/边界 property tests（hardening.rs 12 个、yaml_hardening.rs 5 个、line_formats_hardening.rs 6 个、xml_hardening.rs 10 个、xml_encoding_corpus.rs 7 个、plist_hardening.rs 7 个、hcl_hardening.rs 8 个）；如果发现 panic、无界分配或规范绕过，请附最小输入与触发的 capability contract 报告。
+解析器和 decoder 禁止 `unsafe`，严格检查 UTF‑8、长度溢出、非最短 varint、非规范整数/Decimal、容器计数和嵌套深度。Rust 仓的 hardening 证据（`consema-conformance` 55 个恶意/边界 property tests：hardening.rs 12 个、yaml_hardening.rs 5 个、line_formats_hardening.rs 6 个、xml_hardening.rs 10 个、xml_encoding_corpus.rs 7 个、plist_hardening.rs 7 个、hcl_hardening.rs 8 个）见规范仓 consema 的 SECURITY.md；本仓对应机制为 conformance 门禁（18 套 / 519 cases，聚合 digest cfd6e296…）、TS-Rust 差分 harness（byte parity / normalized differential / protocol-exchange）与 node --test 测试套件（运行时零第三方依赖）。如果发现 panic、无界分配或规范绕过，请附最小输入与触发的 capability contract 报告。
 
 canonical protocol JSON 拒绝空白、替代 escape、重排/未知字段和非最短数字表示；PVCE 继续拒绝非规范 varint 与整数。默认协议任意精度整数 magnitude 上限为 1 KiB，避免十进制转换的 CPU 放大；调用方提高上限时必须同时评估输入可信度和工作预算。任何 v1-v6 envelope payload 都会进入对应 typed decoder，不能只靠匹配 `schema` 绕过字段与交叉约束。v1-v5 registry 保持冻结；JSON5 专属 diagnostic 从 semantic-model v4 起可外部化（92/132/166-code registry 均含对应代码）。
 

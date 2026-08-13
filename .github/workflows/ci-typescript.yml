@@ -57,7 +57,7 @@ env:
 
 jobs:
   ts-gates:
-    name: ts gates (fmt/type + unit tests + zero-dep)
+    name: ts gates (type + unit tests + zero-dep)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -102,14 +102,12 @@ jobs:
       - name: npm run check (tsc --noEmit, strict)
         working-directory: typescript
         run: npm run check
-      # The full node --test suite via the glob form: node 26 resolves --test
-      # positional arguments as glob patterns (a bare directory argument
-      # fails), so `npm test` (`node --test src/`) cannot run on the pinned
-      # '26.x' toolchain; the glob form matches the package.json
-      # test:byte-parity/test:normalized/test:exchange script style and runs
-      # the identical suite (unit tests + conformance + capability parity;
-      # differential tests report documented skips without their golden env
-      # vars).
+      # The full node --test suite via the glob form (node 26 resolves --test
+      # positional arguments as glob patterns). The inline glob is equivalent
+      # to the package.json test script (`node --test "src/**/*.test.ts"`),
+      # so this runs the identical suite as `npm test` (unit tests +
+      # conformance + capability parity; differential tests report documented
+      # skips without their golden env vars).
       - name: node --test (full suite, src/**/*.test.ts)
         working-directory: typescript
         run: node --test "src/**/*.test.ts"

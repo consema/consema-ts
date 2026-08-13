@@ -9,7 +9,7 @@ Consema 语言中立契约（RFC 0016）的 **TypeScript 实现**仓库。本仓
 [github.com/consema/consema](https://github.com/consema/consema)；本仓承载
 TypeScript 实现与跨语言差分验证工具。
 
-Version: 0.14.0（`typescript/package.json` version；CI
+Version: 1.0.0-rc.1（`typescript/package.json` version；CI
 check-version-consistency job 断言与 README 一致）。
 
 ## 快速开始（30 秒跑通）
@@ -79,7 +79,7 @@ console.log(new TextDecoder().decode(edited.render()));
 - `scripts/`：跨语言差分验证脚本（byte parity / normalized differential /
   protocol exchange）。脚本构建 consema-rs 的 Rust emitter 并对拍 TypeScript 实现；
   Rust 侧来自 consema-rs 仓 checkout（CI 多仓模式），conformance 数据来自规范仓 checkout。
-- `.github/workflows/ci-typescript.yml`：TS 门禁（fmt/type + 单测 + 零依赖）、
+- `.github/workflows/ci-typescript.yml`：TS 门禁（type + 单测 + 零依赖）、
   conformance runner 门禁（18 suites / 519 cases）与 TS-Rust 差分门禁
   （windows-latest 多仓 checkout）。
 

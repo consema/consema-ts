@@ -1,6 +1,6 @@
 {
   "name": "@consema/consema",
-  "version": "0.14.0",
+  "version": "1.0.0-rc.1",
   "description": "TypeScript implementation of the language-neutral Consema configuration-processing contracts (RFC 0016; docs/multi-language-implementation-plan.md)",
   "license": "MIT",
   "type": "module",
