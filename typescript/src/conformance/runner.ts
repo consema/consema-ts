@@ -20,7 +20,7 @@
 
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { VectorCase } from './helpers.ts';
 import { ConformanceFailure } from './helpers.ts';
 import { SkippedCase } from './suites/common.ts';
@@ -386,7 +386,23 @@ export function main(argv: readonly string[]): number {
   return 0;
 }
 
-/** Direct CLI execution (node src/conformance/runner.ts). */
-if (import.meta.url === `file:///${process.argv[1]?.replaceAll('\\', '/')}`) {
+/**
+ * Direct CLI execution (node src/conformance/runner.ts).
+ *
+ * Detects the entry point by comparing import.meta.url with the
+ * pathToFileURL of process.argv[1]: the URL normalization (percent-encoding
+ * of spaces/%/# and non-ASCII, backslash conversion, relative-path
+ * resolution) is the same on both sides, so a repo path containing spaces,
+ * percent signs, hashes or non-ASCII characters still matches on Windows
+ * (the previous string-concatenated `file:///` form failed on such paths
+ * and silently skipped CLI mode). Windows file URLs are case-insensitive,
+ * so the comparison folds case there.
+ */
+if (
+  process.argv[1] !== undefined &&
+  (process.platform === 'win32'
+    ? import.meta.url.toLowerCase() === pathToFileURL(process.argv[1]).href.toLowerCase()
+    : import.meta.url === pathToFileURL(process.argv[1]).href)
+) {
   process.exitCode = main(process.argv);
 }
