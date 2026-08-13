@@ -2,11 +2,11 @@
  * Typed HCL-family failures with frozen registered codes.
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess):
- *  - crates/consema-hcl/src/lexer.rs:457-487 (codes module) — the thirteen
- *    `hcl.parse.*@1` lexical codes; crates/consema-hcl/src/parser.rs:76-98
+ *  - consema-rs/consema-hcl/src/lexer.rs:457-487 (codes module) — the thirteen
+ *    `hcl.parse.*@1` lexical codes; consema-rs/consema-hcl/src/parser.rs:76-98
  *    (codes module) — hcl.parse.block@1 / label@1 / expression@1 /
  *    directive@1 / newline@1 / separator@1 / duplicate-attribute@1
- *  - crates/consema-hcl/src/lib.rs:300 (hcl.parse.encoding@1, fatal
+ *  - consema-rs/consema-hcl/src/lib.rs:300 (hcl.parse.encoding@1, fatal
  *    caller-side encoding conflict), :46-48 (hcl.tfvars.block-not-allowed@1)
  *  - limit codes: the vector suite pins the fatal diagnostics
  *    (conformance/vectors/hcl-v1.json:1781-1970: hcl.limit.expression-
@@ -15,17 +15,17 @@
  *    hcl.limit.body-item-count@1, hcl.limit.label-count@1,
  *    hcl.limit.template-len@1, hcl.limit.heredoc-bytes@1,
  *    hcl.limit.tuple-elements@1, hcl.limit.object-entries@1) and
- *    crates/consema-hcl/src/lib.rs:187 (max_template_depth → the
+ *    consema-rs/consema-hcl/src/lib.rs:187 (max_template_depth → the
  *    hcl.limit.template-depth@1 spelling)
- *  - projection codes: crates/consema-hcl/src/projection.rs:468-476 —
+ *  - projection codes: consema-rs/consema-hcl/src/projection.rs:468-476 —
  *    hcl.projection.incomplete-document@1 / non-literal-expression@1 /
  *    unrepresentable@1 / resource-limit@1 / core-invariant@1
- *  - materialization codes: crates/consema-conformance/src/hcl_v1.rs:1621-
+ *  - materialization codes: consema-rs/consema-conformance/src/hcl_v1.rs:1621-
  *    1622 — hcl.materialization.unrepresentable@1 / resource-limit@1
- *  - edit codes: crates/consema-hcl/src/edit.rs:599-611 — the two
+ *  - edit codes: consema-rs/consema-hcl/src/edit.rs:599-611 — the two
  *    hcl.edit.*@1 codes (duplicate-attribute@1, block-in-tfvars@1,
  *    unrepresentable@1) and the core.edit.*@1 mappings (RFC 0004 §17)
- *  - query failure codes: crates/consema-conformance/src/hcl_v1.rs:656-670
+ *  - query failure codes: consema-rs/consema-conformance/src/hcl_v1.rs:656-670
  *    — hcl.query.domain-mismatch@1 / unknown-operator@1 /
  *    wrong-argument-type@1 / invalid-argument@1 / invalid-composition@1 /
  *    missing-capability@1 / type-mismatch@1 / cardinality-violation@1 /

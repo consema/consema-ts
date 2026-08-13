@@ -1,7 +1,7 @@
 /**
  * The frozen INI format operation registry.
  *
- * authority: crates/consema-ini/src/operation_registry.rs:16-80 — the
+ * authority: consema-rs/consema-ini/src/operation_registry.rs:16-80 — the
  * exact eight descriptors (ids, target roles, argument schema, support
  * classification) shared by all three INI profiles; the canonical id sort
  * of the registry (consema-document/src/operation_registry.rs; the TS

@@ -1,9 +1,9 @@
 /**
  * INI operation registry intent tests.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from
- * conformance/vectors/ini-v1.json and crates/consema-ini/src/operation_registry.rs
+ * conformance/vectors/ini-v1.json and consema-rs/consema-ini/src/operation_registry.rs
  * and run once the toolchain is ready. Golden vector case id cited:
  * registry.frozen-eight-operation-surface (ini-v1.json:135-139).
  */

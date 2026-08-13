@@ -2,7 +2,7 @@
  * Transferable dry-run facts for one fully validated edit transaction.
  *
  * authority:
- *  - RFC 0004 §14 (docs/rfcs/0004-materialization-conversion-and-
+ *  - RFC 0004 §14 (https://github.com/consema/consema/blob/main/docs/rfcs/0004-materialization-conversion-and-
  *    structural-edit-v1.md:338-356): dry-run performs every deterministic
  *    validation and byte-planning step except publishing a new Document;
  *    the transferable plan carries schema, caller-stable source_id, base
@@ -10,7 +10,7 @@
  *    replacement facts, precomputed target digest, and an ordered report;
  *    a dry-run plan is not authority to write a file and is never applied
  *    without rechecking base digest and every original-byte precondition
- *  - Rust: crates/consema-document/src/edit_plan.rs —
+ *  - Rust: consema-rs/consema-document/src/edit_plan.rs —
  *    EditPlanSourceId :12-31 (non-empty, ≤ 1024 bytes), EditOperationSummary
  *    :33-70 (≤ 64 arguments; names lowercase/digit/underscore ≤ 64; values
  *    non-empty ≤ 1024; no raw edited values), EditPlan :72-197 (operation

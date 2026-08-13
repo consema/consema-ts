@@ -1,11 +1,11 @@
 /**
  * Frozen Java Properties language profiles.
  *
- * authority: RFC 0010 (docs/rfcs/0010-java-properties-profiles-v1.md)
+ * authority: RFC 0010 (https://github.com/consema/consema/blob/main/docs/rfcs/0010-java-properties-profiles-v1.md)
  *  - §1 the two profiles (:14-35): `java-properties.reader@1` and
  *    `java-properties.latin1@1`; the profile is always selected by the
  *    caller and a `.properties` extension never chooses between them
- *  - crates/consema-properties/src/lib.rs:33-50 (PropertiesProfile :
+ *  - consema-rs/consema-properties/src/lib.rs:33-50 (PropertiesProfile :
  *    34-39, profile ids :44-49)
  *  - the Reader profile corresponds to `Properties.load(Reader)`; Latin-1
  *    corresponds to `Properties.load(InputStream)` (RFC 0010 §1 :24-27)

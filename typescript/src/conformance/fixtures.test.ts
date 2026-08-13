@@ -15,7 +15,7 @@
  * - yaml/*.yaml — the real-project fixtures (kubernetes-workload with two
  *   documents, anchor-heavy with five aliases).
  *
- * Facts (counts) mirror crates/consema-conformance/tests/
+ * Facts (counts) mirror consema-rs/consema-conformance/tests/
  * line_format_fixtures.rs:48-179 and yaml_fixtures.rs:22-51. When the
  * shared tree is not reachable (a plain checkout without provision) the
  * tests report a documented skip. Fixtures are read-only; tests never

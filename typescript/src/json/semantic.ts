@@ -1,7 +1,7 @@
 /**
  * Regional semantic availability of JSON syntax.
  *
- * authority: crates/consema-json/src/lib.rs
+ * authority: consema-rs/consema-json/src/lib.rs
  *  - SemanticAvailability :289-306 (Available | Unavailable)
  *  - SemanticUnavailable :308-319 (Missing | ErrorRegion |
  *    InvalidLiteral | ChildUnavailable)

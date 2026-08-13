@@ -2,10 +2,10 @@
  * TOML formation intent tests — golden transcriptions from the shared
  * vector suite and formation closure.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from
  * conformance/vectors/toml-v1.json and the Rust arbitration
- * (crates/consema-toml/src/parser.rs) and run once the toolchain is ready.
+ * (consema-rs/consema-toml/src/parser.rs) and run once the toolchain is ready.
  * No gate is claimed before the §7 START GATE.
  *
  * Golden cases cited: toml-v1.json case ids are named in each test.

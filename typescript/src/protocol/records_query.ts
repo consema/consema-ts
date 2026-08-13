@@ -1,7 +1,7 @@
 /**
  * Query-match, query-result, and query-definition wire records.
  *
- * authority: crates/consema-protocol/src/query.rs — NativeMatchLocator
+ * authority: consema-rs/consema-protocol/src/query.rs — NativeMatchLocator
  * (:54-124), ProtocolQueryMatch (:126-144), QueryResultMessage (:146-327);
  * the `core.query-definition@1` codec mirrors consema-core query.rs:532-734
  * (to_protocol_value/from_protocol_value) with the Python

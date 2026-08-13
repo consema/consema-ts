@@ -1,7 +1,7 @@
 /**
  * The transferable atomic `core.change-set@1` record.
  *
- * authority: crates/consema-protocol/src/change.rs — SourceEditMessage
+ * authority: consema-rs/consema-protocol/src/change.rs — SourceEditMessage
  * (:12-53), NodeMappingMessage (:55-122), ChangeSetMessage (:124-378); the
  * document-domain ChangeSet comes from document/change_set.ts. The Python
  * transcription (consema/conformance/protocol_records.py) is the

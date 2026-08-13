@@ -17,7 +17,7 @@ import { canonicalOrder } from './graph.ts';
 import type { Graph, Node } from './graph.ts';
 import { encodePGCE } from './pgce.ts';
 
-// The graph package is independent of the core package (mirroring go/graph,
+// The graph package is independent of the core package (mirroring consema-go/go/graph,
 // which imports only the standard library). FNV-1a 64-bit is reimplemented
 // here exactly as Go's hash/fnv provides it for the core package.
 const FNV64_OFFSET_BASIS = 0xcbf29ce484222325n;

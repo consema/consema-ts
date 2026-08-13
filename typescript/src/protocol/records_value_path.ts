@@ -1,9 +1,9 @@
 /**
  * Portable value path and association location wire records.
  *
- * authority: crates/consema-protocol/src/query.rs:441-560 (path_value,
+ * authority: consema-rs/consema-protocol/src/query.rs:441-560 (path_value,
  * parse_path, association_value, parse_association); cross-reference
- * go/protocol/records_valuepath.go (pathValue/parsePath:145-225,
+ * consema-go/go/protocol/records_valuepath.go (pathValue/parsePath:145-225,
  * associationValue/parseAssociation:227-260). The path is a schema-less
  * `{"segments":[...]}` record of typed segments (ObjectValue with a String
  * key, or SequenceElement/EntryKey/EntryValue with a u64 index); association

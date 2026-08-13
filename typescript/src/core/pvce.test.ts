@@ -4,7 +4,7 @@
  * The golden vectors are transcribed from conformance/vectors/v1.json
  * (cases pvce.null-vector, pvce.negative-integer-vector, pvce.object-vector,
  * pvce.reject-nonminimal-varint) and cross-checked against the Rust frozen
- * vectors (crates/consema-pvce/src/lib.rs:1336-1342). They run once the
+ * vectors (consema-rs/consema-pvce/src/lib.rs:1336-1342). They run once the
  * toolchain is ready; no gate is claimed before that (§7 START GATE).
  */
 
@@ -56,19 +56,19 @@ function unhex(text: string): Uint8Array {
 const LIMITS: DecodeLimits = defaultDecodeLimits();
 
 test('vector pvce.null-vector: null encodes to the frozen bytes', () => {
-  // conformance/vectors/v1.json; crates/consema-pvce/src/lib.rs:1337.
+  // conformance/vectors/v1.json; consema-rs/consema-pvce/src/lib.rs:1337.
   assert.equal(hex(encode(nullValue())), '50564345010000');
   assert.equal(equal(decode(unhex('50564345010000'), LIMITS), nullValue()), true);
 });
 
 test('vector pvce.negative-integer-vector: -256 encodes to the frozen bytes', () => {
-  // conformance/vectors/v1.json; crates/consema-pvce/src/lib.rs:1338-1341.
+  // conformance/vectors/v1.json; consema-rs/consema-pvce/src/lib.rs:1338-1341.
   assert.equal(hex(encode(integerValue(-256n))), '5056434501100402020100');
   assert.equal(equal(decode(unhex('5056434501100402020100'), LIMITS), integerValue(-256n)), true);
 });
 
 test('vector pvce.object-vector: {"a": 1} encodes to the frozen bytes', () => {
-  // conformance/vectors/v1.json; crates/consema-pvce/src/lib.rs:1192-1201.
+  // conformance/vectors/v1.json; consema-rs/consema-pvce/src/lib.rs:1192-1201.
   const value = objectValue([{ key: 'a', value: integerValue(1n) }]);
   assert.equal(hex(encode(value)), '5056434501410a01200201611003010101');
   const decoded = decode(unhex('5056434501410a01200201611003010101'), LIMITS);
@@ -133,7 +133,7 @@ function valuesOf(): PortableValue[] {
 }
 
 test('integer sign octets are 0/1/2 and magnitudes are minimal', () => {
-  // crates/consema-pvce/src/lib.rs:545-554; zero has sign 0 and empty magnitude.
+  // consema-rs/consema-pvce/src/lib.rs:545-554; zero has sign 0 and empty magnitude.
   assert.equal(hex(encode(integerValue(0n))), '505643450110020000');
   assert.equal(hex(encode(integerValue(256n))), '5056434501100401020100');
 });
@@ -186,7 +186,7 @@ test('decode rejects trailing bytes, bad magic, and unsupported versions', () =>
 });
 
 test('decode rejects non-canonical zero integer and invalid sign octets', () => {
-  // crates/consema-pvce/src/lib.rs:1327-1333: PVCE 1 TAG_INTEGER len 3 sign 1 mag-len 1 0x00.
+  // consema-rs/consema-pvce/src/lib.rs:1327-1333: PVCE 1 TAG_INTEGER len 3 sign 1 mag-len 1 0x00.
   assert.throws(() => decode(unhex('50564345011003010100'), LIMITS), (e: unknown) =>
     (e as PVCEError).kind === 'NonCanonicalInteger',
   );
@@ -226,7 +226,7 @@ test('string records must be valid UTF-8', () => {
 });
 
 test('extended roots decode opaquely and core-only decode rejects them', () => {
-  // crates/consema-pvce/src/lib.rs:1287-1314.
+  // consema-rs/consema-pvce/src/lib.rs:1287-1314.
   const value = {
     typeId: 'example.uuid',
     semanticVersion: 1,
@@ -322,7 +322,7 @@ test('bounded encode enforces each resource limit atomically', () => {
     (e: unknown) => (e as PVCEError).field === 'nesting-depth',
   );
   // The same limit names and defaults as the Rust decoder
-  // (crates/consema-pvce/src/lib.rs:71-82).
+  // (consema-rs/consema-pvce/src/lib.rs:71-82).
   const limits: EncodeLimits = defaultEncodeLimits();
   assert.equal(limits.maxDepth, 256);
   assert.equal(limits.maxNodes, 1_000_000);

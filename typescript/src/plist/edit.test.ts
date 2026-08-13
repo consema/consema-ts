@@ -6,7 +6,7 @@
  *    plist.edit.xml-six-operations (:1380-1450),
  *    plist.edit.binary-structural (:1452-1496),
  *    plist.edit.conflicts (:1498-1564)
- *  - operation contract: RFC 0013 §11; crates/consema-plist/src/edit.rs
+ *  - operation contract: RFC 0013 §11; consema-rs/consema-plist/src/edit.rs
  *    (failure codes :442-454)
  */
 

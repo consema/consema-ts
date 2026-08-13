@@ -1,6 +1,6 @@
 /**
  * `consema.hcl.conformance@1` runner (57 cases; mirror of
- * crates/consema-conformance/src/hcl_v1.rs). Dispatch is by the vector
+ * consema-rs/consema-conformance/src/hcl_v1.rs). Dispatch is by the vector
  * `capability` field: formation (native/tfvars), limit, native-semantic and
  * lossless-syntax query, body projection with the ProjectExpression policy,
  * canonical materialization with the reparse closure, and the structural

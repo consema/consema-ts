@@ -9,7 +9,7 @@
  *    String/Date/Time/LocalDateTime/OffsetDateTime/Sequence/Object
  *    recursively; Integer must fit i64; canonical NaN payloads only;
  *    §7 completion algebra (:170-192)
- *  - writer: crates/consema-toml/src/materialization.rs — requested
+ *  - writer: consema-rs/consema-toml/src/materialization.rs — requested
  *    contract checks (:81-99), root emission one assignment per root entry
  *    plus one final newline (:211-259), string escaping (:357-380),
  *    float canonical spelling (:382-407: "nan"/"-nan" canonical payloads

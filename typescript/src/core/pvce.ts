@@ -2,7 +2,7 @@
  * PVCE/1 — Portable Value Canonical Encoding / 1.
  *
  * authority: the Rust reference codec is the frozen byte authority
- * (crates/consema-pvce/src/lib.rs); the golden byte vectors are pinned by
+ * (consema-rs/consema-pvce/src/lib.rs); the golden byte vectors are pinned by
  * conformance/vectors/v1.json (cases pvce.null-vector, pvce.negative-
  * integer-vector, pvce.object-vector). Wire constants:
  *  - stream magic is the ASCII octets "PVCE" (lib.rs:23)
@@ -28,7 +28,7 @@
  * records fail with core.pvce.nested-extended@1 and a core-only decode of an
  * extension root fails with core.pvce.expected-core@1, exactly as in Rust
  * (the Go codec has no ExtendedValue type and rejects 0x7f as unknown-tag —
- * documented reachable-code difference, go/core/errors.go:13-20).
+ * documented reachable-code difference, consema-go/go/core/errors.go:13-20).
  *
  * Design (TypeScript-idiomatic): a small growable ByteWriter for encoding
  * and an offset Reader over Uint8Array for strict decoding; resource limits
@@ -66,7 +66,7 @@ export const MAGIC = new Uint8Array([0x50, 0x56, 0x43, 0x45]);
 /** PVCE/1 version. */
 export const VERSION = 1n;
 
-/** Record tags (crates/consema-pvce/src/lib.rs:27-43). */
+/** Record tags (consema-rs/consema-pvce/src/lib.rs:27-43). */
 export const TAG_NULL = 0x00n;
 export const TAG_FALSE = 0x01n;
 export const TAG_TRUE = 0x02n;
@@ -98,7 +98,7 @@ export type EncodedValue =
   | { readonly kind: 'Core'; readonly value: PortableValue }
   | { readonly kind: 'Extended'; readonly value: ExtendedValue };
 
-/** Strict decoder resource limits (crates/consema-pvce/src/lib.rs:56-82). */
+/** Strict decoder resource limits (consema-rs/consema-pvce/src/lib.rs:56-82). */
 export interface DecodeLimits {
   readonly maxBytes: number;
   readonly maxDepth: number;
@@ -108,7 +108,7 @@ export interface DecodeLimits {
   readonly maxBlobBytes: number;
 }
 
-/** Bounded encoder resource limits (crates/consema-pvce/src/lib.rs:111-138). */
+/** Bounded encoder resource limits (consema-rs/consema-pvce/src/lib.rs:111-138). */
 export type EncodeLimits = DecodeLimits;
 
 /** The frozen defaults (64 MiB stream, depth 256, 1,000,000 nodes, 1,000,000 container entries, 1 MiB integer magnitude, 64 MiB blob). */
@@ -201,7 +201,7 @@ class ByteWriter {
 
 /**
  * Encodes one core value as a complete canonical PVCE/1 stream
- * (crates/consema-pvce/src/lib.rs:86-101).
+ * (consema-rs/consema-pvce/src/lib.rs:86-101).
  */
 export function encode(value: PortableValue): Uint8Array {
   return encodeValue({ kind: 'Core', value });
@@ -1129,7 +1129,7 @@ class Sizer {
   }
 }
 
-/** Encode-time revalidation of structurally constructed dates (go/core/pvce.go). */
+/** Encode-time revalidation of structurally constructed dates (consema-go/go/core/pvce.go). */
 function ensureDateValid(value: DateValue): void {
   if (!dateFieldsValid(value.year, value.month, value.day)) {
     throw invalidValue();

@@ -1,7 +1,7 @@
 /**
  * Safe internal DTD/entity boundary (RFC 0012 §3).
  *
- * authority: crates/consema-xml/src/entity.rs
+ * authority: consema-rs/consema-xml/src/entity.rs
  *  - PredefinedEntity :9-16, PREDEFINED_ENTITIES :18-40 (the five
  *    predefined entities with their XML meanings :115-119 in RFC 0012),
  *    predefined_value :42-49

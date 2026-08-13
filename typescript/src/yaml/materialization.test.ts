@@ -5,7 +5,7 @@
  * case id in conformance/vectors/yaml-v1.json:
  *  - materialization.graph-cycle-flow (:96-99)
  *  - materialization.value-flow (:101-104)
- * Materialization semantics: RFC 0007 §11; crates/consema-yaml/src/
+ * Materialization semantics: RFC 0007 §11; consema-rs/consema-yaml/src/
  * materialization.rs (the canonical output bytes are byte-exact golden).
  */
 

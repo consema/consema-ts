@@ -1,11 +1,10 @@
 /**
- * The `ini` family of the TypeScript Consema implementation (L2,
- * mirror of Go G2.2).
+ * The `ini` family of the TypeScript Consema implementation (L2).
  *
- * authority: docs/multi-language-implementation-plan.md §2 L2 (:74);
+ * authority: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L2 (:74);
  * RFC 0009 (the language-neutral INI family contract — three profiles);
  * the shared vector suite conformance/vectors/ini-v1.json;
- * crates/consema-ini for byte/registry arbitration only.
+ * consema-rs/consema-ini for byte/registry arbitration only.
  *
  * Modules:
  *  - errors: frozen ini-family codes and typed failures

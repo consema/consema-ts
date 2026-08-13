@@ -1,10 +1,10 @@
 /**
  * `consema.protocol.conformance@2` runner (11 cases; mirror of
- * crates/consema-conformance/src/protocol_v2.rs).
+ * consema-rs/consema-conformance/src/protocol_v2.rs).
  *
  * The transferable snapshot/patch cases exercise the wire records
  * (src/protocol/records_source.ts, mirror of
- * crates/consema-protocol/src/source.rs) through the v2 envelope closure:
+ * consema-rs/consema-protocol/src/source.rs) through the v2 envelope closure:
  * ProtocolMessage toJSON/fromJSON and toPVCE/fromPVCE, with message equality
  * over contract + payload. The forged-fact and resource-limit cases decode
  * the record directly with tightened limits, exactly like the Rust runner

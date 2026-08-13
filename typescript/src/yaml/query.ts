@@ -1,7 +1,7 @@
 /**
  * Native and lossless-syntax query execution over one immutable snapshot.
  *
- * authority: crates/consema-yaml/src/query.rs
+ * authority: consema-rs/consema-yaml/src/query.rs
  *  - YamlMatch :12-99 (Stream | Document | Node | MappingEntry |
  *    SequenceElement | AnchorDefinition | AliasOccurrence)
  *  - YamlSyntaxMatch :131-164
@@ -21,7 +21,7 @@
  *    role order, index) :340-355, syntax merge by piece ordinal :382-389)
  *  - apply_selection :690-707 (All/First/Last/ZeroOrOne/RequireOne)
  *  - QueryLimits defaults (max_steps 100_000, max_results 100_000):
- *    crates/consema-core/src/query.rs:2967-2981
+ *    consema-rs/consema-core/src/query.rs:2967-2981
  *  - query definition/operator validation: typescript/src/protocol/query.ts
  *    (validateQuery/bindQuery; the YAML operator table rows :333-346,
  *    :380-381; the YAML syntax-kind vocabulary :1117-1148)

@@ -1,6 +1,6 @@
 /**
  * `consema.syntax-query.conformance@1` runner (19 cases; mirror of
- * crates/consema-conformance/src/syntax_query_v1.rs).
+ * consema-rs/consema-conformance/src/syntax_query_v1.rs).
  */
 
 import type { VectorCase } from '../helpers.ts';

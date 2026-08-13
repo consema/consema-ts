@@ -6,7 +6,7 @@
  *    plist.projection.value-tree-record (:1091-1148),
  *    plist.projection.require-object-policies (:1150-1199),
  *    plist.projection.atomic-failures (:1201-1221)
- *  - target/policy contract: RFC 0013 §9; crates/consema-plist/src/
+ *  - target/policy contract: RFC 0013 §9; consema-rs/consema-plist/src/
  *    projection.rs (failure codes :393-402)
  */
 

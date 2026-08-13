@@ -1,35 +1,41 @@
-# Consema TypeScript CI (docs/five-language-ci-design.md §1.2, §7.1): the
-# TypeScript implementation joins the release gate with three explicit jobs
+# Consema TypeScript CI (https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §1.2, §7.1): the
+# TypeScript implementation joins the release gate with ten explicit jobs
 # (the design rejects a single shared matrix, §5.2). ts-gates runs the
 # strict tsc check, the full node --test suite and the zero-runtime-
-# dependency policy; ts-compiler-matrix re-runs `tsc --noEmit` under the
-# 5.8/5.9 compiler line (zod mode) so newer-only compiler usage fails CI;
-# ts-conformance runs the TS runner over the 18 shared
-# suites / 519 cases (the aggregate digest cfd6e296…, the 18/519 inventory
-# and the per-suite counts are pinned inside the runner test,
+# dependency policy; coverage measures the src/ modules with node's
+# built-in test coverage (60% line threshold); ts-compiler-matrix re-runs
+# `tsc --noEmit` under the 5.8/5.9 compiler line (zod mode) so newer-only
+# compiler usage fails CI; ts-conformance runs the TS runner over the 18
+# shared suites / 519 cases (the aggregate digest cfd6e296…, the 18/519
+# inventory and the per-suite counts are pinned inside the runner test,
 # typescript/src/conformance/runner.test.ts, §2.2/§4.2); ts-package runs
 # the L5 packaging gate (npm pack --dry-run — the tarball must contain the
-# shipped src/ files, §1.1 package row / §5.3 L5 row); ts-differential
-# runs the bidirectional scripts/ts-verify-*.ps1 harnesses against the Rust
-# emitters (byte parity + normalized + protocol exchange). The verify
+# shipped src/ files, §1.1 package row / §5.3 L5 row); npm-audit runs the
+# standing dependency audit (npm audit against the npm registry advisory
+# DB; the package declares zero runtime dependencies, so the
+# devDependencies are the entire dependency surface, §1.3 — the daily-cron
+# track lives in audit.yml); ts-differential runs the bidirectional
+# scripts/ts-verify-*.ps1 harnesses against the Rust
+# emitters (byte parity + normalized + protocol exchange); the verify
 # scripts are Windows PowerShell 5.1 compatible and pass native Windows
-# paths to node, so the differential job runs on windows-latest. A
-# shared-conformance script (scripts/ts-verify-shared-conformance.ps1,
-# §3.6/§7.2) is planned as a fourth differential step but is NOT landed
-# yet — the runner-CLI batch it was to land with has not shipped, and
-# scripts/ currently contains only the three verify scripts. The coverage
-# job (node 26 built-in test coverage)
-# measures the src/ modules exercised by the suite with a 60% line-coverage
-# threshold — initial threshold, tightened as coverage improves. No
-# repository secrets are required.
+# paths to node, so the differential job runs on windows-latest; the
+# check-version-consistency, examples, ts-package and npm-audit jobs need
+# no conformance data and use a single checkout. A shared-conformance
+# script (scripts/ts-verify-shared-conformance.ps1, §3.6/§7.2) is planned
+# as a fourth differential step but is NOT landed yet; the TS runner CLI
+# (main() in typescript/src/conformance/runner.ts) is wired into the
+# ts-conformance job as a CLI smoke step (G158, 2026-08-13 — no CI job
+# was executing the shipped CLI before). No repository secrets are
+# required.
 #
-# This repository carries the TypeScript implementation only, so every job
-# uses the multi-repo checkout mode: it checks out consema/consema (the spec
-# repository, whose conformance/vectors + conformance/differential case sets,
-# docs/fc-manifest-0.13.0.json and the toml.corpus.cargo-manifest fixture
-# conformance/fixtures/toml/Cargo.toml are the single authority) beside this
-# repository and copies the conformance data into the workspace root (the
-# runner and the differential harnesses resolve conformance/* by
+# This repository carries the TypeScript implementation only, so most jobs
+# use the multi-repo checkout mode: they check out consema/consema (the spec
+# repository, whose conformance/vectors + conformance/differential case sets
+# and the toml.corpus.cargo-manifest fixture conformance/fixtures/toml/
+# Cargo.toml are the single authority; the conformance checkout is pinned
+# to the commit carrying the cfd6e296 519-case inventory, ad667021) beside
+# this repository and copies the conformance data into the workspace root
+# (the runner and the differential harnesses resolve conformance/* by
 # repository-relative path). The differential job additionally checks out
 # consema/consema-rs (the Rust emitter workspace; the ts-verify-*.ps1
 # scripts default to <repo root>\consema-rs) and the scripts build the
@@ -70,10 +76,11 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
+          ref: ad667021f0fd7c611dd0deb670eba7658e1ea575 # cfd6e296 519-case conformance data pin
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: provision conformance data from the consema spec repository
@@ -86,18 +93,14 @@ jobs:
             throw "conformance data not found in the consema checkout: $source"
           }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
-          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
-          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
-          if (-not (Test-Path -LiteralPath $manifest)) {
-            throw "fc-manifest not found in the consema checkout: $manifest"
-          }
-          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
-          # Cargo.toml is provisioned anymore.
+          # Cargo.toml is provisioned anymore. The fc-manifest digest record
+          # is not copied: nothing in this repository consumes the copied
+          # manifest (the digest is pinned in runner.ts / runner.test.ts).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
-          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
+          Write-Output "provisioned conformance/: $count files"
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
@@ -109,10 +112,21 @@ jobs:
       # to the package.json test script (`node --test "src/**/*.test.ts"`),
       # so this runs the identical suite as `npm test` (unit tests +
       # conformance + capability parity; differential tests report documented
-      # skips without their golden env vars).
+      # skips without their golden env vars). node --test exits 0 even when
+      # the glob matches nothing ("tests 0"), so the zero-match guard below
+      # asserts a real lower bound before running.
       - name: node --test (full suite, src/**/*.test.ts)
         working-directory: typescript
-        run: node --test "src/**/*.test.ts"
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="$(find src -name '*.test.ts' | wc -l)"
+          if [[ "$files" -lt 1 ]]; then
+            echo "::error::no *.test.ts files matched — the --test glob would run zero tests and exit 0"
+            exit 1
+          fi
+          echo "running $files test files"
+          node --test "src/**/*.test.ts"
       # Zero-runtime-dependency policy (§1.3): package.json declares only
       # devDependencies, so `npm ls --omit=dev` must show an empty tree.
       - name: zero-dependency assertion (npm ls --omit=dev must be empty)
@@ -153,10 +167,11 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
+          ref: ad667021f0fd7c611dd0deb670eba7658e1ea575 # cfd6e296 519-case conformance data pin
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: provision conformance data from the consema spec repository
@@ -169,18 +184,14 @@ jobs:
             throw "conformance data not found in the consema checkout: $source"
           }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
-          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
-          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
-          if (-not (Test-Path -LiteralPath $manifest)) {
-            throw "fc-manifest not found in the consema checkout: $manifest"
-          }
-          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
-          # Cargo.toml is provisioned anymore.
+          # Cargo.toml is provisioned anymore. The fc-manifest digest record
+          # is not copied: nothing in this repository consumes the copied
+          # manifest (the digest is pinned in runner.ts / runner.test.ts).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
-          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
+          Write-Output "provisioned conformance/: $count files"
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
@@ -195,12 +206,14 @@ jobs:
   # (package.json devDependencies); this job reinstalls the compiler at each
   # matrix version after `npm ci` and re-runs the strict `tsc --noEmit`
   # check, so accidentally relying on newer-only compiler syntax/API fails
-  # CI even when the lockfile is untouched. Versions verified locally
-  # (2026-08-12): 5.8.x and 5.9.x both compile the tree clean with
-  # @types/node 26.2.0. npm 7+ resolves a trailing `.x` range; the install
-  # rewrites the committed package-lock.json and the package.json
-  # devDependencies entry (typescript) — ephemeral drift only, the legs
-  # never commit, and the check runs against the installed compiler.
+  # CI even when the lockfile is untouched. The matrix pins exact versions
+  # (a floating 5.8.x/5.9.x range would resolve a different patch on each
+  # run and detach the "verified" claim from what actually ran). Versions
+  # verified locally (2026-08-12): 5.8.3 and 5.9.2 both compile the tree
+  # clean with @types/node 26.2.0. The install rewrites the committed
+  # package-lock.json and the package.json devDependencies entry
+  # (typescript) — ephemeral drift only, the legs never commit, and the
+  # check runs against the installed compiler.
   ts-compiler-matrix:
     name: tsc --noEmit (typescript ${{ matrix.ts }})
     runs-on: ubuntu-latest
@@ -208,14 +221,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ts: ['5.8.x', '5.9.x']
+        ts: ['5.8.3', '5.9.2']
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: npm ci (lockfile-driven install)
@@ -240,10 +253,11 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
+          ref: ad667021f0fd7c611dd0deb670eba7658e1ea575 # cfd6e296 519-case conformance data pin
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: provision conformance data from the consema spec repository
@@ -256,25 +270,21 @@ jobs:
             throw "conformance data not found in the consema checkout: $source"
           }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
-          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
-          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
-          if (-not (Test-Path -LiteralPath $manifest)) {
-            throw "fc-manifest not found in the consema checkout: $manifest"
-          }
-          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
-          # Cargo.toml is provisioned anymore.
+          # Cargo.toml is provisioned anymore. The fc-manifest digest record
+          # is not copied: nothing in this repository consumes the copied
+          # manifest (the digest is pinned in runner.ts / runner.test.ts).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
-          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
+          Write-Output "provisioned conformance/: $count files"
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
       # The runner test (typescript/src/conformance/runner.test.ts) verifies
       # the aggregate digest
       # cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a
-      # (fc-manifest-0.13.0.json:38), the 18 suites / 519 cases inventory,
+      # (fc-manifest-0.13.0.json:39), the 18 suites / 519 cases inventory,
       # the per-suite counts, and executes every case (zero failures,
       # documented skips only) — the §4.2 hard pins live in the runner.
       # Glob form: node 26 resolves --test arguments as glob patterns, not
@@ -282,6 +292,13 @@ jobs:
       - name: run the conformance runner (node --test glob)
         working-directory: typescript
         run: node --test "src/conformance/**/*.test.ts"
+      # Runner CLI smoke test (node src/conformance/runner.ts): the CLI
+      # entry (main(), typescript/src/conformance/runner.ts) must actually
+      # run in CI — 18 suites / 519 cases, exit 0 (RFC 0015 §5.1 success
+      # class; verified locally 2026-08-13: 519 passed, digest match).
+      - name: runner CLI smoke (node src/conformance/runner.ts, exit 0)
+        working-directory: typescript
+        run: node src/conformance/runner.ts
 
   ts-differential:
     name: ts differential vs Rust (byte parity + normalized + protocol exchange)
@@ -295,11 +312,13 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema-rs
+          ref: bd5734eab969fa7c8a1a1564d4ee50b85f3d10d6 # cfd6e296 519-case vendored conformance + emitter pin
           path: consema-rs
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
           repository: consema/consema
+          ref: ad667021f0fd7c611dd0deb670eba7658e1ea575 # cfd6e296 519-case conformance data pin
           path: consema-repo
       - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
         with:
@@ -309,7 +328,7 @@ jobs:
           workspaces: consema-rs
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
       - name: provision conformance data from the consema spec repository
         shell: pwsh
         run: |
@@ -320,18 +339,14 @@ jobs:
             throw "conformance data not found in the consema checkout: $source"
           }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
-          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
-          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
-          if (-not (Test-Path -LiteralPath $manifest)) {
-            throw "fc-manifest not found in the consema checkout: $manifest"
-          }
-          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
-          # Cargo.toml is provisioned anymore.
+          # Cargo.toml is provisioned anymore. The fc-manifest digest record
+          # is not copied: nothing in this repository consumes the copied
+          # manifest (the digest is pinned in runner.ts / runner.test.ts).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
-          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
+          Write-Output "provisioned conformance/: $count files"
       # Each script builds the pinned Rust emitter inside the consema-rs
       # checkout (cargo build --locked -p consema-conformance --example …;
       # the scripts default to <repo root>\consema-rs), provisions the
@@ -360,6 +375,37 @@ jobs:
           & $script
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+  # Dependency audit (npm audit), the standing security gate in the
+  # aggregate check (rs ci.yml shape; G135, 2026-08-13). Identical to the
+  # audit.yml npm-audit job, which adds the daily cron that ci-typescript.yml
+  # cannot express. The package declares ZERO runtime dependencies
+  # (package.json has only devDependencies — @types/node, typescript — per
+  # the §1.3 zero-runtime-dependency policy, asserted in ts-gates), so `npm
+  # audit` in full (no --omit=dev) covers the complete dependency surface:
+  # the devDependencies and their transitive tree are the whole graph. The
+  # job is unconditional (no `if:`) so it can never be skipped — a skipped
+  # job in the aggregate would fail the alls-green gate (unconditional jobs
+  # need no skip allowance).
+  npm-audit:
+    name: npm audit (npm advisory DB)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '26.7.0'
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - name: npm ci (lockfile-driven install)
+        working-directory: typescript
+        run: npm ci
+      - name: npm audit (full — devDependencies are the entire dependency surface)
+        working-directory: typescript
+        run: npm audit
+
   # Version-consistency gate (tokio check-readme pattern): the README
   # "Version:" line must equal the typescript/package.json version, so a
   # version bump that forgets the README fails CI.
@@ -380,8 +426,20 @@ jobs:
             echo "::error::no 'version' found in typescript/package.json"
             exit 1
           fi
-          grep -qF "Version: $version" README.md || {
-            echo "::error::README.md does not declare 'Version: $version'"
+          # Exact comparison of the version token, not a substring match:
+          # "1.0.0" is a substring of "1.0.0-rc.1（…）", so a rc-to-GA bump
+          # that forgets the README must not pass. The README line is
+          # "Version: <version>（…）", so the token is everything up to the
+          # full-width parenthesis.
+          readme_version=$(grep -m1 '^Version: ' README.md | sed -E 's/^Version: ([^（]+).*/\1/')
+          if [[ "$readme_version" != "$version" ]]; then
+            echo "::error::README.md Version line ($readme_version) != package.json version ($version)"
+            exit 1
+          fi
+          # The bug_report.yml template hard-codes the current version; an
+          # rc-to-GA bump that forgets the template must fail CI too.
+          grep -qF "version（当前 $version）" .github/ISSUE_TEMPLATE/bug_report.yml || {
+            echo "::error::.github/ISSUE_TEMPLATE/bug_report.yml does not declare the current version"
             exit 1
           }
           echo "README version consistent with package.json: $version"
@@ -390,7 +448,7 @@ jobs:
   # five-language SDK chain example (parse -> native query -> best-exact
   # projection -> semantic edit -> canonical materialization -> TOML
   # conversion; language-neutral contract reference: consema repository
-  # docs/cookbook.md). node 26 runs .ts files natively, and the example must
+  # https://github.com/consema/consema/blob/main/docs/cookbook.md). node 26 runs .ts files natively, and the example must
   # exit 0. The example is a pure SDK chain (no conformance data), so no
   # multi-repo checkout or provision step is needed.
   examples:
@@ -405,7 +463,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: npm ci (lockfile-driven install)
@@ -430,7 +488,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: npm ci (lockfile-driven install)
@@ -467,7 +525,7 @@ jobs:
   check:
     name: check (all gates green)
     if: always()
-    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, check-version-consistency, examples, ts-package]
+    needs: [ts-gates, ts-conformance, ts-differential, ts-compiler-matrix, coverage, npm-audit, check-version-consistency, examples, ts-package]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

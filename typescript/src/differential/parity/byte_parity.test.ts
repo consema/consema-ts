@@ -1,9 +1,9 @@
 /**
  * Cross-language PVCE/PGCE byte-parity harness test — TypeScript side
- * (design: docs/five-language-ci-design.md §3.2; Go precedent:
- * go/conformance/differential/differential_test.go).
+ * (design: https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.2; Go precedent:
+ * consema-go/go/conformance/differential/differential_test.go).
  *
- * TestCaseFileIntegrity always runs and guards the checked-in case set
+ * TestCaseFileIntegrity always runs and guards the provisioned case set
  * (manifest id, case count, unique ids, kinds coverage), so `npm test`
  * protects the input set even without the orchestrator.
  *

@@ -2,7 +2,7 @@
  * Lossless YAML tokenizer: exhaustive ordered lexemes with syntax kinds,
  * anchor/alias names, and exact raw-byte spans.
  *
- * authority: crates/consema-yaml/src/syntax.rs
+ * authority: consema-rs/consema-yaml/src/syntax.rs
  *  - tokenize :16-71 (lexeme → StructuralPiece Trivia/Token/ErrorRegion,
  *    named anchor/alias occurrences, LosslessStructuralIndex)
  *  - Scanner::scan :111-219 (the dispatch order: block content, plain

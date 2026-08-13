@@ -1,6 +1,6 @@
 /**
  * `consema.semantic-model-v5.conformance@1` runner (22 cases; mirror of
- * crates/consema-conformance/src/semantic_model_v5.rs).
+ * consema-rs/consema-conformance/src/semantic_model_v5.rs).
  *
  * The graph, provenance, projection, and YAML query-result cases exercise
  * the v5 wire records (src/protocol/records_graph.ts + records_execution.ts)
@@ -9,7 +9,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { bytesEqual, caseField, caseFieldOptional, expectedFieldOptional, sha256Hex, toHex } from '../helpers.ts';
-import { expectedCode, fail, skip } from './common.ts';
+import { expectedCode, fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { ContractRegistry, ProtocolMessage, newContractId } from '../../protocol/contract.ts';
 import type { ContractId } from '../../protocol/contract.ts';
@@ -586,10 +586,7 @@ function protocolMessage(case_: VectorCase): void {
       return;
     }
     default:
-      return skip(
-        case_.capability ?? 'unknown',
-        `runner does not recognize published case ${case_.id}`,
-      );
+      fail(`runner does not recognize published case ${case_.id}`);
   }
 }
 
@@ -621,10 +618,7 @@ export const runSemanticModelV5: SuiteExecutor = {
         protocolMessage(case_);
         return;
       default:
-        return skip(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

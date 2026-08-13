@@ -2,7 +2,7 @@
  * Exact-first projection from a complete Properties document to
  * PortableValue.
  *
- * authority: crates/consema-properties/src/projection.rs
+ * authority: consema-rs/consema-properties/src/projection.rs
  *  - ProjectionTarget :9-16 (BestExactEntryMappingV1 | RequireObjectV1),
  *    DuplicatePolicy :18-27 (RequireUnique | FirstWins | LastWinsJdkTable)
  *  - ProjectionRequest :29-82 (best_exact_entry_mapping :38-46,
@@ -24,7 +24,7 @@
  *  - project_exact :430-497, project_object :499-611, select_indices
  *    :613-648, failure diagnostics :654-711 (reason/component/ordinals/
  *    limit/profile arguments), failure codes :741-752
- *  - frozen codes: crates/consema-protocol/src/error_registry.rs:1141-1157
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:1141-1157
  *    (java-properties.projection.duplicate-collapsed@1,
  *    java-properties.projection.incomplete-document@1,
  *    java-properties.projection.unpaired-surrogate@1),

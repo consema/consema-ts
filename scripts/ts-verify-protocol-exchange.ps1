@@ -6,14 +6,14 @@ param(
 )
 
 # ---------------------------------------------------------------------------
-# Cross-language protocol exchange verification — TypeScript side (milestone
-# 0.19.0 G5.3; docs/five-language-ci-design.md §3.4; the Go precedent
-# scripts/go-verify-protocol-exchange.ps1).
+# Cross-language protocol exchange verification — TypeScript side (L5 differential harness;
+# https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.4; the Go precedent
+# consema-go/scripts/go-verify-protocol-exchange.ps1).
 #
 # Pipeline (TS never imports or calls Rust, RFC 0016 §1.1):
 #   1. builds the minimal Rust exchange example
 #      (consema-conformance/examples/emit_protocol_exchange.rs);
-#   2. emit mode: runs it over the checked-in case set
+#   2. emit mode: runs it over the provisioned case set
 #      (conformance/differential/protocol-exchange/cases.json, the shared
 #      single-authority case directory of the consema repository) into
 #      <OutDir> as `<case-id>.json.hex` / `<case-id>.pvce.hex` (accept) or
@@ -71,8 +71,8 @@ if (-not (Test-Path $CaseFile)) {
 # UTF8 explicit: PowerShell 5.1 Get-Content defaults to the ANSI codepage.
 $cases = Get-Content $CaseFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $caseCount = @($cases.cases).Count
-if ($caseCount -lt 40) {
-    Write-Error "protocol exchange case file has $caseCount cases, want >= 40"
+if ($caseCount -lt 83) {
+    Write-Error "protocol exchange case file has $caseCount cases, want >= 83"
     exit 1
 }
 
@@ -133,6 +133,13 @@ $logDir = Join-Path $env:TEMP 'consema-ts-exchange'
 New-Item -ItemType Directory -Force $logDir | Out-Null
 $stdoutFile = Join-Path $logDir 'ts-test.stdout.txt'
 $stderrFile = Join-Path $logDir 'ts-test.stderr.txt'
+# Same PS 5.1 caveat as the cargo call: under $ErrorActionPreference='Stop'
+# a native command writing to stderr through a file redirect raises a
+# terminating NativeCommandError — exactly when we want to capture the
+# diagnostics. Relax around the node call and judge success by
+# $LASTEXITCODE only.
+$previousEap = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 Push-Location $tsDir
 try {
     & $node --test 'src\differential\exchange\**\*.test.ts' 1> $stdoutFile 2> $stderrFile
@@ -141,6 +148,7 @@ try {
 finally {
     Pop-Location
 }
+$ErrorActionPreference = $previousEap
 Get-Content $stdoutFile | ForEach-Object { Write-Host $_ }
 if (Test-Path $stderrFile) {
     Get-Content $stderrFile | ForEach-Object { Write-Host $_ }
@@ -172,8 +180,13 @@ Write-Host "RESULT (forward): $($summary.Value)"
 Write-Host "[4/4] reverse: running the Rust verify mode against the TS encoder files ($tsExchangeDir)"
 $reverseLog = Join-Path $logDir 'rust-verify.stdout.txt'
 $reverseErr = Join-Path $logDir 'rust-verify.stderr.txt'
+# Relax EAP around the native verify call (PS 5.1 NativeCommandError on
+# redirected stderr), same caveat as the node call above.
+$previousEap = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 & $example --verify $CaseFile $tsExchangeDir 1> $reverseLog 2> $reverseErr
 $verifyCode = $LASTEXITCODE
+$ErrorActionPreference = $previousEap
 Get-Content $reverseLog | ForEach-Object { Write-Host $_ }
 if (Test-Path $reverseErr) {
     Get-Content $reverseErr | ForEach-Object { Write-Host $_ }

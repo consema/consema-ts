@@ -12,7 +12,7 @@
  *  - materialization closure (RFC 0004 §7): output reparses under the
  *    exact requested profile and reprojects to the identical value
  *  - styles/profile bindings: RFC 0004 §4 (:98-127), RFC 0005 §9
- *    (:197-212); crates/consema-json/src/materialization.rs:113-152
+ *    (:197-212); consema-rs/consema-json/src/materialization.rs:113-152
  */
 
 import { test } from 'node:test';

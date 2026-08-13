@@ -10,7 +10,7 @@
  *    mapping (:89-93), projection.object-reject-duplicates (:95-99),
  *    projection.object-last-wins (:101-105), projection.object-key-
  *    provenance (:155-159)
- *  - projection failure codes: crates/consema-json/src/projection.rs:
+ *  - projection failure codes: consema-rs/consema-json/src/projection.rs:
  *    754-765
  */
 

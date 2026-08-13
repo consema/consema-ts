@@ -2,7 +2,7 @@
  * Lossless TOML source tokenization: exhaustive token/trivia pieces and
  * the closed syntax-kind vocabulary, plus the delimiter-nesting preflight.
  *
- * authority: crates/consema-toml/src/parser.rs:360-478 (tokenize) —
+ * authority: consema-rs/consema-toml/src/parser.rs:360-478 (tokenize) —
  *  - piece classes: Whitespace/Newline/Comment are Trivia; String/
  *    Equals/LeftBracket/RightBracket/LeftBrace/RightBrace/Comma/Dot/Bare
  *    are Token (parser.rs:370-411)
@@ -14,11 +14,11 @@
  *    "token_count" (parser.rs:413-420)
  *  - the nesting preflight counts `[`/`{` tokens only, limit name
  *    "nesting_depth" (parser.rs:433-461)
- *  - syntax-kind stable names: crates/consema-toml/src/lib.rs:73-88
+ *  - syntax-kind stable names: consema-rs/consema-toml/src/lib.rs:73-88
  *    ("Whitespace", "Newline", "Comment", "String", "Bare", "Equals",
  *    "LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "Comma",
  *    "Dot")
- *  - structural piece kinds: crates/consema-document/src/lib.rs:413-422
+ *  - structural piece kinds: consema-rs/consema-document/src/lib.rs:413-422
  *    (Token | Trivia | ErrorRegion)
  *
  * Design (TypeScript-idiomatic): a pure function over the decoded text

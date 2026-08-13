@@ -2,7 +2,7 @@
  * Frozen YAML scalar resolution: implicit 1.2 Core / 1.1-compat schemas,
  * explicit standard-tag validation, and canonical content.
  *
- * authority: crates/consema-yaml/src/native.rs
+ * authority: consema-rs/consema-yaml/src/native.rs
  *  - tag URI constants :17-31 (tag:yaml.org,2002:* — null/bool/int/float/
  *    str/seq/map/timestamp/binary/merge/omap/pairs/set/value/yaml)
  *  - resolve_implicit :675-716, resolve_explicit :655-673
@@ -15,7 +15,7 @@
  *    1.1 underscores and base-60)
  *  - normalize_decimal_lexeme :831-846, decimal_canonical :914-920
  *    (coefficient, or "coefficient e exponent"; Decimal::new normalization
- *    crates/consema-core/src/value.rs:277-292, parse_json_number :295-323)
+ *    consema-rs/consema-core/src/value.rs:277-292, parse_json_number :295-323)
  *  - parse_timestamp :969-1075 (1.1 date/timestamp forms; canonical
  *    "YYYY-MM-DD[T]HH:MM:SS[.fraction]Z|±HH:MM"; no-zone follows the
  *    published 1.1 UTC rule and records Z)
@@ -350,7 +350,7 @@ function exponentIndex(value: string): number {
 }
 
 /**
- * Decimal::parse_json_number (crates/consema-core/src/value.rs:295-323)
+ * Decimal::parse_json_number (consema-rs/consema-core/src/value.rs:295-323)
  * with Decimal::new normalization (:277-292): trailing zeros of the
  * coefficient move into the exponent. The explicit exponent accepts an
  * optional sign, exactly like the Rust BigInteger::parse_decimal.

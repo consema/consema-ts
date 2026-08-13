@@ -1,6 +1,6 @@
 /**
  * `consema.semantic-model-v6.conformance@1` runner (25 cases; mirror of
- * crates/consema-conformance/src/semantic_model_v6.rs).
+ * consema-rs/consema-conformance/src/semantic_model_v6.rs).
  *
  * The source-v2, materialization-v2, Java UTF-16, and line-query cases
  * exercise the v6 wire records (src/protocol/records_source.ts,

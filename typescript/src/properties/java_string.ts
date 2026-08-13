@@ -3,7 +3,7 @@
  * and canonical UTF16BE/1 bytes.
  *
  * authority:
- *  - RFC 0010 §4 (docs/rfcs/0010-java-properties-profiles-v1.md:108-131):
+ *  - RFC 0010 §4 (https://github.com/consema/consema/blob/main/docs/rfcs/0010-java-properties-profiles-v1.md:108-131):
  *    a Java `String` is an ordered sequence of UTF-16 code units; escape
  *    processing can produce an unpaired surrogate such as `\uD800`, and
  *    rejecting or replacing it would be silent corruption; the native
@@ -11,10 +11,10 @@
  *    bounded `WellFormedUnicode | UnpairedSurrogate` status, conversion to
  *    a Unicode string only when well formed, and canonical `UTF16BE/1`
  *    bytes (even-length big-endian code units, no BOM, no normalization)
- *  - crates/consema-properties/src/lib.rs:124-131 (JavaStringStatus),
+ *  - consema-rs/consema-properties/src/lib.rs:124-131 (JavaStringStatus),
  *    :133-204 (JavaString), :196-206 (JavaStringConversionError),
  *    :814-830 (classify_java_string)
- *  - exact-wire failure codes: crates/consema-protocol/src/error_registry.rs:
+ *  - exact-wire failure codes: consema-rs/consema-protocol/src/error_registry.rs:
  *    :1111-1121 (java-properties.java-string.invalid-wire@1,
  *    java-properties.java-string.non-canonical-wire@1) — reserved by the
  *    wire layer; this module carries no registered codes itself

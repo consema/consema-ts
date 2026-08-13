@@ -6,7 +6,7 @@
  *  - edit.scalar-atomic (:106-109), edit.anchor-rename (:111-114),
  *    edit.structural-insert (:116-119), edit.anchor-dependency (:121-124)
  * Edit semantics: RFC 0007 §12 (the anchor-safe rules :383-392);
- * crates/consema-yaml/src/edit.rs (the e420ad7 anchor-dependency behavior:
+ * consema-rs/consema-yaml/src/edit.rs (the e420ad7 anchor-dependency behavior:
  * only the deleted subtree is collected for validation, edit.rs:1398-1442).
  */
 

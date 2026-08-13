@@ -1,7 +1,7 @@
 /**
  * The canonical tagged JSON transport (`core.portable-value-json@1`).
  *
- * authority: the Rust transport (crates/consema-protocol/src/value_transport.rs)
+ * authority: the Rust transport (consema-rs/consema-protocol/src/value_transport.rs)
  * is the byte authority; the envelope and tagged kind shapes are pinned by
  * conformance/vectors/protocol-v1.json (protocol.json.null-vector) and the
  * RFC 0015 §4.4 normative example. Rules:
@@ -1033,7 +1033,7 @@ export function nodeToValue(node: JsonNode, depth: number, path: string, state: 
   }
 }
 
-/** The canonical decimal normalization (Decimal::new; crates/consema-core/src/value.rs:277-292). */
+/** The canonical decimal normalization (Decimal::new; consema-rs/consema-core/src/value.rs:277-292). */
 function normalizeDecimal(coefficient: bigint, exponent: bigint): { kind: 'Decimal'; coefficient: bigint; exponent: bigint } {
   if (coefficient === 0n) {
     return { kind: 'Decimal', coefficient: 0n, exponent: 0n };
@@ -1096,7 +1096,7 @@ function hexBytes(hex: string): Uint8Array {
  * Documented divergence note (Rust wins, per the language-neutral parity
  * rule): the Rust decoder re-encodes the DECODED VALUE and compares it to
  * the input bytes (value_transport.rs:66-73). The Go implementation
- * re-encodes the parse tree instead (go/protocol/canonical.go:487-512),
+ * re-encodes the parse tree instead (consema-go/go/protocol/canonical.go:487-512),
  * which accepts non-canonical decimal spellings (e.g.
  * {"coefficient":"10","exponent":"0"}) that Rust rejects after decimal
  * normalization. TypeScript follows Rust: the decoded decimal is normalized

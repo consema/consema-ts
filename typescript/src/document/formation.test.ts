@@ -2,13 +2,13 @@
  * Intent documents for formation: FormationStatus closure and the frozen
  * parse/materialization limit defaults.
  *
- * authority: crates/consema-document/src/lib.rs:404-411 (FormationStatus)
+ * authority: consema-rs/consema-document/src/lib.rs:404-411 (FormationStatus)
  * and :614-639 (ParseLimits defaults); RFC 0016 §5.1 (F10: only the
  * `formation_status` equivalent, no `status` alias);
- * crates/consema-document/src/materialization.rs:95-105;
- * crates/consema-document/src/source_patch.rs:19-27;
- * crates/consema-document/src/source.rs:401-409.
- * Cross-checked by go/document/limits.go:5-58.
+ * consema-rs/consema-document/src/materialization.rs:95-105;
+ * consema-rs/consema-document/src/source_patch.rs:19-27;
+ * consema-rs/consema-document/src/source.rs:401-409.
+ * Cross-checked by consema-go/go/document/limits.go:5-58.
  */
 
 import { test } from 'node:test';
@@ -42,7 +42,7 @@ test('FormationStatus is closed over Complete and Recovered (lib.rs:404-411)', (
   assert.notEqual('Complete' as FormationStatus, 'Recovered' as FormationStatus);
 });
 
-test('ParseLimits defaults are the frozen values (lib.rs:629-639; go/document/limits.go:21-28)', () => {
+test('ParseLimits defaults are the frozen values (lib.rs:629-639; consema-go/go/document/limits.go:21-28)', () => {
   assert.equal(DEFAULT_PARSE_LIMITS.maxSourceBytes, 64 * 1024 * 1024);
   assert.equal(DEFAULT_PARSE_LIMITS.maxNestingDepth, 256);
   assert.equal(DEFAULT_PARSE_LIMITS.maxTokenCount, 2_000_000);
@@ -62,7 +62,7 @@ test('SourcePatchLimits defaults are the frozen values (source_patch.rs:19-27)',
   assert.equal(DEFAULT_SOURCE_PATCH_LIMITS.source.maxRawBytes, 64 * 1024 * 1024);
 });
 
-test('MaterializationLimits defaults are the frozen values (materialization.rs:95-105; go/document/limits.go:50-58)', () => {
+test('MaterializationLimits defaults are the frozen values (materialization.rs:95-105; consema-go/go/document/limits.go:50-58)', () => {
   assert.equal(DEFAULT_MATERIALIZATION_LIMITS.maxInputNodes, 1_000_000);
   assert.equal(DEFAULT_MATERIALIZATION_LIMITS.maxOutputBytes, 64 * 1024 * 1024);
   assert.equal(DEFAULT_MATERIALIZATION_LIMITS.maxDepth, 256);

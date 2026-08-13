@@ -7,7 +7,7 @@
  *  - conformance/vectors/xml-1-0-safe-v1.json: xml.materialization.
  *    canonical-round-trip (:352-388), xml.materialization.escapes-content
  *    (:390-417), xml.materialization.invalid-record-rejected (:419-435)
- *  - the canonical style: crates/consema-xml/src/materialization.rs
+ *  - the canonical style: consema-rs/consema-xml/src/materialization.rs
  *    (double-quoted attributes, first-use namespace placement, empty-
  *    element spelling, reference spelling, LF/CRLF final newline)
  */

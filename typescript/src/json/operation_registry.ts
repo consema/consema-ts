@@ -1,7 +1,7 @@
 /**
  * Versioned JSON edit-operation discovery for one exact profile.
  *
- * authority: crates/consema-json/src/operation_registry.rs
+ * authority: consema-rs/consema-json/src/operation_registry.rs
  *  - the eight frozen descriptors :16-80 — operation ids, target roles,
  *    argument schemas, and support classification (do not guess):
  *      json.edit.insert-member@1             json.object@1

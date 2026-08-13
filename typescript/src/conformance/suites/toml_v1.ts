@@ -1,6 +1,6 @@
-﻿/**
+/**
  * `consema.toml.conformance@1` runner (18 cases; mirror of
- * crates/consema-conformance/src/toml_v1.rs).
+ * consema-rs/consema-conformance/src/toml_v1.rs).
  */
 
 import { readFileSync } from 'node:fs';

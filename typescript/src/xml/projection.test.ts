@@ -7,7 +7,7 @@
  *  - conformance/vectors/xml-1-0-safe-v1.json: xml.projection.element-
  *    tree-record (:311-325), xml.projection.namespace-record (:327-339),
  *    xml.projection.recovered-never-projects (:341-350)
- *  - the record shape: crates/consema-xml/src/projection.rs:600-644,
+ *  - the record shape: consema-rs/consema-xml/src/projection.rs:600-644,
  *    669-797, 799-973 (declaration facts, entities, ordered namespaces,
  *    ordered attributes, ordered mixed content, exact fragments)
  */

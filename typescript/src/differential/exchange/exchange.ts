@@ -1,8 +1,8 @@
 /**
  * Cross-language protocol exchange harness — TypeScript side (design:
- * docs/five-language-ci-design.md §3.4; Go precedent:
- * go/conformance/differential/protocol-exchange/exchange_test.go; the Rust
- * example crates/consema-conformance/examples/emit_protocol_exchange.rs is
+ * https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.4; Go precedent:
+ * consema-go/go/conformance/differential/protocol-exchange/exchange_test.go; the Rust
+ * example consema-rs/consema-conformance/examples/emit_protocol_exchange.rs is
  * the byte authority for the golden files).
  *
  * For every case (83: 40 accept + 43 reject):
@@ -115,12 +115,12 @@ export function repoRootDir(): string {
   return `${here}../../../../`;
 }
 
-/** The checked-in differential case file. */
+/** The provisioned differential case file. */
 export function defaultCasesFile(): string {
   return `${repoRootDir()}conformance/differential/protocol-exchange/cases.json`;
 }
 
-/** Loads and validates the checked-in case set (manifest, count, ids, coverage). */
+/** Loads and validates the provisioned case set (manifest, count, ids, coverage). */
 export function loadCaseFile(file: string): ExchangeCase[] {
   const parsed = JSON.parse(new TextDecoder('utf-8').decode(readFileSync(file))) as {
     manifest?: unknown;

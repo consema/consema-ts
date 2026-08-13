@@ -1,8 +1,8 @@
 /**
  * Cross-language normalized-result differential harness — TypeScript side
- * (design: docs/five-language-ci-design.md §3.3; Go precedent:
- * go/conformance/differential/normalized/{runner.go,source.go}; the Rust
- * example crates/consema-conformance/examples/emit_normalized_results.rs is
+ * (design: https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.3; Go precedent:
+ * consema-go/go/conformance/differential/normalized/{runner.go,source.go}; the Rust
+ * example consema-rs/consema-conformance/examples/emit_normalized_results.rs is
  * the byte authority for the golden facts).
  *
  * The compared facts are exactly the language-neutral behavior surface of
@@ -108,7 +108,7 @@ import type { PropertiesParseLimits } from '../../properties/parse_limits.ts';
 /** The frozen manifest id of the differential input set. */
 export const CASE_FILE_MANIFEST = 'consema.differential.normalized@1';
 
-/** The task's lower bound for the input set (milestone 0.16.0 G2.4). */
+/** The task's lower bound for the input set (L5 differential harness). */
 export const MIN_CASE_COUNT = 104;
 
 // ---------------------------------------------------------------------------
@@ -246,12 +246,12 @@ export function repoRootDir(): string {
   return `${here}../../../../`;
 }
 
-/** The checked-in differential case file. */
+/** The provisioned differential case file. */
 export function defaultCasesFile(): string {
   return `${repoRootDir()}conformance/differential/normalized/cases.json`;
 }
 
-/** Loads and validates the checked-in case set (manifest, count, ids). */
+/** Loads and validates the provisioned case set (manifest, count, ids). */
 export function loadCaseFile(file: string): FileCase[] {
   const parsed = JSON.parse(new TextDecoder('utf-8').decode(readFileSync(file))) as {
     manifest?: unknown;

@@ -5,7 +5,7 @@
  * case id:
  *  - conformance/vectors/java-properties-v1.json:
  *    registry.frozen-five-operation-surface (:147-150)
- *  - crates/consema-properties/src/operation_registry.rs:16-48 (the exact
+ *  - consema-rs/consema-properties/src/operation_registry.rs:16-48 (the exact
  *    descriptors), :72-95 (both profiles publish the same surface)
  *  - RFC 0010 §13 (:385-393) freezes the five operation ids
  */

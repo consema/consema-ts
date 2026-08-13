@@ -1,6 +1,6 @@
 /**
  * Intent documents for UntouchedByteProof (RFC 0004 §15), mirroring the
- * Rust module tests (crates/consema-document/src/untouched_proof.rs:319-402):
+ * Rust module tests (consema-rs/consema-document/src/untouched_proof.rs:319-402):
  * every successful edit commit includes a proof that old regions exactly
  * cover every non-replaced old byte once, new regions exactly cover every
  * non-inserted new byte once, each mapped region has equal length and

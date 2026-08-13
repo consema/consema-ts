@@ -1,7 +1,7 @@
 /**
  * Plist formation entry: profile dispatch over the two representations.
  *
- * authority: crates/consema-plist/src/lib.rs:207-300
+ * authority: consema-rs/consema-plist/src/lib.rs:207-300
  *  - `parse` :214-221 dispatches by profile; the profile is selected by
  *    the caller before formation — the `bplist00` magic number never
  *    selects semantics (RFC 0013 §1)

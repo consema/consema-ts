@@ -2,7 +2,7 @@
  * Intent documents for the frozen JSON format-operation registry.
  *
  * The eight records and their exact ids/roles/arguments/support are
- * transcribed from crates/consema-json/src/operation_registry.rs:16-80;
+ * transcribed from consema-rs/consema-json/src/operation_registry.rs:16-80;
  * the per-profile closure (all three profiles publish the same eight
  * records) is pinned by operation_registry.rs:104-129. RFC 0004 §10
  * (:244-269) freezes the six structural ids; the two scalar operations

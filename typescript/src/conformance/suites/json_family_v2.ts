@@ -1,6 +1,6 @@
 /**
  * `consema.json-family.conformance@2` runner (33 cases; mirror of
- * crates/consema-conformance/src/json_family_v2.rs). Dispatch is by the
+ * consema-rs/consema-conformance/src/json_family_v2.rs). Dispatch is by the
  * vector `action` field.
  */
 

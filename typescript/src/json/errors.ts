@@ -2,7 +2,7 @@
  * Typed JSON-family failures with frozen registered codes.
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess):
- *  - ErrorCodeRegistry v7: crates/consema-protocol/src/error_registry.rs
+ *  - ErrorCodeRegistry v7: consema-rs/consema-protocol/src/error_registry.rs
  *    json.edit.representation-fallback@1         :213 (Edit, 0.1.0)
  *    json.object.duplicate-member@1              :219 (Semantic, 0.1.0)
  *    json.projection.duplicate-keys@1            :225 (Projection, 0.1.0)
@@ -28,18 +28,18 @@
  *    json5.string.unescaped-line-separator@1     :649 (Conformance, 0.6.0)
  *    json5.syntax.invalid-identifier@1           :655 (Syntax, 0.6.0)
  *    json.projection.incomplete-document@1       :1332 (Projection, 0.13.0)
- *  - kind→code mapping authority: crates/consema-json/src/projection.rs:
- *    754-765 (ProjectionFailure), crates/consema-json/src/edit.rs:1299-1323
+ *  - kind→code mapping authority: consema-rs/consema-json/src/projection.rs:
+ *    754-765 (ProjectionFailure), consema-rs/consema-json/src/edit.rs:1299-1323
  *    (EditFailure)
- *  - FatalFormationFailure: crates/consema-document/src/lib.rs:643-761
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761
  *    (from_diagnostic :649-654, invalid_utf8 :657-672, source_error
  *    :675-761); the parse limit names "source-bytes" | "token-count" |
  *    "nesting-depth" | "node-count" (parser.rs:78-83, 389-395, 831-837,
  *    1178-1189)
- *  - QueryExecutionFailure: crates/consema-core/src/query.rs:3114-3219
+ *  - QueryExecutionFailure: consema-rs/consema-core/src/query.rs:3114-3219
  *    (ResourceLimitExceeded :3166, Cancelled :3168, CardinalityViolation
  *    :3159-3164; codes :3206-3219) and the JSON executor domain gate
- *    crates/consema-json/src/query.rs:96-105 (DomainMismatch)
+ *    consema-rs/consema-json/src/query.rs:96-105 (DomainMismatch)
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance so the

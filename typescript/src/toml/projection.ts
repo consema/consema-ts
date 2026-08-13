@@ -5,12 +5,12 @@
  * authority:
  *  - target contract: RFC 0001 §5 (:78-100) — `toml.best-exact-core@1` and
  *    the exact category mapping (:82-94); tables meet PortableValue Object
- *    only here — the native table model stays distinct (docs/
+ *    only here — the native table model stays distinct (https://github.com/consema/consema/blob/main/docs/
  *    IMPLEMENTATION.md:102); unrepresentable date-times fail the whole
  *    projection with toml.projection.unrepresentable-datetime@1 (:98);
  *    provenance maps every value and object association back to a
  *    snapshot-bound source origin (:96)
- *  - structure: crates/consema-toml/src/projection.rs — ProjectionTarget
+ *  - structure: consema-rs/consema-toml/src/projection.rs — ProjectionTarget
  *    (:9-14), ProjectionRequest (:16-51), ProjectionLimits (:53-75,
  *    defaults 1M/100k/2M/256), Fidelity (:77-86), ProjectedLocation
  *    (:88-95), ProvenanceRelation (:96-104), SourceOrigin (:106-117),

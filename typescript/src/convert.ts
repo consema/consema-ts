@@ -1,6 +1,6 @@
 /**
  * Audited projection-to-materialization composition (L4 root facade; mirror
- * of crates/consema/src/conversion.rs).
+ * of consema-rs/consema/src/conversion.rs).
  *
  * Every `convert*` function composes one format-owned projection and the
  * requested target materializer, retaining the intermediate portable value

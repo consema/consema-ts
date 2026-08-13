@@ -5,7 +5,7 @@
  * graph-v1.json (pgce.empty-vector, pgce.scalar-vector, pgce.cycle-roundtrip,
  * pgce.reject-nonminimal-varint, pgce.reject-noncanonical-node-order) and
  * cross-checked against the Rust frozen vectors
- * (crates/consema-graph/src/pgce.rs:664-686). They run once the toolchain is
+ * (consema-rs/consema-graph/src/pgce.rs:664-686). They run once the toolchain is
  * ready; no gate is claimed before that (§7 START GATE).
  */
 
@@ -50,7 +50,7 @@ function scalarGraph(content: string) {
 }
 
 test('vector pgce.empty-vector: the empty graph encodes to the frozen bytes', () => {
-  // conformance/vectors/portable-graph-v1.json; crates/consema-graph/src/pgce.rs:681-686.
+  // conformance/vectors/portable-graph-v1.json; consema-rs/consema-graph/src/pgce.rs:681-686.
   const graph = new Builder(defaultLimits()).build();
   assert.equal(hex(encodePGCE(graph)), '50474345010000');
   const decoded = decodePGCE(unhex('50474345010000'), LIMITS);
@@ -58,7 +58,7 @@ test('vector pgce.empty-vector: the empty graph encodes to the frozen bytes', ()
 });
 
 test('vector pgce.scalar-vector: one scalar root encodes to the frozen bytes', () => {
-  // conformance/vectors/portable-graph-v1.json; crates/consema-graph/src/pgce.rs:664-678.
+  // conformance/vectors/portable-graph-v1.json; consema-rs/consema-graph/src/pgce.rs:664-678.
   const graph = scalarGraph('x');
   assert.equal(
     hex(encodePGCE(graph)),
@@ -174,7 +174,7 @@ test('decoding rejects invalid tags and invalid UTF-8', () => {
 });
 
 test('sharing, cycles, and arbitrary mapping keys round-trip', () => {
-  // Mirrors the Rust round-trip test (crates/consema-graph/src/pgce.rs:716-746).
+  // Mirrors the Rust round-trip test (consema-rs/consema-graph/src/pgce.rs:716-746).
   const builder = new Builder(defaultLimits());
   const mapping = builder.reserveNode();
   const key = builder.reserveNode();
@@ -194,7 +194,7 @@ test('sharing, cycles, and arbitrary mapping keys round-trip', () => {
 });
 
 test('isomorphic builder numbering produces identical PGCE bytes', () => {
-  // crates/consema-graph/src/pgce.rs:689-713: the same graph reserved with
+  // consema-rs/consema-graph/src/pgce.rs:689-713: the same graph reserved with
   // the shared scalar first or the sequence first.
   const build = (sharedFirst: boolean) => {
     const builder = new Builder(defaultLimits());
@@ -229,7 +229,7 @@ test('encode and decode enforce limits atomically', () => {
   );
   // A scalar root sits at depth 0 and fits maxTraversalDepth: 0; a root
   // sequence with a scalar child reaches depth 1 (the Go authority's
-  // TestDecodeRejectsTraversalDepthLimit shape, go/graph/pgce_test.go:482-505).
+  // TestDecodeRejectsTraversalDepthLimit shape, consema-go/go/graph/pgce_test.go:482-505).
   const deepBuilder = new Builder(defaultLimits());
   const deepRoot = deepBuilder.reserveNode();
   const deepChild = deepBuilder.reserveNode();
@@ -263,7 +263,7 @@ test('edge limits apply during decode', () => {
 
 test('frozen PGCE error codes are registered', () => {
   // core.pgce.invalid@1 / non-canonical@1 / resource-limit@1 /
-  // unsupported-version@1 (crates/consema-protocol/src/error_registry.rs:706-724).
+  // unsupported-version@1 (consema-rs/consema-protocol/src/error_registry.rs:706-724).
   const badMagic = Uint8Array.of(0x50, 0x47, 0x43, 0x44, 0x01, 0x00, 0x00);
   assert.throws(
     () => decodePGCE(badMagic, LIMITS),

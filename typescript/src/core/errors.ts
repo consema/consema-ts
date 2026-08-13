@@ -1,19 +1,19 @@
 /**
  * Typed PVCE/1 codec failures with frozen registered codes.
  *
- * authority: the Rust StableFailure mapping, crates/consema-pvce/src/lib.rs:
+ * authority: the Rust StableFailure mapping, consema-rs/consema-pvce/src/lib.rs:
  * 1062-1087 (decode) and 1102-1107 (encode). Every kind maps to exactly one
  * frozen `core.pvce.*@1` code. Note: these codes are the codec's stable
  * diagnostic surface; they are not entries of the 187-code error registry
  * (the registry pins core.graph.*@1 and core.pgce.*@1 only — verified in
- * crates/consema-protocol/src/error_registry.rs and both registries agree).
+ * consema-rs/consema-protocol/src/error_registry.rs and both registries agree).
  *
  * The Rust codec additionally defines the extended-record kinds
  * NestedExtendedValue ("core.pvce.nested-extended@1") and ExpectedCoreValue
  * ("core.pvce.expected-core@1"); TypeScript represents the extension root
  * (a plain record), so both kinds are reachable here. The Go implementation
  * has no ExtendedValue type and rejects 0x7f as unknown-tag (documented
- * reachable-code difference; go/core/errors.go:13-20).
+ * reachable-code difference; consema-go/go/core/errors.go:13-20).
  *
  * Design (TypeScript-idiomatic): the kind is a closed string-literal union;
  * `code` is a frozen property of every error instance, so the RFC 0016 §6
@@ -45,7 +45,7 @@ export type PVCEErrorKind =
   | 'NestedExtended'
   | 'ExpectedCore';
 
-/** The frozen registered codes (crates/consema-pvce/src/lib.rs:1062-1087). */
+/** The frozen registered codes (consema-rs/consema-pvce/src/lib.rs:1062-1087). */
 export const codeInvalidMagic = 'core.pvce.invalid-magic@1';
 export const codeUnsupportedVersion = 'core.pvce.unsupported-version@1';
 export const codeUnexpectedEnd = 'core.pvce.unexpected-end@1';

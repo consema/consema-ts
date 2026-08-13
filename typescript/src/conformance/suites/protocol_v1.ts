@@ -1,15 +1,16 @@
 /**
  * `consema.protocol.conformance@1` runner (32 cases; mirror of
- * crates/consema-conformance/src/protocol_v1.rs).
+ * consema-rs/consema-conformance/src/protocol_v1.rs).
  *
  * The vector cases carry no `input`; each case constructs its own wire
- * payloads from the frozen registries. Cases whose wire record does not
- * exist in the TS protocol domain are documented skips.
+ * payloads from the frozen registries. A case the runner does not
+ * recognize fails loudly (unknown action rejection); nothing is skipped
+ * silently.
  */
 
 import type { VectorCase } from '../helpers.ts';
 import { expectedFieldOptional, utf8, toHex } from '../helpers.ts';
-import { fail, skip } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { EncodeJSON, DecodeJSON } from '../../protocol/canonical.ts';
 import { defaultProtocolLimits } from '../../protocol/limits.ts';
@@ -817,6 +818,5 @@ export const runProtocolV1: SuiteExecutor = {
   },
 };
 
-void skip;
 void decodePVCE;
 void PVCEError;

@@ -1,5 +1,8 @@
-# Dependency audit for the TypeScript implementation (npm audit), mirroring
-# the consema-rs audit.yml shape (daily cron + push/PR manifest filters).
+# Dependency audit for the TypeScript implementation (npm audit), aligned
+# with the consema-rs audit.yml shape: a standing check (daily cron + every
+# push/PR, no path filters — the filters were dropped so branch protection
+# can require this workflow; the dependency surface is small, so the cost
+# is acceptable).
 #
 # The package declares ZERO runtime dependencies (package.json has only
 # devDependencies — @types/node, typescript — per §1.3 zero-runtime-
@@ -11,7 +14,10 @@
 # dependency shape.
 #
 # Failures are red: any advisory (including low severity) fails the job —
-# the surface is small (dev-only), so a strict bar is affordable. No
+# the surface is small (dev-only), so a strict bar is affordable. The same
+# npm-audit job is defined inside ci-typescript.yml (the rs standing shape —
+# a needs entry must name a job in the same workflow), so the aggregate
+# `check` gate now includes audit and a red audit blocks merge (G135). No
 # repository secrets are required.
 name: Dependency audit (npm audit)
 
@@ -20,13 +26,7 @@ on:
     - cron: '37 3 * * *'
   push:
     branches: [main]
-    paths:
-      - typescript/package.json
-      - typescript/package-lock.json
   pull_request:
-    paths:
-      - typescript/package.json
-      - typescript/package-lock.json
 
 concurrency:
   group: ts-audit-${{ github.ref }}
@@ -46,7 +46,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           cache: npm
           cache-dependency-path: typescript/package-lock.json
       - name: npm ci (lockfile-driven install)

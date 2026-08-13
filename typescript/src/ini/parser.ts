@@ -1,7 +1,7 @@
 /**
  * INI scanner and formation parser producing the lossless native model.
  *
- * authority: crates/consema-ini/src/parser.rs — the complete formation
+ * authority: consema-rs/consema-ini/src/parser.rs — the complete formation
  * pipeline: encoding request (:37-59), profile encoding validation (:61-94),
  * the profile failure (:96-104), physical-line scanning (:228-301),
  * per-line classification (:303-346), portable (:348-399), windows

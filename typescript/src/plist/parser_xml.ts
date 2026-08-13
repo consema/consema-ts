@@ -1,7 +1,7 @@
 /**
  * Lossless `plist.xml@1` formation (RFC 0013 §2.1, §3, §4, §8.2, §12).
  *
- * authority: crates/consema-plist/src/parser_xml.rs
+ * authority: consema-rs/consema-plist/src/parser_xml.rs
  *  - source contract §2.1: bounded SourceSnapshot, UTF-8/UTF-16 document-
  *    entity table (:365-460, plist.xml.encoding@1 :454)
  *  - element vocabulary and classification :503-586

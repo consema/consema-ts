@@ -2,7 +2,7 @@
  * Canonical PortableValue materialization for exact Java Properties profiles.
  *
  * authority:
- *  - RFC 0010 §12 (docs/rfcs/0010-java-properties-profiles-v1.md:351-381):
+ *  - RFC 0010 §12 (https://github.com/consema/consema/blob/main/docs/rfcs/0010-java-properties-profiles-v1.md:351-381):
  *    canonical styles `java-properties.reader-canonical@1` and
  *    `java-properties.latin1-canonical@1`; associations in input order as
  *    `key=value` with the explicitly selected newline; deterministic
@@ -13,7 +13,7 @@
  *    units below U+0020 or above U+007E (supplementary scalars become
  *    surrogate-pair escapes); no Latin-1 BOM; every result reparses under
  *    the exact target profile and reprojects under the request's policy
- *  - crates/consema-properties/src/materialization.rs — materialize :25-39,
+ *  - consema-rs/consema-properties/src/materialization.rs — materialize :25-39,
  *    materialize_complete :41-77, requested_profile :79-90,
  *    validate_request :92-122, parse_limits :124-150, Writer :167-346
  *    (document :177-211, mapping_items :213-288, analyze :290-306,
@@ -23,7 +23,7 @@
  *    encode_fragment :566-631
  *  - common materialization contracts: RFC 0004 §3/§7/§8;
  *    typescript/src/document/materialization.ts
- *  - frozen codes: crates/consema-protocol/src/error_registry.rs:556-604
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:556-604
  *    (core.materialization.*@1), :1123-1127
  *    (java-properties.materialization.round-trip-mismatch@1)
  *  - vector-pinned behavior: conformance/vectors/java-properties-v1.json

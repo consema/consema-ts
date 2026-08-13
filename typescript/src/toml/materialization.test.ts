@@ -2,9 +2,9 @@
  * TOML materialization intent tests — the canonical-document style writer
  * with fidelity, report, and provenance.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from RFC 0004
- * §4/§6/§7/§8 and crates/consema-toml/src/materialization.rs and run once
+ * §4/§6/§7/§8 and consema-rs/consema-toml/src/materialization.rs and run once
  * the toolchain is ready. The TOML vector suite has no materialization
  * cases; the Rust tests are the cross-reference for the canonical bytes.
  */

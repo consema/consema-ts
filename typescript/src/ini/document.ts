@@ -2,7 +2,7 @@
  * The immutable INI document snapshot and its native accessors.
  *
  * authority:
- *  - document surface: crates/consema-ini/src/lib.rs:489-661 — snapshot
+ *  - document surface: consema-rs/consema-ini/src/lib.rs:489-661 — snapshot
  *    identity (:508-513), source (:514-519), render (:521-525), format
  *    family "ini"@1 (:527-531), profile (:533-537), root node (:539-543),
  *    formation status (:545-549), diagnostics (:551-555), structural index

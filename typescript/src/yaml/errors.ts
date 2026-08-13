@@ -2,7 +2,7 @@
  * Typed YAML-family failures with frozen registered codes.
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess):
- *  - ErrorCodeRegistry v5+: crates/consema-protocol/src/error_registry.rs
+ *  - ErrorCodeRegistry v5+: consema-rs/consema-protocol/src/error_registry.rs
  *    yaml.alias.name-mismatch@1                 :730 (Semantic, 0.7.0)
  *    yaml.alias.name-unavailable@1              :736 (Semantic, 0.7.0)
  *    yaml.anchor.name-unavailable@1             :742 (Semantic, 0.7.0)
@@ -38,14 +38,14 @@
  *    yaml.scalar.invalid-explicit-tag@1         :922 (Semantic, 0.7.0)
  *    yaml.tag.kind-mismatch@1                   :928 (Semantic, 0.7.0)
  *  - kind→code mapping authority:
- *    crates/consema-yaml/src/projection.rs:174-183 (graph),
- *    :480-497 (value); crates/consema-yaml/src/edit.rs:318-343 (edit);
- *    crates/consema-yaml/src/materialization.rs:143-151 (graph
- *    materialization); query failures: crates/consema-core/src/query.rs
+ *    consema-rs/consema-yaml/src/projection.rs:174-183 (graph),
+ *    :480-497 (value); consema-rs/consema-yaml/src/edit.rs:318-343 (edit);
+ *    consema-rs/consema-yaml/src/materialization.rs:143-151 (graph
+ *    materialization); query failures: consema-rs/consema-core/src/query.rs
  *    3114-3219 plus the yaml executor domain gate
- *    crates/consema-yaml/src/query.rs:173-177, :220-224
- *  - FatalFormationFailure: crates/consema-document/src/lib.rs:643-761;
- *    yaml.parse.syntax@1 via backend failure crates/consema-yaml/src/
+ *    consema-rs/consema-yaml/src/query.rs:173-177, :220-224
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761;
+ *    yaml.parse.syntax@1 via backend failure consema-rs/consema-yaml/src/
  *    lib.rs:833-858; the vector case formation.undefined-alias
  *    (conformance/vectors/yaml-v1.json:41-44) pins undefined aliases as
  *    syntax failures

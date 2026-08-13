@@ -2,7 +2,7 @@
  * Shared registry types: contract stability and registry versions.
  *
  * authority: the stability spellings and version sequence of
- * crates/consema-protocol/src/contract.rs (the v1-v7 registries with
+ * consema-rs/consema-protocol/src/contract.rs (the v1-v7 registries with
  * 16/18/25/25/30/38/41 contracts; the 0.3-0.12 semantic models).
  */
 

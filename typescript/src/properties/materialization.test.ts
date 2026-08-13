@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Intent documents for Java Properties materialization.
  *
  * Golden transcriptions from the shared vectors — each test cites its

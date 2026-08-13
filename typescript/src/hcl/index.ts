@@ -1,13 +1,12 @@
 /**
- * The `hcl` family of the TypeScript Consema implementation (L3, mirror of
- * Go G4.1).
+ * The `hcl` family of the TypeScript Consema implementation (L3).
  *
- * authority: docs/multi-language-implementation-plan.md §2 L3 (:75);
+ * authority: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L3 (:75);
  * RFC 0014 (the language-neutral HCL contract — native/tfvars profiles,
  * formation, query, projection, materialization, edit); RFC 0004
  * (materialization and structural-edit contracts); the shared vector suite
- * conformance/vectors/hcl-v1.json; crates/consema-hcl for byte/registry
- * arbitration only; go/hcl only as cross-reference.
+ * conformance/vectors/hcl-v1.json; consema-rs/consema-hcl for byte/registry
+ * arbitration only; consema-go/go/hcl only as cross-reference.
  *
  * Modules:
  *  - limits: the frozen HclParseLimits (RFC 0014 §11)

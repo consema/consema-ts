@@ -1,7 +1,7 @@
 /**
  * Frozen XML language profile, encoding selection, and parse limits.
  *
- * authority: crates/consema-xml/src/lib.rs
+ * authority: consema-rs/consema-xml/src/lib.rs
  *  - XmlProfile :54-67 (SafeV1; the one published profile
  *    "xml.1.0-safe@1" :61-66, frozen by RFC 0012 §1 :17-20)
  *  - XmlEncodingSelection :69-79 (ProfileDefault | Explicit(SourceEncoding))

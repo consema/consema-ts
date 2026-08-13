@@ -9,7 +9,7 @@
  *    xml.native-query.attributes-and-values (:252-276),
  *    xml.native-query.descendants-order (:278-308)
  *  - the vector's ordinal field is informational (the conformance runner
- *    checks kind and text only, crates/consema-conformance/src/xml_v1.rs:
+ *    checks kind and text only, consema-rs/consema-conformance/src/xml_v1.rs:
  *    297-325); the end-tag local-name ordinal here follows the current
  *    Rust crate (11), see parser.ts header
  */

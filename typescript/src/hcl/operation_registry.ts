@@ -1,7 +1,7 @@
 /**
  * The frozen HCL format operation registry.
  *
- * authority: crates/consema-hcl/src/operation_registry.rs:16-94 — the exact
+ * authority: consema-rs/consema-hcl/src/operation_registry.rs:16-94 — the exact
  * descriptors (ids, target roles, argument schema, support classification)
  * and the profile split (:10-23): `hcl.native@1` publishes all six
  * structural operations, `hcl.tfvars@1` the four attribute operations only

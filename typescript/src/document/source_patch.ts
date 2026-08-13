@@ -2,7 +2,7 @@
  * Verifiable raw-byte patches between immutable source snapshots.
  *
  * authority:
- *  - RFC 0003 §10 (docs/rfcs/0003-source-syntax-query-and-patch-v1.md:
+ *  - RFC 0003 §10 (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md:
  *    250-291): `core.source-patch@1` fields, replacement facts, and the
  *    application rules — half-open ordered non-overlapping old ranges,
  *    original exactly equals the base bytes, zero-width insertions
@@ -13,13 +13,13 @@
  *    resolution, metadata never affects application, redaction flags
  *    control review presentation only
  *  - vectors: conformance/vectors/source-v1.json:120-172 (source.patch.*)
- *  - Rust (arbitration): crates/consema-document/src/source_patch.rs —
+ *  - Rust (arbitration): consema-rs/consema-document/src/source_patch.rs —
  *    SourcePatchLimits :8-27 (defaults: source limits, 100_000
  *    replacements, 128 MiB patch bytes), SourceReplacement :29-131,
  *    SourcePatch :133-365 (derive :143-205, new :206-224, create :226-251,
  *    apply :253-280), redaction :312-364, error kinds :387-432, code
  *    mapping :434-459, validation :469-566
- *  - conformance runner: crates/consema-conformance/src/source_v1.rs:245-317
+ *  - conformance runner: consema-rs/consema-conformance/src/source_v1.rs:245-317
  *    (patch case modes create-apply / stale-base / wrong-original /
  *    overlap / count-limit / wrong-target / encoding-change)
  *

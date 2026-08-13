@@ -2,7 +2,7 @@
  * Deterministic sorted Object<String, String> wire records.
  *
  * authority: the Rust BTreeMap ordering of string maps in protocol records
- * (diagnostic.rs arguments; registry.rs preconditions); go/protocol/
+ * (diagnostic.rs arguments; registry.rs preconditions); consema-go/go/protocol/
  * diagnostic.go:406-418 (cross-reference).
  */
 

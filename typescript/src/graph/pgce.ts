@@ -2,7 +2,7 @@
  * PGCE/1 — Portable Graph Canonical Encoding / 1.
  *
  * authority: the Rust reference codec is the frozen byte authority
- * (crates/consema-graph/src/pgce.rs); the golden byte vectors are pinned by
+ * (consema-rs/consema-graph/src/pgce.rs); the golden byte vectors are pinned by
  * conformance/vectors/portable-graph-v1.json (cases pgce.empty-vector,
  * pgce.scalar-vector, pgce.reject-nonminimal-varint,
  * pgce.reject-noncanonical-node-order). Wire constants:
@@ -35,7 +35,7 @@ export const PGCE_MAGIC = new Uint8Array([0x50, 0x47, 0x43, 0x45]);
 /** PGCE/1 version. */
 export const PGCE_VERSION = 1n;
 
-/** Node kind octets (crates/consema-graph/src/pgce.rs:16-18). */
+/** Node kind octets (consema-rs/consema-graph/src/pgce.rs:16-18). */
 export const NODE_SCALAR = 0x20;
 export const NODE_SEQUENCE = 0x40;
 export const NODE_MAPPING = 0x41;

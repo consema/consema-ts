@@ -1,7 +1,7 @@
 /**
  * Plist projection targets and explicit mapping policies (RFC 0013 §9).
  *
- * authority: crates/consema-plist/src/projection.rs
+ * authority: consema-rs/consema-plist/src/projection.rs
  *  - ProjectionTarget :55-62 (ValueTreeV1 | RequireObjectV1),
  *    UidPolicy :65-71, CollisionPolicy :75-82, ProjectionRequest :86-157
  *    (value_tree :96-103, value_tree_with_uid :107-114, require_object

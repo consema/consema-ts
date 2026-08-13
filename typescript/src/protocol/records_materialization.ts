@@ -2,11 +2,11 @@
  * Materialization request/report/provenance/result, conversion report,
  * edit-plan, and format-operation-registry protocol records.
  *
- * authority: crates/consema-protocol/src/materialization.rs, conversion.rs,
+ * authority: consema-rs/consema-protocol/src/materialization.rs, conversion.rs,
  * operation.rs (record shapes and every rejection); the semantic-model v6
  * version-closure cases are pinned by
  * conformance/vectors/semantic-model-v6.json; cross-reference
- * go/protocol/records_materialization.go. The v2 request/result records
+ * consema-go/go/protocol/records_materialization.go. The v2 request/result records
  * embed the source-encoding and source-snapshot records of
  * ./records_source.ts.
  *

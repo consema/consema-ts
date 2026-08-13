@@ -1,8 +1,8 @@
 /**
  * QueryDefinition validation and binding.
  *
- * authority: the operator table of crates/consema-core/src/query.rs:899-1897
- * (transcribed into go/protocol/query_validate.go, cross-reference); the
+ * authority: the operator table of consema-rs/consema-core/src/query.rs:899-1897
+ * (transcribed into consema-go/go/protocol/query_validate.go, cross-reference); the
  * domain input roles (query.rs:502-523); the syntax-kind and value-kind
  * vocabularies (query.rs:1900-2209). The vectors pin the failure names in
  * conformance/vectors/v1.json (query.reject-role-mismatch) and the
@@ -300,7 +300,7 @@ const KIND_BYTES = 'Bytes';
 
 /**
  * The domain/operator validation table (query.rs:899-1897; transcribed into
- * go/protocol/query_validate.go:169-361). The generic rows (core.take,
+ * consema-go/go/protocol/query_validate.go:169-361). The generic rows (core.take,
  * core.distinct-by-identity) are domain-agnostic and resolved separately.
  */
 const OPERATOR_TABLE = new Map<string, OperatorSpec>([

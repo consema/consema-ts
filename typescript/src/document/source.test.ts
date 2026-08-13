@@ -3,7 +3,7 @@
  * language-neutral vector suite `consema.source.conformance@1`
  * (conformance/vectors/source-v1.json). Every case below cites the case id
  * it transcribes; the runner authority is
- * crates/consema-conformance/src/source_v1.rs.
+ * consema-rs/consema-conformance/src/source_v1.rs.
  */
 
 import { test } from 'node:test';
@@ -338,7 +338,7 @@ test('source.identity.equal-bytes-distinct-snapshots: equal digests, distinct sn
 
 // ---------------------------------------------------------------------------
 // Windows code pages (source contract v2 surface; not exercised by the
-// shared vectors — go/document/wcp_authority_test.go is the Go authority
+// shared vectors — consema-go/go/document/wcp_authority_test.go is the Go authority
 // test, validated against encoding_rs 0.8.35)
 // ---------------------------------------------------------------------------
 
@@ -394,7 +394,7 @@ test('cp1252 C1 control positions decode to their U+00xx scalars', () => {
   // Intent: a code-page source decodes under the code page, never under a
   // Unicode encoding, so arbitrary byte values are content or malformed
   // sentinels — never re-interpreted. cp1252 0x81 maps to U+0081 (C1
-  // control, go/document/cp1252_table.go:15) and stays one scalar.
+  // control, consema-go/go/document/cp1252_table.go:15) and stays one scalar.
   const page = windowsCodePageEncoding(WindowsCodePage.fromNumber(1252)!);
   const snapshot = SourceSnapshot.fromRaw(
     decodeHex('81'),

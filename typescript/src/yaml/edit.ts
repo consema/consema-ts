@@ -1,7 +1,7 @@
 /**
  * Scalar and structural YAML edit operations over one immutable snapshot.
  *
- * authority: crates/consema-yaml/src/edit.rs
+ * authority: consema-rs/consema-yaml/src/edit.rs
  *  - RepresentationPolicy :21-32, ScalarReplacement :34-61, EditOperation
  *    :63-114, EditTransaction/Builder :116-258, EditCommit :260-271,
  *    EditFailure :273-314, edit_failure_code :316-343
@@ -37,7 +37,7 @@
  *    canonical_value_fragment :1616-1644, validate_literal :1536-1567,
  *    validate_anchor_name :1646-1672, preserved_literal :2326-2362
  *  - operation ids (EXACT registry, do not guess):
- *    crates/consema-yaml/src/operation_registry.rs:16-83 and
+ *    consema-rs/consema-yaml/src/operation_registry.rs:16-83 and
  *    edit.rs:2577-2604 (yaml.edit.replace-scalar-semantic@1,
  *    yaml.edit.replace-scalar-literal@1, yaml.edit.rename-anchor@1,
  *    yaml.edit.insert-mapping-entry@1, yaml.edit.remove-mapping-entry@1,

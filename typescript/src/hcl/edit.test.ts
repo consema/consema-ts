@@ -2,7 +2,7 @@
  * HCL structural edit intent tests — golden transcriptions from the shared
  * vector suite (RFC 0014 §10; RFC 0004 §13-§16).
  *
- * Blind-written intent documents (docs/multi-language-implementation
+ * Blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3); no gate is claimed before the §7 START GATE.
  *
  * Golden cases cited: hcl-v1.json case ids are named in each test.

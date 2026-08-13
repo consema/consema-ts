@@ -11,7 +11,7 @@
  *    consistently nested EntryMapping or Object with every name a String
  *    (:407-415); strict encoding (:406); all styles reparse under the
  *    exact target profile and reproject before success (:431-435)
- *  - writer: crates/consema-ini/src/materialization.rs — requested
+ *  - writer: consema-rs/consema-ini/src/materialization.rs — requested
  *    contract checks (:91-127), parse-limit derivation (:137-160),
  *    mapping-item extraction (:255-331), section/key validation
  *    (:348-382), canonical entry spellings (:384-453), Python multiline

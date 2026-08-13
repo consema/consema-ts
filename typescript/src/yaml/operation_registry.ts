@@ -1,7 +1,7 @@
 /**
  * Versioned YAML edit-operation discovery for one exact profile.
  *
- * authority: crates/consema-yaml/src/operation_registry.rs
+ * authority: consema-rs/consema-yaml/src/operation_registry.rs
  *  - the eight frozen descriptors :16-83 — operation ids, target roles,
  *    argument schemas, and support classification (do not guess):
  *      yaml.edit.insert-alias@1               yaml.sequence@1

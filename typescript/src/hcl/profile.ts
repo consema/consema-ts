@@ -3,7 +3,7 @@
  * style identifiers.
  *
  * authority:
- *  - HclProfile: crates/consema-hcl/src/lib.rs:100-118 — NativeV1 /
+ *  - HclProfile: consema-rs/consema-hcl/src/lib.rs:100-118 — NativeV1 /
  *    TfvarsV1 and the profile id mapping (:112-117): ProfileId("hcl.native",
  *    1), ProfileId("hcl.tfvars", 1); the profile spellings are frozen by
  *    RFC 0014 §1 (:27-30) and pinned by the vector suite
@@ -16,7 +16,7 @@
  *    and hcl.lossless-syntax-query@1; the TS protocol agent pins the same
  *    spellings (typescript/src/protocol/query.ts:124-125)
  *  - materialization style: RFC 0014 §9 (:580-585) —
- *    hcl.canonical-document@1; crates/consema-hcl/src/materialization.rs:185
+ *    hcl.canonical-document@1; consema-rs/consema-hcl/src/materialization.rs:185
  *
  * Design (TypeScript-idiomatic): HclProfile is a closed two-instance class
  * with value semantics; capability/style/domain ids are built on the

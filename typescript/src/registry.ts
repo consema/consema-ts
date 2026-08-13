@@ -1,7 +1,7 @@
 /**
  * Root facade: the unified format-surface registry and the common opaque
  * document union (L4 root facade, mirror of the Go root package +
- * crates/consema root; authority: crates/consema/src/lib.rs registry module
+ * consema-rs/consema root; authority: consema-rs/consema/src/lib.rs registry module
  * :42-489 and the `Document` facade :491-820; RFC 0015 §6.2 families/
  * profiles/query_domains/operations).
  *

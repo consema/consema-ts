@@ -12,7 +12,7 @@
  *    ProfileEquivalent (:330-335); `state` is exactly Missing, Empty, or
  *    Present; the protocol validator pins the same rows
  *    (typescript/src/protocol/query.ts:349-357, 384-385, 1012-1026)
- *  - operator semantics and match shapes: crates/consema-ini/src/query.rs —
+ *  - operator semantics and match shapes: consema-rs/consema-ini/src/query.rs —
  *    IniMatch (:10-67), IniSyntaxMatch (:81-114), domain checks (:117-128,
  *    :160-171), expression evaluation (Input/Apply/Concat/
  *    StructureOrderMerge :298-368), native operator behavior (:421-625),
@@ -21,7 +21,7 @@
  *  - steps/results accounting: query.rs:227-271 (max_steps/max_results →
  *    core.query.resource-limit@1); defaults 100_000 steps / 100_000
  *    results (consema-core/src/query.rs:2974-2981)
- *  - failure codes: crates/consema-protocol/src/error_registry.rs —
+ *  - failure codes: consema-rs/consema-protocol/src/error_registry.rs —
  *    core.query.cancelled@1 :141, core.query.cardinality-violation@1 :147,
  *    core.query.resource-limit@1 :183
  *  - the ordered cursor: query.rs:145-157 (OrderedQueryCursor with

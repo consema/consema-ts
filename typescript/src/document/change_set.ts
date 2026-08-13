@@ -1,7 +1,7 @@
 /**
  * Complete immutable description of one atomic document transition.
  *
- * authority: crates/consema-document/src/lib.rs
+ * authority: consema-rs/consema-document/src/lib.rs
  *  - SourceEdit :800-809 (ordered non-overlapping source replacement)
  *  - NodeMappingStatus :811-826 (Preserved | Replaced | Deleted | Split |
  *    Merged | Unmapped)

@@ -2,7 +2,7 @@
  * Typed Java Properties-family failures with frozen registered codes.
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess):
- *  - ErrorCodeRegistry v7: crates/consema-protocol/src/error_registry.rs
+ *  - ErrorCodeRegistry v7: consema-rs/consema-protocol/src/error_registry.rs
  *    java-properties.edit.canonical-fallback@1             :1099 (Edit, 0.8.0)
  *    java-properties.edit.invalid-placement@1              :1105 (Edit, 0.8.0)
  *    java-properties.java-string.invalid-wire@1            :1111 (Encoding, 0.8.0)
@@ -15,18 +15,18 @@
  *    java-properties.projection.unpaired-surrogate@1       :1153 (Projection, 0.8.0)
  *    java-properties.query.invalid-code-unit-filter@1      :1159 (Query, 0.8.0)
  *    java-properties.source.profile-encoding@1             :1165 (Encoding, 0.8.0)
- *  - kind→code mapping authority: crates/consema-properties/src/
+ *  - kind→code mapping authority: consema-rs/consema-properties/src/
  *    projection.rs:741-752 (ProjectionFailure), edit.rs:237-252
  *    (EditFailure::diagnostic_code), parser.rs:83-91 (profile failure),
  *    parser.rs:645 (malformed Unicode escape)
- *  - FatalFormationFailure: crates/consema-document/src/lib.rs:643-761
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761
  *    (from_diagnostic :649-654, invalid_utf8 :657-672, source_error
- *    :675-761); common codes in crates/consema-protocol/src/error_registry.rs:
+ *    :675-761); common codes in consema-rs/consema-protocol/src/error_registry.rs:
  *    39 (core.parse.resource-limit@1), 207/366/372/399/405 (core.source.*@1)
- *  - QueryExecutionFailure: crates/consema-core/src/query.rs:3114-3219
+ *  - QueryExecutionFailure: consema-rs/consema-core/src/query.rs:3114-3219
  *    (ResourceLimitExceeded :3166, Cancelled :3168, CardinalityViolation
  *    :3159-3164; codes :3206-3219) and the Properties executor domain gate
- *    crates/consema-properties/src/query.rs:130-136, 173-179
+ *    consema-rs/consema-properties/src/query.rs:130-136, 173-179
  *    (DomainMismatch)
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal

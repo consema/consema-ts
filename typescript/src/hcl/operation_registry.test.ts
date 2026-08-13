@@ -2,10 +2,10 @@
  * HCL operation-registry intent tests — golden transcriptions from the
  * frozen registry surface (RFC 0014 §10; RFC 0004 §10).
  *
- * Blind-written intent documents (docs/multi-language-implementation
+ * Blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3); no gate is claimed before the §7 START GATE.
  *
- * Authority: crates/consema-hcl/src/operation_registry.rs:100-157 pins the
+ * Authority: consema-rs/consema-hcl/src/operation_registry.rs:100-157 pins the
  * surface: six operations for `hcl.native@1` (all Supported), four for
  * `hcl.tfvars@1`, canonically sorted by operation id.
  */

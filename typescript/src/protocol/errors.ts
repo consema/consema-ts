@@ -1,10 +1,10 @@
 /**
  * Typed protocol failures with frozen registered codes.
  *
- * authority: the Rust ProtocolErrorKind mapping (crates/consema-protocol/src/
+ * authority: the Rust ProtocolErrorKind mapping (consema-rs/consema-protocol/src/
  * error.rs); the codes are registered in the semantic-model v1 error
- * registry (core.protocol.*@1; crates/consema-protocol/src/error_registry.rs,
- * transcribed into go/protocol/errors.go for cross-reference).
+ * registry (core.protocol.*@1; consema-rs/consema-protocol/src/error_registry.rs,
+ * transcribed into consema-go/go/protocol/errors.go for cross-reference).
  *
  * Design (TypeScript-idiomatic): a typed Error subclass with a closed
  * string-literal `kind`, the frozen `code` property, and a JSON-pointer-ish
@@ -34,7 +34,7 @@ export const codeSchemaMismatch = 'core.protocol.schema-mismatch@1';
 export const codeUnknownField = 'core.protocol.unknown-field@1';
 export const codeMissingField = 'core.protocol.missing-field@1';
 export const codeWrongType = 'core.protocol.wrong-type@1';
-// Package-private like go/protocol/errors.go (unexported consts): the
+// Package-private like consema-go/go/protocol/errors.go (unexported consts): the
 // core/pvce family owns the public `codeInvalidValue`/`codeResourceLimit`
 // names at the package root (index.ts re-exports both modules).
 const codeInvalidValue = 'core.protocol.invalid-value@1';

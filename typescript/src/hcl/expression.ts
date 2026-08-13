@@ -3,7 +3,7 @@
  * literal-complete boundary, and the structural fingerprint (RFC 0014 §4.3-
  * §4.6, §6, §8).
  *
- * authority: crates/consema-hcl/src/expression.rs —
+ * authority: consema-rs/consema-hcl/src/expression.rs —
  *  - HclExpressionKind :200-313 (the closed variant set), kind names
  *    :561-642 (the stable spellings "number"/"boolean"/"null"/"template"/
  *    "function-call"/"variable-ref"/"traversal"/"unary"/"binary"/

@@ -5,19 +5,19 @@
  *  - RFC 0007 (the yaml contract): §3 source/encoding (:55-71), §5 1.2
  *    profile (:98-138), §6 1.1 profile (:140-165), §7 lossless document
  *    (:167-192), §8 composition (:194-212), §13 security (:400-429)
- *  - crates/consema-yaml/src/lib.rs: parse :259-320 (source-bytes limit
+ *  - consema-rs/consema-yaml/src/lib.rs: parse :259-320 (source-bytes limit
  *    :266-272, BOM-stripped backend text :285-287, version-directive
  *    validation :288, event/tokenize/compose order :289-309),
  *    validate_version_directives :789-831 (yaml.profile.version-
  *    directive@1), backend_failure :833-858 (yaml.parse.syntax@1),
  *    exact_empty_scalar :516-539 (native.rs)
- *  - crates/consema-yaml/src/native.rs: compose :111-141, Composer
+ *  - consema-rs/consema-yaml/src/native.rs: compose :111-141, Composer
  *    :223-508 (anchor registration before descending :429-445; alias
  *    resolution to the most recent preceding anchor :267-295; document
  *    span covering DocumentStart..DocumentEnd :492-501), resolve_collection_tag
  *    :541-563 (yaml.tag.kind-mismatch@1), resolve_scalar :565-653
  *    (yaml.scalar.invalid-explicit-tag@1), node_ref :1159-1161
- *  - parser structure cross-referenced with go/yaml/parser.go (the
+ *  - parser structure cross-referenced with consema-go/go/yaml/parser.go (the
  *    independent runner; never copied line-for-line)
  *  - vector-pinned behavior: conformance/vectors/yaml-v1.json
  *    (source.utf16le-bom :16-19, stream.empty :21-24,
@@ -38,7 +38,7 @@
  *
  * RECORDED DIVERGENCE RISK (blind-write, L2): multi-paragraph plain and
  * quoted scalar folding uses the simple single-space join of the
- * conformance-passing Go runner (go/yaml/parser.go parsePlainBlock) rather
+ * conformance-passing Go runner (consema-go/go/yaml/parser.go parsePlainBlock) rather
  * than the full YAML blank-line folding algebra; the shared vectors do not
  * exercise multi-paragraph plain scalars. A future differential audit is
  * recorded as a follow-up.
@@ -320,7 +320,7 @@ class Parser {
     };
   }
 
-  /** Consumes directive lines at a directive position (go/parser.go parseDirectives). */
+  /** Consumes directive lines at a directive position (consema-go/go/parser.go parseDirectives). */
   #parseDirectives(): void {
     while (!this.#atEOF() && this.#atLineStart() && this.#current() === '%') {
       const lineEnd = this.#lineEndAt(this.#pos);

@@ -1,7 +1,7 @@
 /**
  * Snapshot-bound plist structural edit (RFC 0013 §11).
  *
- * authority: crates/consema-plist/src/edit.rs
+ * authority: consema-rs/consema-plist/src/edit.rs
  *  - the six frozen operations :3-12 and operation ids :2153-2159
  *  - EditPathStep/EditPath :76-130 (DictKey with occurrence selector,
  *    ArrayIndex), DictPlacement :132-143, EditValue :145-185 (typed

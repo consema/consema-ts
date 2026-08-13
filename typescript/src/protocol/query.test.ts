@@ -2,7 +2,7 @@
  * Query validation intent tests.
  *
  * These pin the domain/operator table facts of
- * crates/consema-core/src/query.rs:899-1897 and the vector failure names of
+ * consema-rs/consema-core/src/query.rs:899-1897 and the vector failure names of
  * conformance/vectors/v1.json (query.reject-role-mismatch). They run once
  * the toolchain is ready; no gate is claimed before that (§7 START GATE).
  */

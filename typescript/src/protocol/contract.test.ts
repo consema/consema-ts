@@ -2,8 +2,8 @@
  * Contract registry intent tests.
  *
  * These pin the frozen semantic-model v1-v7 contract sets (16/18/25/25/30/38/41
- * records) transcribed from crates/consema-protocol/src/contract.rs:71-273
- * (go/protocol/contract.go:289-473, cross-reference). They run once the
+ * records) transcribed from consema-rs/consema-protocol/src/contract.rs:71-273
+ * (consema-go/go/protocol/contract.go:289-473, cross-reference). They run once the
  * toolchain is ready; no gate is claimed before that (§7 START GATE).
  */
 
@@ -70,7 +70,7 @@ test('v7 contains the eleven v1 records and the v7 additions', () => {
 });
 
 test('the v7 record list matches the frozen sequence', () => {
-  // Transcribed verbatim from go/protocol/contract.go:431-473.
+  // Transcribed verbatim from consema-go/go/protocol/contract.go:431-473.
   assert.deepEqual(ids(7), [
     'core.batch-plan@1',
     'core.batch-result@1',

@@ -10,7 +10,7 @@ tag 推送后 `.github/workflows/release.yml` 自动发布 `@consema/consema`
 1. **版本 bump**：改 `typescript/package.json` 的 `version`，同时改仓根
    `README.md` 的 `Version:` 行（`check-version-consistency` 门禁强制一致）。
 2. **CHANGELOG 策展**：记录本版本变更；跨语言变更同步到
-   consema 仓库根 `CHANGELOG.md`（真实变更记录；`docs/CHANGELOG.md` 只是勘误）。
+   consema 仓库根 `CHANGELOG.md`（真实变更记录；`https://github.com/consema/consema/blob/main/docs/CHANGELOG.md` 只是勘误）。
 3. **质量门禁全绿**：main 分支 CI `check (all gates green)` 全绿
    （清单见各仓 ci 配置）。
 4. **打 tag 并推送**（发布动作的唯一触发点）：
@@ -18,11 +18,12 @@ tag 推送后 `.github/workflows/release.yml` 自动发布 `@consema/consema`
    git tag vX.Y.Z
    git push origin vX.Y.Z
    ```
-   发布 workflow 会先校验 tag↔版本一致（tag 去掉 `v` 前缀必须等于
-   `typescript/package.json` 的 version，不一致即 exit 1 中止），校验通过
-   后 provision conformance 数据（多仓 checkout 模式，与 CI 一致；
-   `npm test` 的 conformance runner 按仓库相对路径读 `conformance/`），
-   再执行 npm ci / check / test / publish。
+   发布 workflow 会先 provision conformance 数据（多仓 checkout 模式，与
+   CI 一致；`npm test` 的 conformance runner 按仓库相对路径读
+   `conformance/`），再校验 tag↔版本一致（tag 去掉 `v` 前缀必须等于
+   `typescript/package.json` 的 version，不一致即 exit 1 中止；provision
+   步骤在校验之前，与 release.yml 的步骤顺序一致），最后执行
+   npm ci / check / test / publish --dry-run / publish。
 
 ## 2. 凭证配置（用户侧一次性动作）
 
@@ -58,7 +59,8 @@ npm publish --tag canary --provenance
 ## 4. 发布形态说明（决策记录）
 
 1.0 前保持**源码直发**：`main`/`types`/`exports` 均指向
-`./src/index.ts`，`files = ["src"]`——零构建依赖、node 26 原生执行 TS，
+`./src/index.ts`，`files = ["src", "!src/**/*.test.ts"]`（排除测试文件，
+tarball 不含消费者环境 ENOENT 死文件）——零构建依赖、node 26 原生执行 TS，
 发布包即源码（类型与实现天然同源，无 dist 漂移风险）。若未来需要
 降级兼容（如浏览器打包器需要 JS），再切换为 tsc 预编译 dist 形态，
 届时需同步修改 main/types/exports/files 并增加 build 步骤。

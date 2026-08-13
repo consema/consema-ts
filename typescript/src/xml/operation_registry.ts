@@ -1,7 +1,7 @@
 /**
  * Versioned XML edit-operation discovery for one exact profile.
  *
- * authority: crates/consema-xml/src/operation_registry.rs
+ * authority: consema-rs/consema-xml/src/operation_registry.rs
  *  - the eight frozen descriptors :16-89 — operation ids, target roles,
  *    argument schemas, and support classification (do not guess):
  *      xml.edit.replace-text@1         xml.text@1

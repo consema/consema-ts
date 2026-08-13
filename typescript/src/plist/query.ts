@@ -1,7 +1,7 @@
 /**
  * Plist three-domain query execution (RFC 0013 §8).
  *
- * authority: crates/consema-plist/src/query.rs
+ * authority: consema-rs/consema-plist/src/query.rs
  *  - PlistMatch :60-114, PlistSyntaxMatch :131-162, PlistBinaryMatch
  *    :171-251
  *  - native operators :810-1163 (document-root :853-876, dict-entries
@@ -24,7 +24,7 @@
  *    DomainMismatch, hard gate 1), :392-420 (plist.binary-structure-query@1
  *    — XML documents are rejected the same way)
  *  - family failure-code mapping (vector-facing spellings):
- *    crates/consema-conformance/src/plist_v1.rs:1141-1153
+ *    consema-rs/consema-conformance/src/plist_v1.rs:1141-1153
  *  - vector-pinned behavior: conformance/vectors/plist-v1.json
  *    (plist.query.dict-entries-order, plist.query.typed-accessors with
  *    mismatch_code plist.query.type-mismatch@1, plist.query.binary-structure)

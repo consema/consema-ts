@@ -7,7 +7,7 @@
  *    formation.escape-and-java-utf16-matrix (:31-34),
  *    formation.latin1-byte-and-bom-content (:51-54)
  *  - RFC 0010 §4 (:108-131) freezes the JavaString contract
- *  - crates/consema-properties/src/lib.rs:124-206 (JavaString), :814-830
+ *  - consema-rs/consema-properties/src/lib.rs:124-206 (JavaString), :814-830
  *    (classify_java_string), :838-848 (exact-unit preservation test)
  */
 

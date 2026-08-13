@@ -1,6 +1,6 @@
 /**
- * `consema.plist.conformance@1` runner (45 cases; mirror of
- * crates/consema-conformance/src/plist_v1.rs).
+ * `consema.plist.conformance@1` runner (49 cases; mirror of
+ * consema-rs/consema-conformance/src/plist_v1.rs).
  *
  * The formation cases dispatch through the plist family parsers; the
  * query/projection/materialization/edit/conversion cases dispatch through

@@ -1,7 +1,7 @@
 /**
  * The transferable Profile and Capability registry records.
  *
- * authority: crates/consema-protocol/src/registry.rs (profile-descriptor@1,
+ * authority: consema-rs/consema-protocol/src/registry.rs (profile-descriptor@1,
  * capability-declaration@1, registry-manifest@1); the namespace rule at
  * registry.rs:475-498; consema-core capability.rs:7-96 (CapabilityId,
  * ImplementationSupport, VerificationStatus). The vectors pin the records in

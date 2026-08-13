@@ -1,7 +1,7 @@
 /**
  * Native and lossless-syntax query execution over one immutable snapshot.
  *
- * authority: crates/consema-json/src/query.rs
+ * authority: consema-rs/consema-json/src/query.rs
  *  - JsonMatch :12-43, JsonSyntaxMatch :55-88
  *  - execute_json_query :91-125 (domain gate :97-105 — JSON5 requires
  *    domain v2; the root is the first standard result and must not bypass
@@ -16,7 +16,7 @@
  *    syntax merge sorts by piece ordinal :295-303)
  *  - apply_selection :479-496 (All/First/Last/ZeroOrOne/RequireOne)
  *  - QueryLimits defaults (max_steps 100_000, max_results 100_000):
- *    crates/consema-core/src/query.rs:2967-2981
+ *    consema-rs/consema-core/src/query.rs:2967-2981
  *  - query definition/operator validation: typescript/src/protocol/query.ts
  *    (validateQuery/bindQuery; the JSON operator table rows :318-322,
  *    :371-372; the JSON syntax-kind vocabulary :1066-1088)

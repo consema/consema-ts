@@ -1,6 +1,6 @@
 /**
  * `consema.portable-graph.conformance@1` runner (10 cases; mirror of
- * crates/consema-conformance/src/portable_graph_v1.rs).
+ * consema-rs/consema-conformance/src/portable_graph_v1.rs).
  */
 
 import { Builder, defaultLimits } from '../../graph/graph.ts';
@@ -175,7 +175,7 @@ function strictEquality(case_: VectorCase): void {
 }
 
 /** The `core.portable-graph-query@1` handler (portable_graph_v1.rs:184-219;
- * the Rust graph executor, crates/consema-graph/src/query.rs). */
+ * the Rust graph executor, consema-rs/consema-graph/src/query.rs). */
 function graphQuery(case_: VectorCase): void {
   switch (case_.id) {
     case 'query.reachable-canonical-order':

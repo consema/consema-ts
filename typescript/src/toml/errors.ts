@@ -3,7 +3,7 @@
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess;
  * ErrorCodeRegistry v7):
- *  - crates/consema-protocol/src/error_registry.rs
+ *  - consema-rs/consema-protocol/src/error_registry.rs
  *    toml.edit.representation-fallback@1              :339 (Edit, 0.2.0)
  *    toml.parse.syntax@1                              :345 (Syntax, 0.2.0)
  *    toml.projection.core-invariant@1                 :351 (Projection, 0.2.0)
@@ -12,21 +12,21 @@
  *    core.parse.resource-limit@1                      :39  (Resource, 0.1.0)
  *  - formation status spelling: the vectors compare the frozen enum NAME
  *    "FatalFormationFailure" (conformance/vectors/toml-v1.json:87 "status";
- *    crates/consema-document/src/lib.rs FatalFormationFailure)
+ *    consema-rs/consema-document/src/lib.rs FatalFormationFailure)
  *  - resource-limit diagnostic shape: FatalFormationFailure::resource_limit
- *    (crates/consema-document/src/lib.rs:771-791) — code, category
+ *    (consema-rs/consema-document/src/lib.rs:771-791) — code, category
  *    Resource, severity Error, primary None, arguments {limit, name,
  *    observed}
- *  - syntax diagnostic shape: crates/consema-toml/src/parser.rs:65-82 —
+ *  - syntax diagnostic shape: consema-rs/consema-toml/src/parser.rs:65-82 —
  *    code toml.parse.syntax@1, category Syntax, severity Error, primary =
  *    minimal span, argument "parser_reason"
- *  - projection failure categories: crates/consema-toml/src/projection.rs:
+ *  - projection failure categories: consema-rs/consema-toml/src/projection.rs:
  *    191-200 and the failure→code mapping :410-435
- *  - edit failure categories: crates/consema-toml/src/edit.rs:243-279 and
+ *  - edit failure categories: consema-rs/consema-toml/src/edit.rs:243-279 and
  *    the diagnostic_code mapping :1308-1331 (core.edit.* codes, RFC 0004
  *    §17); the vector compares the frozen NAME "UnsupportedSemanticValue"
  *    (conformance/vectors/toml-v1.json:81)
- *  - native handle failure: crates/consema-toml/src/lib.rs:262-270
+ *  - native handle failure: consema-rs/consema-toml/src/lib.rs:262-270
  *    (TomlAccessError — no registered codes, like LocationError)
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal

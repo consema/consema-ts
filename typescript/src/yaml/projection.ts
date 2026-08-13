@@ -1,7 +1,7 @@
 /**
  * Exact graph and PortableValue projection with complete provenance.
  *
- * authority: crates/consema-yaml/src/projection.rs
+ * authority: consema-rs/consema-yaml/src/projection.rs
  *  - GraphProjectionLimits :17-33 (graph limits + max_provenance_entries
  *    2_000_000), GraphProjectionRequest :35-62, GraphProjectedLocation
  *    :64-92, ProvenanceRelation :94-105 (Direct | Reference | Expanded |

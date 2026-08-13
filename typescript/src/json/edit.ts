@@ -1,7 +1,7 @@
 /**
  * Scalar and structural edit operations over one immutable snapshot.
  *
- * authority: crates/consema-json/src/edit.rs
+ * authority: consema-rs/consema-json/src/edit.rs
  *  - RepresentationPolicy :17-28, ScalarReplacement :30-57, EditOperation
  *    :59-108, EditTransaction/Builder :110-243, EditCommit :245-256,
  *    EditFailure :258-299
@@ -26,11 +26,11 @@
  *    portable_json_kind :1755-1767, canonical_literal :1769-1795,
  *    encode_json_string :1797-1805, push_json_string_char :1807-1829,
  *    validate_literal :1831-1862, find_value_by_literal_span :1864-1882)
- *  - frozen codes: crates/consema-protocol/src/error_registry.rs:213
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:213
  *    (json.edit.representation-fallback@1), :262-276 (core.edit.*),
  *    kind→code mapping edit.rs:1299-1323
  *  - operation ids (EXACT registry, do not guess):
- *    crates/consema-json/src/operation_registry.rs:19-78 and
+ *    consema-rs/consema-json/src/operation_registry.rs:19-78 and
  *    edit.rs:1110-1133 ("json.edit.replace-scalar-semantic@1",
  *    "json.edit.replace-scalar-literal@1", "json.edit.insert-member@1",
  *    "json.edit.remove-member@1", "json.edit.move-member@1",

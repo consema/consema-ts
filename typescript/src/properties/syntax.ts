@@ -1,7 +1,7 @@
 /**
  * Closed Java Properties lossless syntax-piece classification.
  *
- * authority: crates/consema-properties/src/lib.rs
+ * authority: consema-rs/consema-properties/src/lib.rs
  *  - PropertiesSyntaxKind :208-235 (the twelve kinds)
  *  - stable query and protocol names :237-274 (as_str :240-254,
  *    from_name :257-273)

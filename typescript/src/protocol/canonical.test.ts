@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Canonical tagged JSON transport intent tests.
  *
  * The golden bytes are pinned by conformance/vectors/protocol-v1.json
@@ -135,7 +135,7 @@ test('documented divergence (Rust wins): non-canonical decimals are rejected via
   // The Rust decoder re-encodes the decoded VALUE (value_transport.rs:66-73),
   // so {"coefficient":"10","exponent":"0"} normalizes to 1e1 and the
   // re-encode differs from the input. The Go implementation re-encodes the
-  // parse tree and would accept this input (go/protocol/canonical.go:487-512);
+  // parse tree and would accept this input (consema-go/go/protocol/canonical.go:487-512);
   // TypeScript follows Rust. Recorded for the parity review.
   const input =
     '{"schema":"core.portable-value-json@1","value":{"type":"Decimal","coefficient":"10","exponent":"0"}}';

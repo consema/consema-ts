@@ -1,6 +1,6 @@
 /**
  * Intent documents for the dry-run EditPlan (RFC 0004 §14;
- * crates/consema-document/src/edit_plan.rs:72-197): a plan closes only
+ * consema-rs/consema-document/src/edit_plan.rs:72-197): a plan closes only
  * when its ordered operation metadata matches its exact SourcePatch, and
  * possessing a plan never authorizes a write.
  */

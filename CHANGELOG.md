@@ -2,7 +2,7 @@
 
 Consema 遵循 Semantic Versioning。本仓变更记录以规范仓 CHANGELOG 为权威；完整历史与跨语言时间线见 github.com/consema/consema 的 CHANGELOG.md。
 
-## 1.0.0-rc.1（2026-08-12）
+## 1.0.0-rc.1（2026-08-13 · 66ec3fd，本仓版本 bump）
 
 六仓拆分落地：本仓自规范仓（github.com/consema/consema）拆分独立（2026-08-12），承载 TypeScript 实现（node 26，`tsc --noEmit` strict，运行时零依赖，version 1.0.0-rc.1）。
 

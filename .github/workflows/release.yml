@@ -44,17 +44,18 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
+          ref: ad667021f0fd7c611dd0deb670eba7658e1ea575 # cfd6e296 519-case conformance data pin
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '26.x'
+          node-version: '26.7.0'
           registry-url: 'https://registry.npmjs.org'
-          # package-manager-cache: false — setup-node v4 would otherwise
-          # enable npm caching by default, and this tag-triggered publishing
-          # workflow must never consume a (potentially poisoned) cache entry
-          # when building the artifact that gets published (zizmor
-          # cache-poisoning); the CI workflows keep the cache.
-          package-manager-cache: false
+          # cache: false — setup-node v4 does not enable npm caching by
+          # default and has no package-manager-cache input; this tag-triggered
+          # publishing workflow explicitly disables the cache so the published
+          # artifact never consumes a (potentially poisoned) cache entry
+          # (zizmor cache-poisoning); the CI workflows keep the cache.
+          cache: false
       # provision conformance data from the consema spec repository
       # (the runner test resolves conformance/* by repository-relative path;
       # identical step to the ts-gates job of ci-typescript.yml).
@@ -68,14 +69,8 @@ jobs:
             throw "conformance data not found in the consema checkout: $source"
           }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
-          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
-          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
-          if (-not (Test-Path -LiteralPath $manifest)) {
-            throw "fc-manifest not found in the consema checkout: $manifest"
-          }
-          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
-          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
+          Write-Output "provisioned conformance/: $count files"
 
       # Release guard (rc 前六角色审计 P1, 2026-08-12): the tag minus the
       # leading v must equal the package.json version, otherwise a mismatched
@@ -100,7 +95,21 @@ jobs:
         run: npm run check
       - name: npm test (node --test, full suite)
         working-directory: typescript
-        run: npm test
+        shell: bash
+        run: |
+          set -euo pipefail
+          # npm test's quoted glob exits 0 even when nothing matched ("tests
+          # 0"); a zero-test run must not pass the release gate.
+          files="$(find src -name '*.test.ts' | wc -l)"
+          if [[ "$files" -lt 1 ]]; then
+            echo "::error::no *.test.ts files matched — npm test would run zero tests and exit 0"
+            exit 1
+          fi
+          echo "running $files test files"
+          npm test
+      - name: npm publish --dry-run (packaging validation before the real publish)
+        working-directory: typescript
+        run: npm publish --dry-run --access public
       - name: npm publish (provenance, public access)
         working-directory: typescript
         run: npm publish --provenance --access public

@@ -3,10 +3,10 @@
  * identity contracts.
  *
  * authority:
- *  - IniProfile: crates/consema-ini/src/lib.rs:35-56 — the three frozen
+ *  - IniProfile: consema-rs/consema-ini/src/lib.rs:35-56 — the three frozen
  *    profiles and their ProfileId mappings (:49-55): "ini.portable"@1,
  *    "ini.windows"@1, "ini.python-configparser"@1; RFC 0009 §1
- *    (docs/rfcs/0009-ini-family-profiles-v1.md:20-26) freezes the spellings
+ *    (https://github.com/consema/consema/blob/main/docs/rfcs/0009-ini-family-profiles-v1.md:20-26) freezes the spellings
  *    ini.portable@1 / ini.windows@1 / ini.python-configparser@1
  *  - IniEncodingSelection: lib.rs:58-65 (ProfileDefault | Explicit)
  *  - IniParseLimits: lib.rs:67-119 — the field set and the frozen defaults

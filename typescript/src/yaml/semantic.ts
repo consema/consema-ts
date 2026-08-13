@@ -1,7 +1,7 @@
 /**
  * YAML native semantics: node kinds, scalar categories, and scalar styles.
  *
- * authority: crates/consema-yaml/src/lib.rs
+ * authority: consema-rs/consema-yaml/src/lib.rs
  *  - YamlNodeKind :118-127 (Scalar | Sequence | Mapping)
  *  - YamlScalarStyle :129-142 (Plain | SingleQuoted | DoubleQuoted |
  *    Literal | Folded)

@@ -3,20 +3,20 @@
  * formation surface (RFC 0014 §1, §3, §5, §6).
  *
  * authority:
- *  - profile layer: crates/consema-hcl/src/document.rs:50-116 — the tfvars
+ *  - profile layer: consema-rs/consema-hcl/src/document.rs:50-116 — the tfvars
  *    gate (:95-108, one `hcl.tfvars.block-not-allowed@1` per top-level block,
  *    primary = block span; the rejected block remains a native item),
  *    deterministic diagnostic merge (:109), the Document facts (:118-260:
  *    status, source, render, diagnostics, snapshot identity, format family,
  *    profile, error regions, lossless index, syntax kinds, parse limits,
  *    native handles)
- *  - encoding selection: crates/consema-hcl/src/lib.rs:120-162 (the
+ *  - encoding selection: consema-rs/consema-hcl/src/lib.rs:120-162 (the
  *    UTF-8-only contract; a non-UTF-8 explicit selection fails fatally
  *    with `hcl.parse.encoding@1` before any byte is read, lib.rs:290-310)
- *  - native model: crates/consema-hcl/src/native.rs:28-291 (HclDocument,
+ *  - native model: consema-rs/consema-hcl/src/native.rs:28-291 (HclDocument,
  *    HclBody, HclBodyItem, HclAttribute, HclBlock, HclBlockLabel,
  *    HclErrorRegion)
- *  - roles: crates/consema-document/src/lib.rs:229-250 (HclDocument,
+ *  - roles: consema-rs/consema-document/src/lib.rs:229-250 (HclDocument,
  *    HclBody, HclAttribute, HclBlock, HclBlockLabel, HclExpression,
  *    HclTemplatePart, HclErrorRegion, HclSyntaxPiece — pinned in
  *    typescript/src/document/identity.ts:171-179)

@@ -1,7 +1,7 @@
 /**
  * The immutable plist-family document and its typed native handles.
  *
- * authority: crates/consema-plist/src/parser_xml.rs:282-363 (PlistFormedXml),
+ * authority: consema-rs/consema-plist/src/parser_xml.rs:282-363 (PlistFormedXml),
  * parser_binary.rs:253-335 (PlistFormedBinary), document.rs (the shared
  * `Document` wrap); RFC 0013 §3
  *  - a `Complete` document covers every admitted source byte under the

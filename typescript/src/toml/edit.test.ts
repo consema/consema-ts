@@ -1,9 +1,9 @@
 /**
  * TOML scalar and structural edit intent tests.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from
- * conformance/vectors/toml-v1.json and crates/consema-toml/src/edit.rs
+ * conformance/vectors/toml-v1.json and consema-rs/consema-toml/src/edit.rs
  * and run once the toolchain is ready. Golden cases cited: toml-v1.json
  * case ids are named in each test.
  */

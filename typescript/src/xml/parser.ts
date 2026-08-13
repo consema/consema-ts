@@ -5,13 +5,13 @@
  *
  * authority (language-neutral behavior, byte-exact spans, recovery):
  *  - the tokenizer state machine follows the pinned backend contract of
- *    crates/consema-xml/src/parser.rs (:246-273) and the xmlparser 0.13.6
+ *    consema-rs/consema-xml/src/parser.rs (:246-273) and the xmlparser 0.13.6
  *    behavior it binds (RFC 0012 §13; the pinned backend's stream semantics
  *    are observed in the crate probes below). Key deterministic facts:
  *    - a tokenizer-level failure jumps the stream to the end of the input
  *      (xmlparser Stream::jump_to_end), so the recovery region is always
  *      the final decoded byte and tokenization stops
- *      (parser.rs:255-269; go/xml/parser.go:153-161)
+ *      (parser.rs:255-269; consema-go/go/xml/parser.go:153-161)
  *    - EOF between tokens is a clean end; EOF inside a construct is a
  *      tokenizer error (xmlparser next() loop)
  *    - top-level (outside the root) whitespace is skipped without a token;
@@ -54,7 +54,7 @@
  * published vector xml.syntax-query.kind-and-text-filter list the second
  * local-name as ordinal 10, while the current Rust crate emits ordinal 11
  * (the vector's ordinal field is informational — the conformance runner
- * checks kind and text only, crates/consema-conformance/src/xml_v1.rs:
+ * checks kind and text only, consema-rs/consema-conformance/src/xml_v1.rs:
  * 297-325 — and the vector predates the text-piece emission). This
  * implementation follows the current Rust crate: the end-tag local-name
  * is ordinal 11.
@@ -352,7 +352,7 @@ class XmlParser {
           // A tokenizer error jumps the stream to the end of the document
           // (xmlparser Stream::jump_to_end), so the recovery region is
           // always the final decoded byte and tokenization stops
-          // (parser.rs:255-269; go/xml/parser.go:153-161).
+          // (parser.rs:255-269; consema-go/go/xml/parser.go:153-161).
           this.#recoverErrorRegion(text.length - 1, text.length);
           stopped = true;
           break;

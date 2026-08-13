@@ -1,8 +1,8 @@
-﻿/**
+/**
  * The self-owned HCL lexer: token stream, recovery regions, diagnostics,
  * and the lossless 30-kind piece assembly (RFC 0014 §7.2).
  *
- * authority: crates/consema-hcl/src/lexer.rs —
+ * authority: consema-rs/consema-hcl/src/lexer.rs —
  *  - HclTokenKind :103-245 (the token vocabulary, including Dot/Arrow/
  *    Ellipsis/Star that map to the `Operator` syntax kind :281-297)
  *  - syntax kind mapping :251-301 (the frozen RFC 0014 §7.2 kinds,

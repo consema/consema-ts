@@ -1,7 +1,7 @@
 /**
  * Versioned plist edit-operation discovery for one exact profile.
  *
- * authority: crates/consema-plist/src/operation_registry.rs
+ * authority: consema-rs/consema-plist/src/operation_registry.rs
  *  - the six frozen descriptors :20-83 — operation ids, target roles,
  *    argument schemas, and support classification (do not guess):
  *      plist.edit.set-value@1              plist.value@1

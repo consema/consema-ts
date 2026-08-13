@@ -1,10 +1,9 @@
 /**
- * The `toml` family of the TypeScript Consema implementation (L1,
- * mirror of Go G1.3).
+ * The `toml` family of the TypeScript Consema implementation (L1).
  *
- * authority: docs/multi-language-implementation-plan.md §2 L1 (:73);
+ * authority: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L1 (:73);
  * RFC 0001 (the language-neutral TOML contract); the shared vector suite
- * conformance/vectors/toml-v1.json; crates/consema-toml for byte/registry
+ * conformance/vectors/toml-v1.json; consema-rs/consema-toml for byte/registry
  * arbitration only.
  *
  * Modules:

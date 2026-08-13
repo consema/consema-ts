@@ -1,7 +1,7 @@
-﻿/**
+/**
  * Java Properties structural edit operations over one immutable snapshot.
  *
- * authority: crates/consema-properties/src/edit.rs
+ * authority: consema-rs/consema-properties/src/edit.rs
  *  - EditOperation :16-56, EditTransaction/Builder :70-163, EditCommit
  *    :165-176, EditFailure :178-253
  *  - Document::commit :270-442 (RecoveredDocument gate :273-275,
@@ -30,7 +30,7 @@
  *    placement names :1150-1157
  *  - RFC 0010 §13 (:383-413) freezes the five operations and the
  *    transaction/conflict algebra
- *  - frozen codes: crates/consema-protocol/src/error_registry.rs:1099-1109
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:1099-1109
  *    (java-properties.edit.canonical-fallback@1, invalid-placement@1);
  *    :262-276/556-604 (core.edit.*@1)
  *  - vector-pinned behavior: conformance/vectors/java-properties-v1.json

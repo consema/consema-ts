@@ -1,7 +1,7 @@
 /**
  * The immutable Java Properties document and its typed native handles.
  *
- * authority: crates/consema-properties/src/lib.rs
+ * authority: consema-rs/consema-properties/src/lib.rs
  *  - Document :590-608 (snapshot identity, source, profile, structural
  *    index, syntax kinds, formation status, diagnostics, natural lines,
  *    logical lines, properties, comments, escapes, error lines, parse

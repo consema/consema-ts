@@ -1,7 +1,7 @@
 /**
  * Closed YAML lossless presentation-piece classification.
  *
- * authority: crates/consema-yaml/src/lib.rs
+ * authority: consema-rs/consema-yaml/src/lib.rs
  *  - YamlSyntaxKind :63-116 (the twenty-five kinds)
  *  - stable query and protocol names :167-198 (as_str), :200-231 (from_name)
  *  - trivia classification :233-238 (Bom | Whitespace | Newline | Comment)

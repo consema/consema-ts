@@ -2,7 +2,7 @@
  * Typed document-domain failures with frozen registered codes.
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess):
- *  - ErrorCodeRegistry v7: crates/consema-protocol/src/error_registry.rs
+ *  - ErrorCodeRegistry v7: consema-rs/consema-protocol/src/error_registry.rs
  *    core.source.invalid-utf8@1            :207 (Lexical, 0.1.0)
  *    core.source.encoding-conflict@1       :366 (Encoding, 0.4.0)
  *    core.source.invalid-sequence@1        :372 (Lexical, 0.4.0)
@@ -17,18 +17,18 @@
  *    core.parse.resource-limit@1           :39  (parse)
  *  - materialization codes (RFC 0004 §17, ErrorCodeRegistry v3):
  *    core.materialization.invalid-request@1 ... unsupported-style@1
- *    (crates/consema-protocol/src/error_registry.rs:556-604)
+ *    (consema-rs/consema-protocol/src/error_registry.rs:556-604)
  *  - kind→code mapping authority:
- *    SourceError: crates/consema-conformance/src/source_v1.rs:410-421 and
- *      crates/consema-document/src/lib.rs:676-706 (FatalFormationFailure)
- *    SourcePatchError: crates/consema-document/src/source_patch.rs:434-459
- *    MaterializationFailure: crates/consema-document/src/materialization.rs:379-391
+ *    SourceError: consema-rs/consema-conformance/src/source_v1.rs:410-421 and
+ *      consema-rs/consema-document/src/lib.rs:676-706 (FatalFormationFailure)
+ *    SourcePatchError: consema-rs/consema-document/src/source_patch.rs:434-459
+ *    MaterializationFailure: consema-rs/consema-document/src/materialization.rs:379-391
  *  - the vector suite pins the codes end-to-end:
  *    conformance/vectors/source-v1.json:57,63,69,75,81,129,135,141,147,153,159,165,171
  *
  * NOTE: there are NO `core.document.*@1` error codes in the v7 registry;
  * the only `core.document.*` frozen name is the capability
- * `core.document.exact-roundtrip@1` (crates/consema-protocol/src/registry.rs:513).
+ * `core.document.exact-roundtrip@1` (consema-rs/consema-protocol/src/registry.rs:513).
  * Document-domain failures therefore carry `core.source.*@1`,
  * `core.protocol.invalid-value@1`, or `core.materialization.*@1` codes.
  * LocationError has no registered codes at all: the vector suite compares
@@ -84,7 +84,7 @@ export type SourceErrorKind =
   | 'ResourceLimit'
   | 'OffsetOverflow';
 
-/** Stable source construction failure (crates/consema-document/src/source.rs:668-708). */
+/** Stable source construction failure (consema-rs/consema-document/src/source.rs:668-708). */
 export class SourceError extends Error {
   readonly kind: SourceErrorKind;
   /** Frozen registered code (kind→code: conformance source_v1.rs:410-421; lib.rs:676-706). */
@@ -143,7 +143,7 @@ export class SourceError extends Error {
 /**
  * Kind→code mapping (conformance source_v1.rs:410-421; the `from_utf8`
  * compat path additionally maps InvalidUtf8 to core.source.invalid-utf8@1
- * per crates/consema-document/src/lib.rs:676-679).
+ * per consema-rs/consema-document/src/lib.rs:676-679).
  */
 export function sourceErrorCode(kind: SourceErrorKind): string {
   switch (kind) {
@@ -171,7 +171,7 @@ export function sourceErrorCode(kind: SourceErrorKind): string {
  * Frozen names: the vector suite compares these exact spellings
  * (conformance/vectors/source-v1.json:99,117 "NoDecodedText",
  * "IncompleteStructuralCoverage"; the full name table is the conformance
- * runner crates/consema-conformance/src/source_v1.rs:423-436). There is no
+ * runner consema-rs/consema-conformance/src/source_v1.rs:423-436). There is no
  * registered error code for any location failure.
  */
 export type LocationErrorKind =
@@ -246,7 +246,7 @@ export class SourcePatchError extends Error {
   }
 }
 
-/** Kind→code mapping (crates/consema-document/src/source_patch.rs:434-459). */
+/** Kind→code mapping (consema-rs/consema-document/src/source_patch.rs:434-459). */
 function sourcePatchErrorCode(kind: SourcePatchErrorKind, source?: SourceError): string {
   switch (kind) {
     case 'BaseMismatch':
@@ -381,7 +381,7 @@ export class MaterializationFailure extends Error {
   }
 }
 
-/** Kind→code mapping (crates/consema-document/src/materialization.rs:379-391). */
+/** Kind→code mapping (consema-rs/consema-document/src/materialization.rs:379-391). */
 export function materializationFailureCode(kind: MaterializationFailureKind): string {
   switch (kind) {
     case 'InvalidRequest':

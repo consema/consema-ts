@@ -1,9 +1,9 @@
 /**
  * Completion, execution-policy, and cancellation-request wire records.
  *
- * authority: crates/consema-protocol/src/execution.rs — Completion state
+ * authority: consema-rs/consema-protocol/src/execution.rs — Completion state
  * invariants (:40-187), ExecutionPolicy (:189-277), CancellationRequest
- * (:279-340); the fixed-field helpers mirror crates/consema-protocol/src/
+ * (:279-340); the fixed-field helpers mirror consema-rs/consema-protocol/src/
  * schema.rs. The Python transcription (consema/conformance/protocol_records.py)
  * is the runner-side cross-reference.
  *

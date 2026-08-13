@@ -7,7 +7,7 @@
  *    enter the consema-protocol core error registry (which covers only
  *    core/protocol and line-format contract codes)
  *  - xml.* formation/recovery/limit code sites (the pinned spellings):
- *    crates/consema-xml/src/parser.rs
+ *    consema-rs/consema-xml/src/parser.rs
  *      xml.source.decoding@1           :44       (Encoding)
  *      xml.profile.encoding@1          :73,106   (Conformance)
  *      xml.profile.unknown@1           :217      (Conformance)
@@ -60,18 +60,18 @@
  *      xml.tree.root@1                 :1815     (Conformance)
  *      xml.doctype.root-mismatch@1     :1819     (Syntax)
  *      xml.source.coverage@1           :1893     (Conformance)
- *  - xml.projection.* codes: crates/consema-xml/src/projection.rs:459-468
+ *  - xml.projection.* codes: consema-rs/consema-xml/src/projection.rs:459-468
  *    (recovered-document@1, subtree@1, admission@1, collision@1,
  *    resource-limit@1, core-invariant@1)
- *  - xml.edit.* codes: crates/consema-xml/src/edit.rs:388-408 (the XML
+ *  - xml.edit.* codes: consema-rs/consema-xml/src/edit.rs:388-408 (the XML
  *    edit family's StableFailure mapping; the core.edit.* codes not present
  *    in ErrorCodeRegistry v7 — invalid-qname@1, unbound-prefix@1,
  *    reserved-prefix@1, duplicate-expanded-attribute@1, cannot-remove-root@1,
  *    ancestor-placement@1 — are pinned by this file, per RFC 0012 §12 the
  *    family's own format section handles them)
- *  - core.query.* codes: crates/consema-protocol/src/error_registry.rs:
+ *  - core.query.* codes: consema-rs/consema-protocol/src/error_registry.rs:
  *    141-201 (query section), QueryFailure kind mapping :1517-1527
- *  - FatalFormationFailure: crates/consema-document/src/lib.rs:643-761
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance so the

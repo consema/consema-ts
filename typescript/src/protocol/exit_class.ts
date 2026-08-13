@@ -2,7 +2,7 @@
  * The frozen CLI exit classes and the pure error classification.
  *
  * authority: RFC 0015 §5 (the six exit classes, their codes 0-5, and the
- * stable error-family → class mapping of §5.2); crates/consema-protocol/src/
+ * stable error-family → class mapping of §5.2); consema-rs/consema-protocol/src/
  * exit_class.rs. ClassifyErrorCode is a pure function (RFC 0016 §6: "the SDK
  * itself never classifies"); the CLI applies the mapped code only.
  */

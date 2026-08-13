@@ -1,12 +1,12 @@
-﻿/**
+/**
  * Lossless Java Properties parsing into the immutable document model.
  *
  * authority (language-neutral behavior, byte-exact spans, recovery):
- *  - RFC 0010 (docs/rfcs/0010-java-properties-profiles-v1.md): §3 source
+ *  - RFC 0010 (https://github.com/consema/consema/blob/main/docs/rfcs/0010-java-properties-profiles-v1.md): §3 source
  *    contracts (:65-106), §5 natural/logical lines (:133-158), §6
  *    key/separator/element grammar (:160-181), §7 escape processing
  *    (:183-206), §8 formation and recovery (:208-234)
- *  - crates/consema-properties/src/parser.rs — parse :17-36,
+ *  - consema-rs/consema-properties/src/parser.rs — parse :17-36,
  *    encoding_request :38-55, validate_profile_encoding :57-81,
  *    profile_failure :83-91, scan_natural_lines :230-298, is_blank
  *    :300-305, is_comment :307-313, add_comment :320-350, add_logical_line
@@ -15,10 +15,10 @@
  *    build_structural_pieces :698-729, build_atoms :882-907,
  *    decode_java_string :909-996, is_properties_whitespace :998-1000,
  *    structural_kind :1002-1017
- *  - source and encoding: crates/consema-document/src/lib.rs:643-761
- *    (FatalFormationFailure); codes in crates/consema-protocol/src/
+ *  - source and encoding: consema-rs/consema-document/src/lib.rs:643-761
+ *    (FatalFormationFailure); codes in consema-rs/consema-protocol/src/
  *    error_registry.rs:207, 372, 366, 405, 399
- *  - profiles: crates/consema-properties/src/lib.rs:33-59 (RFC 0010 §1)
+ *  - profiles: consema-rs/consema-properties/src/lib.rs:33-59 (RFC 0010 §1)
  *  - vector-pinned behavior: conformance/vectors/java-properties-v1.json
  *    (all 17 cases; the 20-limit matrix pins the limit names)
  *

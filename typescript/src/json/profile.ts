@@ -1,7 +1,7 @@
 /**
  * Frozen JSON language profiles.
  *
- * authority: crates/consema-json/src/lib.rs
+ * authority: consema-rs/consema-json/src/lib.rs
  *  - JsonProfile :37-45 (StrictV1 | JsoncBoundedV1 | Json5StandardV1)
  *  - profile ids :140-146 ("json.strict@1", "jsonc.bounded@1",
  *    "json5.standard@1")

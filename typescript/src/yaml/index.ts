@@ -1,11 +1,11 @@
 /**
- * Consema YAML family (L2, mirror of Go G2.1): lossless
+ * Consema YAML family (L2): lossless
  * `yaml.1.2-core@1` and `yaml.1.1-compat@1` documents with native/syntax
  * queries, graph/value projection, canonical materialization, structural
  * edits, and the frozen operation registry.
  *
- * authority and scope: docs/multi-language-implementation-plan.md §2 L2
- * (yaml family, mirror of Go G2.1); RFC 0007 (the yaml contract),
+ * authority and scope: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L2
+ * (yaml family); RFC 0007 (the yaml contract),
  * RFC 0004 (materialization/edit), RFC 0016 §5.1 F10 (formation);
  * the shared vectors conformance/vectors/yaml-v1.json. See each module
  * header for its exact authority citations.

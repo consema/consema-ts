@@ -1,7 +1,7 @@
 /**
  * Native plist value model (RFC 0013 §6).
  *
- * authority: crates/consema-plist/src/native.rs
+ * authority: consema-rs/consema-plist/src/native.rs
  *  - PLIST_EPOCH_OFFSET_UNIX :35 (978_307_200.0 — seconds between the Unix
  *    epoch and the plist epoch 2001-01-01T00:00:00Z, RFC 0013 §5.5)
  *  - PlistStringStatus :39-44 (WellFormedUnicode | UnpairedSurrogate,

@@ -1,9 +1,9 @@
 /**
  * Cross-language normalized-result differential harness test — TypeScript
- * side (design: docs/five-language-ci-design.md §3.3; Go precedent:
- * go/conformance/differential/normalized/normalized_test.go).
+ * side (design: https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.3; Go precedent:
+ * consema-go/go/conformance/differential/normalized/normalized_test.go).
  *
- * TestCaseFileIntegrity always runs and guards the checked-in case set
+ * TestCaseFileIntegrity always runs and guards the provisioned case set
  * (manifest id, case count, unique ids), so `npm test` protects the input
  * set even without the orchestrator.
  *

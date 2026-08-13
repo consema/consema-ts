@@ -1,6 +1,6 @@
 /**
  * @consema/consema — the TypeScript implementation of the language-neutral
- * Consema contracts (RFC 0016; docs/multi-language-implementation-plan.md).
+ * Consema contracts (RFC 0016; https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md).
  *
  * Zero third-party runtime dependencies. Domain layout mirrors the Go
  * implementation's package domains:
@@ -42,6 +42,6 @@ export * from './protocol/cli.ts';
 
 // L4 root facade: the unified format-surface registry, the common opaque
 // document union, and the two-stage projection→materialization conversions
-// (mirror of crates/consema root + go/ root; RFC 0015 §6.2; RFC 0004).
+// (mirror of consema-rs/consema root + consema-go/go/ root; RFC 0015 §6.2; RFC 0004).
 export * from './registry.ts';
 export * from './convert.ts';

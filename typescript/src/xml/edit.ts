@@ -1,7 +1,7 @@
 /**
  * Snapshot-bound XML structural edit (RFC 0012 §11).
  *
- * authority: crates/consema-xml/src/edit.rs
+ * authority: consema-rs/consema-xml/src/edit.rs
  *  - the eight versioned operations :1-29 (frozen by RFC 0012 §11 :375-403):
  *    xml.edit.replace-text@1 | insert-attribute@1 | remove-attribute@1 |
  *    rename-attribute@1 | set-attribute-value@1 | insert-element@1 |
@@ -32,7 +32,7 @@
  *    source_patch_limits :1346-1356, operation_metadata :1358-1370,
  *    operation_id :1372-1383, operation_summaries :1385-1435,
  *    occurrence iterators :1438-1497
- *  - frozen codes: crates/consema-xml/src/edit.rs:388-408 (the core.edit.*
+ *  - frozen codes: consema-rs/consema-xml/src/edit.rs:388-408 (the core.edit.*
  *    codes; the XML-specific ones are pinned by this file per RFC 0012 §12)
  *  - the ReplaceText vocabulary boundary: XML ReplaceText excludes CDATA —
  *    `xml.edit.replace-text@1` targets exactly one `xml.text@1` occurrence

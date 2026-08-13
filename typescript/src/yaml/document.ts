@@ -1,7 +1,7 @@
 /**
  * The immutable YAML stream document and its typed native handles.
  *
- * authority: crates/consema-yaml/src/lib.rs
+ * authority: consema-rs/consema-yaml/src/lib.rs
  *  - Document :322-461 (stream_node_ref :337-341, stream_span :343-349,
  *    snapshot_identity :351-355, source :357-361, render :363-367,
  *    format_family :369-373, profile :375-379, formation_status :381-385
@@ -11,7 +11,7 @@
  *    project_graph :433-440, document_count :450-454, parse_limits :456-460)
  *  - YamlDocument :463-501, YamlNode :503-615, YamlScalar :617-647,
  *    YamlSequenceItem :649-689, YamlMappingEntry :691-749, YamlAlias :751-787
- *  - native entities: crates/consema-yaml/src/native.rs NativeStream :33-38,
+ *  - native entities: consema-rs/consema-yaml/src/native.rs NativeStream :33-38,
  *    NativeDocument :40-44, NativeNode :46-53, NativeContent :55-60,
  *    NativeScalar :62-68, NativeSequenceItem :70-76, NativeMappingEntry :78-86,
  *    NativeAlias :88-94

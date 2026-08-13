@@ -1,7 +1,7 @@
 /**
  * Closed JSON/JSONC v1 lossless syntax-piece classification.
  *
- * authority: crates/consema-json/src/lib.rs
+ * authority: consema-rs/consema-json/src/lib.rs
  *  - JsonSyntaxKind :48-84 (the seventeen kinds)
  *  - stable query and protocol names :86-109 (as_str), :112-134 (from_name)
  *

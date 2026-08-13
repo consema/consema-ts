@@ -2,9 +2,9 @@
  * TOML projection intent tests — the explicit best-exact-core projection
  * with fidelity, report, and provenance.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from
- * conformance/vectors/toml-v1.json and crates/consema-toml/src/projection.rs
+ * conformance/vectors/toml-v1.json and consema-rs/consema-toml/src/projection.rs
  * and run once the toolchain is ready. Golden cases cited: toml-v1.json
  * case ids are named in each test.
  */
@@ -116,7 +116,7 @@ test('golden toml.projection.reject-leap-second: second 60 fails the whole proje
 });
 
 test('table-vs-object distinction: table flavors survive natively and meet Object only here', () => {
-  // RFC 0001 §2 and docs/IMPLEMENTATION.md:102 — a DottedTable and a
+  // RFC 0001 §2 and https://github.com/consema/consema/blob/main/docs/IMPLEMENTATION.md:102 — a DottedTable and a
   // StandardTable project to the same Object shape, but the native item
   // kinds remain distinct before projection.
   const document = parseSource('a.b = 1\n[c]\nd = 2\n');

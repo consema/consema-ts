@@ -3,7 +3,7 @@
  * literal-complete boundary and the `ProjectExpression` policy (RFC 0014
  * §8).
  *
- * authority: crates/consema-hcl/src/projection.rs —
+ * authority: consema-rs/consema-hcl/src/projection.rs —
  *  - the record shape (:31-66): `{ "record": "hcl.body@1", "items": [...] }`
  *    with attribute/block items; typed members are core values — string,
  *    integer (BigInteger), real (Decimal), boolean, null, tuple (Sequence),

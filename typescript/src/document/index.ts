@@ -3,8 +3,8 @@
  * locations, formation, materialization requests, raw-byte patches,
  * untouched-byte proofs, and dry-run edit plans.
  *
- * authority and scope: docs/multi-language-implementation-plan.md §2 L1
- * (document, mirror of Go G1.1); RFC 0016 §3.2 (consema/document package
+ * authority and scope: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L1
+ * (document); RFC 0016 §3.2 (consema/document package
  * surface); RFC 0003 (source/patch), RFC 0004 (materialization/edit).
  * See each module header for its exact authority citations.
  */

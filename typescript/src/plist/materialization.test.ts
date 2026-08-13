@@ -8,7 +8,7 @@
  *    plist.materialization.normalization-and-conversion (:1289-1312),
  *    plist.materialization.fractional-date-policy (:1314-1355),
  *    plist.materialization.old-record-shape-rejected (:1357-1377)
- *  - record and style contracts: RFC 0013 §9/§10; crates/consema-plist/
+ *  - record and style contracts: RFC 0013 §9/§10; consema-rs/consema-plist/
  *    src/materialization.rs
  */
 

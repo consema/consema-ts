@@ -1,7 +1,7 @@
 /**
  * Intent documents for the common MaterializationRequest v1 and its
  * completion algebra (RFC 0004 §3/§7/§8;
- * crates/consema-document/src/materialization.rs).
+ * consema-rs/consema-document/src/materialization.rs).
  */
 
 import { test } from 'node:test';

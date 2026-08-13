@@ -3,7 +3,7 @@
  *
  * These pin the frozen semantic-model v1-v7 error-code sets
  * (55/62/90/92/132/166/187 codes) transcribed from
- * crates/consema-protocol/src/error_registry.rs (go/protocol/error_registry.go,
+ * consema-rs/consema-protocol/src/error_registry.rs (consema-go/go/protocol/error_registry.go,
  * cross-reference). They run once the toolchain is ready; no gate is claimed
  * before that (§7 START GATE).
  */

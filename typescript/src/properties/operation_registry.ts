@@ -1,7 +1,7 @@
 /**
  * Versioned Java Properties edit-operation discovery for one exact profile.
  *
- * authority: crates/consema-properties/src/operation_registry.rs
+ * authority: consema-rs/consema-properties/src/operation_registry.rs
  *  - the five frozen descriptors :16-48 — operation ids, target roles,
  *    argument schemas, and support classification (do not guess):
  *      java-properties.edit.insert-property@1       java-properties.document@1

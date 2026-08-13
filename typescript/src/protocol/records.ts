@@ -4,7 +4,7 @@
  * Every protocol record is a PortableValue Object whose first field is the
  * `schema` discriminator and whose remaining fields follow a fixed order
  * (RFC 0015 §4.2 "fixed-field discipline"; the Rust schema helpers,
- * crates/consema-protocol/src/schema.rs). These helpers implement the
+ * consema-rs/consema-protocol/src/schema.rs). These helpers implement the
  * strict field-order/unknown-field/type checks used by every record decoder.
  */
 

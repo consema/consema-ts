@@ -1,11 +1,11 @@
 /**
  * Capability-parity assertion (L4; mirror of the Go capability-parity gate,
- * docs/go-implementation-plan.md §6; authority:
- * docs/fc-manifest-0.13.0.json:31 capability_set — "8 families / 16
+ * https://github.com/consema/consema/blob/main/docs/go-implementation-plan.md §6; authority:
+ * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:32 capability_set — "8 families / 16
  * profiles / 21 query domains / 16 operation registries / 187 error
  * codes"; the per-family operation counts at fc-manifest-0.13.0.json F-5
  * ("json 8/toml 7/yaml 8/ini 8/properties 5/xml 8/plist 6/hcl 6"); the
- * contract counts at fc-manifest-0.13.0.json:26 (semantic-model v7:
+ * contract counts at fc-manifest-0.13.0.json:27 (semantic-model v7:
  * 41 contracts / 187 error codes)).
  *
  * Every mandatory capability must have a TypeScript implementation: the
@@ -19,7 +19,7 @@ import { formatFamilies, profiles, queryDomains, formatOperationRegistry } from 
 import { ContractRegistry } from './protocol/contract.ts';
 import { ErrorCodeRegistry } from './protocol/error_registry.ts';
 
-/** The frozen manifest inventory (fc-manifest-0.13.0.json:31, :26). */
+/** The frozen manifest inventory (fc-manifest-0.13.0.json:32, :27). */
 export const MANIFEST_FAMILY_COUNT = 8;
 export const MANIFEST_PROFILE_COUNT = 16;
 export const MANIFEST_QUERY_DOMAIN_COUNT = 21;

@@ -2,7 +2,7 @@
  * The CLI machine-protocol payloads of RFC 0015.
  *
  * authority: RFC 0015 §4 (core.cli-output@1), §8 (core.batch-plan@1), §9
- * (core.batch-result@1); the Rust record codecs (crates/consema-protocol/
+ * (core.batch-result@1); the Rust record codecs (consema-rs/consema-protocol/
  * src/cli.rs); the golden envelope bytes of RFC 0015 §4.4. The full
  * presence/cross-constraint validation is implemented here: per-status field
  * presence, `source_digest == source_patch.base_digest`, command/payload

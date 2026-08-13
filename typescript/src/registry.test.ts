@@ -1,9 +1,9 @@
 /**
- * L4 root facade tests (mirror of crates/consema/src/lib.rs tests).
+ * L4 root facade tests (mirror of consema-rs/consema/src/lib.rs tests).
  *
- * authority: crates/consema/src/lib.rs:317-488 (registry tests) and
+ * authority: consema-rs/consema/src/lib.rs:317-488 (registry tests) and
  * :822-1068 (facade tests); the frozen inventory of RFC 0015 §6.2 and
- * docs/fc-manifest-0.13.0.json:31 (8 families / 16 profiles / 21 query
+ * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:32 (8 families / 16 profiles / 21 query
  * domains / 16 operation registries).
  */
 

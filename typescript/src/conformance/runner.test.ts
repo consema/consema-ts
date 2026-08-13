@@ -1,7 +1,7 @@
 /**
- * Conformance runner test (L4; authority: docs/five-language-ci-design.md
+ * Conformance runner test (L4; authority: https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md
  * §2.2 — the runner test asserts the digest, the 18/519 inventory, the
- * per-suite counts, and executes every case; conformance/README.md:81-82
+ * per-suite counts, and executes every case; conformance/README.md:84
  * "每个 suite 必须验证 case 数量").
  */
 
@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import {
   RECORDED_AGGREGATE_DIGEST,
   SUITE_EXPECTED_COUNTS,
+  main,
   runAll,
 } from './runner.ts';
 
@@ -26,6 +27,17 @@ test('conformance: 18 suites / 519 cases, digest match, zero failures', () => {
   // gap cannot be introduced silently.
   assert.equal(result.passed, 519, `all 519 cases pass, observed ${result.passed}`);
   assert.equal(result.skipped, 0, `zero documented skips at L5, observed ${result.skipped}`);
+});
+
+test('CLI exit classes (RFC 0015 §5.1): success 0, usage 1, data 2', () => {
+  // A bare invocation runs the full suite (the provisioned vectors are the
+  // same data runAll above consumes) and must exit success.
+  assert.equal(main(['node', 'runner.ts']), 0, 'full run with default vectors dir exits 0');
+  // More than one positional argument is a usage error (exit 1), not a
+  // data failure.
+  assert.equal(main(['node', 'runner.ts', 'vectors-dir', 'unexpected']), 1, 'extra positional argument exits 1');
+  // A missing vectors directory is an input-read failure (exit 2, data).
+  assert.equal(main(['node', 'runner.ts', 'no-such-vectors-dir']), 2, 'missing vectors dir exits 2');
 });
 
 test('conformance: per-suite counts match the published inventory', () => {

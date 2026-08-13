@@ -1,6 +1,6 @@
 /**
  * `consema.yaml.conformance@1` runner (31 cases; mirror of
- * crates/consema-conformance/src/yaml_v1.rs).
+ * consema-rs/consema-conformance/src/yaml_v1.rs).
  */
 
 import type { VectorCase } from '../helpers.ts';

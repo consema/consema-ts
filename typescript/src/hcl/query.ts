@@ -5,7 +5,7 @@
  *  - domains and operator vocabulary: RFC 0014 §7.1 (:452-467) freezes
  *    `hcl.native-semantic-query@1` with the sixteen operators and §7.2
  *    (:483-507) freezes `hcl.lossless-syntax-query@1` with the two syntax
- *    filters; crates/consema-hcl/src/query.rs:558-585 (native dispatch),
+ *    filters; consema-rs/consema-hcl/src/query.rs:558-585 (native dispatch),
  *    :1189-1200 (syntax dispatch)
  *  - operator semantics: query.rs — HclMatch (:10-112, ErrorRegion carries
  *    its zero-based position :104-111), HclSyntaxMatch (:128-137), the
@@ -17,7 +17,7 @@
  *    (:962-1020: kind-is on the closed name set, is-literal, text),
  *    children/parts/elements/entries (:1016-1123), the syntax filters
  *    (kind-is, text-equals :1180-1260)
- *  - failure codes: crates/consema-conformance/src/hcl_v1.rs:656-670 — the
+ *  - failure codes: consema-rs/consema-conformance/src/hcl_v1.rs:656-670 — the
  *    eleven `hcl.query.*@1` spellings; argument decoding follows the
  *    conformance filter builder (:560-611: name/accessor/type/label/kind/
  *    text argument names)

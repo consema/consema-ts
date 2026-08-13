@@ -2,7 +2,7 @@
  * Typed INI-family failures with frozen registered codes.
  *
  * authority (frozen codes — the EXACT registry spellings, do not guess;
- * ErrorCodeRegistry v6, crates/consema-protocol/src/error_registry.rs):
+ * ErrorCodeRegistry v6, consema-rs/consema-protocol/src/error_registry.rs):
  *  - ini.edit.canonical-fallback@1               :979  (Edit, 0.8.0)
  *  - ini.edit.case-collision@1                   :985  (Edit, 0.8.0)
  *  - ini.edit.invalid-name@1                     :991  (Edit, 0.8.0)
@@ -26,14 +26,14 @@
  *  - shared common codes used by the family: core.parse.resource-limit@1
  *    (:39), core.source.*@1 (document/errors.ts), core.edit.*@1 and
  *    core.materialization.*@1 (RFC 0004 §17; document/errors.ts)
- *  - fatal formation shapes: crates/consema-document/src/lib.rs:643-798
+ *  - fatal formation shapes: consema-rs/consema-document/src/lib.rs:643-798
  *    (FatalFormationFailure: from_diagnostic :650-654, invalid_utf8
  *    :656-672, source_error :674-767, resource_limit :769-791) and the
- *    ini profile failure (crates/consema-ini/src/parser.rs:96-104)
+ *    ini profile failure (consema-rs/consema-ini/src/parser.rs:96-104)
  *  - edit failure kinds and the kind→code mapping:
- *    crates/consema-ini/src/edit.rs:258-303 and :1754-1779
+ *    consema-rs/consema-ini/src/edit.rs:258-303 and :1754-1779
  *  - projection failure kinds and the kind→code mapping:
- *    crates/consema-ini/src/projection.rs:270-286 and :886-893
+ *    consema-rs/consema-ini/src/projection.rs:270-286 and :886-893
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance, so the

@@ -5,10 +5,10 @@
  * python/src/consema/conformance/core_query.py (execute_portable, CoreCursor,
  * _execute_expression, _apply_operator, _apply_one — the operator table and
  * the cursor terminal semantics); the Rust executors
- * crates/consema-core/src/query.rs (execute_portable / execute_portable_cursor
+ * consema-rs/consema-core/src/query.rs (execute_portable / execute_portable_cursor
  * :820-2964, the RootCounter root-result accounting :2670-2699, the
  * OrderedQueryCursor terminal semantics :3047-3110, the failure codes
- * :3206-3221) and crates/consema-graph/src/query.rs (the portable-graph
+ * :3206-3221) and consema-rs/consema-graph/src/query.rs (the portable-graph
  * executor: the Input roots, graph.reachable-nodes first-discovery
  * traversal, the association operators, and the StructureOrderMerge
  * canonical-rank merge). The failure spellings follow the vectors
@@ -517,7 +517,7 @@ function integerArgument(operator: OperatorCall, name: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// The portable-graph executor (crates/consema-graph/src/query.rs:11-412)
+// The portable-graph executor (consema-rs/consema-graph/src/query.rs:11-412)
 // ---------------------------------------------------------------------------
 
 /** One portable-graph query match (query.rs:13-39). */

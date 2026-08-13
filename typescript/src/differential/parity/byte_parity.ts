@@ -1,11 +1,11 @@
 /**
  * Cross-language PVCE/PGCE byte-parity harness — TypeScript side (design:
- * docs/five-language-ci-design.md §3.2; Go precedent:
- * go/conformance/differential/differential_test.go).
+ * https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.2; Go precedent:
+ * consema-go/go/conformance/differential/differential_test.go).
  *
  * The shared case set (conformance/differential/cases.json, 68 cases: 51
  * PVCE + 17 PGCE) is encoded by both sides. The Rust encoder's bytes
- * (crates/consema-conformance/examples/emit_parity_bytes.rs, provisioned by
+ * (consema-rs/consema-conformance/examples/emit_parity_bytes.rs, provisioned by
  * scripts/ts-verify-byte-parity.ps1 into the directory named by
  * CONSEMA_DIFFERENTIAL_RUST_DIR) are the byte authority: this module encodes
  * every case with the TS codecs and compares byte for byte, then checks the
@@ -72,13 +72,13 @@ export function repoRootDir(): string {
   return `${here}../../../../`;
 }
 
-/** The checked-in differential case file. */
+/** The provisioned differential case file. */
 export function defaultCasesFile(): string {
   return `${repoRootDir()}conformance/differential/cases.json`;
 }
 
 /**
- * Loads and validates the checked-in case set: manifest id, case count
+ * Loads and validates the provisioned case set: manifest id, case count
  * lower bound, unique ids, known codecs, decodable PVCE values, buildable
  * PGCE graphs, and fifteen-kind coverage.
  */

@@ -1,7 +1,7 @@
 /**
  * Canonical `xml.safe-canonical-document@1` materialization (RFC 0012 §10).
  *
- * authority: crates/consema-xml/src/materialization.rs
+ * authority: consema-rs/consema-xml/src/materialization.rs
  *  - materialize :37-50, materialize_complete :52-88 (profile gate :91-107,
  *    record validation :239-304 / :306-500, writer :565-900, encode_text
  *    :143-172, parse_limits :109-140, reparse + Complete closure + semantic

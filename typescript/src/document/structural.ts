@@ -1,7 +1,7 @@
 /**
  * Exhaustive source coverage: text structural pieces and binary regions.
  *
- * authority: crates/consema-document/src/lib.rs
+ * authority: consema-rs/consema-document/src/lib.rs
  *  - StructuralPieceKind :413-422 (Token | Trivia | ErrorRegion)
  *  - StructuralPiece :424-449
  *  - LosslessStructuralIndex :451-490 (no-gap/no-overlap/final-length
@@ -12,7 +12,7 @@
  *    identities; empty source has an empty valid index)
  *  - LocationError kinds: lib.rs:581-604; frozen names used by the
  *    vectors: conformance/vectors/source-v1.json:117 ("IncompleteStructuralCoverage")
- *    and crates/consema-conformance/src/source_v1.rs:423-436
+ *    and consema-rs/consema-conformance/src/source_v1.rs:423-436
  *
  * Design (TypeScript-idiomatic): plain immutable records for pieces and
  * regions; the indexes validate the exact-coverage invariant at

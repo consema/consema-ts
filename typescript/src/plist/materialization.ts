@@ -2,7 +2,7 @@
  * Canonical `plist.xml-canonical@1` / `plist.binary-canonical@1`
  * materialization (RFC 0013 §10).
  *
- * authority: crates/consema-plist/src/materialization.rs
+ * authority: consema-rs/consema-plist/src/materialization.rs
  *  - record contract :10-54 (the `plist.value-tree@1` record; dict as
  *    EntryMapping or Object, array as Sequence, typed leaves; an Object
  *    carrying a `kind` member is rejected :532-539; date leaf Object

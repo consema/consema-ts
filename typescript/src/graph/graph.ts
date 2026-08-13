@@ -3,7 +3,7 @@
  *
  * authority: RFC 0006 §2 (immutable rooted, directed, ordered, tagged graphs
  * with graph-local node identity, sharing and cycles); the Rust reference
- * crate (crates/consema-graph/src/lib.rs); the golden PGCE vectors
+ * crate (consema-rs/consema-graph/src/lib.rs); the golden PGCE vectors
  * (conformance/vectors/portable-graph-v1.json). The graph layer introduces
  * no value kinds of its own — scalar nodes carry resolved tag identifiers
  * and canonical content strings (RFC 0006 §2).
@@ -66,7 +66,7 @@ export interface Limits {
   readonly maxTraversalDepth: number;
 }
 
-/** The frozen defaults (crates/consema-graph/src/lib.rs:178-190). */
+/** The frozen defaults (consema-rs/consema-graph/src/lib.rs:178-190). */
 export function defaultLimits(): Limits {
   return {
     maxRoots: 1_000_000,

@@ -1,7 +1,7 @@
 /**
  * Exact-first projection from a complete JSON document to PortableValue.
  *
- * authority: crates/consema-json/src/projection.rs
+ * authority: consema-rs/consema-json/src/projection.rs
  *  - ProjectionTarget :14-24 (ProjectAsObjectV1 | ProjectAsEntryMappingV1 |
  *    BestExactCoreV1 | Json5BestExactCoreV1)
  *  - DuplicateKeyPolicy :26-35 (Reject | FirstWins | LastWins),
@@ -24,7 +24,7 @@
  *    provenance origins :659-678, report events :680-688)
  *  - duplicate selection :691-726, failure diagnostics :728-765
  *    (kind→code table :754-765)
- *  - frozen codes: crates/consema-protocol/src/error_registry.rs:191-195
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:191-195
  *    (core.projection.*), :221-222, :286 (json.projection.*),
  *    :1332 (json.projection.incomplete-document@1)
  *  - vector-pinned behavior: conformance/vectors/json-family-v2.json

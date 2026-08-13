@@ -1,7 +1,7 @@
 /**
  * Projection request, report, provenance, and result wire records.
  *
- * authority: crates/consema-protocol/src/projection.rs — ProjectionRequestMessage
+ * authority: consema-rs/consema-protocol/src/projection.rs — ProjectionRequestMessage
  * (:89-230), ProvenanceMapMessage (:313-392), ProjectionReportMessage
  * (:439-515), ProjectionResultMessage (:517-683); the Python transcription
  * (consema/conformance/protocol_records.py) is the runner-side

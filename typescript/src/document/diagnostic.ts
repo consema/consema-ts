@@ -1,18 +1,16 @@
 /**
  * Structured deterministic diagnostics (provisional document-domain record).
  *
- * authority: crates/consema-core/src/diagnostic.rs:5-124 — category
+ * authority: consema-rs/consema-core/src/diagnostic.rs:5-124 — category
  * vocabulary (:7-30), severity (:33-41), DiagnosticLocation (:44-52),
  * RelatedLocation (:55-61), Diagnostic fields (:64-82), and the
  * deterministic sort (:106-123).
  *
- * NOTE (provisional home): `Diagnostic` is core-domain (it lives in
- * consema-core, not consema-document). The L0 core agent owns
- * `typescript/src/core/` and its Diagnostic is not yet published at
- * blind-write time; the document domain needs a diagnostic record for
- * MaterializationReport, EditPlan.report, and ChangeSet diagnostics, so a
- * faithful local mirror lives here until the core module lands and this
- * module re-exports it (documentation of the pending integration point).
+ * NOTE (home): `Diagnostic` is the document-domain record. The L0 core
+ * module (`typescript/src/core/`) does not publish a Diagnostic of its
+ * own; the document domain record lives here and is consumed by
+ * MaterializationReport, EditPlan.report, and ChangeSet diagnostics
+ * (there is no pending re-export to perform).
  *
  * Design (TypeScript-idiomatic): category and severity are closed
  * string-literal unions; `arguments` is a key-sorted Map so iteration

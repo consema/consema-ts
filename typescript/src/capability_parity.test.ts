@@ -1,5 +1,5 @@
 /**
- * Capability-parity test (L4; authority: docs/fc-manifest-0.13.0.json:26,
+ * Capability-parity test (L4; authority: https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:26,
  * :31; the mandatory capability matrix of RFC 0015 §6.2).
  */
 

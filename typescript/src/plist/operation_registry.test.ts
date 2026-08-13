@@ -2,7 +2,7 @@
  * Intent documents for the frozen plist operation registry (L3).
  *
  * Golden transcription from the authoritative descriptor list:
- *  - crates/consema-plist/src/operation_registry.rs:20-83 (the six
+ *  - consema-rs/consema-plist/src/operation_registry.rs:20-83 (the six
  *    descriptors) and :108-132 (both profiles publish the same six
  *    operations, all Supported); RFC 0013 §11 (:683-695)
  */

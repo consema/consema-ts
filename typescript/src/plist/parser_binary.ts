@@ -1,7 +1,7 @@
 /**
  * Lossless `plist.binary@1` formation (RFC 0013 §2.2, §3, §5, §12).
  *
- * authority: crates/consema-plist/src/parser_binary.rs
+ * authority: consema-rs/consema-plist/src/parser_binary.rs
  *  - header §5.1 (:42-51, `bplist00`), minimum source 42 bytes
  *  - trailer layout §5.10 (RawTrailer :420-478), mandatory integrity
  *    checks §5.11 (validate_trailer :776-917: unused bytes zero,

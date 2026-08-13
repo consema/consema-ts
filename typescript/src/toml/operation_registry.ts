@@ -1,7 +1,7 @@
 /**
  * The frozen TOML format operation registry.
  *
- * authority: crates/consema-toml/src/operation_registry.rs:16-74 — the
+ * authority: consema-rs/consema-toml/src/operation_registry.rs:16-74 — the
  * exact seven descriptors (ids, target roles, argument schema, support
  * classification) and the canonical id sort of the registry
  * (consema-document/src/operation_registry.rs; the TS document domain

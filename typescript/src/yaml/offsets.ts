@@ -1,7 +1,7 @@
 /**
  * One-pass decoded-scalar to raw-byte offset resolution.
  *
- * authority: crates/consema-yaml/src/offsets.rs (the exact single-pass walk
+ * authority: consema-rs/consema-yaml/src/offsets.rs (the exact single-pass walk
  * semantics :16-80). The YAML parse resolves every lexeme and node boundary
  * in non-decreasing order; a single forward walk with constant-width
  * per-scalar raw advances reproduces the exact same offsets as

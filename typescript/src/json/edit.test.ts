@@ -12,7 +12,7 @@
  *    edit.preserve-else-canonical (:131-135),
  *    edit.preserve-incompatible-rejected (:137-141), edit.wrong-snapshot
  *    (:173-177)
- *  - operation ids (EXACT registry): crates/consema-json/src/edit.rs:
+ *  - operation ids (EXACT registry): consema-rs/consema-json/src/edit.rs:
  *    1110-1133; RFC 0005 §10 (:227-241) for move-member ownership
  */
 

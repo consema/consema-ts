@@ -2,8 +2,8 @@
  * The frozen contract registry and the common protocol envelope.
  *
  * authority: the Rust CONTRACTS_V1..V7 registries
- * (crates/consema-protocol/src/contract.rs:71-273), transcribed verbatim in
- * go/protocol/contract.go:289-473 (cross-reference). The registry pins the
+ * (consema-rs/consema-protocol/src/contract.rs:71-273), transcribed verbatim in
+ * consema-go/go/protocol/contract.go:289-473 (cross-reference). The registry pins the
  * semantic-model v1-v7 sets of 16/18/25/25/30/38/41 contracts; the test
  * battery re-pins the counts and sortedness. The envelope
  * `core.protocol-message@1` follows contract.rs:417-521.

@@ -2,16 +2,16 @@
  * The immutable TOML document snapshot and its native accessors.
  *
  * authority:
- *  - document surface: crates/consema-toml/src/lib.rs:121-259 — parse
+ *  - document surface: consema-rs/consema-toml/src/lib.rs:121-259 — parse
  *    (:122-128), Document facts (:144-203: snapshot_identity, source,
  *    render, format_family "toml@1" :163-167, profile, formation_status
  *    Complete :175-179, diagnostics, lossless_structural_index,
  *    lossless_syntax_kinds, parse_limits, root, item), TomlAccessError
  *    (:262-270)
  *  - roles: RFC 0001 §2 (TomlItem/TomlEntry/TomlKey/TomlArrayElement);
- *    NodeRole spellings pinned in crates/consema-document/src/lib.rs:113-251
+ *    NodeRole spellings pinned in consema-rs/consema-document/src/lib.rs:113-251
  *    (TomlItem/TomlEntry/TomlKey/TomlArrayElement/TomlSyntaxPiece)
- *  - item kind spellings: crates/consema-toml/src/lib.rs:274-305
+ *  - item kind spellings: consema-rs/consema-toml/src/lib.rs:274-305
  *  - parse order and resource limits: RFC 0001 §3 (:51-62) and
  *    parser.rs:17-63 — max_source_bytes then UTF-8 then grammar then
  *    limits; every failure is FatalFormationFailure, never truncated

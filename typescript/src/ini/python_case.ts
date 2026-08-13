@@ -1,7 +1,7 @@
 /**
  * Pinned Python 3.14 / Unicode 16.0 default `optionxform` semantics.
  *
- * authority: crates/consema-ini/src/python_case.rs — the LOWER_RANGES table
+ * authority: consema-rs/consema-ini/src/python_case.rs — the LOWER_RANGES table
  * (:9-99) and LOWER_SINGLES table (:101-199) are transcribed verbatim
  * (generated from Rust 1.85's Unicode 16.0 unconditional full lowercase
  * mappings and compacted into ordered ranges and exceptions; keeping the
@@ -11,7 +11,7 @@
  * `optionxform` (:201-215) and `simple_lowercase` (:217-232).
  *
  * The profile contract that consumes this table is RFC 0009 §7
- * (docs/rfcs/0009-ini-family-profiles-v1.md:235-239): option comparison and
+ * (https://github.com/consema/consema/blob/main/docs/rfcs/0009-ini-family-profiles-v1.md:235-239): option comparison and
  * duplicate detection use the Python 3.14 default lowercase `optionxform`,
  * pinned to Unicode 16.0 independently of the host runtime's Unicode
  * tables; original option spelling is still retained.

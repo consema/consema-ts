@@ -1,8 +1,16 @@
 {
   "name": "@consema/consema",
   "version": "1.0.0-rc.1",
-  "description": "TypeScript implementation of the language-neutral Consema configuration-processing contracts (RFC 0016; docs/multi-language-implementation-plan.md)",
+  "description": "TypeScript implementation of the language-neutral Consema configuration-processing contracts (RFC 0016; https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/consema/consema-ts.git"
+  },
+  "homepage": "https://github.com/consema/consema-ts",
+  "bugs": {
+    "url": "https://github.com/consema/consema-ts/issues"
+  },
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -16,7 +24,8 @@
     }
   },
   "files": [
-    "src"
+    "src",
+    "!src/**/*.test.ts"
   ],
   "publishConfig": {
     "access": "public",

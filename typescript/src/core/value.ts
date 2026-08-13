@@ -2,16 +2,16 @@
  * The closed fifteen-kind PortableValue model.
  *
  * authority (language-neutral data sources):
- *  - kind registry: crates/consema-core/src/value.rs:620-653 (PortableValueKind
+ *  - kind registry: consema-rs/consema-core/src/value.rs:620-653 (PortableValueKind
  *    order: Null, Boolean, Integer, Decimal, BinaryFloat32, BinaryFloat64,
  *    String, Bytes, Date, Time, LocalDateTime, OffsetDateTime, Sequence,
  *    Object, EntryMapping); the kind spellings double as the canonical JSON
  *    transport tags (conformance/vectors/protocol-v1.json, RFC 0016 §4.1)
- *  - decimal normalization: crates/consema-core/src/value.rs:277-292
- *  - temporal validation: crates/consema-core/src/value.rs:429-445 (date),
+ *  - decimal normalization: consema-rs/consema-core/src/value.rs:277-292
+ *  - temporal validation: consema-rs/consema-core/src/value.rs:429-445 (date),
  *    475-517 (time), 547-576 (offset), is_fraction at 337-352
  *  - object uniqueness / entry-mapping duplicates:
- *    crates/consema-core/src/value.rs:959-984; RFC 0002 object contract
+ *    consema-rs/consema-core/src/value.rs:959-984; RFC 0002 object contract
  *
  * Design (TypeScript-idiomatic): the model is a closed discriminated union
  * over the `kind` discriminant. Exhaustive switches on `kind` are checked by
@@ -118,7 +118,7 @@ export interface EntryMappingValue {
 
 /**
  * The closed fifteen-kind PortableValue (RFC 0016 §4.1; the Rust
- * PortableValueKind registry, crates/consema-core/src/value.rs:620-653).
+ * PortableValueKind registry, consema-rs/consema-core/src/value.rs:620-653).
  * The `kind` discriminant spells the canonical kind name, which is also the
  * canonical JSON transport tag.
  */
@@ -189,7 +189,7 @@ export function integerValue(value: bigint): IntegerValue {
  * Builds the canonical decimal. A zero coefficient is normalized to
  * exponent zero, and trailing decimal zeros of the coefficient are stripped
  * into the exponent (10 × 10^0 → 1 × 10^1); the Rust Decimal::new
- * normalization, crates/consema-core/src/value.rs:277-292.
+ * normalization, consema-rs/consema-core/src/value.rs:277-292.
  */
 export function decimalValue(coefficient: bigint, exponent: bigint): DecimalValue {
   if (coefficient === 0n) {
@@ -217,7 +217,7 @@ export function binaryFloat64Value(bits: bigint): BinaryFloat64Value {
 /**
  * Constructs and validates a date. The leap rule operates on the absolute
  * magnitude of the year (so year -400 is a leap year and year -100 is not);
- * the Rust Date::new checks, crates/consema-core/src/value.rs:429-445.
+ * the Rust Date::new checks, consema-rs/consema-core/src/value.rs:429-445.
  * Throws the typed invalid-temporal PVCE error on invalid fields.
  */
 export function dateValue(year: bigint, month: number, day: number): DateValue {
@@ -230,7 +230,7 @@ export function dateValue(year: bigint, month: number, day: number): DateValue {
 /**
  * Constructs and validates a time. The fractional second must be an exact
  * finite decimal in [0, 1) (the Rust is_fraction rule,
- * crates/consema-core/src/value.rs:337-352). Throws the typed invalid-
+ * consema-rs/consema-core/src/value.rs:337-352). Throws the typed invalid-
  * temporal PVCE error on invalid fields.
  */
 export function timeValue(

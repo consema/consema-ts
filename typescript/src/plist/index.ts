@@ -1,11 +1,11 @@
 /**
- * Consema plist family (L3, mirror of Go G3.2): lossless
+ * Consema plist family (L3): lossless
  * `plist.xml@1` and `plist.binary@1` documents with native/syntax/binary
  * structure queries, projection, canonical materialization, structural
  * edits, and the frozen operation registry.
  *
- * authority and scope: docs/multi-language-implementation-plan.md §2 L3
- * (plist family, mirror of Go G3.2); RFC 0013 (the plist contract) and
+ * authority and scope: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L3
+ * (plist family); RFC 0013 (the plist contract) and
  * RFC 0004 (materialization/edit); the shared vectors
  * conformance/vectors/plist-v1.json. See each module header for its
  * exact authority citations.

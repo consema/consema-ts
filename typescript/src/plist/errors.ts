@@ -7,7 +7,7 @@
  *    and `plist.limit.*@1` covers resource limits. The `plist.*` codes do
  *    NOT enter the consema-protocol core error registry (RFC 0013 §12),
  *    so their authoritative spellings are the RFC plus the emitting
- *    crates/consema-plist sources:
+ *    consema-rs/consema-plist sources:
  *  - parser_xml.rs code spellings: plist.xml.encoding@1 :454,
  *    plist.parse.declaration-version@1 :823, plist.parse.declaration-
  *    conflict@1 :856, plist.parse.pi-target@1 :936, plist.parse.doctype-
@@ -38,16 +38,16 @@
  *    non-string-key@1 :1342, plist.binary.overflow@1 :1604, plist.binary.
  *    internal@1 :1614, plist.binary.encoding@1 (lib.rs:251),
  *    plist.limit.*@1 :2897-3062
- *  - projection codes: crates/consema-plist/src/projection.rs:393-402
+ *  - projection codes: consema-rs/consema-plist/src/projection.rs:393-402
  *    (incomplete-document, unpaired-surrogate, collision,
  *    unrepresentable, resource-limit, core-invariant)
- *  - edit codes: crates/consema-plist/src/edit.rs:442-454 (uid-in-xml,
+ *  - edit codes: consema-rs/consema-plist/src/edit.rs:442-454 (uid-in-xml,
  *    unrepresentable, and the shared core.edit.* codes)
  *  - materialization: the shared MaterializationFailure mapping
- *    crates/consema-plist/src/materialization.rs:78-94 (fractional-date,
+ *    consema-rs/consema-plist/src/materialization.rs:78-94 (fractional-date,
  *    unrepresentable, resource-limit; core.materialization.* for the
  *    shared codes), code spelling :149
- *  - query execution: crates/consema-core/src/query.rs:3206-3219
+ *  - query execution: consema-rs/consema-core/src/query.rs:3206-3219
  *    (core.query.*); DomainMismatch precedent json/errors.ts
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
@@ -235,7 +235,7 @@ export class QueryExecutionFailure extends Error {
 
 /**
  * Kind→code mapping — the plist-family spellings the conformance suite pins
- * (crates/consema-conformance/src/plist_v1.rs:1141-1153; the underlying
+ * (consema-rs/consema-conformance/src/plist_v1.rs:1141-1153; the underlying
  * core codes are the query.rs:3206-3219 registry entries).
  */
 export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): string {

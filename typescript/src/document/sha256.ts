@@ -6,10 +6,10 @@
  *    original byte sequence with no decoding, BOM removal, newline
  *    normalization, or metadata mixed in; `algorithm` is exactly "sha256"
  *    and `hex` is exactly 64 lowercase hexadecimal characters
- *    (docs/rfcs/0003-source-syntax-query-and-patch-v1.md:47-54)
+ *    (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md:47-54)
  *  - vector digests: conformance/vectors/source-v1.json:6-16
  *    ("source.digest.sha256-empty", "source.digest.sha256-abc")
- *  - Rust: crates/consema-document/src/source.rs:15-54 (ContentDigest)
+ *  - Rust: consema-rs/consema-document/src/source.rs:15-54 (ContentDigest)
  *
  * Design (TypeScript-idiomatic): a zero-dependency FIPS 180-4
  * implementation operating on Uint8Array; the 64 constant words and the

@@ -1,7 +1,7 @@
 /**
  * The transferable `core.diagnostic@1` record.
  *
- * authority: crates/consema-protocol/src/diagnostic.rs (record shape and the
+ * authority: consema-rs/consema-protocol/src/diagnostic.rs (record shape and the
  * registry-bound code/category validation, diagnostic.rs:336-351);
  * conformance/vectors/protocol-v1.json (protocol.diagnostic.reject-category-
  * registry-mismatch). Construction validates the code against the frozen

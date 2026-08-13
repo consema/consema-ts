@@ -10,7 +10,7 @@
  *    CollisionPolicy of exactly Reject | First | Last; any authorized
  *    collapse is Transformed with one report event per discarded
  *    association; Recovered documents never project
- *  - structure: crates/consema-ini/src/projection.rs — ProjectionTarget
+ *  - structure: consema-rs/consema-ini/src/projection.rs — ProjectionTarget
  *    (:9-16), NameComparison (:18-25), CollisionPolicy (:27-36),
  *    ProjectionRequest (:38-100), ProjectionLimits (:102-124, defaults
  *    2M source associations / 2M value nodes / 100k report / 4M

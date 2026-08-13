@@ -1,7 +1,7 @@
 /**
  * Versioned discovery contracts for format-owned edit operations.
  *
- * authority: crates/consema-document/src/operation_registry.rs
+ * authority: consema-rs/consema-document/src/operation_registry.rs
  *  - FormatOperationId :8-42 (namespaced id + u32 version; Display is
  *    "id@version")
  *  - OperationTargetRoleId :44-72

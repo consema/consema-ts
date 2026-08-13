@@ -1,7 +1,7 @@
 /**
  * Native and lossless-syntax query execution over one immutable snapshot.
  *
- * authority: crates/consema-xml/src/query.rs
+ * authority: consema-rs/consema-xml/src/query.rs
  *  - XmlReferenceKind :20-29, XmlMatch :31-165 (Document | Declaration |
  *    Doctype | PrologItem | Element | Attribute | NamespaceBinding | Text |
  *    Cdata | Comment | ProcessingInstruction | Reference | ErrorRegion),

@@ -2,12 +2,12 @@
  * Common immutable contracts for creating a new format document.
  *
  * authority:
- *  - RFC 0004 (docs/rfcs/0004-materialization-conversion-and-structural-
+ *  - RFC 0004 (https://github.com/consema/consema/blob/main/docs/rfcs/0004-materialization-conversion-and-structural-
  *    edit-v1.md): §3 common MaterializationRequest v1 (:57-94) — the exact
  *    request fields and the closed v1 MaterializationLimits; §7 completion
  *    algebra (:170-192); §8 provenance (:193-218); §17 registry codes
  *    (:386-423)
- *  - Rust: crates/consema-document/src/materialization.rs —
+ *  - Rust: consema-rs/consema-document/src/materialization.rs —
  *    MaterializationStyleId :11-39, NewlinePolicy :41-62, MappingPolicy
  *    :64-71, RepresentabilityPolicy :73-78, MaterializationLimits :80-105
  *    (defaults: 1M input nodes, 64 MiB output, depth 256, 100k report

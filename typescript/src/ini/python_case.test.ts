@@ -1,9 +1,9 @@
 /**
  * Pinned Python optionxform intent tests.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from
- * crates/consema-ini/src/python_case.rs (tests :234-273) and run once the
+ * consema-rs/consema-ini/src/python_case.rs (tests :234-273) and run once the
  * toolchain is ready. The vector case formation.python-unicode16-optionxform
  * (ini-v1.json:34-38) pins the profile-level effect.
  */

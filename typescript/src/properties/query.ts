@@ -1,7 +1,7 @@
 /**
  * Native and lossless-syntax query execution over one immutable snapshot.
  *
- * authority: crates/consema-properties/src/query.rs
+ * authority: consema-rs/consema-properties/src/query.rs
  *  - PropertiesMatch :12-74, PropertiesSyntaxMatch :88-121
  *  - execute_properties_query :123-150 (domain gate :130-136), cursor
  *    :152-164, execute_properties_syntax_query :166-211 (domain gate
@@ -21,7 +21,7 @@
  *  - apply_selection :675-692 (All/First/Last/ZeroOrOne/RequireOne)
  *  - decoded span text :636-651 (raw boundaries resolved to decoded text)
  *  - QueryLimits defaults (max_steps 100_000, max_results 100_000):
- *    crates/consema-core/src/query.rs:2967-2981
+ *    consema-rs/consema-core/src/query.rs:2967-2981
  *  - RFC 0010 §10 (:269-308) freezes the query surface: eight native
  *    operators (:272-282), four lossless syntax filters (:287-295), and the
  *    exact UTF-16BE/1 key matching rule (:284-285)

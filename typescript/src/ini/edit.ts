@@ -3,7 +3,7 @@
  * commit.
  *
  * authority:
- *  - representation policies: crates/consema-ini/src/edit.rs:15-26
+ *  - representation policies: consema-rs/consema-ini/src/edit.rs:15-26
  *  - operation vocabulary: edit.rs:28-106 (ValueReplacement/EditOperation),
  *    the registry ids (operation_registry.rs:16-80; RFC 0009 §12
  *    :437-472), and the target roles ini.document@1 / ini.section@1 /
@@ -752,7 +752,7 @@ function prepareInsertSection(
   let position: number;
   switch (placement.kind) {
     case 'Start':
-      // The Go implementation guards an empty section list (go/ini/edit.go:
+      // The Go implementation guards an empty section list (consema-go/go/ini/edit.go:
       // 906-913: position = source.Len()); the Rust authority indexes
       // sections()[0] unconditionally. The guard is adopted here.
       position = sections.length === 0 ? 0 : sectionLineStart(document, sections[0].index());

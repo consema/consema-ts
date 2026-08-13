@@ -2,7 +2,7 @@
  * TOML 1.0 grammar parser: one complete valid document → the native entity
  * model with byte-exact spans.
  *
- * authority (semantic): RFC 0001 (docs/rfcs/0001-toml-1.0-profile.md) —
+ * authority (semantic): RFC 0001 (https://github.com/consema/consema/blob/main/docs/rfcs/0001-toml-1.0-profile.md) —
  * §2 document/identity model (:20-49): root is always RootTable; tables,
  * inline tables, arrays, and arrays-of-tables are distinct native item
  * categories; dotted keys keep one direct segment per logical entry; §3
@@ -10,7 +10,7 @@
  * limits) and the resource-limit codes. The grammar itself is TOML 1.0.0
  * (RFC 0001 §1 "规范来源：TOML 1.0.0"; profile rejects anything else).
  *
- * authority (structure, byte arbitration): crates/consema-toml/src/parser.rs
+ * authority (structure, byte arbitration): consema-rs/consema-toml/src/parser.rs
  *  - entity build order and spans :84-338: table item reserved before its
  *    keys/children/entries; root table span 0..len (:198-200); standard
  *    table span = header (:201-202); implicit/dotted table span = creating

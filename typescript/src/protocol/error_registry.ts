@@ -1,9 +1,9 @@
 /**
  * The stable public diagnostic and failure code registry.
  *
- * authority: the Rust registries (crates/consema-protocol/src/error_registry.rs)
+ * authority: the Rust registries (consema-rs/consema-protocol/src/error_registry.rs)
  * are the content authority; the records here are transcribed verbatim from
- * their Go transcription (go/protocol/error_registry.go) and the counts are
+ * their Go transcription (consema-go/go/protocol/error_registry.go) and the counts are
  * pinned by the shared vectors and fc-manifest. The v7 registry pins 187
  * codes (55/62/90/92/132/166/187 across v1..v7); every code carries its
  * semantic category, first release, and a human-facing description. The

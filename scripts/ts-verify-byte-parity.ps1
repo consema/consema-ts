@@ -7,13 +7,13 @@ param(
 
 # ---------------------------------------------------------------------------
 # Cross-language PVCE/PGCE byte-parity verification — TypeScript side
-# (milestone 0.14.0 G0.5; docs/five-language-ci-design.md §3.2; the Go
-# precedent scripts/go-verify-byte-parity.ps1).
+# (L5 differential harness; https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §3.2; the Go
+# precedent consema-go/scripts/go-verify-byte-parity.ps1).
 #
 # Pipeline (TS never imports or calls Rust, RFC 0016 §1.1):
 #   1. builds the minimal Rust encoder example
 #      (consema-conformance/examples/emit_parity_bytes.rs);
-#   2. runs it over the checked-in case set
+#   2. runs it over the provisioned case set
 #      (conformance/differential/cases.json, the shared single-authority
 #      case directory of the consema repository) into <OutDir> as one
 #      `<case-id>.hex` file per case;
@@ -64,8 +64,8 @@ if (-not (Test-Path $CaseFile)) {
 # UTF8 explicit: PowerShell 5.1 Get-Content defaults to the ANSI codepage.
 $cases = Get-Content $CaseFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $caseCount = @($cases.cases).Count
-if ($caseCount -lt 40) {
-    Write-Error "differential case file has $caseCount cases, want >= 40"
+if ($caseCount -lt 68) {
+    Write-Error "differential case file has $caseCount cases, want >= 68"
     exit 1
 }
 
@@ -123,6 +123,13 @@ $logDir = Join-Path $env:TEMP 'consema-ts-parity'
 New-Item -ItemType Directory -Force $logDir | Out-Null
 $stdoutFile = Join-Path $logDir 'ts-test.stdout.txt'
 $stderrFile = Join-Path $logDir 'ts-test.stderr.txt'
+# Same PS 5.1 caveat as the cargo call: under $ErrorActionPreference='Stop'
+# a native command writing to stderr through a file redirect raises a
+# terminating NativeCommandError — exactly when we want to capture the
+# diagnostics. Relax around the node call and judge success by
+# $LASTEXITCODE only.
+$previousEap = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 Push-Location $tsDir
 try {
     & $node --test 'src\differential\parity\**\*.test.ts' 1> $stdoutFile 2> $stderrFile
@@ -131,6 +138,7 @@ try {
 finally {
     Pop-Location
 }
+$ErrorActionPreference = $previousEap
 Get-Content $stdoutFile | ForEach-Object { Write-Host $_ }
 if (Test-Path $stderrFile) {
     Get-Content $stderrFile | ForEach-Object { Write-Host $_ }

@@ -2,14 +2,14 @@
  * Verifiable proof that planned replacements did not alter surrounding bytes.
  *
  * authority:
- *  - RFC 0004 §15 (docs/rfcs/0004-materialization-conversion-and-
+ *  - RFC 0004 §15 (https://github.com/consema/consema/blob/main/docs/rfcs/0004-materialization-conversion-and-
  *    structural-edit-v1.md:358-372): an ordered cover of all old-source
  *    intervals outside replacements mapped to target intervals; old regions
  *    exactly cover every non-replaced old byte once, new regions exactly
  *    cover every non-inserted new byte once, each mapped region has equal
  *    length and equal bytes, region order is monotonic, base and target
  *    digests match the proof
- *  - Rust: crates/consema-document/src/untouched_proof.rs —
+ *  - Rust: consema-rs/consema-document/src/untouched_proof.rs —
  *    UntouchedByteRegion :7-59, UntouchedByteProof :61-132 (create :70-82,
  *    from_facts :84-96, verify :98-113), error kinds :134-172, region
  *    derivation :182-245, validation :247-317

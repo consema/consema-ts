@@ -1,7 +1,7 @@
 /**
  * Frozen YAML language profiles.
  *
- * authority: crates/consema-yaml/src/lib.rs
+ * authority: consema-rs/consema-yaml/src/lib.rs
  *  - YamlProfile :54-61 (Yaml12CoreV1 | Yaml11CompatV1)
  *  - profile ids :241-257 (id() :244-249 — "yaml.1.2-core" / "yaml.1.1-compat",
  *    both version 1; accepted_version() :251-257 — "1.2" / "1.1")

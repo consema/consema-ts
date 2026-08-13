@@ -2,7 +2,7 @@
  * Frozen `hcl.native@1` / `hcl.tfvars@1` formation, structure, recovery,
  * and report limits (RFC 0014 §11).
  *
- * authority: crates/consema-hcl/src/lib.rs:166-273 — HclParseLimits
+ * authority: consema-rs/consema-hcl/src/lib.rs:166-273 — HclParseLimits
  *  (:179-234) and the frozen R-3 defaults (:236-273). The common limits
  *  (`ParseLimits` from the document domain) bound source bytes, generic
  *  nesting, token and node counts, and diagnostics; the flat fields bound

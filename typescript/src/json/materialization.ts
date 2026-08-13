@@ -1,7 +1,7 @@
 /**
  * Deterministic PortableValue materialization for JSON-family profiles.
  *
- * authority: crates/consema-json/src/materialization.rs
+ * authority: consema-rs/consema-json/src/materialization.rs
  *  - materialize :18-32, materialize_complete :54-93 (profile gate,
  *    style gate, Utf8-only encoding, pretty newline gate, output reparse
  *    + Complete closure, provenance collection, fidelity Exact)

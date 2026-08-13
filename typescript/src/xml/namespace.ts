@@ -1,7 +1,7 @@
 /**
  * Namespace-aware expanded names and immutable binding scope (RFC 0012 §5).
  *
- * authority: crates/consema-xml/src/namespace.rs
+ * authority: consema-rs/consema-xml/src/namespace.rs
  *  - XML_NAMESPACE_URI :10, XMLNS_NAMESPACE_URI :13
  *  - QName :15-39, ExpandedName :41-57, Binding :59-66
  *  - NamespaceError :68-89 (UnboundPrefix | ReservedPrefix |

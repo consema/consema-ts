@@ -1,7 +1,7 @@
 /**
  * The immutable namespace-aware XML document and its typed native handles.
  *
- * authority: crates/consema-xml/src/document.rs
+ * authority: consema-rs/consema-xml/src/document.rs
  *  - XmlSyntaxKind :17-94 (see syntax.ts)
  *  - QNameFacts :96-120 (prefix/local/span/prefix_span/local_span)
  *  - ReferenceFragment :135-172 (Literal | CharacterReference |

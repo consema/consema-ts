@@ -1,7 +1,7 @@
 /**
  * Intent documents for the frozen YAML operation registry.
  *
- * authority: crates/consema-yaml/src/operation_registry.rs:16-83 (the eight
+ * authority: consema-rs/consema-yaml/src/operation_registry.rs:16-83 (the eight
  * descriptors) and :107-135 (both profiles publish the same surface: six
  * structural Supported ops and two scalar ExistingTypedCapability ops);
  * RFC 0007 §12 (:357-368).

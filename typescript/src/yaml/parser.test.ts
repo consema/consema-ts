@@ -2,7 +2,7 @@
  * YAML formation tests — golden transcriptions from the shared vectors.
  *
  * authority: conformance/vectors/yaml-v1.json (each test cites its case id);
- * RFC 0007 §3-§8; crates/consema-yaml/src/lib.rs parse :259-320.
+ * RFC 0007 §3-§8; consema-rs/consema-yaml/src/lib.rs parse :259-320.
  *
  * These tests are intent documents: they transcribe the vector inputs and
  * expected facts byte-for-byte so the blind-written parser can be verified

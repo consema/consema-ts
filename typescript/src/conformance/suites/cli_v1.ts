@@ -1,6 +1,6 @@
 /**
  * `consema.cli.conformance@1` runner (40 cases; mirror of
- * crates/consema-conformance/src/cli_v1.rs).
+ * consema-rs/consema-conformance/src/cli_v1.rs).
  */
 
 import type { VectorCase } from '../helpers.ts';

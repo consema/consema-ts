@@ -2,12 +2,12 @@
  * PortableGraph, graph query-result, provenance, projection, and
  * line-format query-result protocol records.
  *
- * authority: crates/consema-protocol/src/portable_graph.rs,
+ * authority: consema-rs/consema-protocol/src/portable_graph.rs,
  * graph_query.rs, graph_projection.rs, yaml_query.rs, line_query.rs (the
  * record shapes, canonical node IDs, and every rejection); the transport
  * digests and rejection codes are pinned by
  * conformance/vectors/semantic-model-v5.json and semantic-model-v6.json;
- * cross-reference go/protocol/records_graph.go and records_line_query.go.
+ * cross-reference consema-go/go/protocol/records_graph.go and records_line_query.go.
  *
  * Design (TypeScript-idiomatic): graphs are the immutable `Graph` values of
  * src/graph/graph.ts; canonical wire node IDs are assigned by the canonical

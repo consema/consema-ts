@@ -2,7 +2,7 @@
  * Portable value and association locations (provisional document-domain
  * mirror of the core domain).
  *
- * authority: crates/consema-core/src/location.rs — ValuePathSegment :4-14,
+ * authority: consema-rs/consema-core/src/location.rs — ValuePathSegment :4-14,
  * ValuePath :16-40, AssociationRole :42-51, AssociationLocation :53-89.
  * Consumed by materialization provenance and failure records (RFC 0004 §8,
  * materialization.rs:239-247, 327-351).

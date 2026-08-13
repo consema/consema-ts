@@ -2,7 +2,7 @@
  * TOML scalar and structural edit transactions with atomic commit.
  *
  * authority:
- *  - representation policies: crates/consema-toml/src/edit.rs:15-26
+ *  - representation policies: consema-rs/consema-toml/src/edit.rs:15-26
  *  - operation vocabulary: edit.rs:28-99 (ScalarReplacement/EditOperation),
  *    the registry ids (operation_registry.rs:18-73; RFC 0004 §10
  *    :256-261), and the target roles toml.table-item@1 / toml.entry@1 /

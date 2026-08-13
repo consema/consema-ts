@@ -1,7 +1,7 @@
 /**
  * The immutable JSON-family document and its typed native handles.
  *
- * authority: crates/consema-json/src/lib.rs
+ * authority: consema-rs/consema-json/src/lib.rs
  *  - Document :171-286 (snapshot_identity :187-191, source :192-197,
  *    render :198-202, format_family :204-208, profile :210-215,
  *    formation_status :216-220, diagnostics :222-226,

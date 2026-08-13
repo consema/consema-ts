@@ -1,6 +1,6 @@
 /**
  * Shared helpers of the TS conformance runner (mirror of the Rust runner
- * helpers, crates/consema-conformance/src/lib.rs:195-458).
+ * helpers, consema-rs/consema-conformance/src/lib.rs:195-458).
  *
  * The vectors are strict JSON; inputs use string spellings for arbitrary
  * precision and wire bytes. These helpers convert between the vector

@@ -1,19 +1,19 @@
-﻿/**
+/**
  * Frozen CP932 two-byte mapping (Windows-31J; source contract v2).
  *
  * authority: the table is transcribed verbatim from the Go generated table
- * (go/document/cp932_table.go), which was generated from the Microsoft CP932
+ * (consema-go/go/document/cp932_table.go), which was generated from the Microsoft CP932
  * mapping as published by the Python standard-library codec (data, not
- * logic) - the same frozen source as go/protocol/cp932_table.go. The
+ * logic) - the same frozen source as consema-go/go/protocol/cp932_table.go. The
  * entries are the single-scalar Microsoft CP932 two-byte codes;
  * multi-scalar codes are rejected exactly as Go rejects them.
  *
  * Layout: a flat alternating [code, rune] list in strictly increasing
  * code order; cp932Lookup resolves one two-byte code by binary search
- * (go/document/source.go:714-722).
+ * (consema-go/go/document/source.go:714-722).
  */
 
-/** The flat sorted [code, rune] CP932 two-byte mapping (go/document/cp932_table.go:14). */
+/** The flat sorted [code, rune] CP932 two-byte mapping (consema-go/go/document/cp932_table.go:14). */
 export const CP932_TABLE: readonly number[] = [
   0x8140, 0x3000, 0x8141, 0x3001, 0x8142, 0x3002, 0x8143, 0xff0c, 0x8144, 0xff0e, 0x8145, 0x30fb,
   0x8146, 0xff1a, 0x8147, 0xff1b, 0x8148, 0xff1f, 0x8149, 0xff01, 0x814a, 0x309b, 0x814b, 0x309c,
@@ -1618,7 +1618,7 @@ export const CP932_TABLE: readonly number[] = [
   0xfc48, 0x9d6b, 0xfc49, 0xfa2d, 0xfc4a, 0x9e19, 0xfc4b, 0x9ed1,
 ];
 
-/** Resolves one two-byte CP932 code in the frozen sorted table (go/document/source.go:714-722). */
+/** Resolves one two-byte CP932 code in the frozen sorted table (consema-go/go/document/source.go:714-722). */
 export function cp932Lookup(code: number): number | null {
   let low = 0;
   let high = CP932_TABLE.length / 2;

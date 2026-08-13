@@ -2,7 +2,7 @@
  * Transferable raw source snapshots and verifiable source patches
  * (core.source-encoding@1, core.source-snapshot@1, core.source-patch@1).
  *
- * authority: crates/consema-protocol/src/source.rs —
+ * authority: consema-rs/consema-protocol/src/source.rs —
  *  - SourceEncodingMessage :17-46, source_encoding_value :497-514,
  *    source_encoding_from_value :516-561
  *  - SourceSnapshotMessage :48-96 / SourceSnapshotMessageV2 :98-146,
@@ -20,7 +20,7 @@
  *  - request_from_facts :791-800 / request_from_facts_v2 :802-812
  *  - error mappings: source_error :821-831, patch_error :833-846
  * The payload dispatch decodes these records with SourceLimits /
- * SourcePatchLimits defaults (crates/consema-protocol/src/payload.rs:159-170).
+ * SourcePatchLimits defaults (consema-rs/consema-protocol/src/payload.rs:159-170).
  * Python transcription: python/src/consema/protocol/records_source.py
  * (same wire spellings; both implementations pass the shared vectors).
  *

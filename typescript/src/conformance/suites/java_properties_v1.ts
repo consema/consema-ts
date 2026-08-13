@@ -1,6 +1,6 @@
 /**
  * `consema.java-properties.conformance@1` runner (25 cases; mirror of
- * crates/consema-conformance/src/properties_v1.rs).
+ * consema-rs/consema-conformance/src/properties_v1.rs).
  */
 
 import type { VectorCase } from '../helpers.ts';

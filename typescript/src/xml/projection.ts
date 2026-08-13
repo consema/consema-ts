@@ -1,7 +1,7 @@
 /**
  * XML projection targets and explicit mapping policies (RFC 0012 §9).
  *
- * authority: crates/consema-xml/src/projection.rs
+ * authority: consema-rs/consema-xml/src/projection.rs
  *  - ProjectionTarget :20-29 (ElementTreeV1 | TextContentV1 |
  *    SimpleEntryMappingV1), TextContentInclude :31-38, AttributePolicy
  *    :40-49, TextKeyPolicy :51-58, RepeatedChildPolicy :60-69,
@@ -21,7 +21,7 @@
  *    project_entry_mapping :1097-1126, entry_ordinal :1144-1200,
  *    commit_entry :1202-1236, map_children :1238-1402, leaf_value
  *    :1404-1457
- *  - frozen codes: crates/consema-xml/src/projection.rs:459-468
+ *  - frozen codes: consema-rs/consema-xml/src/projection.rs:459-468
  *    (xml.projection.recovered-document@1, subtree@1, admission@1,
  *    collision@1, resource-limit@1, core-invariant@1)
  *  - the exact `xml.element-tree@1` record: projection.rs:600-644,

@@ -1,7 +1,7 @@
 /**
  * Lossless plist XML syntax kinds (RFC 0013 §8.2).
  *
- * authority: crates/consema-plist/src/parser_xml.rs:71-280
+ * authority: consema-rs/consema-plist/src/parser_xml.rs:71-280
  *  - the closed kind set :77-171 and its stable protocol names :174-225
  *    (as_str) — do not guess spellings
  *  - RFC 0013 §8.2 (:561-582) freezes the vocabulary; the root open tag

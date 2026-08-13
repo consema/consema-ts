@@ -8,9 +8,9 @@
  *    plist.query.type-mismatch@1),
  *    plist.query.binary-structure (:1044-1089)
  *  - operator vocabulary: RFC 0013 §8.1/§8.2/§8.3; the native domain
- *    operators at crates/consema-plist/src/query.rs:810-1163, the binary
+ *    operators at consema-rs/consema-plist/src/query.rs:810-1163, the binary
  *    structure operators :1334-1465
- *  - family failure-code mapping: crates/consema-conformance/src/
+ *  - family failure-code mapping: consema-rs/consema-conformance/src/
  *    plist_v1.rs:1141-1153
  */
 

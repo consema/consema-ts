@@ -2,7 +2,7 @@
  * Lossless JSON/JSONC/JSON5 parsing into the immutable document model.
  *
  * authority (language-neutral behavior, byte-exact spans, recovery):
- *  - crates/consema-json/src/parser.rs — lex :174-402 (strict/JSONC), lex_json5
+ *  - consema-rs/consema-json/src/parser.rs — lex :174-402 (strict/JSONC), lex_json5
  *    :404-581, JSON5 whitespace :590-614 (RFC 0005 §3), identifier
  *    classification :616-687 (RFC 0005 §4; Consema pins
  *    unicode-id-start 1.4.0 / Unicode 17.0.0), number candidates :689-760,
@@ -11,10 +11,10 @@
  *    :1135-1145), decode_json_string :1232-1315, decode_json5_identifier
  *    :1349-1373, parse_json5_number :1375-1443, DiagnosticSink
  *    :1500-1537 (occurrence ordinals, core.diagnostic.truncated@1 marker)
- *  - source and encoding: crates/consema-document/src/lib.rs:643-761
- *    (FatalFormationFailure; codes in crates/consema-protocol/src/
+ *  - source and encoding: consema-rs/consema-document/src/lib.rs:643-761
+ *    (FatalFormationFailure; codes in consema-rs/consema-protocol/src/
  *    error_registry.rs:207, 372, 366, 405, 399)
- *  - profiles: crates/consema-json/src/lib.rs:137-159 (RFC 0005 §1)
+ *  - profiles: consema-rs/consema-json/src/lib.rs:137-159 (RFC 0005 §1)
  *  - vector-pinned behavior: conformance/vectors/json-family-v2.json
  *    (all json5.parse.* / json5.reject.* / json.strict.* / jsonc.* cases),
  *    conformance/vectors/v1.json (parse.strict-exact-roundtrip,

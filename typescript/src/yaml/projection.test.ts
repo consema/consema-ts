@@ -7,7 +7,7 @@
  *    (:71-74), projection.cycle (:76-79), projection.tag-policy (:81-84),
  *    projection.mapping-policy (:86-89), projection.graph-provenance
  *    (:91-94), resource.graph-provenance (:131-134)
- * Projection semantics: RFC 0007 §10; crates/consema-yaml/src/projection.rs.
+ * Projection semantics: RFC 0007 §10; consema-rs/consema-yaml/src/projection.rs.
  */
 
 import { test } from 'node:test';

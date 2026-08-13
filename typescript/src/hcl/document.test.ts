@@ -2,10 +2,10 @@
  * HCL formation intent tests — golden transcriptions from the shared
  * vector suite, the no-evaluation gate, and the tfvars dialect coverage.
  *
- * These are blind-written intent documents (docs/multi-language-implementation
+ * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they transcribe the language-neutral facts from
  * conformance/vectors/hcl-v1.json and the Rust arbitration
- * (crates/consema-hcl) and run once the toolchain is ready. No gate is
+ * (consema-rs/consema-hcl) and run once the toolchain is ready. No gate is
  * claimed before the §7 START GATE.
  *
  * Golden cases cited: hcl-v1.json case ids are named in each test.

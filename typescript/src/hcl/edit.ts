@@ -1,7 +1,7 @@
 /**
  * HCL structural edit transactions with atomic commit (RFC 0014 §10).
  *
- * authority: crates/consema-hcl/src/edit.rs —
+ * authority: consema-rs/consema-hcl/src/edit.rs —
  *  - BodyPathStep :93-138 (block type + exact label sequence + 0-based
  *    occurrence), BodyPath :140-174, NodeRef :176-212 (attribute by
  *    body+name; block by body+type+labels+occurrence), BodyPlacement
@@ -1083,6 +1083,3 @@ function placementName(placement: HclBodyPlacement): string {
       return 'After';
   }
 }
-
-// The placeholder below is replaced by a direct SourceReplacement import;
-// see the note at the top of the source-patch construction in commitHclEdits.

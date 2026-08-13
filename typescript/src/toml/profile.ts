@@ -2,7 +2,7 @@
  * Frozen TOML profile, capability, query-domain, and style identifiers.
  *
  * authority:
- *  - TomlProfile: crates/consema-toml/src/lib.rs:34-39 (Toml10V1) and the
+ *  - TomlProfile: consema-rs/consema-toml/src/lib.rs:34-39 (Toml10V1) and the
  *    profile id mapping :111-119 — ProfileId("toml.1.0", 1)
  *  - profile spelling: RFC 0004 §4 (:98-127) freezes "toml.1.0@1"; the
  *    vector suite pins it (conformance/vectors/toml-v1.json:3 "profile")
@@ -15,11 +15,11 @@
  *    toml.document.complete@1 and §5 (:80) the projection target
  *    toml.best-exact-core@1
  *  - query domains: RFC 0001 §4 (:66) — toml.native-semantic-query@1;
- *    crates/consema-toml/src/query.rs:95-96 (native) and :136-137
+ *    consema-rs/consema-toml/src/query.rs:95-96 (native) and :136-137
  *    (toml.lossless-syntax-query@1); the TS protocol agent pins the same
  *    spellings (typescript/src/protocol/query.ts:108,115,500,512)
  *  - materialization style: RFC 0004 §4 (:100-103) — toml.canonical-
- *    document@1; crates/consema-toml/src/materialization.rs:89
+ *    document@1; consema-rs/consema-toml/src/materialization.rs:89
  *
  * Design (TypeScript-idiomatic): TomlProfile is a frozen singleton with
  * value semantics (one profile in v1); capability/style/domain ids are

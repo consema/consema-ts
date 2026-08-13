@@ -5,7 +5,7 @@
  * case id in conformance/vectors/yaml-v1.json:
  *  - query.mapping-entries (:51-54), query.alias-target (:56-59),
  *    query.syntax-comments (:61-64), query.resource-limit (:66-69)
- * Domain gating: crates/consema-yaml/src/query.rs:173-177, :220-224.
+ * Domain gating: consema-rs/consema-yaml/src/query.rs:173-177, :220-224.
  */
 
 import { test } from 'node:test';

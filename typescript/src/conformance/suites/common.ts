@@ -1,7 +1,7 @@
 /**
  * Shared per-suite helpers: profile parsing through the root facade,
  * formation/diagnostic checks, and the documented-skip discipline
- * (docs/five-language-ci-design.md §2.2: an unimplemented capability is a
+ * (https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §2.2: an unimplemented capability is a
  * documented skip with capability + reason, never silent).
  */
 

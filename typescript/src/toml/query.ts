@@ -5,9 +5,9 @@
  *  - domains: RFC 0001 §4 (:66-76) freezes `toml.native-semantic-query@1`
  *    and the operator registry (try-table-entries, entry-name-equals,
  *    entry-item, try-array-elements, array-element-item); the syntax domain
- *    is `toml.lossless-syntax-query@1` (crates/consema-toml/src/query.rs:
+ *    is `toml.lossless-syntax-query@1` (consema-rs/consema-toml/src/query.rs:
  *    136-137) with toml.syntax-kind-is / toml.syntax-text-equals
- *  - operator semantics and match shapes: crates/consema-toml/src/query.rs
+ *  - operator semantics and match shapes: consema-rs/consema-toml/src/query.rs
  *    — TomlMatch (:10-41), TomlSyntaxMatch (:53-86), domain checks
  *    (:95-101, :136-141), expression evaluation (Input/Apply/Concat/
  *    StructureOrderMerge :213-288), operator behavior (:290-469),
@@ -15,10 +15,10 @@
  *  - steps/results accounting: query.rs:189-199 (max_steps/max_results →
  *    core.query.resource-limit@1); defaults max_steps 100_000 /
  *    max_results 100_000 (consema-core/src/query.rs:2974-2981)
- *  - failure codes: crates/consema-protocol/src/error_registry.rs —
+ *  - failure codes: consema-rs/consema-protocol/src/error_registry.rs —
  *    core.query.cancelled@1 :141, core.query.cardinality-violation@1 :147,
  *    core.query.resource-limit@1 :183; the kind→code mapping :1515-1527
- *  - syntax kind names: crates/consema-toml/src/lib.rs:73-88
+ *  - syntax kind names: consema-rs/consema-toml/src/lib.rs:73-88
  *  - argument decoding: PortableValue arguments (consema-core query.rs
  *    operator table; the protocol validator pins the kinds at
  *    typescript/src/protocol/query.ts:324-329, 374-376)

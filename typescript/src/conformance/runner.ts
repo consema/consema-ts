@@ -1,10 +1,10 @@
 /**
- * The TS conformance runner framework (mirror of crates/consema-conformance
+ * The TS conformance runner framework (mirror of consema-rs/consema-conformance
  * src/lib.rs + the Go runner's digest verification; authority:
- * docs/five-language-ci-design.md §2 — each runner is the sole executor of
+ * https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §2 — each runner is the sole executor of
  * the shared vectors; conformance/README.md — case structure, per-suite
- * counts; docs/fc-manifest-0.13.0.json:38-40 — the aggregate digest
- * algorithm).
+ * counts; https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:39 — the aggregate digest
+ * value, :41 — the aggregation algorithm note).
  *
  * The runner reads conformance/vectors/*.json (18 files / 519 cases) by
  * explicit repository-relative path (no embedded copy — a second authority
@@ -21,6 +21,7 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { exitCode } from '../protocol/exit_class.ts';
 import type { VectorCase } from './helpers.ts';
 import { ConformanceFailure } from './helpers.ts';
 import { SkippedCase } from './suites/common.ts';
@@ -91,7 +92,7 @@ export const SUITE_EXPECTED_COUNTS: Readonly<Record<string, number>> = Object.fr
   'yaml-v1.json': 31,
 });
 
-/** The recorded aggregate digest (docs/fc-manifest-0.13.0.json:38). */
+/** The recorded aggregate digest (https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:39). */
 export const RECORDED_AGGREGATE_DIGEST = 'cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a';
 
 /** The repository-relative vectors directory (resolved from this file). */
@@ -273,7 +274,7 @@ const executors: Record<string, SuiteExecutor> = {
 /**
  * Runs one vector file through its suite executor. Every case is dispatched
  * to the suite handler; a case the suite does not recognize fails loudly
- * (unknown action rejection, conformance/README.md:73).
+ * (unknown action rejection, conformance/README.md:75).
  */
 export function runSuiteFile(file: VectorFile): SuiteReport {
   const expected = SUITE_EXPECTED_COUNTS[file.file];
@@ -354,15 +355,35 @@ export function runAll(dir = vectorsDir()): RunResult {
 // CLI entry
 // ---------------------------------------------------------------------------
 
-/** Prints the per-suite report and returns the process exit code (0 ok, 2 data failure). */
+/**
+ * Prints the per-suite report and returns the process exit code (RFC 0015
+ * §5.1 six exit classes): success 0 / usage 1 / data 2 / limit 3 /
+ * precondition 4 / internal 5. The conformance CLI reaches usage
+ * (unexpected positional arguments), data (case/digest/inventory
+ * failures, including missing vector data), limit (resource-limit
+ * failures during execution — defensive: per-case limit failures are
+ * reported as failed cases) and internal (unclassified runner errors).
+ */
 export function main(argv: readonly string[]): number {
+  if (argv.length > 3) {
+    console.error('consema conformance: usage: consema-conformance [vectors-dir]');
+    return exitCode('usage');
+  }
   const dir = argv.length > 2 ? argv[2] : vectorsDir();
   let result: RunResult;
   try {
     result = runAll(dir);
   } catch (error) {
-    console.error(`consema conformance: ${error instanceof Error ? error.message : String(error)}`);
-    return 2;
+    if (isLimitFailure(error)) {
+      console.error(`consema conformance: resource limit: ${error instanceof Error ? error.message : String(error)}`);
+      return exitCode('limit');
+    }
+    if (isInputReadFailure(error)) {
+      console.error(`consema conformance: data: ${error instanceof Error ? error.message : String(error)}`);
+      return exitCode('data');
+    }
+    console.error(`consema conformance: internal: ${error instanceof Error ? error.message : String(error)}`);
+    return exitCode('internal');
   }
   for (const report of result.reports) {
     const passed = report.outcomes.filter((outcome) => outcome.status === 'passed').length;
@@ -381,9 +402,23 @@ export function main(argv: readonly string[]): number {
   console.log(`suites: ${result.digest.suites}, cases: ${result.totalCases}`);
   console.log(`total: ${result.passed} passed, ${result.skipped} skipped, ${result.failed} failed`);
   if (!result.digestOk || result.failed > 0 || result.digest.cases !== 519) {
-    return 2;
+    return exitCode('data');
   }
-  return 0;
+  return exitCode('success');
+}
+
+/** RFC 0015 §5.2: any typed resource-limit failure is the limit exit class. */
+function isLimitFailure(error: unknown): boolean {
+  const kind = (error as { kind?: unknown } | null)?.kind;
+  return kind === 'ResourceLimit' || kind === 'ResourceLimitExceeded';
+}
+
+/** RFC 0015 §5.2: input-file read failures are the data exit class. */
+function isInputReadFailure(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    ((error as { code?: unknown }).code === 'ENOENT' || error.message.includes('missing vector file'))
+  );
 }
 
 /**
@@ -395,14 +430,14 @@ export function main(argv: readonly string[]): number {
  * resolution) is the same on both sides, so a repo path containing spaces,
  * percent signs, hashes or non-ASCII characters still matches on Windows
  * (the previous string-concatenated `file:///` form failed on such paths
- * and silently skipped CLI mode). Windows file URLs are case-insensitive,
- * so the comparison folds case there.
+ * and silently skipped CLI mode). File URLs are case-insensitive on
+ * Windows and on the default macOS filesystem (case-insensitive APFS), so
+ * the comparison folds case on every platform — otherwise a case-mismatched
+ * path on macOS would silently skip CLI mode.
  */
 if (
   process.argv[1] !== undefined &&
-  (process.platform === 'win32'
-    ? import.meta.url.toLowerCase() === pathToFileURL(process.argv[1]).href.toLowerCase()
-    : import.meta.url === pathToFileURL(process.argv[1]).href)
+  import.meta.url.toLowerCase() === pathToFileURL(process.argv[1]).href.toLowerCase()
 ) {
   process.exitCode = main(process.argv);
 }

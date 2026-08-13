@@ -1,7 +1,7 @@
 /**
  * Canonical PortableGraph and PortableValue materialization for YAML.
  *
- * authority: crates/consema-yaml/src/materialization.rs
+ * authority: consema-rs/consema-yaml/src/materialization.rs
  *  - GraphMaterializationInputLocation :32-60, provenance entries :62-83,
  *    GraphMaterializationFailure :85-151 (codes :143-151)
  *  - materialize_graph :191-205, materialize_graph_complete :207-238

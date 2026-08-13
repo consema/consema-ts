@@ -3,14 +3,14 @@
  * locations.
  *
  * authority:
- *  - RFC 0003 (docs/rfcs/0003-source-syntax-query-and-patch-v1.md):
+ *  - RFC 0003 (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md):
  *    §3 content identity (:47-58), §4 encoding facts (:64-122) — closed v1
  *    encoding IDs (:68-77), resolution inputs and the frozen priority rule
  *    caller_override -> declaration -> bom -> profile_default (:80-107),
  *    decoding rejections (:109-122); §5 raw spans and decoded boundaries
  *    (:124-141)
  *  - vectors: conformance/vectors/source-v1.json (all 28 cases)
- *  - Rust (byte/registry arbitration): crates/consema-document/src/source.rs
+ *  - Rust (byte/registry arbitration): consema-rs/consema-document/src/source.rs
  *    — ContentDigest :15-54, WindowsCodePage :56-119, SourceEncoding :121-155,
  *    BomPolicy :157-165, BomKind :166-187, EncodingRequest :189-260,
  *    EncodingFacts :262-379, SourceLimits :381-409, DecodedPosition :411-422,
@@ -21,7 +21,7 @@
  * Design (TypeScript-idiomatic): SourceEncoding is a closed discriminated
  * union with constructor functions; requests are immutable builder
  * classes; the decoded boundary index mirrors the Rust checkpoint scheme
- * (stride 256, crates/consema-document/src/source.rs:13,1053) so memory
+ * (stride 256, consema-rs/consema-document/src/source.rs:13,1053) so memory
  * stays O(source/256) while lookups are O(stride). The decoded text is
  * validated exactly once at construction and retained (the O(n²)
  * formation root cause documented in source.rs:598-607 / task #53).
@@ -904,17 +904,20 @@ function decodeLatin1(bytes: Uint8Array, limits: SourceLimits): string {
 
 /**
  * Decodes one frozen Windows code page strictly (source.rs:901-1014;
- * go/document/source.go:571-712).
+ * consema-go/go/document/source.go:571-712).
  *
  * cp65001 decodes as strict UTF-8; the nine single-byte pages (874,
  * 1250-1258) decode through the frozen encoding_rs-derived tables with the
  * malformed sentinel 0xFFFF failing the whole source (InvalidSequence);
  * cp932 decodes through the frozen single-scalar two-byte table
- * (go/document/source.go:612-649, 714-722; cp932_table.ts). The remaining
+ * (consema-go/go/document/source.go:612-649, 714-722; cp932_table.ts). The remaining
  * multi-byte pages 936, 949, 950 are recognized but not decoded and are
  * rejected with InvalidSequence at byte 0 — Go documents the same
- * rejection for 936, 949, 950 (go/document/source.go:574-588); Rust
- * decodes all four through encoding_rs.
+ * rejection for 936, 949, 950 (consema-go/go/document/source.go:574-588);
+ * Rust decodes all four through encoding_rs. This is an RFC 0016 §7
+ * documented skip (no vector case covers 936/949/950; divergence from the
+ * Rust reference implementation is disclosed here, not hidden in a test
+ * gap).
  */
 function decodeCodePage(
   bytes: Uint8Array,
@@ -961,7 +964,7 @@ function decodeCodePage(
 }
 
 /**
- * Decodes cp932 exactly as go/document/source.go:612-649: ASCII single
+ * Decodes cp932 exactly as consema-go/go/document/source.go:612-649: ASCII single
  * bytes, half-width katakana 0xA1-0xDF, and the frozen single-scalar
  * two-byte table (an unknown or truncated two-byte code fails the whole
  * source with InvalidSequence at the lead byte).
@@ -1108,7 +1111,7 @@ function advancePosition(
  * Code pages decode to fixed raw widths: the single-byte pages (874,
  * 1250-1258) are width 1, cp65001 is the UTF-8 width, and cp932 is width 1
  * for ASCII and half-width katakana (0xA1-0xDF → 0xFF61-0xFF9F) and width 2
- * for every two-byte table scalar (go/document/source.go:612-649).
+ * for every two-byte table scalar (consema-go/go/document/source.go:612-649).
  */
 function rawStepWidth(encoding: SourceEncoding, character: string): number {
   switch (encoding.kind) {

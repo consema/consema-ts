@@ -2,9 +2,9 @@
  * Frozen plist language profiles and formation limits.
  *
  * authority (frozen data — do not guess):
- *  - PlistProfile and profile ids: crates/consema-plist/src/lib.rs:76-92
+ *  - PlistProfile and profile ids: consema-rs/consema-plist/src/lib.rs:76-92
  *    (XmlV1 -> "plist.xml@1", BinaryV1 -> "plist.binary@1");
- *    RFC 0013 §1 (docs/rfcs/0013-plist-family-profiles-v1.md:27-32)
+ *    RFC 0013 §1 (https://github.com/consema/consema/blob/main/docs/rfcs/0013-plist-family-profiles-v1.md:27-32)
  *  - PlistEncodingSelection: lib.rs:103-110 (ProfileDefault |
  *    Explicit(SourceEncoding); the binary profile has no text encoding
  *    and no BOM, RFC 0013 §2.2)

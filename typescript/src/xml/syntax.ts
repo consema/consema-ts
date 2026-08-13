@@ -1,8 +1,8 @@
 /**
  * Closed XML v1 lossless syntax-piece classification.
  *
- * authority: crates/consema-xml/src/document.rs
- *  - XmlSyntaxKind :17-94 (the forty-one kinds)
+ * authority: consema-rs/consema-xml/src/document.rs
+ *  - XmlSyntaxKind :22-94 (the thirty-seven kinds)
  *  - stable query and protocol names :801-889 (as_str :804-844,
  *    from_name :848-889)
  *
@@ -16,7 +16,7 @@
  * (typescript/src/protocol/query.ts:1192-1235).
  */
 
-/** Closed XML v1 lossless syntax-piece classification (document.rs:17-94). */
+/** Closed XML v1 lossless syntax-piece classification (document.rs:22-94). */
 export type XmlSyntaxKind =
   /** Unicode byte-order mark. */
   | 'bom'

@@ -15,10 +15,10 @@ check-version-consistency job 断言与 README 一致）。
 ## 快速开始（30 秒跑通）
 
 ```text
-npm install @consema/consema
+npm install @consema/consema（1.0.0-rc.1 发布后可用）
 ```
 
-把下面内容保存为 `typescript/quickstart.ts`（node ≥ 26 原生运行 TS，无需构建）后执行 `cd typescript && node quickstart.ts`（一个 JSON 文档走完 parse → query → edit → render 四条链）：
+下面示例是**仓库内演示**（导入走 `typescript/` 目录内相对路径；发布后包消费者从 `@consema/consema` 包根导入，见下方 API 摘要）。把内容保存为 `typescript/quickstart.ts`（node ≥ 26 原生运行 TS，无需构建）后执行 `cd typescript && node quickstart.ts`（一个 JSON 文档走完 parse → query → edit → render 四条链）：
 
 ```ts
 import { integerValue } from './src/core/value.ts';
@@ -60,14 +60,16 @@ console.log(new TextDecoder().decode(edited.render()));
 
 ## API 摘要
 
-核心面一行式（签名即 `typescript/src/` 的 tsc 类型面，typedoc 文档构建未接线，见 RELEASING.md §5；八个格式家族各有独立的 `parse*` / `execute*Query` / `project*` / `materialize*` / `convert*` 模块内入口）：
+核心面一行式（签名即 `typescript/src/` 的 tsc 类型面，typedoc 文档构建未接线，见 RELEASING.md §5；八个格式家族各有独立的 `parse*` / `execute*Query` / `project*` / `materialize*` 模块内入口；`convert*` 为根级统一入口，见 `src/convert.ts`，无家族级 convert 导出）：
 
-| 操作 | 包根 facade 入口（`@consema/consema` 直接 import） |
+| 操作 | 包根 facade 入口（`@consema/consema` 直接 import；query / project / edit / materialize 为家族模块内导出，包根暂不 re-export） |
 | --- | --- |
 | parse | `parseDocument(source: Uint8Array, profile: ProfileId) -> Document` |
-| convert | `convertJson(source, projectionRequest, materializationRequest) -> ConversionResult`（另有 convertToml / convertYaml / convertIni / convertProperties / convertXml / convertPlist / convertHcl） |
-| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表） |
+| convert | `convertJson(source: JsonDocument, projectionRequest: JsonProjectionRequest, materializationRequest: MaterializationRequest) -> ConversionResult`（另有 convertToml / convertYaml / convertIni / convertProperties / convertXml / convertPlist / convertHcl，签名结构相同） |
+| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile: ProfileId)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表；`profiles()` 返回 `FormatProfile` 对象，取其 `.id()` 构造 `formatOperationRegistry` 的 `ProfileId` 参数） |
 | query / project / edit / materialize | 模块内导出（包根暂不 re-export，1.0.0-rc 不擅自扩导出）：`executeJsonQuery(executable, document, limits, cancellation) -> JsonQueryResult<JsonMatch>`（`src/json/query.ts`）、`project(document, request) -> ProjectionResult`（`src/json/projection.ts`）、`materialize(value, request) -> MaterializationResult<JsonDocument>`（`src/json/materialization.ts`）、`EditTransactionBuilder(document)` + `commitEdits(document, transaction) -> EditCommit`（`src/json/edit.ts`） |
+
+**消费方类型前置。** 包直接发布 TypeScript 源码（`main`/`types`/`exports` 均指向 `./src/index.ts`），源码内 `.ts` 扩展名相对导入要求消费方 tsconfig 开启 `allowImportingTsExtensions`（或 `rewriteRelativeImportExtensions`）；包根导出使用 `node:crypto`（registry/conformance 模块），消费方需将 `@types/node` 加入 devDependencies（发布包不携带 devDependencies，`@types/node` 在本仓仅为开发依赖）。
 
 ## 布局
 
@@ -76,9 +78,11 @@ console.log(new TextDecoder().decode(edited.render()));
 - `scripts/`：跨语言差分验证脚本（byte parity / normalized differential /
   protocol exchange）。脚本构建 consema-rs 的 Rust emitter 并对拍 TypeScript 实现；
   Rust 侧来自 consema-rs 仓 checkout（CI 多仓模式），conformance 数据来自规范仓 checkout。
-- `.github/workflows/ci-typescript.yml`：TS 门禁（type + 单测 + 零依赖）、
-  conformance runner 门禁（18 suites / 519 cases）与 TS-Rust 差分门禁
-  （windows-latest 多仓 checkout）。
+- `.github/workflows/ci-typescript.yml`：10 个 job——ts-gates（type + 单测 +
+  零依赖）、coverage、ts-compiler-matrix、ts-conformance（conformance
+  runner 门禁，18 suites / 519 cases）、ts-differential（TS-Rust 差分门禁，
+  windows-latest 多仓 checkout）、npm-audit（npm advisory 常设审计）、
+  check-version-consistency、examples、ts-package 与聚合门禁 check。
 
 ## 构建与测试
 
@@ -102,7 +106,7 @@ npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 
 - **支持哪些配置格式？** 八个格式家族、16 个 profiles：JSON（`json.strict@1` / `jsonc.bounded@1` / `json5.standard@1`）、TOML（`toml.1.0@1`）、YAML（`yaml.1.2-core@1` / `yaml.1.1-compat@1`）、INI（`ini.portable@1` / `ini.windows@1` / `ini.python-configparser@1`）、Java Properties（`java-properties.reader@1` / `java-properties.latin1@1`）、XML（`xml.1.0-safe@1`）、Property List（`plist.xml@1` / `plist.binary@1`）、HCL（`hcl.native@1` / `hcl.tfvars@1`）。完整面枚举见 `profiles()`。
 - **与 zod 等 schema 校验库的关系？** 互补而非竞争：zod 做运行时 schema 校验/类型推导，Consema 做格式内容处理（无损文档、查询、投影、原子编辑、跨格式转换）；Consema 明确不做业务 schema 校验（平台接入指南）。
-- **性能如何？** 行为一致性由 18 suites / 519 cases conformance 门禁与跨语言差分门禁保证；解析/渲染基准基线见规范仓 `docs/BENCHMARKS-0.13.0.md` 与 Go 仓 [go/README.md](https://github.com/consema/consema-go/blob/main/go/README.md)。
+- **性能如何？** 行为一致性由 18 suites / 519 cases conformance 门禁与跨语言差分门禁保证；解析/渲染基准基线见规范仓 [docs/BENCHMARKS-0.13.0.md](https://github.com/consema/consema/blob/main/docs/BENCHMARKS-0.13.0.md) 与 Go 仓 [go/README.md](https://github.com/consema/consema-go/blob/main/go/README.md)。
 - **零依赖吗？** 是——运行时零第三方依赖（`typescript` 与 `@types/node` 仅 devDependencies）。
 - **跨语言一致性如何保证？** 18 套语言无关 conformance suite 共 519/519 cases（聚合 digest `cfd6e296…`）由规范仓维护、五仓共享；CI 多仓 checkout 跑 conformance runner 与 TS-Rust 差分门禁（byte parity / normalized differential / protocol-exchange）。
 - **兼容承诺？** 语义化版本；`check-version-consistency` 门禁断言 README 版本行与 `package.json` 一致；`tsc --noEmit` strict 全树零诊断；兼容与支持政策见 RFC 0020。

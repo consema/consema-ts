@@ -4,7 +4,7 @@ The TypeScript implementation of the language-neutral Consema
 configuration-processing contracts (RFC 0016; equal footing with
 Rust/Go/Python/Kotlin per the 2026-08-11 owner decision). It is
 dependency-free at runtime (only `typescript` + `@types/node` as dev
-dependencies, package.json:29-32) and never imports or calls the Rust,
+dependencies, package.json:38-41) and never imports or calls the Rust,
 Go, Python or Kotlin implementations.
 
 ## Verify
@@ -26,8 +26,10 @@ npm ci
 npm run check        # tsc --noEmit (strict)
 npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 npm run test:differential   # byte parity / normalized / protocol exchange
-                            # (require CONSEMA_DIFFERENTIAL_* golden env vars;
-                            # missing env = documented skip, never silent)
+                            # (byte parity + normalized require the
+                            # CONSEMA_DIFFERENTIAL_* golden env vars; protocol
+                            # exchange uses CONSEMA_EXCHANGE_*; missing env =
+                            # documented skip, never silent)
 ```
 
 ## Compiler line evaluation (TS 6/7, 2026-08-12)
@@ -43,8 +45,8 @@ typescript@<v>` then `npm run check`, i.e. `tsc --noEmit` strict):
 
 Both compiler lines compile the strict tree clean with zero source changes.
 The pinned `~5.9.0` devDependency stays the baseline; the
-ts-compiler-matrix legs (currently 5.8.x / 5.9.x) can be extended to
-6.0.x / 7.0.x without code changes.
+ts-compiler-matrix legs (currently the exact versions 5.8.3 / 5.9.2) can
+be extended to 6.0.x / 7.0.x without code changes.
 
 ## Conformance
 

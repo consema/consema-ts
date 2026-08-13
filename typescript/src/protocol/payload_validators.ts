@@ -1,7 +1,7 @@
 /**
  * Full validation dispatch for registered protocol payloads.
  *
- * authority: crates/consema-protocol/src/payload.rs — the envelope validates
+ * authority: consema-rs/consema-protocol/src/payload.rs — the envelope validates
  * every registered payload through its record decoder (unknown-field,
  * missing-field, type, and record-invariant rejections happen here, not in
  * the envelope itself). Each record module self-registers its decoder at

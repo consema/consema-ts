@@ -2,7 +2,7 @@
  * The HCL body/expression grammar with deterministic recovery (RFC 0014
  * §3, §4).
  *
- * authority: crates/consema-hcl/src/parser.rs —
+ * authority: consema-rs/consema-hcl/src/parser.rs —
  *  - the grammar codes :77-98 (item/attribute/block/label/expression/
  *    directive/newline/separator/duplicate-attribute)
  *  - parse_body :620-733 (per-body counts and duplicate-attribute

@@ -1,7 +1,7 @@
 /**
  * Java Properties parse and recovery resource limits.
  *
- * authority: crates/consema-properties/src/lib.rs
+ * authority: consema-rs/consema-properties/src/lib.rs
  *  - PropertiesParseLimits :61-98 (the twenty properties-owned bounds plus
  *    the common ParseLimits)
  *  - defaults :100-122 (2M natural/logical lines, 4 MiB natural-line bytes,
@@ -15,7 +15,7 @@
  *    key/value and in total, duplicate-group members, syntax pieces,
  *    diagnostics, and recovery regions
  *  - the vector limit-name vocabulary is pinned by the conformance runner:
- *    crates/consema-conformance/src/properties_v1.rs:1150-1180
+ *    consema-rs/consema-conformance/src/properties_v1.rs:1150-1180
  *
  * Design (TypeScript-idiomatic): a plain record plus a frozen default
  * instance; limits are plain numbers because they are host-size usizes in

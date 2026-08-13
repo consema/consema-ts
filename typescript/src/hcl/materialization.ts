@@ -17,7 +17,7 @@
  *    bytes, and compares the reparsed native model to the promised input
  *    semantics — failure returns no target Document, partial bytes, or
  *    partial provenance
- *  - crates/consema-hcl/src/materialization.rs — validate_request :266-285
+ *  - consema-rs/consema-hcl/src/materialization.rs — validate_request :266-285
  *    (only `hcl.native@1`/`hcl.tfvars@1` + the canonical style + UTF-8 +
  *    Lf), the parse limits for the closure reparse :295-328, write_body
  *    :1174-1208, write_value :1211-1253, write_object_key :1255-1264

@@ -1,6 +1,6 @@
 /**
  * `consema.xml-1-0-safe.conformance@1` runner (34 cases; mirror of
- * crates/consema-conformance/src/xml_v1.rs). Dispatch is by the vector
+ * consema-rs/consema-conformance/src/xml_v1.rs). Dispatch is by the vector
  * `capability` field: formation, lossless syntax query, native semantic
  * query, element-tree projection, canonical materialization, the structural
  * edits, and formation-class limits.

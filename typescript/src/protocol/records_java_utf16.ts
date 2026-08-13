@@ -1,7 +1,7 @@
 /**
  * Exact Java UTF-16 code-unit strings (`core.java-utf16-string@1`).
  *
- * authority: crates/consema-protocol/src/java_utf16.rs (the exact record
+ * authority: consema-rs/consema-protocol/src/java_utf16.rs (the exact record
  * shape, the resource limits, the canonical 4-digit uppercase unit
  * spellings, and the surrogate well-formedness classification); the
  * canonical JSON/PVCE envelope bytes of this record are pinned by
