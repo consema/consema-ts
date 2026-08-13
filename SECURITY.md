@@ -29,7 +29,7 @@ Materialization 在递归与输出分配前计算 input node/depth 和增长上�
 
 raw `NodeRef`、snapshot handle、cursor 与 `CancellationToken` 不可序列化。需要 source/node identity 的 Diagnostic、Query、Provenance、ChangeSet、MaterializationResult 和 EditPlan 必须先绑定调用方稳定 locator；缺失绑定会失败，不会省略身份事实后伪造成功。
 
-`toml.1.0@1` 只对完整合法文档形成 snapshot，非法输入返回 `FatalFormationFailure`。发布门禁固定运行 `toml-lang/toml-test v2.2.0` 的 205 个 valid 和 474 个 invalid TOML 1.0 decoder cases；上游版本变更必须单独审计。semantic edit 不会舍入 NaN payload、亚纳秒时间或非整分钟 offset 来伪造成功。
+`toml.1.0@1` 只对完整合法文档形成 snapshot，非法输入返回 `FatalFormationFailure`。Rust 仓的发布门禁固定运行 `toml-lang/toml-test v2.2.0` 的 205 个 valid 和 474 个 invalid TOML 1.0 decoder cases（上游版本变更必须单独审计；证据见规范仓 consema 的 SECURITY.md）；本仓对应机制为 conformance 门禁的 toml-v1 套件（18 套 / 519 cases 之一）与 TS-Rust 差分 harness。semantic edit 不会舍入 NaN payload、亚纳秒时间或非整分钟 offset 来伪造成功。
 
 `xml.1.0-safe@1` 的 formation 只消费调用方提供的完整 document entity bytes，绝不打开外部 DTD、实体、URI、文件、网络连接、registry、classpath 或 catalog，也不提供用户 resolver 回调。DOCTYPE 仅允许 bounded internal subset；外部 subset、外部/参数实体、notation、conditional section 与 validation 声明一律恢复并发布稳定诊断。entity 膨胀按整个文档六维记账（declaration/reference 数量、expansion depth、expanded bytes/scalars、amplification ratio），任何一维突破即恢复；攻击无法把预算拆分到多个引用。内部 subset 注释按字符数据处理，其文本不会触发排除声明误报。UTF-16 输入必须携带 BOM；encoding 声明与实际编码冲突时恢复。恢复文档永不投影、物化或编辑；`xml.safe-canonical-document@1` materialization 对生成字节执行重解析闭包验证，失败返回无目标 Document。结构编辑不接收 raw markup，新内容一律 XML-escape；编辑不猜测或伪造 namespace 声明，unbound/reserved prefix、重复 expanded attribute、ancestor placement 与根删除均在 commit 前失败。XML 语法覆盖包含 37 种细粒度 kind，实体引用与属性部件均可被 lossless query 精确区分。
 
@@ -37,7 +37,7 @@ raw `NodeRef`、snapshot handle、cursor 与 `CancellationToken` 不可序列化
 
 `hcl.native@1`/`hcl.tfvars@1` 的 parse/query/project/edit 全程不求值：无 variable/function/template 求值与展开，`hcl.expression@1` 只承载语法事实、永不执行，无 application schema 与 Terraform/cty 语义。formation 只消费调用方提供的完整文档字节，不访问文件、网络、registry 或环境。表达式/模板/heredoc depth、number digits、item/label/attribute counts 与 recovery regions 等全部尺寸算术在分配前 checked，limit 失败绝不伪装成空 body、截断表达式或缩短查询。恢复文档可查询、不可 project/materialize/commit；`hcl.canonical-document@1` materialization 生成字节必先重解析并逐节点比较闭包语义，失败返回无目标 Document、无 partial bytes、无 partial provenance。对抗门禁覆盖 expression depth、template/heredoc size、number digits、body nesting 与 item counts 的极限输入，验证无 panic、无无界分配。
 
-依赖门禁由 `Cargo.lock`、精确锁定的 TOML/Unicode 依赖、RustSec `cargo audit` 和仓库级 `deny.toml` 共同执行。`cargo deny check` 拒绝已知公告、未知 registry/Git 来源、通配版本和重复版本，并只允许当前实际使用的 MIT/Apache-2.0/Unicode-3.0 许可证；任何例外都必须携带可审计理由进入版本控制。
+本仓依赖门禁由 `.github/workflows/audit.yml`（`npm audit`，npm advisory 数据库；daily cron + `package.json`/`package-lock.json` 变更触发）执行，任何 advisory（含 low）都使审计 job 变红；运行时零第三方依赖（`package.json` 仅 devDependencies，ci-typescript.yml 零依赖门禁断言）。Rust 仓对应机制（`Cargo.lock`、RustSec `cargo audit`、仓库级 `deny.toml`）见规范仓 consema 的 SECURITY.md。
 
 ## 安全披露与支持周期
 
@@ -47,4 +47,4 @@ raw `NodeRef`、snapshot handle、cursor 与 `CancellationToken` 不可序列化
 
 **响应 SLA（按缺陷等级）。** P0（数据破坏、静默损失、RCE/外部访问、错误写文件、跨快照误编辑）：24 小时内确认，7 天内给出修复或缓解方案。P1（panic/crash/hang、错误完成状态、明显语义不一致、limit bypass）：72 小时内确认，14 天内修复。P2（有安全替代路径的功能缺陷、非核心性能回退、诊断位置错误）：随下一个发布窗口修复，发布判断逐项记录。P3（文档、易用性、非稳定 message、低风险边角）：尽力而为。任何等级都不得用降级测试或截断包装来"修复"；资源上限与完成状态语义是安全边界（见本文档开头部分），不能因披露而放松。
 
-**支持窗口。** 1.0.0 发布前，安全修复只承诺两个窗口：最新稳定版本与其上一 minor（当前为最新发布 tag 与其前一版本）；更早版本不承诺修复，除非影响面证明必须回移。正式支持的目标是 CI 矩阵（windows-latest / ubuntu-latest / macos-latest，x86_64）；MSRV 窗口为 manifest 声明的 `rust-version`（当前 1.85）起的所有版本，MSRV 提升必须走 manifest 变更记录。Go 实现（0.14.0 起）的版本窗口在 Go RC 时按当时稳定生态冻结。公共 API 与 CLI 命令的弃用期至少一个 minor；contract/Profile 退役必须走 RFC 进程，已冻结的 v1-v6 registry 永不删除 code，退役只改变新输入的接受行为并在发布记录中列明。
+**支持窗口。** 1.0.0 发布前，安全修复只承诺两个窗口：最新稳定版本与其上一 minor（当前为最新发布 tag 与其前一版本）；更早版本不承诺修复，除非影响面证明必须回移。正式支持的目标是 CI 平台矩阵（ubuntu-latest / windows-latest，ci-typescript.yml 如实配置）；Node.js 版本窗口为 `typescript/package.json` `engines` 声明的 `>=26`（CI 运行 26.x）。Rust 仓的 MSRV 窗口（manifest 声明的 `rust-version`，当前 1.85）与 Go 实现的版本窗口见各自仓库的 SECURITY.md。公共 API 与 CLI 命令的弃用期至少一个 minor；contract/Profile 退役必须走 RFC 进程，已冻结的 v1-v6 registry 永不删除 code，退役只改变新输入的接受行为并在发布记录中列明。
