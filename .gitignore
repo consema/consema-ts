@@ -9,5 +9,12 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+# Conformance data: test-run-time provision. CI multi-repo checkouts copy it
+# from the consema/consema spec repository; local runs require a manual copy
+# (see CONTRIBUTING.md). The spec repository is the single authority — kept
+# out of git here to avoid a second authority. Anchored at the repository
+# root (/conformance/): the provisioned data directory only.
+/conformance/
+
 # npm pack artifacts
 *.tgz
