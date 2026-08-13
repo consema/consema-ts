@@ -7,6 +7,13 @@
 # exports point at ./src/index.ts) — zero build step, node 26 runs TS
 # natively; npm installs the sources as-is.
 #
+# npm test runs the conformance runner, which reads conformance/* by
+# repository-relative path (typescript/src/conformance/runner.ts); without
+# the data the runner fails with ENOENT. Like the CI workflows, this job
+# checks out consema/consema (the spec repository, single authority) beside
+# this repo and copies the conformance data into the workspace root before
+# testing (multi-repo checkout + provision pattern, ci-typescript.yml).
+#
 # Credentials: npm access token via the NPM_TOKEN repository secret
 # (Settings → Secrets and variables → Actions), exposed to npm through
 # setup-node's registry-url + NODE_AUTH_TOKEN. Provenance (npm 9.5+,
@@ -33,6 +40,11 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          repository: consema/consema
+          path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '26.x'
@@ -43,6 +55,27 @@ jobs:
           # when building the artifact that gets published (zizmor
           # cache-poisoning); the CI workflows keep the cache.
           package-manager-cache: false
+      # provision conformance data from the consema spec repository
+      # (the runner test resolves conformance/* by repository-relative path;
+      # identical step to the ts-gates job of ci-typescript.yml).
+      - name: provision conformance data from the consema spec repository
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\conformance'
+          $target = Join-Path $env:GITHUB_WORKSPACE 'conformance'
+          if (-not (Test-Path -LiteralPath $source)) {
+            throw "conformance data not found in the consema checkout: $source"
+          }
+          Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
+          New-Item -ItemType Directory -Force (Join-Path $env:GITHUB_WORKSPACE 'docs') | Out-Null
+          $manifest = Join-Path $env:GITHUB_WORKSPACE 'consema-repo\docs\fc-manifest-0.13.0.json'
+          if (-not (Test-Path -LiteralPath $manifest)) {
+            throw "fc-manifest not found in the consema checkout: $manifest"
+          }
+          Copy-Item -LiteralPath $manifest -Destination (Join-Path $env:GITHUB_WORKSPACE 'docs\fc-manifest-0.13.0.json') -Force
+          $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
+          Write-Output "provisioned conformance/: $count files + docs/fc-manifest-0.13.0.json"
 
       # Release guard (rc 前六角色审计 P1, 2026-08-12): the tag minus the
       # leading v must equal the package.json version, otherwise a mismatched
