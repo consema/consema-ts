@@ -16,6 +16,15 @@ suites）在[规范仓](https://github.com/consema/consema)。
 
 ## 构建与测试
 
+前置：`npm test` 包含 conformance runner，按仓库相对路径读
+`conformance/vectors/`（数据缺失即 ENOENT 失败）。本地运行前在仓库根
+provision 数据（并排检出规范仓 consema 后执行）：
+
+```powershell
+if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
+Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
+```
+
 ```text
 cd typescript
 npm ci

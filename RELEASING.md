@@ -10,7 +10,7 @@ tag 推送后 `.github/workflows/release.yml` 自动发布 `@consema/consema`
 1. **版本 bump**：改 `typescript/package.json` 的 `version`，同时改仓根
    `README.md` 的 `Version:` 行（`check-version-consistency` 门禁强制一致）。
 2. **CHANGELOG 策展**：记录本版本变更；跨语言变更同步到
-   consema 仓库 `docs/CHANGELOG.md`。
+   consema 仓库根 `CHANGELOG.md`（真实变更记录；`docs/CHANGELOG.md` 只是勘误）。
 3. **质量门禁全绿**：main 分支 CI `check (all gates green)` 全绿
    （清单见各仓 ci 配置）。
 4. **打 tag 并推送**（发布动作的唯一触发点）：
@@ -20,7 +20,9 @@ tag 推送后 `.github/workflows/release.yml` 自动发布 `@consema/consema`
    ```
    发布 workflow 会先校验 tag↔版本一致（tag 去掉 `v` 前缀必须等于
    `typescript/package.json` 的 version，不一致即 exit 1 中止），校验通过
-   后执行 npm ci / check / test / publish。
+   后 provision conformance 数据（多仓 checkout 模式，与 CI 一致；
+   `npm test` 的 conformance runner 按仓库相对路径读 `conformance/`），
+   再执行 npm ci / check / test / publish。
 
 ## 2. 凭证配置（用户侧一次性动作）
 

@@ -9,6 +9,17 @@ Go, Python or Kotlin implementations.
 
 ## Verify
 
+Prerequisite: `npm test` includes the conformance runner, which reads
+`conformance/vectors/` by repository-relative path (missing data fails the
+run with ENOENT — same provision step as the CI workflows). Provision the
+data from a checkout of the consema spec repository beside this one (run at
+the repository root):
+
+```powershell
+if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
+Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
+```
+
 ```
 cd typescript
 npm ci
@@ -44,6 +55,6 @@ conformance/vectors/ by repo-relative path); 519/519 pass in CI
 
 ## References
 
-- Language plan: `docs/multi-language-implementation-plan.md` (L0-L5 closed
+- Language plan: [multi-language-implementation-plan.md](https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md) (L0-L5 closed
   for all three new languages, 2026-08-12)
-- CI and cross-language verification design: `docs/five-language-ci-design.md`
+- CI and cross-language verification design: [five-language-ci-design.md](https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md)

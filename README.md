@@ -60,17 +60,14 @@ console.log(new TextDecoder().decode(edited.render()));
 
 ## API 摘要
 
-核心面一行式（完整签名见 [typescript/README.md](typescript/README.md)；八个格式家族各有独立的 `parse*` / `execute*Query` / `project*` / `materialize*` / `convert*` 入口）：
+核心面一行式（签名即 `typescript/src/` 的 tsc 类型面，typedoc 文档构建未接线，见 RELEASING.md §5；八个格式家族各有独立的 `parse*` / `execute*Query` / `project*` / `materialize*` / `convert*` 模块内入口）：
 
-| 操作 | facade 入口 |
+| 操作 | 包根 facade 入口（`@consema/consema` 直接 import） |
 | --- | --- |
 | parse | `parseDocument(source: Uint8Array, profile: ProfileId) -> Document` |
-| query | `executeJsonQuery(executable: ExecutableQuery, document: JsonDocument, limits: QueryLimits, cancellation: CancellationToken) -> JsonQueryResult<JsonMatch>` |
-| project | `project(document: JsonDocument, request: ProjectionRequest) -> ProjectionResult`（请求：`new ProjectionRequestBuilder('BestExactCoreV1').build()`） |
-| edit | `new EditTransactionBuilder(document).semanticScalar(...)` + `commitEdits(document, transaction) -> EditCommit`（`commit.document()` 为编辑后文档） |
-| materialize | `materialize(value: PortableValue, request: MaterializationRequest) -> MaterializationResult<JsonDocument>` |
 | convert | `convertJson(source, projectionRequest, materializationRequest) -> ConversionResult`（另有 convertToml / convertYaml / convertIni / convertProperties / convertXml / convertPlist / convertHcl） |
 | registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表） |
+| query / project / edit / materialize | 模块内导出（包根暂不 re-export，1.0.0-rc 不擅自扩导出）：`executeJsonQuery(executable, document, limits, cancellation) -> JsonQueryResult<JsonMatch>`（`src/json/query.ts`）、`project(document, request) -> ProjectionResult`（`src/json/projection.ts`）、`materialize(value, request) -> MaterializationResult<JsonDocument>`（`src/json/materialization.ts`）、`EditTransactionBuilder(document)` + `commitEdits(document, transaction) -> EditCommit`（`src/json/edit.ts`） |
 
 ## 布局
 
@@ -84,6 +81,15 @@ console.log(new TextDecoder().decode(edited.render()));
   （windows-latest 多仓 checkout）。
 
 ## 构建与测试
+
+前置：`npm test` 包含 conformance runner，按仓库相对路径读
+`conformance/vectors/`（数据缺失即 ENOENT 失败，与 CI provision 步骤同源）。
+本地运行前在仓库根 provision 数据（并排检出规范仓 consema 后执行）：
+
+```powershell
+if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
+Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
+```
 
 ```text
 cd typescript
