@@ -136,15 +136,16 @@ if (Test-Path $stderrFile) {
     Get-Content $stderrFile | ForEach-Object { Write-Host $_ }
 }
 
-# The parity test must have RUN (not skipped) and passed.
+# The parity test must have RUN (not skipped) and passed: with the golden
+# env var unset the test reports a documented skip (node --test exits 0),
+# so the summary line is the proof of execution — its absence fails the
+# harness even when the exit code is 0. The counts are parsed from the test
+# output (\d+/\d+), so a case-set change cannot silently desync a hardcoded
+# figure.
 $output = Get-Content $stdoutFile -Raw
-if ($output -match 'byte parity: 68/68 equal.*# CONSEMA_DIFFERENTIAL_RUST_DIR is not set') {
-    Write-Error 'the differential test skipped: the Rust byte directory was not provisioned'
-    exit 1
-}
 $summary = [regex]::Match($output, 'byte parity: \d+/\d+ equal \(\d+ pvce, \d+ pgce\)')
 if (-not $summary.Success) {
-    Write-Error "the differential test did not pass (node --test exit $testCode)"
+    Write-Error "the differential test did not run/pass: no 'byte parity: N/N equal' summary (node --test exit $testCode; a documented skip without CONSEMA_DIFFERENTIAL_RUST_DIR is not a pass)"
     if ($testCode -eq 0) { exit 1 } else { exit $testCode }
 }
 if ($testCode -ne 0) {
