@@ -8,5 +8,6 @@
     "rewriteRelativeImportExtensions": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.test.ts", "src/yaml/test_helpers.ts", "src/yaml/test_decode.ts"]
+  "exclude": ["src/**/*.test.ts", "src/yaml/test_helpers.ts", "src/yaml/test_decode.ts"],
+  "_postBuild": "R43 (2026-08-15): rewriteRelativeImportExtensions rewrites only the JS emit — the emitted .d.ts files keep relative `.ts` specifiers ('export * from ./core/value.ts'), which point at files absent from the published package (files = [dist, LICENSE]). The build script (package.json) therefore runs tools_rewrite_dts.mjs after tsc to rewrite relative .ts specifiers to .js in dist/ (TS resolves './x.js' to './x.d.ts')."
 }

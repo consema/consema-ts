@@ -32,7 +32,8 @@
     "provenance": true
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json && node tools_rewrite_dts.mjs",
     "prepack": "npm run build && node -e \"require('node:fs').copyFileSync('../LICENSE', 'LICENSE')\"",
     "check": "tsc --noEmit",
     "test": "node --test \"src/**/*.test.ts\"",
