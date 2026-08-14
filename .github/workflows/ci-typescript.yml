@@ -106,8 +106,14 @@ jobs:
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
-          # is not copied: nothing in this repository consumes the copied
-          # manifest (the digest is pinned in runner.ts / runner.test.ts).
+          # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
+          # workspace, so no provision-time manifest sha256 assertion is added
+          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
+          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # aggregate-digest / 18-519 inventory assertions are runtime
+          # assertions in runner.ts / runner.test.ts against the provisioned
+          # conformance data (W4-13/R10 — documented skip when the manifest
+          # is not present).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
       - name: npm ci (lockfile-driven install)
@@ -257,8 +263,14 @@ jobs:
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
-          # is not copied: nothing in this repository consumes the copied
-          # manifest (the digest is pinned in runner.ts / runner.test.ts).
+          # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
+          # workspace, so no provision-time manifest sha256 assertion is added
+          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
+          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # aggregate-digest / 18-519 inventory assertions are runtime
+          # assertions in runner.ts / runner.test.ts against the provisioned
+          # conformance data (W4-13/R10 — documented skip when the manifest
+          # is not present).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
       - name: npm ci (lockfile-driven install)
@@ -379,8 +391,14 @@ jobs:
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
-          # is not copied: nothing in this repository consumes the copied
-          # manifest (the digest is pinned in runner.ts / runner.test.ts).
+          # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
+          # workspace, so no provision-time manifest sha256 assertion is added
+          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
+          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # aggregate-digest / 18-519 inventory assertions are runtime
+          # assertions in runner.ts / runner.test.ts against the provisioned
+          # conformance data (W4-13/R10 — documented skip when the manifest
+          # is not present).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
       - name: npm ci (lockfile-driven install)
@@ -474,8 +492,14 @@ jobs:
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
           # included in the conformance/ copy above; no workspace-root
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
-          # is not copied: nothing in this repository consumes the copied
-          # manifest (the digest is pinned in runner.ts / runner.test.ts).
+          # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
+          # workspace, so no provision-time manifest sha256 assertion is added
+          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
+          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # aggregate-digest / 18-519 inventory assertions are runtime
+          # assertions in runner.ts / runner.test.ts against the provisioned
+          # conformance data (W4-13/R10 — documented skip when the manifest
+          # is not present).
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
       # Each script builds the pinned Rust emitter inside the consema-rs
