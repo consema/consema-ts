@@ -1,6 +1,7 @@
 /**
  * @consema/consema — the TypeScript implementation of the language-neutral
- * Consema contracts (RFC 0016; https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md).
+ * Consema contracts (RFC 0002/0003/0004/0006 contract family;
+ * https://github.com/consema/consema/blob/main/docs/rfcs/).
  *
  * Zero third-party runtime dependencies. Domain layout mirrors the Go
  * implementation's package domains:
