@@ -1,6 +1,8 @@
 /**
- * Capability-parity test (L4; authority: https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:26,
- * :31; the mandatory capability matrix of RFC 0015 §6.2).
+ * Capability-parity test (L4; authority:
+ * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json —
+ * 键 contract_registry / capability_set，行号可能漂移，以键名为锚; the
+ * mandatory capability matrix of RFC 0015 §6.2).
  */
 
 import { test } from 'node:test';

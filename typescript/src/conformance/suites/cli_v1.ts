@@ -5,7 +5,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedFieldOptional, utf8, toHex, bytesEqual } from '../helpers.ts';
-import { fail, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import {
   cliOutputFromValue,
@@ -378,10 +378,6 @@ function enforcePatchBudget(plan: BatchPlanMessage, maxReplacements: number): vo
   }
 }
 
-function skipCase(case_: VectorCase, reason: string): never {
-  throw new SkippedCase(case_.capability ?? 'unknown', reason);
-}
-
 export const runCliV1: SuiteExecutor = {
   runCase(case_: VectorCase): void {
     switch (case_.capability) {
@@ -404,10 +400,7 @@ export const runCliV1: SuiteExecutor = {
         redactionCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

@@ -81,8 +81,8 @@ if (-not (Test-Path $CaseFile)) {
 # UTF8 explicit: PowerShell 5.1 Get-Content defaults to the ANSI codepage.
 $cases = Get-Content $CaseFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $caseCount = @($cases.cases).Count
-if ($caseCount -lt 108) {
-    Write-Error "normalized differential case file has $caseCount cases, want >= 108"
+if ($caseCount -ne 108) {
+    Write-Error "normalized differential case file has $caseCount cases, want exactly 108 (frozen count, G66)"
     exit 1
 }
 

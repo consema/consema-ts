@@ -9,7 +9,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedField, expectedFieldOptional, utf8, bytesEqual, text } from '../helpers.ts';
-import { fail, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parseHcl, profileDefaultEncoding, HclBlock } from '../../hcl/document.ts';
 import type { HclDocument, HclBody } from '../../hcl/document.ts';
@@ -1571,10 +1571,7 @@ export const runHclV1: SuiteExecutor = {
         editCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

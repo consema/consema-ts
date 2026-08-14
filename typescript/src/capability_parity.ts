@@ -1,11 +1,12 @@
 /**
  * Capability-parity assertion (L4; mirror of the Go capability-parity gate,
  * https://github.com/consema/consema/blob/main/docs/go-implementation-plan.md §6; authority:
- * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:32 capability_set — "8 families / 16
+ * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json — 键 capability_set（"8 families / 16
  * profiles / 21 query domains / 16 operation registries / 187 error
- * codes"; the per-family operation counts at fc-manifest-0.13.0.json F-5
+ * codes"；行号可能漂移，以键名为锚）；the per-family operation counts at
+ * fc-manifest-0.13.0.json F-5 evidence
  * ("json 8/toml 7/yaml 8/ini 8/properties 5/xml 8/plist 6/hcl 6"); the
- * contract counts at fc-manifest-0.13.0.json:27 (semantic-model v7:
+ * contract counts at 键 contract_registry（semantic-model v7:
  * 41 contracts / 187 error codes)).
  *
  * Every mandatory capability must have a TypeScript implementation: the
@@ -19,7 +20,7 @@ import { formatFamilies, profiles, queryDomains, formatOperationRegistry } from 
 import { ContractRegistry } from './protocol/contract.ts';
 import { ErrorCodeRegistry } from './protocol/error_registry.ts';
 
-/** The frozen manifest inventory (fc-manifest-0.13.0.json:32, :27). */
+/** The frozen manifest inventory (fc-manifest-0.13.0.json — 键 capability_set / contract_registry). */
 export const MANIFEST_FAMILY_COUNT = 8;
 export const MANIFEST_PROFILE_COUNT = 16;
 export const MANIFEST_QUERY_DOMAIN_COUNT = 21;
@@ -90,8 +91,9 @@ export function capabilityParityFailures(): ParityFailure[] {
   // counts of the F-5 evidence ("json 8/toml 7/yaml 8/ini 8/properties
   // 5/xml 8/plist 6/hcl 6"). The manifest count is the family's fullest
   // registry (hcl.native publishes six operations; hcl.tfvars publishes the
-  // four tfvars ones, conformance/README.md:23), so each family must expose
-  // at least one registry with exactly the manifest count.
+  // four tfvars ones, conformance/README.md hcl-v1.json 套件条目「六类
+  // （tfvars 四类）edit」——行号可能漂移，以套件条目为锚), so each family
+  // must expose at least one registry with exactly the manifest count.
   let registryCount = 0;
   const familyMax = new Map<string, number>();
   for (const entry of profileList) {

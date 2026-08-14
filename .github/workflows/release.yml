@@ -2,10 +2,14 @@
 # (top-tier bar: 半自动发布, pydantic precedent; zod canary publishing is
 # a later P2 option, see RELEASING.md §3).
 #
-# Publishing shape (decision, 1.0 前保持源码直发): the package ships the
-# TypeScript sources directly (package.json files = ["src"], main/types/
-# exports point at ./src/index.ts) — zero build step, node 26 runs TS
-# natively; npm installs the sources as-is.
+# Publishing shape (decision, G33, 2026-08-14 — 1.0 前发布编译产物): the
+# package ships compiled JS + d.ts from typescript/dist/ (package.json
+# files = ["dist", "LICENSE"], main/types/exports point at dist/; prepack
+# runs `tsc -p tsconfig.build.json` and copies the LICENSE text into the
+# package directory) — node 26 type stripping refuses files under
+# node_modules, so a source-direct package is not importable in the
+# declared support window (engines >= 26); the clean-install import smoke
+# below verifies the packaged shape right before publishing.
 #
 # npm test runs the conformance runner, which reads conformance/* by
 # repository-relative path (typescript/src/conformance/runner.ts); without
@@ -27,6 +31,13 @@ on:
   push:
     tags: ['v*']
 
+# G122 (2026-08-14): a re-pushed/retried tag while the previous run is still
+# in flight would trigger a concurrent publish (npm 409s, double verify) —
+# one run per tag ref, the newer run cancels the older one (rs precedent).
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   id-token: write
@@ -44,18 +55,19 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: ad667021f0fd7c611dd0deb670eba7658e1ea575 # cfd6e296 519-case conformance data pin
+          ref: 096e5f840ecc714912db779706fd881405b92308 # cfd6e296 519-case conformance data pin
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '26.7.0'
           registry-url: 'https://registry.npmjs.org'
-          # cache: false — setup-node v4 does not enable npm caching by
-          # default and has no package-manager-cache input; this tag-triggered
-          # publishing workflow explicitly disables the cache so the published
-          # artifact never consumes a (potentially poisoned) cache entry
-          # (zizmor cache-poisoning); the CI workflows keep the cache.
-          cache: false
+          # No npm cache in this workflow (G34, 2026-08-14): the setup-node
+          # cache input only accepts package-manager names (npm/yarn/pnpm/
+          # bun) — a boolean is rejected ("Caching for 'false' is not
+          # supported"), so caching is simply left off: this tag-triggered
+          # publishing workflow never consumes a (potentially poisoned)
+          # cache entry (zizmor cache-poisoning); the CI workflows keep the
+          # cache.
       # provision conformance data from the consema spec repository
       # (the runner test resolves conformance/* by repository-relative path;
       # identical step to the ts-gates job of ci-typescript.yml).
@@ -72,6 +84,20 @@ jobs:
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
 
+      # Release guard (G71, 2026-08-14): the tag must point at origin/main
+      # HEAD — a tag pushed from a stale or divergent commit must not
+      # publish old code (same gate as the consema-go/consema-rs/consema-py
+      # release.yml verify steps).
+      - name: verify tag points at main HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --quiet
+          if [[ "$(git rev-parse HEAD)" != "$(git rev-parse FETCH_HEAD)" ]]; then
+            echo "::error::tag $GITHUB_REF_NAME does not point at origin/main HEAD"
+            exit 1
+          fi
+          echo "tag $GITHUB_REF_NAME points at origin/main HEAD"
       # Release guard (rc 前六角色审计 P1, 2026-08-12): the tag minus the
       # leading v must equal the package.json version, otherwise a mismatched
       # tag could publish the wrong version to npm.
@@ -107,11 +133,47 @@ jobs:
           fi
           echo "running $files test files"
           npm test
+          # G72 (2026-08-14) explicit disclosure: the three differential
+          # tests (byte parity / normalized / protocol exchange) run in
+          # documented-skip mode on the release path — no consema-rs Rust
+          # emitter checkout here, so no CONSEMA_* golden env vars are set.
+          # The differential gate is covered by the CI ts-differential job.
+          echo "release-path npm test: differential legs are documented skips (no Rust emitter in release); CI ts-differential covers them"
       - name: npm publish --dry-run (packaging validation before the real publish)
         working-directory: typescript
-        run: npm publish --dry-run --access public
-      - name: npm publish (provenance, public access)
+        run: npm publish --dry-run --access public --tag rc
+      # Clean-install package-root import smoke (G33, 2026-08-14): verify
+      # the tarball is importable from a fresh consumer install right before
+      # publishing (same step as the CI ts-package job).
+      - name: clean-install package-root import smoke
         working-directory: typescript
-        run: npm publish --provenance --access public
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tmp = Join-Path $env:RUNNER_TEMP ('consema-ts-install-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Force (Join-Path $tmp 'app') | Out-Null
+          $packed = npm pack --pack-destination $tmp --json
+          if ($LASTEXITCODE -ne 0) { throw 'npm pack failed' }
+          $pkg = @($packed | ConvertFrom-Json)[0]
+          $tgz = Join-Path $tmp $pkg.filename
+          Push-Location (Join-Path $tmp 'app')
+          try {
+            npm init -y | Out-Null
+            npm install $tgz | Out-Null
+            node --input-type=module -e "import { parseDocument, profiles, formatFamilies } from '@consema/consema'; const pid = profiles().find(p => p.profile().id() === 'json.strict')?.profile(); if (!pid) throw new Error('no json.strict profile'); const d = parseDocument(new TextEncoder().encode('{\"a\":1}'), pid); if (typeof d.asJson() === 'string') throw new Error('not json'); if (formatFamilies().length !== 8) throw new Error('bad families'); console.log('package root import OK')"
+            if ($LASTEXITCODE -ne 0) { throw 'package root import failed' }
+          }
+          finally {
+            Pop-Location
+            Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
+          }
+      # 1.0.0-rc.1 is a prerelease: npm 11 requires an explicit dist-tag for
+      # prerelease versions (publish without --tag fails), and the rc
+      # dist-tag is the convention for release candidates — consumers
+      # install `@consema/consema@rc` until GA (then `latest`, no --tag;
+      # wave-2 discovery 2026-08-14, verified with npm publish --dry-run).
+      - name: npm publish (provenance, public access, rc dist-tag)
+        working-directory: typescript
+        run: npm publish --provenance --access public --tag rc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

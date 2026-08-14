@@ -53,7 +53,7 @@ test('normalized: case file integrity (manifest, count, ids)', () => {
     assert.ok(c.kind === 'document' || c.kind === 'source', `unknown kind ${c.kind}`);
   }
   assert.ok(CASE_FILE_MANIFEST.length > 0);
-  assert.ok(MIN_CASE_COUNT >= 104);
+  assert.equal(MIN_CASE_COUNT, 108, 'the frozen input-set count must stay 108 (G66, exact)');
 });
 
 test('normalized: TS facts match the Rust golden facts for 108/108 cases', (t) => {

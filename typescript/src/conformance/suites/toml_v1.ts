@@ -7,9 +7,9 @@ import { readFileSync } from 'node:fs';
 import { fixturesDir, repoRootDir } from '../runner.ts';
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedField, expectedFieldOptional, utf8 } from '../helpers.ts';
-import { fail, skip, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
-import { parseToml, TomlDocument, TomlEntry, TomlItem } from '../../toml/document.ts';
+import { parseToml, TomlDocument, TomlItem } from '../../toml/document.ts';
 import { TomlProfile } from '../../toml/profile.ts';
 import { DEFAULT_PARSE_LIMITS } from '../../document/formation.ts';
 import { projectToml, TomlProjectionRequest } from '../../toml/projection.ts';
@@ -385,13 +385,8 @@ export const runTomlV1: SuiteExecutor = {
         tomlEdit(case_);
         return;
       default:
-        return skip(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };
-
-void TomlEntry;
 

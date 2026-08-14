@@ -108,8 +108,8 @@ import type { PropertiesParseLimits } from '../../properties/parse_limits.ts';
 /** The frozen manifest id of the differential input set. */
 export const CASE_FILE_MANIFEST = 'consema.differential.normalized@1';
 
-/** The task's lower bound for the input set (L5 differential harness). */
-export const MIN_CASE_COUNT = 104;
+/** The frozen case count of the input set (L5 differential harness; 108, G66 2026-08-14 — exact, any drift is red). */
+export const MIN_CASE_COUNT = 108;
 
 // ---------------------------------------------------------------------------
 // Case file schema (data-driven; shared with the Go runner and the Rust
@@ -263,8 +263,8 @@ export function loadCaseFile(file: string): FileCase[] {
   if (!Array.isArray(parsed.cases)) {
     throw new Error('cases.json: cases must be a sequence');
   }
-  if (parsed.cases.length < MIN_CASE_COUNT) {
-    throw new Error(`cases.json has ${parsed.cases.length} cases, want >= ${MIN_CASE_COUNT}`);
+  if (parsed.cases.length !== MIN_CASE_COUNT) {
+    throw new Error(`cases.json has ${parsed.cases.length} cases, want exactly ${MIN_CASE_COUNT} (frozen count, G66)`);
   }
   const seen = new Set<string>();
   const cases: FileCase[] = [];

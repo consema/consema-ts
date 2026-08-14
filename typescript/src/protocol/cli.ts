@@ -12,8 +12,9 @@
  * Design (TypeScript-idiomatic): plain readonly records built by validating
  * factory functions; failures throw the typed ProtocolError carrying the
  * frozen code. The source-patch@2 record nested in a planned plan entry is
- * carried at the wire level (the document milestone owns the applied patch
- * type).
+ * carried at the wire level (the wire form is defined in this module
+ * below); the applied patch type lives in the document domain
+ * (`src/document/source_patch.ts`) — recorded current state (G84).
  */
 
 import { createHash } from 'node:crypto';

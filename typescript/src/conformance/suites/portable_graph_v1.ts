@@ -19,7 +19,7 @@ import type { QueryDefinition } from '../../protocol/query.ts';
 import { pipelineExpression, validateAndBind } from './query_pipeline.ts';
 import type { VectorCase } from '../helpers.ts';
 import { caseField, expectedField, expectedFieldOptional, hexToBytes, toHex } from '../helpers.ts';
-import { fail, skip, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 
 /** One vector graph descriptor → built Graph. */
@@ -231,10 +231,7 @@ export const runPortableGraphV1: SuiteExecutor = {
         graphQuery(case_);
         return;
       default:
-        return skip(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

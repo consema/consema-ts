@@ -1,7 +1,7 @@
 /**
  * The `toml` family of the TypeScript Consema implementation (L1).
  *
- * authority: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L1 (:73);
+ * authority: https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md §2 L1（里程碑表 L1 行，行号可能漂移，以 L0-L5 里程碑行为锚）;
  * RFC 0001 (the language-neutral TOML contract); the shared vector suite
  * conformance/vectors/toml-v1.json; consema-rs/consema-toml for byte/registry
  * arbitration only.

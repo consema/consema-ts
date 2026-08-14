@@ -13,7 +13,7 @@ import {
   hexToBytes,
   bytesEqual,
 } from '../helpers.ts';
-import { fail, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parseIniDocument } from '../../ini/document.ts';
 import type { IniDocument } from '../../ini/document.ts';
@@ -973,10 +973,7 @@ export const runIniV1: SuiteExecutor = {
         editCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

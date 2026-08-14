@@ -58,7 +58,7 @@ test('exchange: case file integrity (manifest, count, ids, coverage)', () => {
     assert.ok(counts[0] > 0 && counts[1] > 0, `record ${record} must have accept and reject cases`);
   }
   assert.ok(CASE_FILE_MANIFEST.length > 0);
-  assert.ok(MIN_CASE_COUNT >= 40);
+  assert.equal(MIN_CASE_COUNT, 83, 'the frozen input-set count must stay 83 (G66, exact)');
 });
 
 test('exchange: TS codecs decode every accept case canonically', (t) => {

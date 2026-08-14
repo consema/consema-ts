@@ -3,8 +3,8 @@
  * src/lib.rs + the Go runner's digest verification; authority:
  * https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md §2 — each runner is the sole executor of
  * the shared vectors; conformance/README.md — case structure, per-suite
- * counts; https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:39 — the aggregate digest
- * value, :41 — the aggregation algorithm note).
+ * counts; https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json — 键 aggregate_sha256
+ * （聚合 digest 值）/ note（聚合算法；行号可能漂移，以键名为锚）).
  *
  * The runner reads conformance/vectors/*.json (18 files / 519 cases) by
  * explicit repository-relative path (no embedded copy — a second authority
@@ -19,7 +19,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { exitCode } from '../protocol/exit_class.ts';
 import type { VectorCase } from './helpers.ts';
@@ -92,7 +92,7 @@ export const SUITE_EXPECTED_COUNTS: Readonly<Record<string, number>> = Object.fr
   'yaml-v1.json': 31,
 });
 
-/** The recorded aggregate digest (https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:39). */
+/** The recorded aggregate digest (https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json — 键 aggregate_sha256). */
 export const RECORDED_AGGREGATE_DIGEST = 'cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a';
 
 /** The repository-relative vectors directory (resolved from this file). */
@@ -187,7 +187,7 @@ export function loadVectors(dir = vectorsDir()): VectorFile[] {
 }
 
 // ---------------------------------------------------------------------------
-// Aggregate digest (fc-manifest-0.13.0.json:40)
+// Aggregate digest (fc-manifest-0.13.0.json — 键 aggregate_sha256 / note)
 // ---------------------------------------------------------------------------
 
 export interface DigestResult {
@@ -204,6 +204,17 @@ export interface DigestResult {
  * `eol=lf`).
  */
 export function computeAggregateDigest(dir = vectorsDir()): DigestResult {
+  // G38 (2026-08-14): the digest must cover the whole on-disk inventory —
+  // iterating only the frozen SUITE_FILES list would leave a 19th vector
+  // file invisible (digest/suites/cases unchanged, gate still green). The
+  // disk glob must contain exactly the 18 published suite files (the same
+  // assertion the go/kt/py runners enforce).
+  const onDisk = readdirSync(dir).filter((name) => name.endsWith('.json'));
+  if (onDisk.length !== SUITE_FILES.length) {
+    throw new Error(
+      `vectors directory must contain exactly ${SUITE_FILES.length} published suite files, found ${onDisk.length} (a new or missing vector file must not silently desync the digest)`,
+    );
+  }
   const builder: string[] = [];
   let cases = 0;
   for (const file of SUITE_FILES) {
@@ -274,7 +285,7 @@ const executors: Record<string, SuiteExecutor> = {
 /**
  * Runs one vector file through its suite executor. Every case is dispatched
  * to the suite handler; a case the suite does not recognize fails loudly
- * (unknown action rejection, conformance/README.md:75).
+ * (unknown action rejection — conformance/README.md「未知 action 拒绝」规则，行号可能漂移，以规则语义为锚).
  */
 export function runSuiteFile(file: VectorFile): SuiteReport {
   const expected = SUITE_EXPECTED_COUNTS[file.file];
@@ -401,7 +412,10 @@ export function main(argv: readonly string[]): number {
   );
   console.log(`suites: ${result.digest.suites}, cases: ${result.totalCases}`);
   console.log(`total: ${result.passed} passed, ${result.skipped} skipped, ${result.failed} failed`);
-  if (!result.digestOk || result.failed > 0 || result.digest.cases !== 519) {
+  // G67 (2026-08-14): the frozen inventory is 519 cases at L5 — every case
+  // must execute and pass; a skipped case (passed < 519) is not success.
+  // passed === 519 with cases === 519 implies skipped === 0 and failed === 0.
+  if (!result.digestOk || result.failed > 0 || result.digest.cases !== 519 || result.passed !== 519) {
     return exitCode('data');
   }
   return exitCode('success');
@@ -424,20 +438,28 @@ function isInputReadFailure(error: unknown): boolean {
 /**
  * Direct CLI execution (node src/conformance/runner.ts).
  *
- * Detects the entry point by comparing import.meta.url with the
- * pathToFileURL of process.argv[1]: the URL normalization (percent-encoding
- * of spaces/%/# and non-ASCII, backslash conversion, relative-path
- * resolution) is the same on both sides, so a repo path containing spaces,
- * percent signs, hashes or non-ASCII characters still matches on Windows
- * (the previous string-concatenated `file:///` form failed on such paths
- * and silently skipped CLI mode). File URLs are case-insensitive on
- * Windows and on the default macOS filesystem (case-insensitive APFS), so
- * the comparison folds case on every platform — otherwise a case-mismatched
- * path on macOS would silently skip CLI mode.
+ * Detects the entry point by realpath-normalizing both sides and comparing:
+ * Node ESM resolves the entry module to its real path on disk (symlinks and
+ * junctions are followed), while process.argv[1] is the literal path given
+ * on the command line — a literal-vs-realpath comparison silently skips CLI
+ * mode for symlinked/junctioned repo paths (G37, 2026-08-14). realpath also
+ * handles the URL normalization the previous form did (spaces/%/#/non-ASCII,
+ * backslash conversion, relative-path resolution). File URLs are
+ * case-insensitive on Windows and on the default macOS filesystem
+ * (case-insensitive APFS), so the comparison folds case on every platform —
+ * otherwise a case-mismatched path on macOS would silently skip CLI mode.
  */
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url.toLowerCase() === pathToFileURL(process.argv[1]).href.toLowerCase()
-) {
-  process.exitCode = main(process.argv);
+if (process.argv[1] !== undefined) {
+  const entry = realpathSync(fileURLToPath(import.meta.url));
+  let invoked: string;
+  try {
+    invoked = realpathSync(process.argv[1]);
+  } catch {
+    invoked = fileURLToPath(pathToFileURL(process.argv[1]));
+  }
+  const foldCase = (path: string): string =>
+    process.platform === 'win32' || process.platform === 'darwin' ? path.toLowerCase() : path;
+  if (foldCase(entry) === foldCase(invoked)) {
+    process.exitCode = main(process.argv);
+  }
 }

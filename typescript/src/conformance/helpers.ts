@@ -166,7 +166,8 @@ export function deepEqual(left: unknown, right: unknown): boolean {
  * booleans, strings, `{"integer": "..."}`, `{"decimal": "..."}`,
  * `{"string": "..."}`, `{"binary64_bits": "..."}`, `{"sequence": [...]}`,
  * `{"object": {...}}`, and bare objects (Rust value_from_input,
- * lib.rs:989-1049).
+ * https://github.com/consema/consema-rs/blob/main/consema/src/lib.rs ——
+ * 行号可能漂移，以符号名 value_from_input 为锚).
  */
 export function valueFromInput(input: unknown): PortableValue {
   if (input === null) {

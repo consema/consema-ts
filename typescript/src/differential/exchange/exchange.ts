@@ -63,8 +63,8 @@ import { DEFAULT_SOURCE_PATCH_LIMITS } from '../../document/source_patch.ts';
 /** The frozen manifest id of the differential input set. */
 export const CASE_FILE_MANIFEST = 'consema.differential.protocol-exchange@1';
 
-/** The task's lower bound for the input set ("至少 40 个 case"). */
-export const MIN_CASE_COUNT = 40;
+/** The frozen case count of the input set (L5 differential harness; 83, G66 2026-08-14 — exact, any drift is red). */
+export const MIN_CASE_COUNT = 83;
 
 /** The closed record inventory of the exchange set. */
 export const ALL_RECORDS: readonly string[] = Object.freeze([
@@ -132,8 +132,8 @@ export function loadCaseFile(file: string): ExchangeCase[] {
   if (!Array.isArray(parsed.cases)) {
     throw new Error('cases.json: cases must be a sequence');
   }
-  if (parsed.cases.length < MIN_CASE_COUNT) {
-    throw new Error(`cases.json has ${parsed.cases.length} cases, want >= ${MIN_CASE_COUNT}`);
+  if (parsed.cases.length !== MIN_CASE_COUNT) {
+    throw new Error(`cases.json has ${parsed.cases.length} cases, want exactly ${MIN_CASE_COUNT} (frozen count, G66)`);
   }
   const known = new Set(ALL_RECORDS);
   const coverage = new Map<string, [number, number]>(); // record -> {accept, reject}

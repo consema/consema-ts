@@ -14,7 +14,7 @@ import {
   bytesEqual,
   toHex,
 } from '../helpers.ts';
-import { fail, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parse } from '../../properties/parser.ts';
 import type { PropertiesDocument } from '../../properties/document.ts';
@@ -1140,10 +1140,7 @@ export const runPropertiesV1: SuiteExecutor = {
         editCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

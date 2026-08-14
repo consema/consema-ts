@@ -7,13 +7,13 @@
  * Consumed by materialization provenance and failure records (RFC 0004 §8,
  * materialization.rs:239-247, 327-351).
  *
- * NOTE (provisional home): ValuePath/AssociationLocation are core-domain
- * (they live in consema-core, not consema-document). The L0 core agent
- * owns `typescript/src/core/` and has not published these at blind-write
- * time; the document domain needs them for the materialization contracts,
- * so a faithful local mirror lives here until the core module lands and
- * this module re-exports it (documentation of the pending integration
- * point).
+ * NOTE (recorded home): ValuePath/AssociationLocation are core-domain
+ * concepts (they live in consema-core, not consema-document), but the TS
+ * core module (`typescript/src/core/`) has landed without publishing them;
+ * the document domain needs them for the materialization contracts, so
+ * this module is the permanent home in the TypeScript implementation — a
+ * faithful local mirror of the Rust core types, recorded duplication with
+ * no pending integration (G84, 2026-08-14).
  *
  * Design (TypeScript-idiomatic): segments are a closed discriminated
  * union; paths are immutable classes with value equality; ordinals are

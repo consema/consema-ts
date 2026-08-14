@@ -1,8 +1,8 @@
 /**
  * Conformance runner test (L4; authority: https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md
  * §2.2 — the runner test asserts the digest, the 18/519 inventory, the
- * per-suite counts, and executes every case; conformance/README.md:84
- * "每个 suite 必须验证 case 数量").
+ * per-suite counts, and executes every case; conformance/README.md 规则 4
+ * "每个 suite 必须验证 case 数量"——行号可能漂移，以规则编号为锚).
  */
 
 import { test } from 'node:test';

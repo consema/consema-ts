@@ -71,8 +71,8 @@ if (-not (Test-Path $CaseFile)) {
 # UTF8 explicit: PowerShell 5.1 Get-Content defaults to the ANSI codepage.
 $cases = Get-Content $CaseFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $caseCount = @($cases.cases).Count
-if ($caseCount -lt 83) {
-    Write-Error "protocol exchange case file has $caseCount cases, want >= 83"
+if ($caseCount -ne 83) {
+    Write-Error "protocol exchange case file has $caseCount cases, want exactly 83 (frozen count, G66)"
     exit 1
 }
 

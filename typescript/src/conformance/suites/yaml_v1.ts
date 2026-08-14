@@ -5,7 +5,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedFieldOptional, utf8, toHex, hexToBytes } from '../helpers.ts';
-import { fail, skip, SkippedCase } from './common.ts';
+import { fail, skip } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parse as parseYaml } from '../../yaml/parser.ts';
 import type { YamlDocument } from '../../yaml/document.ts';
@@ -599,10 +599,7 @@ export const runYamlV1: SuiteExecutor = {
         editCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

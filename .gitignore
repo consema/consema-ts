@@ -18,3 +18,11 @@ Thumbs.db
 
 # npm pack artifacts
 *.tgz
+
+# Build output of the published package (typescript/tsconfig.build.json emits
+# into typescript/dist at pack time via the prepack script; never committed).
+/typescript/dist/
+
+# LICENSE text copied from the repository root into the package directory by
+# the prepack script (the tarball must carry the MIT license text).
+/typescript/LICENSE

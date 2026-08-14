@@ -1,9 +1,10 @@
 /**
  * Root facade: the unified format-surface registry and the common opaque
  * document union (L4 root facade, mirror of the Go root package +
- * consema-rs/consema root; authority: consema-rs/consema/src/lib.rs registry module
- * :42-489 and the `Document` facade :491-820; RFC 0015 §6.2 families/
- * profiles/query_domains/operations).
+ * consema-rs/consema root; authority:
+ * https://github.com/consema/consema-rs/blob/main/consema/src/lib.rs ——
+ * registry 模块与 `Document` facade，行号可能漂移，以符号名为锚；
+ * RFC 0015 §6.2 families/profiles/query_domains/operations).
  *
  * The registry is strictly additive: it enumerates the frozen surface
  * (8 format families / 16 profiles / 21 query domains / 16 per-profile

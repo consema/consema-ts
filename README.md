@@ -1,7 +1,6 @@
 # Consema TypeScript（consema-ts）
 
 ![CI](https://img.shields.io/github/actions/workflow/status/consema/consema-ts/ci-typescript.yml?branch=main)
-![Version](https://img.shields.io/github/v/tag/consema/consema-ts)
 ![License](https://img.shields.io/github/license/consema/consema-ts)
 
 Consema 语言中立契约（RFC 0016）的 **TypeScript 实现**仓库。本仓库是 Consema 六仓
@@ -15,7 +14,7 @@ check-version-consistency job 断言与 README 一致）。
 ## 快速开始（30 秒跑通）
 
 ```text
-npm install @consema/consema（1.0.0-rc.1 发布后可用）
+npm install @consema/consema（当前版本见上方 Version: 行；发布后可用）
 ```
 
 下面示例是**仓库内演示**（导入走 `typescript/` 目录内相对路径；发布后包消费者从 `@consema/consema` 包根导入，见下方 API 摘要）。把内容保存为 `typescript/quickstart.ts`（node ≥ 26 原生运行 TS，无需构建）后执行 `cd typescript && node quickstart.ts`（一个 JSON 文档走完 parse → query → edit → render 四条链）：
@@ -66,10 +65,10 @@ console.log(new TextDecoder().decode(edited.render()));
 | --- | --- |
 | parse | `parseDocument(source: Uint8Array, profile: ProfileId) -> Document` |
 | convert | `convertJson(source: JsonDocument, projectionRequest: JsonProjectionRequest, materializationRequest: MaterializationRequest) -> ConversionResult`（另有 convertToml / convertYaml / convertIni / convertProperties / convertXml / convertPlist / convertHcl，签名结构相同） |
-| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile: ProfileId)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表；`profiles()` 返回 `FormatProfile` 对象，取其 `.id()` 构造 `formatOperationRegistry` 的 `ProfileId` 参数） |
+| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile: ProfileId)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表；`profiles()` 返回 `FormatProfile[]`，取其 `.profile()` 得 `ProfileId`，直接作为 `formatOperationRegistry` 的 profile 参数） |
 | query / project / edit / materialize | 模块内导出（包根暂不 re-export，1.0.0-rc 不擅自扩导出）：`executeJsonQuery(executable, document, limits, cancellation) -> JsonQueryResult<JsonMatch>`（`src/json/query.ts`）、`project(document, request) -> ProjectionResult`（`src/json/projection.ts`）、`materialize(value, request) -> MaterializationResult<JsonDocument>`（`src/json/materialization.ts`）、`EditTransactionBuilder(document)` + `commitEdits(document, transaction) -> EditCommit`（`src/json/edit.ts`） |
 
-**消费方类型前置。** 包直接发布 TypeScript 源码（`main`/`types`/`exports` 均指向 `./src/index.ts`），源码内 `.ts` 扩展名相对导入要求消费方 tsconfig 开启 `allowImportingTsExtensions`（或 `rewriteRelativeImportExtensions`）；包根导出使用 `node:crypto`（registry/conformance 模块），消费方需将 `@types/node` 加入 devDependencies（发布包不携带 devDependencies，`@types/node` 在本仓仅为开发依赖）。
+**发布形态。** 包发布编译产物：`prepack` 先构建（tsc → `typescript/dist/`，`.js` + `.d.ts` 同源生成），`main`/`types`/`exports` 均指向 `dist/`——消费方无需任何 tsconfig 前置（Node ≥ 26 与常规打包器均可直接 import 包根，Node 的类型剥离不作用于 node_modules，源码直发不可行，见 RELEASING.md §4）。发布物含 LICENSE 全文，不含任何 test-only 文件（`.test.ts` 与 `yaml/test_helpers.ts`、`yaml/test_decode.ts` 不进构建面，CI 打包门禁断言）。包根导出链中使用 `node:crypto` 的是 `typescript/src/protocol/cli.ts`（core.source-patch@2 记录，Node 内建模块）；`.d.ts` 自包含、不引用 Node 类型，消费方无需安装 `@types/node`（`typescript` 与 `@types/node` 仅为构建期 devDependencies）。
 
 ## 布局
 
@@ -109,7 +108,7 @@ npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 - **性能如何？** 行为一致性由 18 suites / 519 cases conformance 门禁与跨语言差分门禁保证；解析/渲染基准基线见规范仓 [docs/BENCHMARKS-0.13.0.md](https://github.com/consema/consema/blob/main/docs/BENCHMARKS-0.13.0.md) 与 Go 仓 [go/README.md](https://github.com/consema/consema-go/blob/main/go/README.md)。
 - **零依赖吗？** 是——运行时零第三方依赖（`typescript` 与 `@types/node` 仅 devDependencies）。
 - **跨语言一致性如何保证？** 18 套语言无关 conformance suite 共 519/519 cases（聚合 digest `cfd6e296…`）由规范仓维护、五仓共享；CI 多仓 checkout 跑 conformance runner 与 TS-Rust 差分门禁（byte parity / normalized differential / protocol-exchange）。
-- **兼容承诺？** 语义化版本；`check-version-consistency` 门禁断言 README 版本行与 `package.json` 一致；`tsc --noEmit` strict 全树零诊断；兼容与支持政策见 RFC 0020。
+- **兼容承诺？** 语义化版本；`check-version-consistency` 门禁断言 README 版本行与 `package.json` 一致；`tsc --noEmit` strict 在 `src/` 全树零诊断（`examples/` 与 `tools_*.mjs` 不在 tsconfig include 内，不经 tsc）；兼容与支持政策见 RFC 0020。
 - **如何贡献？** 见本仓 [CONTRIBUTING.md](CONTRIBUTING.md)（规范仓为权威版）；conformance 向量/夹具/oracle/差分数据权威在规范仓——向量变更是五仓同步事件，必须先回规范仓提交再同步五个语言仓。
 - **"默认拒绝信息损失"是什么意思？** 投影/转换/编辑中的任何 loss（如 YAML 共享结构展开、Properties 重复键折叠、数值舍入）必须显式授权；未授权时操作原子失败（`ConversionResult` 为 `Failed`；fidelity 三档：Exact / Transformed / Lossy）。
 

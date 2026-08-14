@@ -13,7 +13,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedField, expectedFieldOptional, utf8, hexToBytes, toHex, bytesEqual } from '../helpers.ts';
-import { fail, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parse } from '../../plist/parser.ts';
 import type { PlistDocument } from '../../plist/document.ts';
@@ -1973,10 +1973,7 @@ export const runPlistV1: SuiteExecutor = {
         editCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

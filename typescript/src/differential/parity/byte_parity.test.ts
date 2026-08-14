@@ -60,5 +60,5 @@ test('byte parity: TS encoders match the Rust golden bytes for 68/68 cases', (t)
   assert.equal(result.passed, cases.length, 'every case must match');
   t.diagnostic(`byte parity: ${result.passed}/${cases.length} equal (${result.pvceCount} pvce, ${result.pgceCount} pgce)`);
   assert.ok(CASE_FILE_MANIFEST.length > 0);
-  assert.ok(MIN_CASE_COUNT >= 40);
+  assert.equal(MIN_CASE_COUNT, 68, 'the frozen input-set count must stay 68 (G66, exact)');
 });

@@ -6,7 +6,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedFieldOptional, utf8 } from '../helpers.ts';
-import { fail, skip, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parse as parseJson } from '../../json/parser.ts';
 import type { JsonDocument } from '../../json/document.ts';
@@ -29,7 +29,7 @@ function requireQueryFailure(): { QueryExecutionFailure: typeof QueryExecutionFa
 }
 import { validateQuery, bindQuery } from '../../protocol/query.ts';
 import { newCapabilityId, CapabilitySet } from '../../protocol/registry_descriptor.ts';
-import { objectValue, stringValue } from '../../core/value.ts';
+import { stringValue } from '../../core/value.ts';
 import { valueFromInput } from '../helpers.ts';
 
 function parseProfile(profile: string): 'JsonStrict' | 'JsoncBounded' | 'Json5Standard' {
@@ -614,13 +614,7 @@ export const runJsonFamilyV2: SuiteExecutor = {
         parseLimitCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };
-
-void objectValue;
-void skip;

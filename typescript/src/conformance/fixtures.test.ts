@@ -16,11 +16,30 @@
  *   documents, anchor-heavy with five aliases).
  *
  * Facts (counts) mirror consema-rs/consema-conformance/tests/
- * line_format_fixtures.rs:48-179 and yaml_fixtures.rs:22-51. When the
- * shared tree is not reachable (a plain checkout without provision) the
- * tests report a documented skip. Fixtures are read-only; tests never
+ * line_format_fixtures.rs:48-179 and yaml_fixtures.rs:22-51. G68
+ * (2026-08-14): a missing fixture is a FAILURE, never a silent skip — the
+ * inventory test below asserts the full expected fixture set, and the
+ * per-fixture tests throw when their file is absent (a partially
+ * provisioned tree must not go green). Fixtures are read-only; tests never
  * modify them.
  */
+
+/** The fixture inventory the gate requires (missing = failure, G68). */
+const EXPECTED_FIXTURES: readonly string[] = Object.freeze([
+  'ini/windows-cp1252.ini.hex',
+  'ini/legacy-mixed-newline.ini.hex',
+  'properties/utf16-edge.properties',
+  'properties/latin1-resource.properties.hex',
+  'yaml/kubernetes-workload.yaml',
+  'yaml/github-actions-ci.yaml',
+  'yaml/compose-services.yaml',
+  'yaml/anchor-heavy.yaml',
+]);
+
+test('fixtures: the expected fixture inventory is provisioned (missing = fail, never skip)', () => {
+  const missing = EXPECTED_FIXTURES.filter((name) => !available(name));
+  assert.deepEqual(missing, [], `missing shared fixtures: ${missing.join(', ')}`);
+});
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -85,8 +104,7 @@ const INI_FIXTURES: Record<string, { profile: IniProfile; explicitCp1252: boolea
 };
 
 for (const [name, facts] of Object.entries(INI_FIXTURES)) {
-  const skip = available(name) ? false : `shared fixture not available: ${name}`;
-  test(`fixtures: ini ${name} round-trips byte-exactly`, { skip }, () => {
+  test(`fixtures: ini ${name} round-trips byte-exactly`, () => {
     const parse = (bytes: Uint8Array) => {
       const selection = facts.explicitCp1252
         ? { kind: 'Explicit' as const, encoding: windowsCodePageEncoding(WindowsCodePage.fromNumber(1252)!) }
@@ -100,7 +118,7 @@ for (const [name, facts] of Object.entries(INI_FIXTURES)) {
   });
 }
 
-test('fixtures: ini windows-cp1252 keeps its declared transport facts', { skip: available('ini/windows-cp1252.ini.hex') ? false : 'shared fixture not available' }, () => {
+test('fixtures: ini windows-cp1252 keeps its declared transport facts', () => {
   const source = fixtureBytes('ini/windows-cp1252.ini.hex');
   // "Montréal" (é = 0xe9) and "€" (0x80) are not valid UTF-8.
   assert.ok(source.includes(0xe9), 'windows-cp1252.ini.hex must contain the é byte');
@@ -126,8 +144,7 @@ const PROPERTIES_FIXTURES: Record<string, { latin1: boolean; properties: number 
 };
 
 for (const [name, facts] of Object.entries(PROPERTIES_FIXTURES)) {
-  const skip = available(name) ? false : `shared fixture not available: ${name}`;
-  test(`fixtures: properties ${name} round-trips byte-exactly`, { skip }, () => {
+  test(`fixtures: properties ${name} round-trips byte-exactly`, () => {
     const parse = (bytes: Uint8Array) =>
       facts.latin1 ? parseLatin1(bytes, DEFAULT_PROPERTIES_PARSE_LIMITS) : parseReader(bytes, utf8Encoding(), DEFAULT_PROPERTIES_PARSE_LIMITS);
     assertByteStableRoundTrip(name, parse);
@@ -136,7 +153,7 @@ for (const [name, facts] of Object.entries(PROPERTIES_FIXTURES)) {
   });
 }
 
-test('fixtures: properties utf16-edge keeps exact Java units', { skip: available('properties/utf16-edge.properties') ? false : 'shared fixture not available' }, () => {
+test('fixtures: properties utf16-edge keeps exact Java units', () => {
   const document = parseReader(fixtureBytes('properties/utf16-edge.properties'), utf8Encoding(), DEFAULT_PROPERTIES_PARSE_LIMITS);
   const byKey = new Map(document.properties().map((property) => [property.key().toUnicode(), property.value()]));
   assert.deepEqual([...byKey.keys()], ['rocket', 'unpaired.high', 'unpaired.low']);
@@ -145,7 +162,7 @@ test('fixtures: properties utf16-edge keeps exact Java units', { skip: available
   assert.equal(byKey.get('unpaired.low')!.status(), 'UnpairedSurrogate', 'low surrogate stays unpaired');
 });
 
-test('fixtures: properties latin1-resource decodes Latin-1, not accidental UTF-8', { skip: available('properties/latin1-resource.properties.hex') ? false : 'shared fixture not available' }, () => {
+test('fixtures: properties latin1-resource decodes Latin-1, not accidental UTF-8', () => {
   const source = fixtureBytes('properties/latin1-resource.properties.hex');
   assert.ok(source.includes(0xe9), 'latin1-resource must contain the é byte');
   assert.ok(source.includes(0xa3), 'latin1-resource must contain the £ byte');
@@ -167,8 +184,7 @@ const YAML_FIXTURES: Record<string, { documents: number; aliases: number }> = {
 };
 
 for (const [name, facts] of Object.entries(YAML_FIXTURES)) {
-  const skip = available(name) ? false : `shared fixture not available: ${name}`;
-  test(`fixtures: yaml ${name} round-trips byte-exactly`, { skip }, () => {
+  test(`fixtures: yaml ${name} round-trips byte-exactly`, () => {
     const parse = (bytes: Uint8Array) => parseYaml(bytes, 'Yaml12CoreV1', DEFAULT_PARSE_LIMITS);
     assertByteStableRoundTrip(name, parse);
     const document = parse(fixtureBytes(name));

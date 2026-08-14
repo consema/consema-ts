@@ -3,7 +3,7 @@
  *
  * authority: the tables are transcribed verbatim from the Go generated
  * tables, which were generated from the encoding_rs 0.8.35 authority
- * (consema-go/go/document/cp1252_table.go:1-9: every byte of the nine single-byte
+ * (consema-go/go/document/cp1252_table.go:1-9: every byte of the ten single-byte
  * pages decoded through the exact Rust reference path
  * decode_to_string_without_replacement, one byte per call; C1 control
  * positions map to their U+00xx scalars; the sentinel 0xFFFF marks a byte

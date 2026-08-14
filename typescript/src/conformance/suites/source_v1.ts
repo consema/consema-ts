@@ -5,7 +5,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedField, expectedFieldOptional, hexToBytes, toHex, utf8 } from '../helpers.ts';
-import { fail, skip, SkippedCase } from './common.ts';
+import { fail, SkippedCase } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { ContentDigest } from '../../document/sha256.ts';
 import {
@@ -368,10 +368,7 @@ export const runSourceV1: SuiteExecutor = {
         sourceLimits(case_);
         return;
       default:
-        return skip(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

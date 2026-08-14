@@ -21,7 +21,7 @@ complements the human-chosen `kind:` label.
 | `area: core`    | `d93f0b` | Implementation / authoritative content (repo source tree)          |
 | `area: ci`      | `bfd4f2` | CI / tooling: `.github/**`, `scripts/**`                           |
 | `area: docs`    | `c2e0c6` | Documentation: `*.md`, `docs/**`                                   |
-| `needs-info`    | `f9d0c4` | Issues awaiting information: the stale workflow (`only-labels: needs-info`) target |
+| `needs-info`    | `f9d0c4` | Issues awaiting information: the stale workflow (`only-labels: needs-info`) target（已落地：2026-08-14 `gh label edit "needs-info" --color f9d0c4`，线上与本表一致，G101） |
 
 Create the labels in a fresh checkout (or any new repository copy) with:
 

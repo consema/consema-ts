@@ -16,7 +16,7 @@ import {
   utf8,
   valueFromInput,
 } from '../helpers.ts';
-import { fail, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import type { PortableValue } from '../../core/value.ts';
 import { stringValue } from '../../core/value.ts';
@@ -762,10 +762,7 @@ export const runXmlV1: SuiteExecutor = {
         limitCase(case_);
         return;
       default:
-        throw new SkippedCase(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

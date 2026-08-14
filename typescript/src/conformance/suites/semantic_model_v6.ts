@@ -11,7 +11,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { bytesEqual, caseField, expectedFieldOptional, hexToBytes, toHex, utf8 } from '../helpers.ts';
-import { expectedCode, fail, skip } from './common.ts';
+import { expectedCode, fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { ContractRegistry, ProtocolMessage, newContractId } from '../../protocol/contract.ts';
 import type { ContractId } from '../../protocol/contract.ts';
@@ -462,10 +462,7 @@ function sourcePatchV2(case_: VectorCase): void {
     }
     return;
   }
-  return skip(
-    case_.contract ?? 'core.source-patch@2',
-    `runner does not recognize published case ${case_.id}`,
-  );
+  fail(`runner does not recognize published case ${case_.id}`);
 }
 
 /** core.materialization-request@2 */
@@ -817,10 +814,7 @@ function protocolMessage(case_: VectorCase): void {
       return;
     }
     default:
-      return skip(
-        case_.capability ?? 'unknown',
-        `runner does not recognize published case ${case_.id}`,
-      );
+      fail(`runner does not recognize published case ${case_.id}`);
   }
 }
 
@@ -861,10 +855,7 @@ export const runSemanticModelV6: SuiteExecutor = {
         protocolMessage(case_);
         return;
       default:
-        return skip(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

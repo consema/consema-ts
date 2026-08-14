@@ -6,7 +6,7 @@
 import { valueFromInput, bytesEqual } from '../helpers.ts';
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedField, expectedFieldOptional, hexToBytes, toHex, utf8 } from '../helpers.ts';
-import { fail, skip, SkippedCase, expectThrowsCode } from './common.ts';
+import { fail, expectThrowsCode } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { binaryFloat64Value, nullValue, objectValue, sequenceValue } from '../../core/value.ts';
 import { equal as coreEqual, hash as coreHash } from '../../core/equal.ts';
@@ -618,10 +618,7 @@ export const runV1: SuiteExecutor = {
         parseResourceLimits(case_);
         return;
       default:
-        return skip(
-          case_.capability ?? 'unknown',
-          `runner does not recognize published case ${case_.id}`,
-        );
+        fail(`runner does not recognize published case ${case_.id}`);
     }
   },
 };

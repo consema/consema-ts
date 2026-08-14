@@ -19,7 +19,7 @@ import { ContractRegistry, ProtocolMessage } from '../../protocol/contract.ts';
 import { ErrorCodeRegistry } from '../../protocol/error_registry.ts';
 import { ProtocolError } from '../../protocol/errors.ts';
 import { defaultProtocolLimits } from '../../protocol/limits.ts';
-import { newRegistryManifest, registryManifestToValue } from '../../protocol/registry_descriptor.ts';
+import { newRegistryManifest } from '../../protocol/registry_descriptor.ts';
 import { EncodeJSON } from '../../protocol/canonical.ts';
 import { DecodePVCE, EncodePVCE, defaultDecodeLimits } from '../../core/pvce.ts';
 import { stringValue } from '../../core/value.ts';
@@ -423,5 +423,3 @@ export const runProtocolV2: SuiteExecutor = {
     }
   },
 };
-
-void registryManifestToValue;

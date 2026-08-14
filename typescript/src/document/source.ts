@@ -906,7 +906,7 @@ function decodeLatin1(bytes: Uint8Array, limits: SourceLimits): string {
  * Decodes one frozen Windows code page strictly (source.rs:901-1014;
  * consema-go/go/document/source.go:571-712).
  *
- * cp65001 decodes as strict UTF-8; the nine single-byte pages (874,
+ * cp65001 decodes as strict UTF-8; the ten single-byte pages (874,
  * 1250-1258) decode through the frozen encoding_rs-derived tables with the
  * malformed sentinel 0xFFFF failing the whole source (InvalidSequence);
  * cp932 decodes through the frozen single-scalar two-byte table
@@ -914,10 +914,12 @@ function decodeLatin1(bytes: Uint8Array, limits: SourceLimits): string {
  * multi-byte pages 936, 949, 950 are recognized but not decoded and are
  * rejected with InvalidSequence at byte 0 — Go documents the same
  * rejection for 936, 949, 950 (consema-go/go/document/source.go:574-588);
- * Rust decodes all four through encoding_rs. This is an RFC 0016 §7
- * documented skip (no vector case covers 936/949/950; divergence from the
- * Rust reference implementation is disclosed here, not hidden in a test
- * gap).
+ * Rust decodes all four through encoding_rs. Recorded divergence (G104,
+ * 2026-08-14): no vector case covers 936/949/950, and the divergence from
+ * the Rust reference implementation is disclosed here rather than hidden
+ * in a test gap — this is a recorded implementation gap, not an
+ * RFC-mandated skip (RFC 0016 §7 defines the conformance integration
+ * contract, no code-page mechanism).
  */
 function decodeCodePage(
   bytes: Uint8Array,

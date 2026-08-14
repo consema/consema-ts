@@ -15,7 +15,6 @@ import type { SuiteExecutor } from '../runner.ts';
 import { EncodeJSON, DecodeJSON } from '../../protocol/canonical.ts';
 import { defaultProtocolLimits } from '../../protocol/limits.ts';
 import { encode as encodePVCE, decode as decodePVCE, defaultDecodeLimits } from '../../core/pvce.ts';
-import { PVCEError } from '../../core/errors.ts';
 import { ProtocolMessage } from '../../protocol/contract.ts';
 import { ContractRegistry } from '../../protocol/contract.ts';
 import { ProtocolError } from '../../protocol/errors.ts';
@@ -817,6 +816,3 @@ export const runProtocolV1: SuiteExecutor = {
     }
   },
 };
-
-void decodePVCE;
-void PVCEError;

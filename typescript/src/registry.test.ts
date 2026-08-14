@@ -1,10 +1,12 @@
 /**
  * L4 root facade tests (mirror of consema-rs/consema/src/lib.rs tests).
  *
- * authority: consema-rs/consema/src/lib.rs:317-488 (registry tests) and
- * :822-1068 (facade tests); the frozen inventory of RFC 0015 §6.2 and
- * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json:32 (8 families / 16 profiles / 21 query
- * domains / 16 operation registries).
+ * authority: https://github.com/consema/consema-rs/blob/main/consema/src/lib.rs
+ * —— registry 测试与 facade 测试，行号可能漂移，以符号名为锚; the frozen
+ * inventory of RFC 0015 §6.2 and
+ * https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json —
+ * 键 capability_set（8 families / 16 profiles / 21 query domains / 16
+ * operation registries）.
  */
 
 import { test } from 'node:test';

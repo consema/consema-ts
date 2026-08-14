@@ -5,7 +5,7 @@
 
 import type { VectorCase } from '../helpers.ts';
 import { caseField, caseFieldOptional, expectedField, expectedFieldOptional, utf8 } from '../helpers.ts';
-import { fail, skip, SkippedCase } from './common.ts';
+import { fail } from './common.ts';
 import type { SuiteExecutor } from '../runner.ts';
 import { parse as parseJson } from '../../json/parser.ts';
 import { parseToml } from '../../toml/document.ts';
@@ -303,9 +303,6 @@ export const runSyntaxQueryV1: SuiteExecutor = {
       runCursor(case_);
       return;
     }
-    return skip(
-      case_.capability ?? 'unknown',
-      `runner does not recognize published case ${case_.id}`,
-    );
+    fail(`runner does not recognize published case ${case_.id}`);
   },
 };
