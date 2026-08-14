@@ -74,7 +74,8 @@ console.log(new TextDecoder().decode(edited.render()));
 ## 布局
 
 - `typescript/`：TypeScript 包（node 26，`tsc --noEmit` strict，运行时零依赖）。
-  完整文档见 [typescript/README.md](typescript/README.md)。
+  消费方文档（npm 包页 README）见 [typescript/README.md](typescript/README.md)；
+  开发流程见下方「构建与测试」。
 - `scripts/`：跨语言差分验证脚本（byte parity / normalized differential /
   protocol exchange）。脚本构建 consema-rs 的 Rust emitter 并对拍 TypeScript 实现；
   Rust 侧来自 consema-rs 仓 checkout（CI 多仓模式），conformance 数据来自规范仓 checkout。
@@ -100,7 +101,33 @@ cd typescript
 npm ci
 npm run check        # tsc --noEmit (strict)
 npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
+npm run test:differential   # byte parity / normalized / protocol exchange
+                            # (byte parity + normalized require the
+                            # CONSEMA_DIFFERENTIAL_* golden env vars; protocol
+                            # exchange uses CONSEMA_EXCHANGE_*; missing env =
+                            # documented skip, never silent)
 ```
+
+conformance runner 钉定 18 suites / 519 cases 与聚合 digest
+`cfd6e296…`（`typescript/src/conformance/runner.ts`，按仓库相对路径读
+`conformance/vectors/`）；`runner.test.ts` 断言之，CI ts-conformance job
+跑 519/519。
+
+### 编译器线评估（TS 6/7，本地一次性测量 2026-08-12）
+
+本地一次性测量记录（2026-08-12，node 26.7.0 / npm 11.19.0）——过程与
+CI ts-compiler-matrix job 的 zod-mode 步骤一致（`npm install -D
+typescript@<v>` 后 `npm run check`，即 `tsc --noEmit` strict）；本表不是
+CI 验证结果，6.0.x / 7.0.x 不在 CI 矩阵内：
+
+| typescript | line | result |
+| --- | --- | --- |
+| `@latest` = 7.0.2 | native (Go-based, thin JS launcher + native binary) | pass — exit 0, no diagnostics |
+| `@6` = 6.0.3 | JS-based (final JS family, 9.1 MB typescript.js) | pass — exit 0, no diagnostics |
+
+两条编译器线均以零源码改动通过 strict 树检查。CI ts-compiler-matrix
+矩阵目前只钉 5.8.3 / 5.9.2 两条腿；钉定的 `~5.9.0` devDependency 仍是
+基线，矩阵可扩展至 6.0.x / 7.0.x 而无需改源码。
 
 ## FAQ
 

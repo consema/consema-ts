@@ -1,63 +1,91 @@
-# Consema TypeScript implementation
+# @consema/consema
 
 The TypeScript implementation of the language-neutral Consema
-configuration-processing contracts (RFC 0016; equal footing with
-Rust/Go/Python/Kotlin per the 2026-08-11 owner decision). It is
-dependency-free at runtime (only `typescript` + `@types/node` as
-devDependencies, package.json `devDependencies` 字段——行号可能漂移，以
-字段名为准) and never imports or calls the Rust,
-Go, Python or Kotlin implementations.
+configuration-processing contracts (RFC 0002/0003/0004/0006 contract
+family; authoritative specs in the consema spec repository
+[docs/rfcs/](https://github.com/consema/consema/tree/main/docs/rfcs/);
+equal footing with Rust/Go/Python/Kotlin per the 2026-08-11 owner
+decision). Dependency-free at runtime — no third-party imports, and it
+never imports or calls the Rust, Go, Python or Kotlin implementations.
 
-## Verify
+Parses, queries, projects, edits, materializes and converts documents in
+eight format families (JSON / TOML / YAML / INI / Java Properties / XML /
+Property List / HCL), with lossless byte-for-byte rendering (W3-37:
+consumer-facing package README; development workflow lives in the
+repository-root README "构建与测试" section).
 
-Prerequisite: `npm test` includes the conformance runner, which reads
-`conformance/vectors/` by repository-relative path (missing data fails the
-run with ENOENT — same provision step as the CI workflows). Provision the
-data from a checkout of the consema spec repository beside this one (run at
-the repository root):
+## Install
 
-```powershell
-if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
-Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
+```bash
+npm install @consema/consema
 ```
 
+- Node `>= 26` (`engines`).
+- The package ships compiled JS + d.ts (`dist/`); no tsconfig
+  prerequisite for consumers.
+- The d.ts files are self-contained and do not reference Node types —
+  no `@types/node` needed at consumption time.
+- Release candidates publish to the `rc` dist-tag:
+  `npm install @consema/consema@rc` (GA goes to `latest`).
+
+## Quick start
+
+```ts
+import { parseDocument, profiles, formatFamilies } from '@consema/consema';
+
+// Profile instances come from profiles() (the ProfileId class is not
+// exported at the package root).
+const jsonStrict = profiles().find((p) => p.profile().id() === 'json.strict')?.profile();
+if (jsonStrict === undefined) throw new Error('no json.strict profile');
+
+const source = new TextEncoder().encode('{"a":1}');
+const document = parseDocument(source, jsonStrict); // lossless parse
+const json = document.asJson();
+if (typeof json === 'string') throw new Error('not JSON');
+console.log(new TextDecoder().decode(document.render())); // prints {"a":1}
 ```
-cd typescript
-npm ci
-npm run check        # tsc --noEmit (strict)
-npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
-npm run test:differential   # byte parity / normalized / protocol exchange
-                            # (byte parity + normalized require the
-                            # CONSEMA_DIFFERENTIAL_* golden env vars; protocol
-                            # exchange uses CONSEMA_EXCHANGE_*; missing env =
-                            # documented skip, never silent)
-```
 
-## Compiler line evaluation (TS 6/7, local one-off measurement 2026-08-12)
+A full chain example (parse → operator-style native query → best-exact
+projection → structural edit → canonical materialization → cross-format
+conversion to TOML):
+[`examples/sdk_chain.ts`](https://github.com/consema/consema-ts/blob/main/typescript/examples/sdk_chain.ts).
 
-本地一次性测量记录（2026-08-12，node 26.7.0 / npm 11.19.0）——过程与 CI
-ts-compiler-matrix job 的 zod-mode 步骤一致（`npm install -D
-typescript@<v>` 后 `npm run check`，即 `tsc --noEmit` strict）；本表不是
-CI 验证结果，6.0.x / 7.0.x 不在 CI 矩阵内：
+## API summary
 
-| typescript | line | result |
-| --- | --- | --- |
-| `@latest` = 7.0.2 | native (Go-based, thin JS launcher + native binary) | pass — exit 0, no diagnostics |
-| `@6` = 6.0.3 | JS-based (final JS family, 9.1 MB typescript.js) | pass — exit 0, no diagnostics |
+Package-root imports (`@consema/consema`):
 
-两条编译器线均以零源码改动通过 strict 树检查。CI ts-compiler-matrix
-矩阵目前只钉 5.8.3 / 5.9.2 两条腿；钉定的 `~5.9.0` devDependency 仍是
-基线，矩阵可扩展至 6.0.x / 7.0.x 而无需改源码。
+| Operation | Entry point |
+| --- | --- |
+| parse | `parseDocument(source: Uint8Array, profile) -> Document` — `Document` is the common opaque union; typed access via the `asJson()` / `asToml()` / ... adapters; `render()` is byte-for-byte identical to the source |
+| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile)` (8 families / 16 profiles / 21 query domains / 16 per-profile operation registries) |
+| convert | `convertJson(source, projectionRequest, materializationRequest) -> ConversionResult` (plus `convertToml` / `convertYaml` / `convertIni` / `convertProperties` / `convertXml` / `convertPlist` / `convertHcl`, same shape) |
+| core | `coreEqual` / `coreHash`, the closed fifteen-kind value model, the PVCE/1 codec (`encode` / `decode` / ...) |
+| graph | `graphEqual` / `graphHash`, the PGCE/1 codec (`encodePGCE` / `decodePGCE` / ...) |
+| protocol | diagnostics, contract registry, records, exit classes, CLI records |
 
-## Conformance
+Module-internal entry points (`typescript/src/<family>/...`; the package
+root does not re-export them at 1.0.0-rc): query (`executeJsonQuery` and
+the per-family `execute*Query`), projection (`project` / `project*`),
+materialization (`materialize` / `materialize*`), edit
+(`EditTransactionBuilder` + `commitEdits`), and the per-family `parse*`
+typed adapters. The type names in those signatures (`ProfileId`,
+`JsonDocument`, `ProjectionRequest`, `MaterializationRequest`,
+`JsonQueryResult`, ...) are module declarations: obtain instances through
+the package-root entries (`profiles()` returns `FormatProfile[]`, whose
+`.profile()` yields the `ProfileId` instance; `parseDocument` returns
+`Document`), and import the types from the module sources when you need
+annotations. A typedoc API reference is planned at release time
+(RELEASING.md §5); it is not wired yet.
 
-18 suites / 519 cases / aggregate digest `cfd6e296…` are pinned in the
-runner (`src/conformance/runner.ts`, against conformance/vectors/ by
-repo-relative path); `runner.test.ts` asserts them, and 519/519 pass in CI
-(ci-typescript.yml, ts-conformance job).
+## Compatibility
 
-## References
+- Semantic versioning; the language-neutral contracts are the single
+  authority in the consema spec repository
+  (https://github.com/consema/consema).
+- Cross-language consistency is enforced by the 18 suites / 519 cases
+  conformance gate and the TS-Rust differential gates.
+- Compatibility and support policy: RFC 0020.
 
-- Language plan: [multi-language-implementation-plan.md](https://github.com/consema/consema/blob/main/docs/multi-language-implementation-plan.md) (L0-L5 closed
-  for all three new languages, 2026-08-12)
-- CI and cross-language verification design: [five-language-ci-design.md](https://github.com/consema/consema/blob/main/docs/five-language-ci-design.md)
+## License
+
+MIT — the LICENSE text ships inside the package.
