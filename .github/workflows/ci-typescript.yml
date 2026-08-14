@@ -537,10 +537,14 @@ jobs:
   # L5 packaging gate (five-language-ci-design.md §1.1 package row / §5.3
   # L5 row): `npm pack` must succeed (prepack builds dist/) and the tarball
   # must contain the published dist/ entry points, the LICENSE text, and
-  # zero test-only files; then a clean-directory install must import the
-  # package root (G33/G35/G95, 2026-08-14). Nothing is published here, no
-  # repository secrets are used, and no conformance data is needed
-  # (packaging is data-independent).
+  # no *.test.ts compiled artifacts nor test_helpers/test_decode (the gate
+  # asserts exactly that manifest, W3-40/R4); dev harness modules
+  # (conformance runner, differential, capability_parity) ship with the
+  # package but are not reachable through the exports map (known state,
+  # recorded 2026-08-14, W3-40/R4). Then a clean-directory install must
+  # import the package root (G33/G35/G95, 2026-08-14). Nothing is
+  # published here, no repository secrets are used, and no conformance
+  # data is needed (packaging is data-independent).
   ts-package:
     name: "ts package (npm pack, files: dist + LICENSE)"
     runs-on: ubuntu-latest
@@ -557,7 +561,7 @@ jobs:
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
-      - name: npm pack + tarball shape assertion (dist, LICENSE, zero test-only)
+      - name: npm pack + tarball shape assertion (dist, LICENSE, no *.test.ts/test_helpers/test_decode)
         working-directory: typescript
         shell: pwsh
         run: |
@@ -581,7 +585,7 @@ jobs:
           if ($testOnly.Count -gt 0) {
             throw "npm pack tarball must not contain test-only files: $($testOnly -join ', ')"
           }
-          Write-Output "npm pack ok: $($pack.files.Count) files, dist entry points + LICENSE present, zero test-only files"
+          Write-Output "npm pack ok: $($pack.files.Count) files, dist entry points + LICENSE present, no *.test.ts / test_helpers / test_decode files"
       # Clean-directory install + package-root import smoke (G33,
       # 2026-08-14): the tarball must be importable from the package root by
       # a consumer — the source-direct shape failed this check under node 26

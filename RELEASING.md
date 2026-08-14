@@ -76,7 +76,9 @@ npm publish --tag canary --provenance
 经 `prepack` 自动构建，`tsc -p tsconfig.build.json`），
 `files = ["dist", "LICENSE"]`（LICENSE 由 prepack 从仓根复制进打包目录；
 构建面排除 `*.test.ts` 与 `yaml/test_helpers.ts`/`yaml/test_decode.ts`，
-tarball 不含任何 test-only 文件）。
+tarball 不含任何 `*.test.ts` 编译产物与 `test_helpers`/`test_decode`
+（门禁按该清单断言）；dev harness 模块随包但不经 `exports` 暴露
+（记录为已知状态，2026-08-14，W3-40/R4））。
 选择编译产物而非源码直发的根因：Node 26 的类型剥离机制对 node_modules
 下的文件明确拒绝——源码直发包在声明支持窗口（engines `>=26`）内不可从
 包根 import（对抗审计 G33, 2026-08-14）。发布前本地验证：`npm pack`

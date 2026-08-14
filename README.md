@@ -74,7 +74,10 @@ console.log(new TextDecoder().decode(edited.render()));
 | registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile: ProfileId)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表；`profiles()` 返回 `FormatProfile[]`，取其 `.profile()` 得 `ProfileId`，直接作为 `formatOperationRegistry` 的 profile 参数） |
 | query / project / edit / materialize | 模块内导出（包根暂不 re-export，1.0.0-rc 不擅自扩导出）：`executeJsonQuery(executable, document, limits, cancellation) -> JsonQueryResult<JsonMatch>`（`src/json/query.ts`）、`project(document, request) -> ProjectionResult`（`src/json/projection.ts`）、`materialize(value, request) -> MaterializationResult<JsonDocument>`（`src/json/materialization.ts`）、`EditTransactionBuilder(document)` + `commitEdits(document, transaction) -> EditCommit`（`src/json/edit.ts`） |
 
-**发布形态。** 包发布编译产物：`prepack` 先构建（tsc → `typescript/dist/`，`.js` + `.d.ts` 同源生成），`main`/`types`/`exports` 均指向 `dist/`——消费方无需任何 tsconfig 前置（Node ≥ 26 与常规打包器均可直接 import 包根，Node 的类型剥离不作用于 node_modules，源码直发不可行，见 RELEASING.md §4）。发布物含 LICENSE 全文，不含任何 test-only 文件（`.test.ts` 与 `yaml/test_helpers.ts`、`yaml/test_decode.ts` 不进构建面，CI 打包门禁断言）。包根导出链中使用 `node:crypto` 的是 `typescript/src/protocol/cli.ts`（core.source-patch@2 记录，Node 内建模块）；`.d.ts` 自包含、不引用 Node 类型，消费方无需安装 `@types/node`（`typescript` 与 `@types/node` 仅为构建期 devDependencies）。
+**发布形态。** 包发布编译产物：`prepack` 先构建（tsc → `typescript/dist/`，`.js` + `.d.ts` 同源生成），`main`/`types`/`exports` 均指向 `dist/`——消费方无需任何 tsconfig 前置（Node ≥ 26 与常规打包器均可直接 import 包根，Node 的类型剥离不作用于 node_modules，源码直发不可行，见 RELEASING.md §4）。发布物含 LICENSE 全文，不含任何 `*.test.ts` 编译产物与
+`test_helpers`/`test_decode`（不进构建面，CI 打包门禁按该清单断言）；dev
+harness 模块（conformance runner、differential、capability_parity 等）随包
+但不经 `exports` 暴露（记录为已知状态，2026-08-14，W3-40/R4）。包根导出链中使用 `node:crypto` 的是 `typescript/src/protocol/cli.ts`（core.source-patch@2 记录，Node 内建模块）；`.d.ts` 自包含、不引用 Node 类型，消费方无需安装 `@types/node`（`typescript` 与 `@types/node` 仅为构建期 devDependencies）。
 
 ## 布局
 
