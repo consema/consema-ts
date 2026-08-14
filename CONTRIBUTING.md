@@ -18,9 +18,12 @@ suites）在[规范仓](https://github.com/consema/consema)。
 
 前置：`npm test` 包含 conformance runner，按仓库相对路径读
 `conformance/vectors/`（数据缺失即 ENOENT 失败）。本地运行前在仓库根
-provision 数据（并排检出规范仓 consema 后执行）：
+provision 数据——数据源必须钉定（波 4 R5/R22，2026-08-15）：并排检出规范仓
+consema 后先 checkout 到本仓 CI 钉定的统一 provision commit（当前
+`9aa6597`，与 ci-typescript.yml / release.yml 的 `ref:` 一致）再复制：
 
 ```powershell
+git -C ..\consema checkout 9aa65976d51d27f93afcffca957475368a69e93b
 if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
 Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
 ```

@@ -68,14 +68,23 @@ root does not re-export them at 1.0.0-rc): query (`executeJsonQuery` and
 the per-family `execute*Query`), projection (`project` / `project*`),
 materialization (`materialize` / `materialize*`), edit
 (`EditTransactionBuilder` + `commitEdits`), and the per-family `parse*`
-typed adapters. The type names in those signatures (`ProfileId`,
-`JsonDocument`, `ProjectionRequest`, `MaterializationRequest`,
-`JsonQueryResult`, ...) are module declarations: obtain instances through
-the package-root entries (`profiles()` returns `FormatProfile[]`, whose
-`.profile()` yields the `ProfileId` instance; `parseDocument` returns
-`Document`), and import the types from the module sources when you need
-annotations. A typedoc API reference is planned at release time
-(RELEASING.md §5); it is not wired yet.
+typed adapters. Those modules and the types in their signatures
+(`ProfileId`, `JsonDocument`, `ProjectionRequest`,
+`MaterializationRequest`, `JsonQueryResult`, ...) are **not importable
+from the package**: the `exports` map exposes only the package root and
+the tarball ships `dist/` + LICENSE only (no `.ts` sources), so a
+module-internal import (e.g. `@consema/consema/dist/document/profile.js`)
+throws ERR_PACKAGE_PATH_NOT_EXPORTED (R23, 2026-08-15). For annotations,
+import the package-root re-exported types instead — `ConversionResult`,
+`ConsemaDocument`, `FormatMismatch`, `ConversionFidelity`,
+`CapabilitySet`, `ContractRegistry`, `ErrorCodeRegistry`, `RecordState`,
+`ProfileDescriptor`, `Diagnostic`, the core/graph/protocol domain types,
+... (the root re-exports them via `index.ts` `export *`). Instances of
+the module-local concepts are obtained through the package-root entries
+(`profiles()` returns `FormatProfile[]`, whose `.profile()` yields the
+`ProfileId` instance; `parseDocument` returns `Document`). A typedoc API
+reference is planned at release time (RELEASING.md §5); it is not wired
+yet.
 
 ## Compatibility
 
@@ -83,7 +92,13 @@ annotations. A typedoc API reference is planned at release time
   authority in the consema spec repository
   (https://github.com/consema/consema).
 - Cross-language consistency is enforced by the 18 suites / 519 cases
-  conformance gate and the TS-Rust differential gates.
+  conformance gate and the TS-Rust differential gates. Known documented
+  fork: on the CP936/CP949/CP950 Windows code pages the TS implementation
+  rejects invalid sequences with `core.source.invalid-sequence@1` while
+  the Rust reference decodes them (encoding_rs). The fork is recorded in
+  the source comment at `typescript/src/document/source.ts` — this
+  disclosure ships here because that comment does not ship in the package
+  (R28, 2026-08-15).
 - Compatibility and support policy: RFC 0020.
 
 ## License
