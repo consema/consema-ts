@@ -21,7 +21,7 @@
  *  - apply_selection :675-692 (All/First/Last/ZeroOrOne/RequireOne)
  *  - decoded span text :636-651 (raw boundaries resolved to decoded text)
  *  - QueryLimits defaults (max_steps 100_000, max_results 100_000):
- *    consema-rs/consema-core/src/query.rs:2967-2981
+ *    consema-rs/consema-core/src/query.rs
  *  - RFC 0010 §10 (:269-308) freezes the query surface: eight native
  *    operators (:272-282), four lossless syntax filters (:287-295), and the
  *    exact UTF-16BE/1 key matching rule (:284-285)
@@ -53,7 +53,7 @@ import type {
 // Execution limits and cancellation
 // ---------------------------------------------------------------------------
 
-/** Immutable query execution limits (query.rs:2967-2981). */
+/** Immutable query execution limits (query.rs). */
 export class QueryLimits {
   readonly #maxSteps: number;
   readonly #maxResults: number;
@@ -63,23 +63,23 @@ export class QueryLimits {
     this.#maxResults = maxResults;
   }
 
-  /** The frozen defaults: 100_000 steps and 100_000 results (query.rs:2974-2980). */
+  /** The frozen defaults: 100_000 steps and 100_000 results (query.rs). */
   static defaults(): QueryLimits {
     return new QueryLimits(100_000, 100_000);
   }
 
-  /** Maximum operator steps (query.rs:2969). */
+  /** Maximum operator steps (query.rs). */
   maxSteps(): number {
     return this.#maxSteps;
   }
 
-  /** Maximum complete results buffered by an operator (query.rs:2971). */
+  /** Maximum complete results buffered by an operator (query.rs). */
   maxResults(): number {
     return this.#maxResults;
   }
 }
 
-/** Cooperative cancellation flag (query.rs:205-207; consema-core CancellationToken). */
+/** Cooperative cancellation flag (query.rs; consema-core CancellationToken). */
 export class CancellationToken {
   #cancelled = false;
 
@@ -97,7 +97,7 @@ export class CancellationToken {
 // Matches
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound Java Properties native semantic query match (query.rs:12-74). */
+/** Owned snapshot-bound Java Properties native semantic query match (query.rs). */
 export type PropertiesMatch =
   | {
       readonly kind: 'Document';
@@ -163,7 +163,7 @@ function matchIdentity(match: PropertiesMatch): NodeRef {
   return match.node;
 }
 
-/** Owned snapshot-bound Java Properties lossless syntax query match (query.rs:88-121). */
+/** Owned snapshot-bound Java Properties lossless syntax query match (query.rs). */
 export class PropertiesSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -177,22 +177,22 @@ export class PropertiesSyntaxMatch {
     this.#ordinal = ordinal;
   }
 
-  /** Process-local syntax-piece identity (query.rs:98-101). */
+  /** Process-local syntax-piece identity (query.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw source span (query.rs:102-105). */
+  /** Exact raw source span (query.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Format-specific lossless kind (query.rs:106-109). */
+  /** Format-specific lossless kind (query.rs). */
   kind(): PropertiesSyntaxKind {
     return this.#kind;
   }
 
-  /** Zero-based source-order position (query.rs:110-113). */
+  /** Zero-based source-order position (query.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
@@ -205,7 +205,7 @@ export class PropertiesSyntaxMatch {
 /** Eager terminal states; a failed execution throws instead of returning. */
 export type QueryTerminalState = 'Completed' | 'Cancelled' | 'Failed';
 
-/** A complete deterministic eager query result (query.rs:149). */
+/** A complete deterministic eager query result (query.rs). */
 export class PropertiesQueryResult<M> {
   readonly #matches: readonly M[];
 
@@ -218,13 +218,13 @@ export class PropertiesQueryResult<M> {
     return this.#matches;
   }
 
-  /** Eager execution always completes; failures throw instead (query.rs:149). */
+  /** Eager execution always completes; failures throw instead (query.rs). */
   terminalState(): 'Completed' {
     return 'Completed';
   }
 }
 
-/** Ordered cursor over one complete result with cooperative cancellation (query.rs:152-164; query.rs:2967-3010). */
+/** Ordered cursor over one complete result with cooperative cancellation (query.rs; query.rs). */
 export class PropertiesQueryCursor<M> {
   readonly #matches: readonly M[];
   readonly #cancellation: CancellationToken;
@@ -236,7 +236,7 @@ export class PropertiesQueryCursor<M> {
     this.#cancellation = cancellation;
   }
 
-  /** Yields the next match, or null when exhausted or cancelled (query.rs:2983-2994). */
+  /** Yields the next match, or null when exhausted or cancelled (query.rs). */
   next(): M | null {
     if (this.#index < this.#matches.length && !this.#cancellation.isCancelled()) {
       const match = this.#matches[this.#index];
@@ -247,7 +247,7 @@ export class PropertiesQueryCursor<M> {
     return null;
   }
 
-  /** Terminal state after exhaustion; null while matches remain (query.rs:2996-3001). */
+  /** Terminal state after exhaustion; null while matches remain (query.rs). */
   terminalState(): QueryTerminalState | null {
     return this.#terminal;
   }
@@ -276,7 +276,7 @@ function step(context: ExecutionContext, results: number): void {
 
 /**
  * Executes a validated Properties native semantic query against one
- * immutable snapshot (query.rs:123-150).
+ * immutable snapshot (query.rs).
  */
 export function executePropertiesQuery(
   executable: ExecutableQuery,
@@ -297,7 +297,7 @@ export function executePropertiesQuery(
   return new PropertiesQueryResult(selected);
 }
 
-/** Executes and exposes a complete Properties native result through an ordered cursor (query.rs:152-164). */
+/** Executes and exposes a complete Properties native result through an ordered cursor (query.rs). */
 export function executePropertiesQueryCursor(
   executable: ExecutableQuery,
   document: PropertiesDocument,
@@ -310,7 +310,7 @@ export function executePropertiesQueryCursor(
 
 /**
  * Executes a validated Properties lossless syntax query against every
- * source piece in raw order (query.rs:166-211).
+ * source piece in raw order (query.rs).
  */
 export function executePropertiesSyntaxQuery(
   executable: ExecutableQuery,
@@ -340,7 +340,7 @@ export function executePropertiesSyntaxQuery(
   return new PropertiesQueryResult(selected);
 }
 
-/** Executes and exposes a complete Properties syntax result through an ordered cursor (query.rs:213-225). */
+/** Executes and exposes a complete Properties syntax result through an ordered cursor (query.rs). */
 export function executePropertiesSyntaxQueryCursor(
   executable: ExecutableQuery,
   document: PropertiesDocument,
@@ -422,7 +422,7 @@ function executeSyntaxExpression(
   }
 }
 
-/** Native source-order key: (start byte, ordinal) (query.rs:609-634). */
+/** Native source-order key: (start byte, ordinal) (query.rs). */
 function sourceOrder(document: PropertiesDocument, item: PropertiesMatch): [number, number] {
   switch (item.kind) {
     case 'Document':
@@ -725,12 +725,12 @@ function nodeKey(node: NodeRef): string {
   return `${node.snapshot().asBigInt().toString()}:${node.index().toString()}:${node.role()}`;
 }
 
-/** Exact decoded text of one syntax piece span (query.rs:636-651). */
+/** Exact decoded text of one syntax piece span (query.rs). */
 function decodedSpanText(document: PropertiesDocument, span: Span): string {
   return document.spanDecodedText(span);
 }
 
-/** Exact UTF-16BE/1 byte comparison of one decoded text value (query.rs:662-673). */
+/** Exact UTF-16BE/1 byte comparison of one decoded text value (query.rs). */
 function unicodeTextEqualsUtf16be(value: string, expected: Uint8Array): boolean {
   if (value.length * 2 !== expected.length) {
     return false;
@@ -747,7 +747,7 @@ function unicodeTextEqualsUtf16be(value: string, expected: Uint8Array): boolean 
   return true;
 }
 
-/** The five frozen cardinality selections (query.rs:675-692). */
+/** The five frozen cardinality selections (query.rs). */
 function applySelection<T>(values: T[], selection: QuerySelection): T[] {
   switch (selection) {
     case 'All':

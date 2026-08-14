@@ -2,7 +2,7 @@
  * The immutable INI document snapshot and its native accessors.
  *
  * authority:
- *  - document surface: consema-rs/consema-ini/src/lib.rs:489-661 — snapshot
+ *  - document surface: consema-rs/consema-ini/src/lib.rs — snapshot
  *    identity (:508-513), source (:514-519), render (:521-525), format
  *    family "ini"@1 (:527-531), profile (:533-537), root node (:539-543),
  *    formation status (:545-549), diagnostics (:551-555), structural index
@@ -13,7 +13,7 @@
  *  - handle roles: RFC 0009 §8 (:273-283) — IniDocument, IniPhysicalLine,
  *    IniLogicalLine, IniSection, IniDefaultSection, IniEntry, IniErrorLine;
  *    the NodeRole spellings are pinned in document/identity.ts:131-139
- *  - parse entry point: lib.rs:663-671 (parse) and parser.rs:16-35
+ *  - parse entry point: lib.rs (parse) and parser.rs
  *    (encoding request, profile encoding validation, then the scanner)
  *
  * Design (TypeScript-idiomatic): the document is an immutable class whose
@@ -48,7 +48,7 @@ import { IniAccessError } from './errors.ts';
 import { parseIni, type IniEntity, type IniParseOutput } from './parser.ts';
 
 /**
- * Parses one complete immutable INI document snapshot (lib.rs:663-671).
+ * Parses one complete immutable INI document snapshot (lib.rs).
  * Throws IniFormationFailure on any failure — a truncated success never
  * exists (RFC 0009 §4).
  */
@@ -62,7 +62,7 @@ export function parseIniDocument(
   return new IniDocument(output);
 }
 
-/** Opaque immutable INI document snapshot (lib.rs:489-506). */
+/** Opaque immutable INI document snapshot (lib.rs). */
 export class IniDocument {
   readonly #output: IniParseOutput;
   readonly #authority: DocumentAuthority;
@@ -83,27 +83,27 @@ export class IniDocument {
     this.#structuralIndex = output.structuralIndex;
   }
 
-  /** Snapshot identity to which every native handle and span belongs (lib.rs:508-513). */
+  /** Snapshot identity to which every native handle and span belongs (lib.rs). */
   snapshotIdentity(): SnapshotIdentity {
     return this.#authority.identity();
   }
 
-  /** Exact immutable source (lib.rs:514-519). */
+  /** Exact immutable source (lib.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Default rendering is byte-for-byte identical to the source (lib.rs:521-525). */
+  /** Default rendering is byte-for-byte identical to the source (lib.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** INI format family contract (lib.rs:527-531). */
+  /** INI format family contract (lib.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('ini', 1);
   }
 
-  /** Exact selected profile (lib.rs:533-537). */
+  /** Exact selected profile (lib.rs). */
   profile(): ProfileId {
     return this.#profile.id();
   }
@@ -118,80 +118,80 @@ export class IniDocument {
     return this.#profile.tag();
   }
 
-  /** Root INI document identity (lib.rs:539-543). */
+  /** Root INI document identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#authority.nodeRef(0n, 'IniDocument');
   }
 
-  /** Complete or explicitly recovered formation state (lib.rs:545-549). */
+  /** Complete or explicitly recovered formation state (lib.rs). */
   formationStatus(): FormationStatus {
     return this.#output.recovered ? 'Recovered' : 'Complete';
   }
 
-  /** Stable ordered diagnostics (lib.rs:551-555). */
+  /** Stable ordered diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#output.diagnostics;
   }
 
-  /** Exhaustive ordered source coverage (lib.rs:557-559). */
+  /** Exhaustive ordered source coverage (lib.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex {
     return this.#structuralIndex;
   }
 
-  /** Format kind aligned with each structural piece (lib.rs:563-567). */
+  /** Format kind aligned with each structural piece (lib.rs). */
   losslessSyntaxKinds(): readonly IniSyntaxKind[] {
     return this.#output.syntaxKinds;
   }
 
-  /** Ordered physical source lines (lib.rs:569-575). */
+  /** Ordered physical source lines (lib.rs). */
   physicalLines(): IniPhysicalLine[] {
     return this.#output.physicalLines.map((index) => new IniPhysicalLine(this, index));
   }
 
-  /** Ordered logical records (lib.rs:577-581). */
+  /** Ordered logical records (lib.rs). */
   logicalLines(): IniLogicalLine[] {
     return this.#output.logicalLines.map((index) => new IniLogicalLine(this, index));
   }
 
-  /** Ordered distinct section occurrences (lib.rs:583-587). */
+  /** Ordered distinct section occurrences (lib.rs). */
   sections(): IniSection[] {
     return this.#output.sections.map((index) => new IniSection(this, index));
   }
 
-  /** Ordered distinct entry occurrences (lib.rs:589-593). */
+  /** Ordered distinct entry occurrences (lib.rs). */
   entries(): IniEntry[] {
     return this.#output.entries.map((index) => new IniEntry(this, index));
   }
 
-  /** Ordered recovered error records (lib.rs:595-599). */
+  /** Ordered recovered error records (lib.rs). */
   errorLines(): IniErrorLine[] {
     return this.#output.errorLines.map((index) => new IniErrorLine(this, index));
   }
 
-  /** Resource contract used to form this snapshot (lib.rs:601-604). */
+  /** Resource contract used to form this snapshot (lib.rs). */
   parseLimits(): IniParseLimits {
     return this.#limits;
   }
 
-  /** Resolves one physical-line handle only within this snapshot (lib.rs:606-618). */
+  /** Resolves one physical-line handle only within this snapshot (lib.rs). */
   physicalLine(node: NodeRef): IniPhysicalLine {
     const index = this.validateRef(node, 'IniPhysicalLine');
     return new IniPhysicalLine(this, index);
   }
 
-  /** Resolves one logical-line handle only within this snapshot (lib.rs:620-633). */
+  /** Resolves one logical-line handle only within this snapshot (lib.rs). */
   logicalLine(node: NodeRef): IniLogicalLine {
     const index = this.validateRef(node, 'IniLogicalLine');
     return new IniLogicalLine(this, index);
   }
 
-  /** Resolves one section/default-section handle only within this snapshot (lib.rs:635-648). */
+  /** Resolves one section/default-section handle only within this snapshot (lib.rs). */
   section(node: NodeRef): IniSection {
     const index = this.validateSectionRef(node);
     return new IniSection(this, index);
   }
 
-  /** Resolves one entry handle only within this snapshot (lib.rs:650-660). */
+  /** Resolves one entry handle only within this snapshot (lib.rs). */
   entry(node: NodeRef): IniEntry {
     const index = this.validateRef(node, 'IniEntry');
     return new IniEntry(this, index);
@@ -251,7 +251,7 @@ export class IniDocument {
 // Snapshot-bound handles
 // ---------------------------------------------------------------------------
 
-/** One exact physical source line (lib.rs:230-263). */
+/** One exact physical source line (lib.rs). */
 export class IniPhysicalLine {
   readonly #document: IniDocument;
   readonly #index: number;
@@ -295,7 +295,7 @@ export class IniPhysicalLine {
   }
 }
 
-/** One logical record and its ordered physical constituents (lib.rs:265-291). */
+/** One logical record and its ordered physical constituents (lib.rs). */
 export class IniLogicalLine {
   readonly #document: IniDocument;
   readonly #index: number;
@@ -334,7 +334,7 @@ export class IniLogicalLine {
   }
 }
 
-/** One distinct section-header occurrence (lib.rs:293-354). */
+/** One distinct section-header occurrence (lib.rs). */
 export class IniSection {
   readonly #document: IniDocument;
   readonly #index: number;
@@ -420,7 +420,7 @@ export class IniSection {
   }
 }
 
-/** One distinct key/value occurrence (lib.rs:356-445). */
+/** One distinct key/value occurrence (lib.rs). */
 export class IniEntry {
   readonly #document: IniDocument;
   readonly #index: number;
@@ -541,7 +541,7 @@ export class IniEntry {
   }
 }
 
-/** One recovered physical error record (lib.rs:447-487). */
+/** One recovered physical error record (lib.rs). */
 export class IniErrorLine {
   readonly #document: IniDocument;
   readonly #index: number;

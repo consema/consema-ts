@@ -1,14 +1,14 @@
 /**
  * The frozen TOML format operation registry.
  *
- * authority: consema-rs/consema-toml/src/operation_registry.rs:16-74 — the
+ * authority: consema-rs/consema-toml/src/operation_registry.rs — the
  * exact seven descriptors (ids, target roles, argument schema, support
  * classification) and the canonical id sort of the registry
  * (consema-document/src/operation_registry.rs; the TS document domain
  * FormatOperationRegistry enforces the same validation and sort,
  * typescript/src/document/operation.ts:201-278). RFC 0004 §10 (:256-261)
  * freezes the five structural ids; the two scalar replacements are
- * declared as ExistingTypedCapability (operation_registry.rs:55-72).
+ * declared as ExistingTypedCapability (operation_registry.rs).
  *
  *   toml.edit.insert-entry@1            toml.table-item@1
  *     key:String, value:PortableValue, placement:Placement
@@ -24,7 +24,7 @@
  *     literal:ExactBytes
  *
  * The Rust test pins the structural surface and the total count
- * (operation_registry.rs:99-118: 7 operations, 5 Supported).
+ * (operation_registry.rs: 7 operations, 5 Supported).
  *
  * Design (TypeScript-idiomatic): a pure descriptor table; the document
  * domain's FormatOperationRegistry validates and canonicalizes it.
@@ -40,7 +40,7 @@ import {
 import type { OperationArgumentKind, OperationSupport } from '../document/operation.ts';
 import { TomlProfile } from './profile.ts';
 
-/** One frozen TOML operation descriptor (operation_registry.rs:76-88). */
+/** One frozen TOML operation descriptor (operation_registry.rs). */
 function descriptor(
   id: string,
   targetRole: string,
@@ -55,7 +55,7 @@ function descriptor(
   );
 }
 
-/** The seven frozen TOML operation descriptors (operation_registry.rs:16-74). */
+/** The seven frozen TOML operation descriptors (operation_registry.rs). */
 export function tomlOperationDescriptors(): readonly FormatOperationDescriptor[] {
   return [
     descriptor('toml.edit.insert-entry', 'toml.table-item', [
@@ -82,7 +82,7 @@ export function tomlOperationDescriptors(): readonly FormatOperationDescriptor[]
 
 /**
  * Returns the validated operation registry for one exact TOML profile
- * (operation_registry.rs:9-14). Throws FormatOperationRegistryError on an
+ * (operation_registry.rs). Throws FormatOperationRegistryError on an
  * invalid descriptor table — the built-in table is valid by construction.
  */
 export function tomlFormatOperationRegistry(profile: TomlProfile): FormatOperationRegistry {

@@ -255,12 +255,12 @@ function sourcePatch(case_: VectorCase): void {
       } else if (mode === 'count-limit' || mode === 'wrong-original') {
         SourcePatch.create(baseSnapshot, replacements, new Map(), limits);
       } else if (mode === 'overlap') {
-        // Document-level canonical-order rejection (source_v1.rs:286-289):
+        // Document-level canonical-order rejection (source_v1.rs):
         // SourcePatch.create validates the ordered non-overlapping ranges and
         // the ReplacementOrder kind carries core.protocol.invalid-value@1.
         SourcePatch.create(baseSnapshot, replacements, new Map(), limits);
       } else {
-        // wrong-target / encoding-change (source_v1.rs:290-314): the patch is
+        // wrong-target / encoding-change (source_v1.rs): the patch is
         // built from externally supplied digest facts (a deliberately wrong
         // target digest for wrong-target; the true target digest for
         // encoding-change), then applied to the base.

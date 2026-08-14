@@ -135,7 +135,7 @@ test('resource limits are enforced per field', () => {
   rooted.defineScalar(b, STR, 'y');
   rooted.pushRoot(a);
   // The Rust and Go authorities enforce graph-roots eagerly at push time
-  // (consema-rs/consema-graph/src/lib.rs:286-294; consema-go/go/graph/graph.go:261-267),
+  // (consema-rs/consema-graph/src/lib.rs; consema-go/go/graph/graph.go:261-267),
   // not at build(); build() only checks definitions, reachability, and depth.
   assert.throws(() => rooted.pushRoot(b), (e: unknown) => {
     const error = e as GraphError;
@@ -224,7 +224,7 @@ test('mapping edges visit key before value in canonical order', () => {
 
 test('the frozen graph error codes are registered', () => {
   // core.graph.resource-limit@1 and core.graph.invalid@1
-  // (consema-rs/consema-protocol/src/error_registry.rs:694-700).
+  // (consema-rs/consema-protocol/src/error_registry.rs).
   const builder = new Builder({ ...defaultLimits(), maxNodes: 0 });
   try {
     builder.reserveNode();

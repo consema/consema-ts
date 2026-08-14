@@ -358,7 +358,7 @@ test('golden hcl.tfvars-formation.production-shape: a Terraform-shaped terraform
 });
 
 // ---------------------------------------------------------------------------
-// The no-evaluation gate (RFC 0014 §1, hard gate 1; SECURITY.md:36)
+// The no-evaluation gate (RFC 0014 §1, hard gate 1; SECURITY.md)
 // ---------------------------------------------------------------------------
 
 test('no-evaluation: parse/query/project/edit never evaluate anything', () => {

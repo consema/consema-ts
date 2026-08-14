@@ -5,7 +5,7 @@
  * Blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3); no gate is claimed before the §7 START GATE.
  *
- * Authority: consema-rs/consema-hcl/src/operation_registry.rs:100-157 pins the
+ * Authority: consema-rs/consema-hcl/src/operation_registry.rs pins the
  * surface: six operations for `hcl.native@1` (all Supported), four for
  * `hcl.tfvars@1`, canonically sorted by operation id.
  */
@@ -18,7 +18,7 @@ import { HclProfile } from './profile.ts';
 import { FormatOperationId } from '../document/operation.ts';
 
 test('native profile publishes the frozen six-operation surface', () => {
-  // operation_registry.rs:105-127 (native_profile_publishes_the_frozen_
+  // operation_registry.rs (native_profile_publishes_the_frozen_
   // six_operation_surface).
   const registry = hclFormatOperationRegistry(HclProfile.NATIVE_V1);
   assert.deepEqual(
@@ -36,7 +36,7 @@ test('native profile publishes the frozen six-operation surface', () => {
 });
 
 test('tfvars profile publishes attribute operations only', () => {
-  // operation_registry.rs:130-156 (tfvars_profile_publishes_attribute_
+  // operation_registry.rs (tfvars_profile_publishes_attribute_
   // operations_only).
   const registry = hclFormatOperationRegistry(HclProfile.TFVARS_V1);
   assert.deepEqual(
@@ -52,7 +52,7 @@ test('tfvars profile publishes attribute operations only', () => {
 });
 
 test('the argument schemas match the frozen descriptors', () => {
-  // operation_registry.rs:26-80 (the descriptor tables).
+  // operation_registry.rs (the descriptor tables).
   const registry = hclFormatOperationRegistry(HclProfile.NATIVE_V1);
   const insertAttribute = registry.descriptor(new FormatOperationId('hcl.edit.insert-attribute', 1));
   assert.ok(insertAttribute !== null);

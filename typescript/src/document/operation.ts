@@ -22,7 +22,7 @@
 
 import { ProfileId } from './profile.ts';
 
-/** Immutable namespaced operation identifier (operation_registry.rs:8-42). */
+/** Immutable namespaced operation identifier (operation_registry.rs). */
 export class FormatOperationId {
   readonly #id: string;
   readonly #version: number;
@@ -35,17 +35,17 @@ export class FormatOperationId {
     this.#version = version;
   }
 
-  /** Namespaced identifier without its version suffix (operation_registry.rs:26-29). */
+  /** Namespaced identifier without its version suffix (operation_registry.rs). */
   id(): string {
     return this.#id;
   }
 
-  /** Immutable operation version (operation_registry.rs:31-34). */
+  /** Immutable operation version (operation_registry.rs). */
   version(): number {
     return this.#version;
   }
 
-  /** Canonical "id@version" spelling (operation_registry.rs:38-42). */
+  /** Canonical "id@version" spelling (operation_registry.rs). */
   toString(): string {
     return `${this.#id}@${this.#version}`;
   }
@@ -62,7 +62,7 @@ export class FormatOperationId {
   }
 }
 
-/** Versioned semantic role required of an operation target or placement anchor (operation_registry.rs:44-72). */
+/** Versioned semantic role required of an operation target or placement anchor (operation_registry.rs). */
 export class OperationTargetRoleId {
   readonly #id: string;
   readonly #version: number;
@@ -75,12 +75,12 @@ export class OperationTargetRoleId {
     this.#version = version;
   }
 
-  /** Namespaced role identifier without its version suffix (operation_registry.rs:62-65). */
+  /** Namespaced role identifier without its version suffix (operation_registry.rs). */
   id(): string {
     return this.#id;
   }
 
-  /** Immutable role version (operation_registry.rs:67-70). */
+  /** Immutable role version (operation_registry.rs). */
   version(): number {
     return this.#version;
   }
@@ -91,7 +91,7 @@ export class OperationTargetRoleId {
   }
 }
 
-/** Closed v1 argument type vocabulary (operation_registry.rs:74-89). */
+/** Closed v1 argument type vocabulary (operation_registry.rs). */
 export type OperationArgumentKind =
   | 'NodeRef'
   | 'String'
@@ -100,7 +100,7 @@ export type OperationArgumentKind =
   | 'ExactBytes'
   | 'RepresentationPolicy';
 
-/** One named field in an operation's immutable argument schema (operation_registry.rs:91-127). */
+/** One named field in an operation's immutable argument schema (operation_registry.rs). */
 export class OperationArgumentDescriptor {
   readonly #name: string;
   readonly #kind: OperationArgumentKind;
@@ -112,26 +112,26 @@ export class OperationArgumentDescriptor {
     this.#required = required;
   }
 
-  /** Stable field name (operation_registry.rs:110-114). */
+  /** Stable field name (operation_registry.rs). */
   name(): string {
     return this.#name;
   }
 
-  /** Closed argument kind (operation_registry.rs:116-120). */
+  /** Closed argument kind (operation_registry.rs). */
   kind(): OperationArgumentKind {
     return this.#kind;
   }
 
-  /** Whether the operation rejects omission of this argument (operation_registry.rs:122-126). */
+  /** Whether the operation rejects omission of this argument (operation_registry.rs). */
   required(): boolean {
     return this.#required;
   }
 }
 
-/** Truthful implementation support classification (operation_registry.rs:129-138). */
+/** Truthful implementation support classification (operation_registry.rs). */
 export type OperationSupport = 'Supported' | 'ExistingTypedCapability' | 'Unsupported';
 
-/** One complete discoverable operation contract (operation_registry.rs:140-189). */
+/** One complete discoverable operation contract (operation_registry.rs). */
 export class FormatOperationDescriptor {
   readonly #id: FormatOperationId;
   readonly #targetRole: OperationTargetRoleId;
@@ -150,28 +150,28 @@ export class FormatOperationDescriptor {
     this.#support = support;
   }
 
-  /** Immutable operation identifier (operation_registry.rs:166-170). */
+  /** Immutable operation identifier (operation_registry.rs). */
   id(): FormatOperationId {
     return this.#id;
   }
 
-  /** Semantic role required of the primary target (operation_registry.rs:172-176). */
+  /** Semantic role required of the primary target (operation_registry.rs). */
   targetRole(): OperationTargetRoleId {
     return this.#targetRole;
   }
 
-  /** Fixed ordered argument schema (operation_registry.rs:178-182). */
+  /** Fixed ordered argument schema (operation_registry.rs). */
   arguments(): readonly OperationArgumentDescriptor[] {
     return this.#arguments;
   }
 
-  /** Truthful implementation support (operation_registry.rs:184-188). */
+  /** Truthful implementation support (operation_registry.rs). */
   support(): OperationSupport {
     return this.#support;
   }
 }
 
-/** Registry construction failure before an invalid discovery surface is published (operation_registry.rs:271-305). */
+/** Registry construction failure before an invalid discovery surface is published (operation_registry.rs). */
 export type FormatOperationRegistryErrorKind =
   | 'InvalidProfile'
   | 'InvalidOperationId'
@@ -198,7 +198,7 @@ export class FormatOperationRegistryError extends Error {
   }
 }
 
-/** Deterministically ordered operation contracts for one exact profile (operation_registry.rs:191-269). */
+/** Deterministically ordered operation contracts for one exact profile (operation_registry.rs). */
 export class FormatOperationRegistry {
   readonly #profile: ProfileId;
   readonly #operations: readonly FormatOperationDescriptor[];
@@ -208,7 +208,7 @@ export class FormatOperationRegistry {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Validates and canonicalizes all descriptors before publishing the registry (operation_registry.rs:198-247). */
+  /** Validates and canonicalizes all descriptors before publishing the registry (operation_registry.rs). */
   static create(
     profile: ProfileId,
     operations: readonly FormatOperationDescriptor[],
@@ -246,17 +246,17 @@ export class FormatOperationRegistry {
     return new FormatOperationRegistry(profile, sorted);
   }
 
-  /** Exact profile whose behavior the registry describes (operation_registry.rs:249-253). */
+  /** Exact profile whose behavior the registry describes (operation_registry.rs). */
   profile(): ProfileId {
     return this.#profile;
   }
 
-  /** Canonically ordered operation descriptors (operation_registry.rs:255-259). */
+  /** Canonically ordered operation descriptors (operation_registry.rs). */
   operations(): readonly FormatOperationDescriptor[] {
     return this.#operations;
   }
 
-  /** Finds one exact operation ID/version (operation_registry.rs:261-268). */
+  /** Finds one exact operation ID/version (operation_registry.rs). */
   descriptor(id: FormatOperationId): FormatOperationDescriptor | null {
     let low = 0;
     let high = this.#operations.length;
@@ -277,7 +277,7 @@ export class FormatOperationRegistry {
   }
 }
 
-/** Dot-separated lowercase/digit/hyphen identifier rule (operation_registry.rs:315-331). */
+/** Dot-separated lowercase/digit/hyphen identifier rule (operation_registry.rs). */
 function validNamespacedId(value: string): boolean {
   if (value.length === 0) {
     return false;
@@ -303,7 +303,7 @@ function validNamespacedId(value: string): boolean {
   });
 }
 
-/** Lower snake case argument-name rule (operation_registry.rs:333-339). */
+/** Lower snake case argument-name rule (operation_registry.rs). */
 function validArgumentName(value: string): boolean {
   if (value.length === 0) {
     return false;

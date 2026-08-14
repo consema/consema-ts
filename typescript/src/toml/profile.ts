@@ -2,7 +2,7 @@
  * Frozen TOML profile, capability, query-domain, and style identifiers.
  *
  * authority:
- *  - TomlProfile: consema-rs/consema-toml/src/lib.rs:34-39 (Toml10V1) and the
+ *  - TomlProfile: consema-rs/consema-toml/src/lib.rs (Toml10V1) and the
  *    profile id mapping :111-119 — ProfileId("toml.1.0", 1)
  *  - profile spelling: RFC 0004 §4 (:98-127) freezes "toml.1.0@1"; the
  *    vector suite pins it (conformance/vectors/toml-v1.json:3 "profile")
@@ -15,11 +15,11 @@
  *    toml.document.complete@1 and §5 (:80) the projection target
  *    toml.best-exact-core@1
  *  - query domains: RFC 0001 §4 (:66) — toml.native-semantic-query@1;
- *    consema-rs/consema-toml/src/query.rs:95-96 (native) and :136-137
+ *    consema-rs/consema-toml/src/query.rs (native) and :136-137
  *    (toml.lossless-syntax-query@1); the TS protocol agent pins the same
  *    spellings (typescript/src/protocol/query.ts:108,115,500,512)
  *  - materialization style: RFC 0004 §4 (:100-103) — toml.canonical-
- *    document@1; consema-rs/consema-toml/src/materialization.rs:89
+ *    document@1; consema-rs/consema-toml/src/materialization.rs
  *
  * Design (TypeScript-idiomatic): TomlProfile is a frozen singleton with
  * value semantics (one profile in v1); capability/style/domain ids are
@@ -34,14 +34,14 @@ import type { CapabilityId } from '../protocol/registry_descriptor.ts';
 import { newQueryDomain } from '../protocol/query.ts';
 import type { QueryDomain } from '../protocol/query.ts';
 
-/** The one frozen TOML language profile (lib.rs:34-39). */
+/** The one frozen TOML language profile (lib.rs). */
 export class TomlProfile {
   private constructor() {}
 
-  /** TOML 1.0.0 without implementation extensions (lib.rs:37-38). */
+  /** TOML 1.0.0 without implementation extensions (lib.rs). */
   static readonly TOML_10_V1: TomlProfile = new TomlProfile();
 
-  /** Stable profile identity for registry and wire use (lib.rs:111-119). */
+  /** Stable profile identity for registry and wire use (lib.rs). */
   id(): ProfileId {
     return new ProfileId('toml.1.0', 1);
   }
@@ -94,17 +94,17 @@ export function capabilityCoreParseResourceLimits(): CapabilityId {
 // Query domains and materialization style (frozen spellings)
 // ---------------------------------------------------------------------------
 
-/** `toml.native-semantic-query@1` (RFC 0001 §4; query.rs:95-96). */
+/** `toml.native-semantic-query@1` (RFC 0001 §4; query.rs). */
 export function tomlNativeQueryDomain(): QueryDomain {
   return newQueryDomain('toml.native-semantic-query', 1);
 }
 
-/** `toml.lossless-syntax-query@1` (query.rs:136-137). */
+/** `toml.lossless-syntax-query@1` (query.rs). */
 export function tomlLosslessSyntaxQueryDomain(): QueryDomain {
   return newQueryDomain('toml.lossless-syntax-query', 1);
 }
 
-/** `toml.canonical-document@1` — the frozen canonical materialization style (RFC 0004 §4; materialization.rs:89). */
+/** `toml.canonical-document@1` — the frozen canonical materialization style (RFC 0004 §4; materialization.rs). */
 export function tomlCanonicalDocumentStyle(): MaterializationStyleId {
   return new MaterializationStyleId('toml.canonical-document', 1);
 }

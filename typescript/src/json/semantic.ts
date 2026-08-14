@@ -7,34 +7,34 @@
  *    InvalidLiteral | ChildUnavailable)
  *
  * Design (TypeScript-idiomatic): a closed discriminated union; `mapSemantic`
- * maps an available value while preserving unavailability (lib.rs:297-305).
+ * maps an available value while preserving unavailability (lib.rs).
  * This tiny module is shared by `document.ts` (the handles) and `errors.ts`
  * (the projection failure surface) without an import cycle.
  */
 
-/** Stable reason that a region has no native semantic value (lib.rs:308-319). */
+/** Stable reason that a region has no native semantic value (lib.rs). */
 export type SemanticUnavailable =
   | 'Missing'
   | 'ErrorRegion'
   | 'InvalidLiteral'
   | 'ChildUnavailable';
 
-/** Regional semantic availability (lib.rs:289-306). */
+/** Regional semantic availability (lib.rs). */
 export type SemanticAvailability<T> =
   | { readonly kind: 'Available'; readonly value: T }
   | { readonly kind: 'Unavailable'; readonly reason: SemanticUnavailable };
 
-/** Wraps a complete native meaning (lib.rs:289-295). */
+/** Wraps a complete native meaning (lib.rs). */
 export function available<T>(value: T): SemanticAvailability<T> {
   return { kind: 'Available', value };
 }
 
-/** Wraps a stable unavailability reason (lib.rs:289-295). */
+/** Wraps a stable unavailability reason (lib.rs). */
 export function unavailable<T>(reason: SemanticUnavailable): SemanticAvailability<T> {
   return { kind: 'Unavailable', reason };
 }
 
-/** Maps an available value while preserving unavailability (lib.rs:297-305). */
+/** Maps an available value while preserving unavailability (lib.rs). */
 export function mapSemantic<T, U>(
   result: SemanticAvailability<T>,
   map: (value: T) => U,

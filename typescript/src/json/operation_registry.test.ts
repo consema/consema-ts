@@ -2,9 +2,9 @@
  * Intent documents for the frozen JSON format-operation registry.
  *
  * The eight records and their exact ids/roles/arguments/support are
- * transcribed from consema-rs/consema-json/src/operation_registry.rs:16-80;
+ * transcribed from consema-rs/consema-json/src/operation_registry.rs;
  * the per-profile closure (all three profiles publish the same eight
- * records) is pinned by operation_registry.rs:104-129. RFC 0004 §10
+ * records) is pinned by operation_registry.rs. RFC 0004 §10
  * (:244-269) freezes the six structural ids; the two scalar operations
  * are declared as ExistingTypedCapability (RFC 0004 §10 :263-265).
  */
@@ -16,7 +16,7 @@ import { formatOperationRegistry } from '../json/index.ts';
 import { PROFILE_JSON5_STANDARD, PROFILE_JSONC_BOUNDED, PROFILE_JSON_STRICT } from '../json/index.ts';
 import { FormatOperationId } from '../document/operation.ts';
 
-test('the frozen structural surface is exactly six Supported operations (operation_registry.rs:104-129)', () => {
+test('the frozen structural surface is exactly six Supported operations (operation_registry.rs)', () => {
   const expected = [
     'json.edit.insert-array-element@1',
     'json.edit.insert-member@1',
@@ -36,7 +36,7 @@ test('the frozen structural surface is exactly six Supported operations (operati
   }
 });
 
-test('every descriptor id, target role, and argument schema is exact (operation_registry.rs:16-80)', () => {
+test('every descriptor id, target role, and argument schema is exact (operation_registry.rs)', () => {
   const registry = formatOperationRegistry(PROFILE_JSON_STRICT);
   const byId = new Map(
     registry.operations().map((descriptor) => [descriptor.id().toString(), descriptor]),

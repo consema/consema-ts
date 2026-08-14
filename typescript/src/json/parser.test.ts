@@ -218,7 +218,7 @@ test('json5.number.leading-trailing-exact: normalized decimals (json-family-v2.j
   ]);
 });
 
-test('strict JSON with a leading BOM forms Complete with a warning (parser.rs:193-214)', () => {
+test('strict JSON with a leading BOM forms Complete with a warning (parser.rs)', () => {
   const document = parseStrict('\uFEFF{"a":1}');
   assert.equal(document.formationStatus(), 'Complete');
   assert.ok(document.diagnostics().some((item) => item.code === 'json.strict.leading-bom@1'));

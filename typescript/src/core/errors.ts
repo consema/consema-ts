@@ -1,8 +1,8 @@
 /**
  * Typed PVCE/1 codec failures with frozen registered codes.
  *
- * authority: the Rust StableFailure mapping, consema-rs/consema-pvce/src/lib.rs:
- * 1062-1087 (decode) and 1102-1107 (encode). Every kind maps to exactly one
+ * authority: the Rust StableFailure mapping, consema-rs/consema-pvce/src/lib.rs
+ * (decode) and (encode) mappings. Every kind maps to exactly one
  * frozen `core.pvce.*@1` code. Note: these codes are the codec's stable
  * diagnostic surface; they are not entries of the 187-code error registry
  * (the registry pins core.graph.*@1 and core.pgce.*@1 only — verified in
@@ -45,7 +45,7 @@ export type PVCEErrorKind =
   | 'NestedExtended'
   | 'ExpectedCore';
 
-/** The frozen registered codes (consema-rs/consema-pvce/src/lib.rs:1062-1087). */
+/** The frozen registered codes (consema-rs/consema-pvce/src/lib.rs). */
 export const codeInvalidMagic = 'core.pvce.invalid-magic@1';
 export const codeUnsupportedVersion = 'core.pvce.unsupported-version@1';
 export const codeUnexpectedEnd = 'core.pvce.unexpected-end@1';

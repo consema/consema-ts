@@ -1,7 +1,7 @@
 /**
  * Portable value path and association location wire records.
  *
- * authority: consema-rs/consema-protocol/src/query.rs:441-560 (path_value,
+ * authority: consema-rs/consema-protocol/src/query.rs (path_value,
  * parse_path, association_value, parse_association); cross-reference
  * consema-go/go/protocol/records_valuepath.go (pathValue/parsePath:145-225,
  * associationValue/parseAssociation:227-260). The path is a schema-less
@@ -20,7 +20,7 @@ export type ValuePathSegment =
   | { readonly kind: 'ObjectValue'; readonly key: string }
   | { readonly kind: 'SequenceElement' | 'EntryKey' | 'EntryValue'; readonly index: bigint };
 
-/** The schema-less `{"segments": [...]}` value-path record (query.rs:441-464). */
+/** The schema-less `{"segments": [...]}` value-path record (query.rs). */
 export class ValuePath {
   readonly segments: readonly ValuePathSegment[];
 
@@ -43,7 +43,7 @@ export class ValuePath {
     return new ValuePath([...this.segments, { kind, index: keyOrIndex as bigint }]);
   }
 
-  /** Encodes the schema-less path record (query.rs:441-464). */
+  /** Encodes the schema-less path record (query.rs). */
   toValue(): ObjectValue {
     const items = this.segments.map((segment) =>
       segment.kind === 'ObjectValue'
@@ -59,7 +59,7 @@ export class ValuePath {
     return objectValueFrom([{ key: 'segments', value: { kind: 'Sequence', items } }]);
   }
 
-  /** Strictly decodes the schema-less path record (query.rs:466-512). */
+  /** Strictly decodes the schema-less path record (query.rs). */
   static fromValue(value: PortableValue): ValuePath {
     const fields = exactFields(value, ['segments'], '$');
     const segments: ValuePathSegment[] = [];
@@ -142,7 +142,7 @@ function segmentLess(left: ValuePathSegment, right: ValuePathSegment): boolean {
 
 export type AssociationRole = 'ObjectEntry' | 'ObjectKey' | 'EntryMappingEntry';
 
-/** The schema-less `{"container","ordinal","role"}` association location record (query.rs:514-553). */
+/** The schema-less `{"container","ordinal","role"}` association location record (query.rs). */
 export class AssociationLocation {
   readonly container: ValuePath;
   readonly ordinal: bigint;
@@ -154,7 +154,7 @@ export class AssociationLocation {
     this.role = role;
   }
 
-  /** Encodes the association location (query.rs:514-523). */
+  /** Encodes the association location (query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'container', value: this.container.toValue() },
@@ -163,7 +163,7 @@ export class AssociationLocation {
     ]);
   }
 
-  /** Strictly decodes the association location (query.rs:525-553). */
+  /** Strictly decodes the association location (query.rs). */
   static fromValue(value: PortableValue): AssociationLocation {
     const fields = exactFields(value, ['container', 'ordinal', 'role'], '$');
     const container = ValuePath.fromValue(fields[0]);

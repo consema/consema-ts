@@ -14,10 +14,10 @@
  * shape used by the json family (json/semantic.ts).
  */
 
-/** YAML native representation node kind (lib.rs:118-127). */
+/** YAML native representation node kind (lib.rs). */
 export type YamlNodeKind = 'Scalar' | 'Sequence' | 'Mapping';
 
-/** Exact scalar presentation style (lib.rs:129-142). */
+/** Exact scalar presentation style (lib.rs). */
 export type YamlScalarStyle =
   /** Plain style. */
   | 'Plain'
@@ -30,7 +30,7 @@ export type YamlScalarStyle =
   /** Folded block style. */
   | 'Folded';
 
-/** Resolved native scalar semantic category (lib.rs:144-165). */
+/** Resolved native scalar semantic category (lib.rs). */
 export type YamlScalarKind =
   /** Null. */
   | 'Null'

@@ -27,7 +27,7 @@
  *    element/text/cdata/comment/processing_instruction accessors)
  *  - text_semantic :765-799 (XML line-end normalization to LF)
  *  - NodeRole spellings used by the xml family: consema-document
- *    lib.rs:120-124 ('XmlDocument', 'XmlDeclaration', 'XmlDoctype',
+ *    lib.rs ('XmlDocument', 'XmlDeclaration', 'XmlDoctype',
  *    'XmlElement', 'XmlAttribute', 'XmlNamespaceBinding', 'XmlText',
  *    'XmlCdata', 'XmlComment', 'XmlProcessingInstruction',
  *    'XmlEntityReference', 'XmlErrorRegion', 'XmlSyntaxPiece');
@@ -37,7 +37,7 @@
  * handles (`XmlElement`/`XmlContentItem`) borrow one document and an arena
  * index. NodeRef ordinals ARE arena indexes for elements and document-wide
  * ordinals for the other occurrence families, exactly like the Rust
- * `node_ref(ordinal, role)` mapping (document.rs:557-567). The `@internal`
+ * `node_ref(ordinal, role)` mapping (document.rs). The `@internal`
  * accessors are consumed only by this family's parser/query/projection/
  * edit modules.
  */
@@ -60,7 +60,7 @@ import type { XmlParseLimits } from './profile.ts';
 // Source-derived name and fragment facts
 // ---------------------------------------------------------------------------
 
-/** One lexical QName with its source-derived facts (document.rs:96-109). */
+/** One lexical QName with its source-derived facts (document.rs). */
 export interface QNameFacts {
   /** Original prefix spelling, when present. */
   readonly prefix: string | null;
@@ -74,7 +74,7 @@ export interface QNameFacts {
   readonly localSpan: Span;
 }
 
-/** One ordered text or attribute-value fragment (document.rs:135-172). */
+/** One ordered text or attribute-value fragment (document.rs). */
 export type ReferenceFragment =
   | {
       readonly kind: 'Literal';
@@ -111,7 +111,7 @@ export type ReferenceFragment =
       readonly declarationSpan: Span;
     };
 
-/** Exact source span of one fragment (document.rs:122-133). */
+/** Exact source span of one fragment (document.rs). */
 export function referenceFragmentSpan(fragment: ReferenceFragment): Span {
   return fragment.span;
 }
@@ -120,7 +120,7 @@ export function referenceFragmentSpan(fragment: ReferenceFragment): Span {
 // Native occurrence data
 // ---------------------------------------------------------------------------
 
-/** One XML namespace declaration association (document.rs:174-187). */
+/** One XML namespace declaration association (document.rs). */
 export interface XmlNamespaceBindingData {
   /** Document-wide binding ordinal for stable identity. */
   readonly ordinal: number;
@@ -134,7 +134,7 @@ export interface XmlNamespaceBindingData {
   readonly uri: string;
 }
 
-/** One XML attribute association (document.rs:189-211). */
+/** One XML attribute association (document.rs). */
 export interface XmlAttributeData {
   /** Document-wide attribute ordinal for stable identity. */
   readonly ordinal: number;
@@ -156,7 +156,7 @@ export interface XmlAttributeData {
   readonly normalizedValue: string;
 }
 
-/** One text occurrence with ordered fragments (document.rs:213-222). */
+/** One text occurrence with ordered fragments (document.rs). */
 export interface XmlTextData {
   /** Document-wide text ordinal for stable identity. */
   readonly ordinal: number;
@@ -166,7 +166,7 @@ export interface XmlTextData {
   readonly fragments: readonly ReferenceFragment[];
 }
 
-/** One CDATA occurrence (document.rs:224-235). */
+/** One CDATA occurrence (document.rs). */
 export interface XmlCdataData {
   /** Document-wide ordinal for stable identity. */
   readonly ordinal: number;
@@ -178,7 +178,7 @@ export interface XmlCdataData {
   readonly text: string;
 }
 
-/** One comment occurrence (document.rs:237-248). */
+/** One comment occurrence (document.rs). */
 export interface XmlCommentData {
   /** Document-wide ordinal for stable identity. */
   readonly ordinal: number;
@@ -190,7 +190,7 @@ export interface XmlCommentData {
   readonly text: string;
 }
 
-/** One processing instruction (document.rs:250-263). */
+/** One processing instruction (document.rs). */
 export interface XmlPiData {
   /** Document-wide ordinal for stable identity. */
   readonly ordinal: number;
@@ -204,7 +204,7 @@ export interface XmlPiData {
   readonly content: { readonly span: Span; readonly text: string } | null;
 }
 
-/** One recovered error region (document.rs:265-272). */
+/** One recovered error region (document.rs). */
 export interface XmlErrorRegionData {
   /** Document-wide ordinal for stable identity. */
   readonly ordinal: number;
@@ -212,7 +212,7 @@ export interface XmlErrorRegionData {
   readonly span: Span;
 }
 
-/** One element occurrence (document.rs:274-296). */
+/** One element occurrence (document.rs). */
 export interface XmlElementData {
   /** Arena index for stable identity. */
   readonly index: number;
@@ -234,7 +234,7 @@ export interface XmlElementData {
   readonly children: readonly number[];
 }
 
-/** One child content occurrence (document.rs:298-313). */
+/** One child content occurrence (document.rs). */
 export type XmlContent =
   | { readonly kind: 'Element'; readonly data: XmlElementData }
   | { readonly kind: 'Text'; readonly data: XmlTextData }
@@ -243,12 +243,12 @@ export type XmlContent =
   | { readonly kind: 'ProcessingInstruction'; readonly data: XmlPiData }
   | { readonly kind: 'ErrorRegion'; readonly data: XmlErrorRegionData };
 
-/** Exact source span of one occurrence (document.rs:315-328). */
+/** Exact source span of one occurrence (document.rs). */
 export function xmlContentSpan(content: XmlContent): Span {
   return content.data.span;
 }
 
-/** One prolog or epilog occurrence (document.rs:330-345). */
+/** One prolog or epilog occurrence (document.rs). */
 export type XmlPrologItem =
   | { readonly kind: 'Declaration'; readonly data: XmlDeclarationData }
   | { readonly kind: 'Doctype'; readonly data: XmlDoctypeData }
@@ -257,7 +257,7 @@ export type XmlPrologItem =
   | { readonly kind: 'Bom'; readonly span: Span }
   | { readonly kind: 'Whitespace'; readonly span: Span };
 
-/** XML declaration facts (document.rs:347-360). */
+/** XML declaration facts (document.rs). */
 export interface XmlDeclarationData {
   /** `<?xml …?>` span. */
   readonly span: Span;
@@ -271,7 +271,7 @@ export interface XmlDeclarationData {
   readonly standalone: { readonly span: Span; readonly value: boolean } | null;
 }
 
-/** One admitted internal general entity declaration (document.rs:362-373). */
+/** One admitted internal general entity declaration (document.rs). */
 export interface EntityDeclarationData {
   /** `<!ENTITY …>` span. */
   readonly span: Span;
@@ -283,7 +283,7 @@ export interface EntityDeclarationData {
   readonly replacement: string;
 }
 
-/** DOCTYPE facts (document.rs:375-386). */
+/** DOCTYPE facts (document.rs). */
 export interface XmlDoctypeData {
   /** `<!DOCTYPE …>` span. */
   readonly span: Span;
@@ -316,7 +316,7 @@ export type Entity =
 // XmlDocument
 // ---------------------------------------------------------------------------
 
-/** Opaque immutable XML-family document snapshot (document.rs:388-407). */
+/** Opaque immutable XML-family document snapshot (document.rs). */
 export class XmlDocument {
   readonly #authority: DocumentAuthority;
   readonly #source: SourceSnapshot;
@@ -373,92 +373,92 @@ export class XmlDocument {
     this.#parseLimits = parseLimits;
   }
 
-  /** Snapshot identity to which every NodeRef and Span belongs (document.rs:532-536). */
+  /** Snapshot identity to which every NodeRef and Span belongs (document.rs). */
   snapshotIdentity() {
     return this.#authority.identity();
   }
 
-  /** Immutable raw source (document.rs:460-464). */
+  /** Immutable raw source (document.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Exact original bytes; unmodified rendering is byte-exact (document.rs:466-470). */
+  /** Exact original bytes; unmodified rendering is byte-exact (document.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** XML format family contract (document.rs:545-549). */
+  /** XML format family contract (document.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('xml', 1);
   }
 
-  /** Exact language profile (document.rs:551-555). */
+  /** Exact language profile (document.rs). */
   profile(): ProfileId {
     return xmlProfileId(this.#profile);
   }
 
-  /** Whether recovery structure was required (document.rs:449-458). */
+  /** Whether recovery structure was required (document.rs). */
   formationStatus(): 'Complete' | 'Recovered' {
     return this.#status;
   }
 
-  /** Ordered diagnostics from formation (document.rs:490-494). */
+  /** Ordered diagnostics from formation (document.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Exhaustive ordered lossless syntax coverage (document.rs:472-476). */
+  /** Exhaustive ordered lossless syntax coverage (document.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex | null {
     return this.#structuralIndex;
   }
 
-  /** Format-owned syntax kind for every structural piece, in the same source order (document.rs:478-482). */
+  /** Format-owned syntax kind for every structural piece, in the same source order (document.rs). */
   losslessSyntaxKinds(): readonly XmlSyntaxKind[] {
     return this.#syntaxKinds;
   }
 
-  /** The XML declaration, when present (document.rs:496-500). */
+  /** The XML declaration, when present (document.rs). */
   declaration(): XmlDeclarationData | null {
     return this.#declaration;
   }
 
-  /** The DOCTYPE occurrence, when present (document.rs:502-506). */
+  /** The DOCTYPE occurrence, when present (document.rs). */
   doctype(): XmlDoctypeData | null {
     return this.#doctype;
   }
 
-  /** Ordered prolog items before the document element (document.rs:508-512). */
+  /** Ordered prolog items before the document element (document.rs). */
   prolog(): readonly XmlPrologItem[] {
     return this.#prolog;
   }
 
-  /** Ordered epilog items after the document element (document.rs:514-518). */
+  /** Ordered epilog items after the document element (document.rs). */
   epilog(): readonly XmlPrologItem[] {
     return this.#epilog;
   }
 
-  /** The one document element, when formation proved it (document.rs:520-524). */
+  /** The one document element, when formation proved it (document.rs). */
   root(): XmlElement | null {
     return this.#root === null ? null : new XmlElement(this, this.#root);
   }
 
-  /** All arena nodes; child content of every element is reachable here (document.rs:526-530). */
+  /** All arena nodes; child content of every element is reachable here (document.rs). */
   nodes(): readonly XmlContent[] {
     return this.#nodes;
   }
 
-  /** Parse limits under which the document was formed (document.rs:406). */
+  /** Parse limits under which the document was formed (document.rs). */
   parseLimits(): XmlParseLimits {
     return this.#parseLimits;
   }
 
-  /** Snapshot-bound document handle (document.rs:557-561). */
+  /** Snapshot-bound document handle (document.rs). */
   nodeRef(): NodeRef {
     return this.#authority.nodeRef(0n, 'XmlDocument');
   }
 
-  /** Snapshot-bound identity of one ordinal-scoped occurrence (document.rs:563-567). */
+  /** Snapshot-bound identity of one ordinal-scoped occurrence (document.rs). */
   occurrenceNodeRef(ordinal: number, role: NodeRole): NodeRef {
     return this.#authority.nodeRef(BigInt(ordinal), role);
   }
@@ -489,7 +489,7 @@ export class XmlDocument {
 
   /**
    * @internal — resolves one NodeRef to its entity index
-   * (the validate_ref pattern, lib.rs:268-285).
+   * (the validate_ref pattern, lib.rs).
    */
   resolveEntityIndex(node: NodeRef, roles: readonly NodeRole[]): number {
     try {
@@ -512,7 +512,7 @@ export class XmlDocument {
 // Typed native handles
 // ---------------------------------------------------------------------------
 
-/** Snapshot-bound element handle (document.rs:611-617). */
+/** Snapshot-bound element handle (document.rs). */
 export class XmlElement {
   readonly #document: XmlDocument;
   readonly #index: number;
@@ -522,42 +522,42 @@ export class XmlElement {
     this.#index = index;
   }
 
-  /** Snapshot-bound stable identity (document.rs:619-625). */
+  /** Snapshot-bound stable identity (document.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'XmlElement');
   }
 
-  /** Full start-tag or empty-element span (document.rs:627-631). */
+  /** Full start-tag or empty-element span (document.rs). */
   span(): Span {
     return this.#elementData().span;
   }
 
-  /** Lexical QName facts (document.rs:633-637). */
+  /** Lexical QName facts (document.rs). */
   qname(): QNameFacts {
     return this.#elementData().qname;
   }
 
-  /** Resolved expanded name, when the namespace binding could be proven (document.rs:639-643). */
+  /** Resolved expanded name, when the namespace binding could be proven (document.rs). */
   expanded(): ExpandedName | null {
     return this.#elementData().expanded;
   }
 
-  /** Ordered namespace declarations on this element (document.rs:645-649). */
+  /** Ordered namespace declarations on this element (document.rs). */
   namespaceBindings(): readonly XmlNamespaceBindingData[] {
     return this.#elementData().namespaces;
   }
 
-  /** Ordered attributes, excluding namespace declarations (document.rs:651-655). */
+  /** Ordered attributes, excluding namespace declarations (document.rs). */
   attributes(): readonly XmlAttributeData[] {
     return this.#elementData().attributes;
   }
 
-  /** Ordered child content occurrences; mixed-content order is retained (document.rs:657-665). */
+  /** Ordered child content occurrences; mixed-content order is retained (document.rs). */
   children(): readonly XmlContentItem[] {
     return this.#elementData().children.map((index) => new XmlContentItem(this.#document, index));
   }
 
-  /** Whether the element has no child content (document.rs:667-671). */
+  /** Whether the element has no child content (document.rs). */
   isEmpty(): boolean {
     return this.#elementData().children.length === 0;
   }
@@ -579,7 +579,7 @@ export class XmlElement {
   }
 }
 
-/** One borrowed child content occurrence (document.rs:681-687). */
+/** One borrowed child content occurrence (document.rs). */
 export class XmlContentItem {
   readonly #document: XmlDocument;
   readonly #index: number;
@@ -589,42 +589,42 @@ export class XmlContentItem {
     this.#index = index;
   }
 
-  /** Snapshot-bound stable identity (document.rs:689-701). */
+  /** Snapshot-bound stable identity (document.rs). */
   nodeRef(): NodeRef {
     const role = contentRole(this.#document.nodeAt(this.#index));
     return this.#document.nodeRefFor(this.#index, role);
   }
 
-  /** Exact source span (document.rs:703-714). */
+  /** Exact source span (document.rs). */
   span(): Span {
     return xmlContentSpan(this.#document.nodeAt(this.#index));
   }
 
-  /** Element content, when this is an element occurrence (document.rs:716-726). */
+  /** Element content, when this is an element occurrence (document.rs). */
   element(): XmlElement | null {
     const node = this.#document.nodeAt(this.#index);
     return node.kind === 'Element' ? new XmlElement(this.#document, this.#index) : null;
   }
 
-  /** Text occurrence data, when this is a text occurrence (document.rs:728-735). */
+  /** Text occurrence data, when this is a text occurrence (document.rs). */
   text(): XmlTextData | null {
     const node = this.#document.nodeAt(this.#index);
     return node.kind === 'Text' ? node.data : null;
   }
 
-  /** CDATA occurrence data, when present (document.rs:737-744). */
+  /** CDATA occurrence data, when present (document.rs). */
   cdata(): XmlCdataData | null {
     const node = this.#document.nodeAt(this.#index);
     return node.kind === 'Cdata' ? node.data : null;
   }
 
-  /** Comment occurrence data, when present (document.rs:746-753). */
+  /** Comment occurrence data, when present (document.rs). */
   comment(): XmlCommentData | null {
     const node = this.#document.nodeAt(this.#index);
     return node.kind === 'Comment' ? node.data : null;
   }
 
-  /** Processing-instruction data, when present (document.rs:755-762). */
+  /** Processing-instruction data, when present (document.rs). */
   processingInstruction(): XmlPiData | null {
     const node = this.#document.nodeAt(this.#index);
     return node.kind === 'ProcessingInstruction' ? node.data : null;
@@ -639,7 +639,7 @@ export class XmlContentItem {
   }
 }
 
-/** Node role of one content occurrence (document.rs:689-701). */
+/** Node role of one content occurrence (document.rs). */
 export function contentRole(content: XmlContent): NodeRole {
   switch (content.kind) {
     case 'Element':
@@ -659,7 +659,7 @@ export function contentRole(content: XmlContent): NodeRole {
 
 /**
  * Semantic concatenation of one text occurrence after XML line-end
- * normalization to LF (document.rs:765-799).
+ * normalization to LF (document.rs).
  */
 export function textSemantic(text: XmlTextData): string {
   let out = '';

@@ -41,7 +41,7 @@ export function schemaFields(
 
 /**
  * Strictly reads an Object with exactly the named fields in order
- * (schema.rs:16-53): an undeclared field is an UnknownField rejection at the
+ * (schema.rs): an undeclared field is an UnknownField rejection at the
  * first offending key, an absent required field is a MissingField rejection
  * at the first absent name, and any order deviation is a SchemaMismatch.
  */

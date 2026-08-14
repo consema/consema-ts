@@ -19,7 +19,7 @@
  *      plist.edit.remove-array-element@1  plist.array-element@1
  *        arguments: path(NodeRef) index(NodeRef)
  *  - both profiles publish the same six operations, all Supported
- *    (operation_registry.rs:108-132); RFC 0013 §11 (:683-695)
+ *    (operation_registry.rs); RFC 0013 §11 (:683-695)
  *  - registry validation/canonicalization: typescript/src/document/
  *    operation.ts (FormatOperationRegistry.create)
  *
@@ -39,7 +39,7 @@ import type { OperationArgumentKind, OperationSupport } from '../document/operat
 import { plistProfileId } from './profile.ts';
 import type { PlistProfile } from './profile.ts';
 
-/** Returns the validated operation registry for one exact plist profile (operation_registry.rs:15-18). */
+/** Returns the validated operation registry for one exact plist profile (operation_registry.rs). */
 export function formatOperationRegistry(profile: PlistProfile): FormatOperationRegistry {
   return FormatOperationRegistry.create(plistProfileId(profile), descriptors());
 }

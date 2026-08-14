@@ -5,26 +5,26 @@
  * (consema-rs/consema-pvce/src/lib.rs); the golden byte vectors are pinned by
  * conformance/vectors/v1.json (cases pvce.null-vector, pvce.negative-
  * integer-vector, pvce.object-vector). Wire constants:
- *  - stream magic is the ASCII octets "PVCE" (lib.rs:23)
- *  - version is minimal unsigned LEB128 1 (lib.rs:25)
+ *  - stream magic is the ASCII octets "PVCE" (lib.rs)
+ *  - version is minimal unsigned LEB128 1 (lib.rs)
  *  - integer sign octets are 0 (zero), 1 (positive), 2 (negative)
- *    (lib.rs:9-12, 545-554)
+ *    (lib.rs)
  *  - all unsigned lengths/counts/tags are minimal unsigned LEB128
- *    (lib.rs:11, 616-628)
- *  - record tags: lib.rs:27-43 (NULL 0x00, FALSE 0x01, TRUE 0x02,
+ *    (lib.rs)
+ *  - record tags: lib.rs (NULL 0x00, FALSE 0x01, TRUE 0x02,
  *    INTEGER 0x10, DECIMAL 0x11, FLOAT32 0x12, FLOAT64 0x13, STRING 0x20,
  *    BYTES 0x21, DATE 0x30, TIME 0x31, LOCAL_DATE_TIME 0x32,
  *    OFFSET_DATE_TIME 0x33, SEQUENCE 0x40, OBJECT 0x41, ENTRY_MAPPING 0x42,
  *    EXTENDED 0x7f)
  *  - field framing: integer/date/time/decimal fields are length-prefixed
- *    with the field limits at lib.rs:848-940; object keys encode as full
- *    String records (lib.rs:514-522)
- *  - decode limits: lib.rs:56-82 (64 MiB stream, depth 256, 1,000,000
+ *    with the field limits at lib.rs; object keys encode as full
+ *    String records (lib.rs)
+ *  - decode limits: lib.rs (64 MiB stream, depth 256, 1,000,000
  *    nodes, 1,000,000 container entries, 1 MiB integer magnitude, 64 MiB
  *    blob)
  *
  * The codec covers the closed fifteen-kind core model plus the formally
- * versioned extension root (TAG_EXTENDED, lib.rs:536-543); nested extended
+ * versioned extension root (TAG_EXTENDED, lib.rs); nested extended
  * records fail with core.pvce.nested-extended@1 and a core-only decode of an
  * extension root fails with core.pvce.expected-core@1, exactly as in Rust
  * (the Go codec has no ExtendedValue type and rejects 0x7f as unknown-tag —
@@ -66,7 +66,7 @@ export const MAGIC = new Uint8Array([0x50, 0x56, 0x43, 0x45]);
 /** PVCE/1 version. */
 export const VERSION = 1n;
 
-/** Record tags (consema-rs/consema-pvce/src/lib.rs:27-43). */
+/** Record tags (consema-rs/consema-pvce/src/lib.rs). */
 export const TAG_NULL = 0x00n;
 export const TAG_FALSE = 0x01n;
 export const TAG_TRUE = 0x02n;
@@ -98,7 +98,7 @@ export type EncodedValue =
   | { readonly kind: 'Core'; readonly value: PortableValue }
   | { readonly kind: 'Extended'; readonly value: ExtendedValue };
 
-/** Strict decoder resource limits (consema-rs/consema-pvce/src/lib.rs:56-82). */
+/** Strict decoder resource limits (consema-rs/consema-pvce/src/lib.rs). */
 export interface DecodeLimits {
   readonly maxBytes: number;
   readonly maxDepth: number;
@@ -108,7 +108,7 @@ export interface DecodeLimits {
   readonly maxBlobBytes: number;
 }
 
-/** Bounded encoder resource limits (consema-rs/consema-pvce/src/lib.rs:111-138). */
+/** Bounded encoder resource limits (consema-rs/consema-pvce/src/lib.rs). */
 export type EncodeLimits = DecodeLimits;
 
 /** The frozen defaults (64 MiB stream, depth 256, 1,000,000 nodes, 1,000,000 container entries, 1 MiB integer magnitude, 64 MiB blob). */
@@ -201,7 +201,7 @@ class ByteWriter {
 
 /**
  * Encodes one core value as a complete canonical PVCE/1 stream
- * (consema-rs/consema-pvce/src/lib.rs:86-101).
+ * (consema-rs/consema-pvce/src/lib.rs).
  */
 export function encode(value: PortableValue): Uint8Array {
   return encodeValue({ kind: 'Core', value });
@@ -223,13 +223,13 @@ export function encodeValue(root: EncodedValue): Uint8Array {
 /**
  * Encodes one core value after exact size measurement against explicit
  * resource limits; never truncates — exceeding any limit throws the typed
- * resource-limit error with no partial output (lib.rs:150-156).
+ * resource-limit error with no partial output (lib.rs).
  */
 export function encodeBounded(value: PortableValue, limits: EncodeLimits): Uint8Array {
   return encodeValueBounded({ kind: 'Core', value }, limits);
 }
 
-/** Bounded encode for a core or extension root (lib.rs:159-168). */
+/** Bounded encode for a core or extension root (lib.rs). */
 export function encodeValueBounded(root: EncodedValue, limits: EncodeLimits): Uint8Array {
   const sizer = new Sizer(limits);
   let record: number;
@@ -245,7 +245,7 @@ export function encodeValueBounded(root: EncodedValue, limits: EncodeLimits): Ui
   return encodeValue(root);
 }
 
-/** Writes one tag-length-prefixed record (lib.rs:610-614). */
+/** Writes one tag-length-prefixed record (lib.rs). */
 function writeRecord(output: ByteWriter, value: PortableValue): void {
   const tag = tagOf(value);
   const payload = encodePayload(value);
@@ -365,7 +365,7 @@ function encodePayload(value: PortableValue): Uint8Array {
   return payload.result();
 }
 
-/** Sequence payload: varint count, then one record per item (lib.rs:506-513). */
+/** Sequence payload: varint count, then one record per item (lib.rs). */
 function encodeContainer(payload: ByteWriter, value: SequenceValue): void {
   payload.varint(BigInt(value.items.length));
   for (const item of value.items) {
@@ -373,7 +373,7 @@ function encodeContainer(payload: ByteWriter, value: SequenceValue): void {
   }
 }
 
-/** Object payload: varint count, then (String record, value record) pairs (lib.rs:514-522). */
+/** Object payload: varint count, then (String record, value record) pairs (lib.rs). */
 function encodeObject(payload: ByteWriter, value: ObjectValue): void {
   payload.varint(BigInt(value.entries.length));
   for (const entry of value.entries) {
@@ -382,7 +382,7 @@ function encodeObject(payload: ByteWriter, value: ObjectValue): void {
   }
 }
 
-/** Entry-mapping payload: varint count, then (key record, value record) pairs (lib.rs:523-531). */
+/** Entry-mapping payload: varint count, then (key record, value record) pairs (lib.rs). */
 function encodeEntryMapping(payload: ByteWriter, value: EntryMappingValue): void {
   payload.varint(BigInt(value.entries.length));
   for (const entry of value.entries) {
@@ -391,7 +391,7 @@ function encodeEntryMapping(payload: ByteWriter, value: EntryMappingValue): void
   }
 }
 
-/** Sign octet (0 zero, 1 positive, 2 negative), magnitude length varint, magnitude octets (lib.rs:545-554). */
+/** Sign octet (0 zero, 1 positive, 2 negative), magnitude length varint, magnitude octets (lib.rs). */
 function encodeIntegerPayload(payload: ByteWriter, value: bigint): void {
   if (value < 0n) {
     payload.push(2);
@@ -405,7 +405,7 @@ function encodeIntegerPayload(payload: ByteWriter, value: bigint): void {
   payload.pushAll(magnitude);
 }
 
-/** Length-prefixed integer payload (lib.rs:556-561). */
+/** Length-prefixed integer payload (lib.rs). */
 function encodeIntegerField(payload: ByteWriter, value: bigint): void {
   const field = new ByteWriter();
   encodeIntegerPayload(field, value);
@@ -414,7 +414,7 @@ function encodeIntegerField(payload: ByteWriter, value: bigint): void {
   payload.pushAll(bytes);
 }
 
-/** Length-prefixed decimal payload (lib.rs:568-573). */
+/** Length-prefixed decimal payload (lib.rs). */
 function encodeDecimalField(payload: ByteWriter, value: PortableValue & { readonly kind: 'Decimal' }): void {
   const field = new ByteWriter();
   encodeIntegerField(field, value.coefficient);
@@ -424,7 +424,7 @@ function encodeDecimalField(payload: ByteWriter, value: PortableValue & { readon
   payload.pushAll(bytes);
 }
 
-/** Length-prefixed date payload (lib.rs:586-591). */
+/** Length-prefixed date payload (lib.rs). */
 function encodeDateField(payload: ByteWriter, value: DateValue): void {
   const field = new ByteWriter();
   encodeIntegerField(field, value.year);
@@ -435,7 +435,7 @@ function encodeDateField(payload: ByteWriter, value: DateValue): void {
   payload.pushAll(bytes);
 }
 
-/** Length-prefixed time payload (lib.rs:598-603). */
+/** Length-prefixed time payload (lib.rs). */
 function encodeTimeField(payload: ByteWriter, value: TimeValue): void {
   const field = new ByteWriter();
   field.push(value.hour);
@@ -447,7 +447,7 @@ function encodeTimeField(payload: ByteWriter, value: TimeValue): void {
   payload.pushAll(bytes);
 }
 
-/** Length-prefixed octet string (lib.rs:575-578). */
+/** Length-prefixed octet string (lib.rs). */
 function encodeBlob(payload: ByteWriter, bytes: Uint8Array): void {
   payload.varint(BigInt(bytes.length));
   payload.pushAll(bytes);
@@ -475,7 +475,7 @@ export function float64Bytes(bits: bigint): Uint8Array {
 // Decoding
 // ---------------------------------------------------------------------------
 
-/** Strictly decodes a core PortableValue stream (lib.rs:104-108). */
+/** Strictly decodes a core PortableValue stream (lib.rs). */
 export function decode(stream: Uint8Array, limits: DecodeLimits): PortableValue {
   const root = decodeValue(stream, limits);
   if (root.kind !== 'Core') {
@@ -484,7 +484,7 @@ export function decode(stream: Uint8Array, limits: DecodeLimits): PortableValue 
   return root.value;
 }
 
-/** Strictly decodes a core or extension root (lib.rs:404-426). */
+/** Strictly decodes a core or extension root (lib.rs). */
 export function decodeValue(stream: Uint8Array, limits: DecodeLimits): EncodedValue {
   if (stream.length > limits.maxBytes) {
     throw pvceError('ResourceLimit', { field: 'stream-bytes' });
@@ -510,7 +510,7 @@ export function decodeValue(stream: Uint8Array, limits: DecodeLimits): EncodedVa
   return root;
 }
 
-/** Strict streaming reader over one stream or payload (lib.rs:630-723). */
+/** Strict streaming reader over one stream or payload (lib.rs). */
 class Reader {
   private readonly bytes: Uint8Array;
   private offset = 0;
@@ -522,7 +522,7 @@ class Reader {
     this.limits = limits;
   }
 
-  /** Consumes n octets or throws unexpected-end (lib.rs:648-659). */
+  /** Consumes n octets or throws unexpected-end (lib.rs). */
   take(length: number): Uint8Array {
     if (this.offset + length > this.bytes.length) {
       throw pvceError('UnexpectedEnd');
@@ -536,7 +536,7 @@ class Reader {
     return this.take(1)[0];
   }
 
-  /** Reads one unsigned varint, rejecting non-minimal encodings and 64-bit overflow (lib.rs:665-683). */
+  /** Reads one unsigned varint, rejecting non-minimal encodings and 64-bit overflow (lib.rs). */
   varint(): bigint {
     const start = this.offset;
     let value = 0n;
@@ -557,7 +557,7 @@ class Reader {
     throw pvceError('VarintOverflow');
   }
 
-  /** Reads one varint length and enforces the named limit (lib.rs:685-691). */
+  /** Reads one varint length and enforces the named limit (lib.rs). */
   length(limit: number, name: string): number {
     const value = this.varint();
     if (value > BigInt(limit)) {
@@ -566,7 +566,7 @@ class Reader {
     return Number(value);
   }
 
-  /** Reads one tag-length-prefixed record; payload length is bounded by maxBytes ("record-bytes", lib.rs:693-697). */
+  /** Reads one tag-length-prefixed record; payload length is bounded by maxBytes ("record-bytes", lib.rs). */
   record(): [bigint, Uint8Array] {
     const tag = this.varint();
     const n = this.length(this.limits.maxBytes, 'record-bytes');
@@ -577,19 +577,19 @@ class Reader {
     return this.offset === this.bytes.length;
   }
 
-  /** A sub-reader over a delimited payload sharing the limits and node count (lib.rs:703-710). */
+  /** A sub-reader over a delimited payload sharing the limits and node count (lib.rs). */
   child(payload: Uint8Array): Reader {
     const child = new Reader(payload, this.limits);
     child.nodes = this.nodes;
     return child;
   }
 
-  /** Propagates the child node count back to the parent (lib.rs:712-714). */
+  /** Propagates the child node count back to the parent (lib.rs). */
   absorb(child: Reader): void {
     this.nodes = child.nodes;
   }
 
-  /** Counts one core record and enforces maxNodes (lib.rs:716-722). */
+  /** Counts one core record and enforces maxNodes (lib.rs). */
   countNode(): void {
     this.nodes += 1;
     if (this.nodes > this.limits.maxNodes) {
@@ -598,7 +598,7 @@ class Reader {
   }
 }
 
-/** Decodes one delimited core record (lib.rs:725-833). */
+/** Decodes one delimited core record (lib.rs). */
 function decodeCoreRecord(
   tag: bigint,
   payload: Uint8Array,
@@ -770,7 +770,7 @@ function decodeCoreRecord(
   return value;
 }
 
-/** Integer payload: sign octet, magnitude length varint, magnitude octets (lib.rs:835-846). */
+/** Integer payload: sign octet, magnitude length varint, magnitude octets (lib.rs). */
 function decodeIntegerPayload(reader: Reader): bigint {
   const sign = reader.octet();
   const n = reader.length(reader.limits.maxIntegerBytes, 'integer-bytes');
@@ -791,7 +791,7 @@ function decodeIntegerPayload(reader: Reader): bigint {
   return sign === 2 ? -value : value;
 }
 
-/** Length-prefixed integer field with the +16 slack limit (lib.rs:848-860). */
+/** Length-prefixed integer field with the +16 slack limit (lib.rs). */
 function decodeIntegerField(reader: Reader): bigint {
   const n = reader.length(reader.limits.maxIntegerBytes + 16, 'integer-field');
   const payload = reader.take(n);
@@ -804,7 +804,7 @@ function decodeIntegerField(reader: Reader): bigint {
   return value;
 }
 
-/** Decimal payload with renormalization rejection (lib.rs:862-870). */
+/** Decimal payload with renormalization rejection (lib.rs). */
 function decodeDecimalPayload(reader: Reader): { coefficient: bigint; exponent: bigint } {
   const coefficient = decodeIntegerField(reader);
   const exponent = decodeIntegerField(reader);
@@ -828,7 +828,7 @@ function normalizeDecimal(coefficient: bigint, exponent: bigint): { coefficient:
   return { coefficient: c, exponent: e };
 }
 
-/** Length-prefixed decimal field with the *2+32 slack limit (lib.rs:872-888). */
+/** Length-prefixed decimal field with the *2+32 slack limit (lib.rs). */
 function decodeDecimalField(reader: Reader): { coefficient: bigint; exponent: bigint } {
   const n = reader.length(reader.limits.maxIntegerBytes * 2 + 32, 'decimal-field');
   const payload = reader.take(n);
@@ -841,13 +841,13 @@ function decodeDecimalField(reader: Reader): { coefficient: bigint; exponent: bi
   return value;
 }
 
-/** Length-prefixed octet string (lib.rs:890-893). */
+/** Length-prefixed octet string (lib.rs). */
 function decodeBlob(reader: Reader): Uint8Array {
   const n = reader.length(reader.limits.maxBlobBytes, 'blob-bytes');
   return reader.take(n);
 }
 
-/** Date payload: year field plus month/day octets (lib.rs:895-900). */
+/** Date payload: year field plus month/day octets (lib.rs). */
 function decodeDatePayload(reader: Reader): { year: bigint; month: number; day: number } {
   const year = decodeIntegerField(reader);
   const month = reader.octet();
@@ -855,7 +855,7 @@ function decodeDatePayload(reader: Reader): { year: bigint; month: number; day: 
   return { year, month, day };
 }
 
-/** Length-prefixed date field with the +32 slack limit (lib.rs:902-914). */
+/** Length-prefixed date field with the +32 slack limit (lib.rs). */
 function decodeDateField(reader: Reader): DateValue {
   const n = reader.length(reader.limits.maxIntegerBytes + 32, 'date-field');
   const payload = reader.take(n);
@@ -872,7 +872,7 @@ function decodeDateField(reader: Reader): DateValue {
   }
 }
 
-/** Time payload: hour/minute/second octets plus the fraction field (lib.rs:916-922). */
+/** Time payload: hour/minute/second octets plus the fraction field (lib.rs). */
 function decodeTimePayload(reader: Reader): {
   hour: number;
   minute: number;
@@ -886,7 +886,7 @@ function decodeTimePayload(reader: Reader): {
   return { hour, minute, second, fraction };
 }
 
-/** Length-prefixed time field with the *2+64 slack limit (lib.rs:924-940). */
+/** Length-prefixed time field with the *2+64 slack limit (lib.rs). */
 function decodeTimeField(reader: Reader): TimeValue {
   const n = reader.length(reader.limits.maxIntegerBytes * 2 + 64, 'time-field');
   const payload = reader.take(n);
@@ -903,7 +903,7 @@ function decodeTimeField(reader: Reader): TimeValue {
   }
 }
 
-/** Extension root payload (lib.rs:949-969). */
+/** Extension root payload (lib.rs). */
 function decodeExtended(payload: Uint8Array, parent: Reader): ExtendedValue {
   const reader = parent.child(payload);
   let typeId: string;
@@ -956,7 +956,7 @@ function dataViewOf(bytes: Uint8Array): DataView {
 // Bounded-encode size measurement
 // ---------------------------------------------------------------------------
 
-/** Measures the canonical PVCE/1 size of a value without producing bytes (lib.rs:170-364). */
+/** Measures the canonical PVCE/1 size of a value without producing bytes (lib.rs). */
 class Sizer {
   private readonly limits: EncodeLimits;
   private nodes = 0;
@@ -1050,7 +1050,7 @@ class Sizer {
         }
         payload = varintSize(BigInt(value.entries.length));
         for (const entry of value.entries) {
-          // Keys encode as String records and count as nodes (lib.rs:332-341).
+          // Keys encode as String records and count as nodes (lib.rs).
           payload += this.recordSize({ kind: 'String', value: entry.key }, depth + 1);
           payload += this.recordSize(entry.value, depth + 1);
         }

@@ -180,7 +180,7 @@ function nativeSemantics(case_: VectorCase): void {
 }
 
 /**
- * First diagnostic code of a fatal formation failure (lib.rs:643-761; the
+ * First diagnostic code of a fatal formation failure (lib.rs; the
  * Rust runner reads `error.diagnostics().first().code`). The accessor is
  * invoked bound on the instance: the class stores its diagnostics behind a
  * `#private` field, so an unbound call throws TypeError and loses the code.
@@ -332,8 +332,8 @@ function queryCase(case_: VectorCase): void {
   }
   const maxResults = caseFieldOptional(case_, 'max_results') as number | undefined;
   // The lossless-syntax domain dispatches the syntax executor over the
-  // source pieces (query.rs:214-255); the native domain uses the semantic
-  // executor (query.rs:167-197).
+  // source pieces (query.rs); the native domain uses the semantic
+  // executor (query.rs).
   const syntax = validated.query.definition.domain.id === 'yaml.lossless-syntax-query';
   try {
     const limits = new YamlQueryLimits(100_000, maxResults ?? 100_000);
@@ -452,11 +452,11 @@ function materializationCase(case_: VectorCase): void {
 
 /**
  * yaml.edit@1 — the four edit vectors dispatch through the yaml edit
- * builder (edit.rs:116-258) and atomic commit (edit.rs:401-551), mirroring
+ * builder (edit.rs) and atomic commit (edit.rs), mirroring
  * the Rust runner's edit_scalar/edit_anchor/edit_structural/
  * edit_anchor_dependency handlers. edit.scalar-atomic exercises
  * RepresentationPolicy::PreserveCompatible: the old plain `1` keeps its
- * style and the literal renders `a: 2` (edit.rs:645-654), matching the
+ * style and the literal renders `a: 2` (edit.rs), matching the
  * vector's canonical spelling exactly.
  */
 function editCase(case_: VectorCase): void {

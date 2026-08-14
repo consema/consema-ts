@@ -13,9 +13,9 @@
  *        arguments: literal(ExactBytes)
  *      java-properties.edit.replace-semantic-value@1 java-properties.property@1
  *        arguments: value(PortableValue)
- *  - every descriptor is OperationSupport::Supported (operation_registry.rs:89-93)
+ *  - every descriptor is OperationSupport::Supported (operation_registry.rs)
  *  - both profiles publish the same frozen five-operation surface
- *    (operation_registry.rs:72-95; RFC 0010 §13 :385-393)
+ *    (operation_registry.rs; RFC 0010 §13 :385-393)
  *  - registry validation/canonicalization: typescript/src/document/
  *    operation.ts (FormatOperationRegistry.create)
  *  - the vector pins the exact ordered list: conformance/vectors/
@@ -37,7 +37,7 @@ import type { OperationArgumentKind, OperationSupport } from '../document/operat
 import { propertiesProfileId } from './profile.ts';
 import type { PropertiesProfile } from './profile.ts';
 
-/** Returns the validated operation registry for one exact Properties profile (operation_registry.rs:9-14). */
+/** Returns the validated operation registry for one exact Properties profile (operation_registry.rs). */
 export function formatOperationRegistry(profile: PropertiesProfile): FormatOperationRegistry {
   return FormatOperationRegistry.create(propertiesProfileId(profile), descriptors());
 }

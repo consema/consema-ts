@@ -26,14 +26,14 @@
  *  - shared common codes used by the family: core.parse.resource-limit@1
  *    (:39), core.source.*@1 (document/errors.ts), core.edit.*@1 and
  *    core.materialization.*@1 (RFC 0004 §17; document/errors.ts)
- *  - fatal formation shapes: consema-rs/consema-document/src/lib.rs:643-798
+ *  - fatal formation shapes: consema-rs/consema-document/src/lib.rs
  *    (FatalFormationFailure: from_diagnostic :650-654, invalid_utf8
  *    :656-672, source_error :674-767, resource_limit :769-791) and the
- *    ini profile failure (consema-rs/consema-ini/src/parser.rs:96-104)
+ *    ini profile failure (consema-rs/consema-ini/src/parser.rs)
  *  - edit failure kinds and the kind→code mapping:
- *    consema-rs/consema-ini/src/edit.rs:258-303 and :1754-1779
+ *    consema-rs/consema-ini/src/edit.rs and :1754-1779
  *  - projection failure kinds and the kind→code mapping:
- *    consema-rs/consema-ini/src/projection.rs:270-286 and :886-893
+ *    consema-rs/consema-ini/src/projection.rs and :886-893
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance, so the
@@ -109,7 +109,7 @@ export class IniFormationFailure extends Error {
     this.diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Profile/encoding conflict (parser.rs:96-104; ini.profile.encoding@1). */
+  /** Profile/encoding conflict (parser.rs; ini.profile.encoding@1). */
   static profile(): IniFormationFailure {
     return new IniFormationFailure(
       'Profile',
@@ -121,7 +121,7 @@ export class IniFormationFailure extends Error {
     );
   }
 
-  /** Source snapshot construction failure (lib.rs:674-767). */
+  /** Source snapshot construction failure (lib.rs). */
   static source(error: SourceError): IniFormationFailure {
     const location =
       error.kind === 'InvalidSequence' && error.byteOffset !== undefined
@@ -149,7 +149,7 @@ export class IniFormationFailure extends Error {
     );
   }
 
-  /** Parser resource-limit failure (lib.rs:769-791; core.parse.resource-limit@1). */
+  /** Parser resource-limit failure (lib.rs; core.parse.resource-limit@1). */
   static resourceLimit(name: string, observed: number, limit: number): IniFormationFailure {
     return new IniFormationFailure(
       'ResourceLimit',
@@ -194,14 +194,14 @@ function sourceCategory(error: SourceError): DiagnosticCategory {
 // IniProjectionFailure — explicit projection failure category
 // ---------------------------------------------------------------------------
 
-/** Stable projection failure category (projection.rs:270-286). */
+/** Stable projection failure category (projection.rs). */
 export type IniProjectionFailureKind =
   | 'RecoveredDocument'
   | 'Collision'
   | 'ResourceLimit'
   | 'CoreInvariant';
 
-/** Explicit projection failure carrying the frozen registered code (projection.rs:886-893). */
+/** Explicit projection failure carrying the frozen registered code (projection.rs). */
 export class IniProjectionFailure extends Error {
   readonly kind: IniProjectionFailureKind;
   readonly code: string;
@@ -224,7 +224,7 @@ export class IniProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:886-893). */
+/** Kind→code mapping (projection.rs). */
 export function projectionFailureCode(kind: IniProjectionFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':
@@ -243,8 +243,8 @@ export function projectionFailureCode(kind: IniProjectionFailureKind): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Stable edit failure category (edit.rs:258-303); the CODE mapping is
- * edit.rs:1754-1779 (RFC 0004 §17).
+ * Stable edit failure category (edit.rs); the CODE mapping is
+ * edit.rs (RFC 0004 §17).
  */
 export type IniEditFailureKind =
   | 'RecoveredDocument'
@@ -269,7 +269,7 @@ export type IniEditFailureKind =
   | 'ResourceLimit'
   | 'NewDocumentFormationFailed';
 
-/** Atomic edit failure carrying the frozen registered code (edit.rs:1754-1779). */
+/** Atomic edit failure carrying the frozen registered code (edit.rs). */
 export class IniEditFailure extends Error {
   readonly kind: IniEditFailureKind;
   readonly code: string;
@@ -285,7 +285,7 @@ export class IniEditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:1754-1779). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: IniEditFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':

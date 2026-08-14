@@ -1,7 +1,7 @@
 /**
  * Intent documents for SourcePatch, transcribing every `source.patch.*`
  * vector case (conformance/vectors/source-v1.json:120-172) plus the
- * document-level derivation path (RFC 0004 §16, source_patch.rs:143-205)
+ * document-level derivation path (RFC 0004 §16, source_patch.rs)
  * and redaction semantics.
  */
 
@@ -33,7 +33,7 @@ function utf8(bytesHex: string): SourceSnapshot {
   return SourceSnapshot.fromRaw(decodeHex(bytesHex), EncodingRequest.create(utf8Encoding()), DEFAULT_SOURCE_LIMITS);
 }
 
-/** The conformance runner's metadata ("actor" -> "conformance", source_v1.rs:384-386). */
+/** The conformance runner's metadata ("actor" -> "conformance", source_v1.rs). */
 function conformanceMetadata(): ReadonlyMap<string, string> {
   return new Map([['actor', 'conformance']]);
 }
@@ -119,7 +119,7 @@ test('source.patch.reject-overlap: overlapping old ranges are invalid patches', 
       assert.equal(error.kind, 'ReplacementOrder');
       assert.equal(error.index, 1);
       // Overlap is a protocol schema defect, not a source content fact
-      // (source_patch.rs:453-457).
+      // (source_patch.rs).
       assert.equal(error.code, codeProtocolInvalidValue);
       return true;
     },
@@ -194,7 +194,7 @@ test('source.resource.patch-count-limit: zero allowed replacements rejects any p
 });
 
 // ---------------------------------------------------------------------------
-// Ordering and insertion rules (RFC 0003 §10; source_patch.rs:469-512)
+// Ordering and insertion rules (RFC 0003 §10; source_patch.rs)
 // ---------------------------------------------------------------------------
 
 test('two replacements may not target the same zero-width insertion point', () => {
@@ -239,7 +239,7 @@ test('original byte count must agree with the declared range', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Derivation (RFC 0004 §16; source_patch.rs:143-205)
+// Derivation (RFC 0004 §16; source_patch.rs)
 // ---------------------------------------------------------------------------
 
 test('derive produces a patch that reapplies to the base and reproduces the target', () => {
@@ -277,7 +277,7 @@ test('derive produces a patch that reapplies to the base and reproduces the targ
 });
 
 // ---------------------------------------------------------------------------
-// Redaction (source_patch.rs:312-364; RFC 0003 §10 redaction flags)
+// Redaction (source_patch.rs; RFC 0003 §10 redaction flags)
 // ---------------------------------------------------------------------------
 
 test('redacted bytes remain required for application but hidden from debug presentation', () => {

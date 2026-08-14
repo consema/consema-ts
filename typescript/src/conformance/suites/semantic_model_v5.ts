@@ -111,7 +111,7 @@ function messageEqual(left: ProtocolMessage, right: ProtocolMessage): boolean {
   );
 }
 
-/** Proves JSON/PVCE transport identity of one payload under the v5 registry (dual_roundtrip, semantic_model_v5.rs:502-515). */
+/** Proves JSON/PVCE transport identity of one payload under the v5 registry (dual_roundtrip, semantic_model_v5.rs). */
 function dualRoundtrip(contract: ContractId, payload: PortableValue): void {
   const message = new ProtocolMessage(contract, payload, V5);
   const json = message.toJSON(LIMITS);
@@ -203,7 +203,7 @@ function graphFromInput(input: unknown): Graph {
   return builder.build();
 }
 
-/** One input graph role spelling → the closed graph match role (parse_role, semantic_model_v5.rs:681-696). */
+/** One input graph role spelling → the closed graph match role (parse_role, semantic_model_v5.rs). */
 function parseGraphRole(text: string): 'GraphNode' | 'GraphSequenceElement' | 'GraphMappingEntry' {
   switch (text) {
     case 'GraphNode':
@@ -215,7 +215,7 @@ function parseGraphRole(text: string): 'GraphNode' | 'GraphSequenceElement' | 'G
   }
 }
 
-/** One input YAML role spelling → the closed YAML match role (parse_role, semantic_model_v5.rs:681-696). */
+/** One input YAML role spelling → the closed YAML match role (parse_role, semantic_model_v5.rs). */
 function parseYamlRole(text: string): string {
   switch (text) {
     case 'YamlStream':
@@ -232,7 +232,7 @@ function parseYamlRole(text: string): string {
   }
 }
 
-/** One input graph match descriptor → GraphQueryMatchMessage (parse_graph_match, semantic_model_v5.rs:608-627). */
+/** One input graph match descriptor → GraphQueryMatchMessage (parse_graph_match, semantic_model_v5.rs). */
 function graphMatchFromInput(input: unknown): GraphQueryMatchMessage {
   const record = input as {
     kind?: string;
@@ -259,7 +259,7 @@ function graphMatchFromInput(input: unknown): GraphQueryMatchMessage {
   }
 }
 
-/** One input projected location descriptor → GraphProjectedLocationMessage (parse_location, semantic_model_v5.rs:656-679). */
+/** One input projected location descriptor → GraphProjectedLocationMessage (parse_location, semantic_model_v5.rs). */
 function projectedLocationFromInput(input: unknown): GraphProjectedLocationMessage {
   const record = input as { kind?: string; node?: number; parent?: number; ordinal?: number };
   switch (record.kind) {
@@ -278,7 +278,7 @@ function projectedLocationFromInput(input: unknown): GraphProjectedLocationMessa
   }
 }
 
-/** One entry per input location with the shared origin facts (provenance_entries, semantic_model_v5.rs:629-654). */
+/** One entry per input location with the shared origin facts (provenance_entries, semantic_model_v5.rs). */
 function provenanceEntriesFromCase(
   case_: VectorCase,
 ): { projected: GraphProjectedLocationMessage; origins: readonly GraphSourceOriginMessage[] }[] {

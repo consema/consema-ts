@@ -299,7 +299,7 @@ function snakeToCamel(name: string): string {
   return parts[0] + parts.slice(1).map((part) => part[0].toUpperCase() + part.slice(1)).join('');
 }
 
-/** The common parse limits live in the `common` record; the family-owned bounds at the top level (lib.rs:67-98). */
+/** The common parse limits live in the `common` record; the family-owned bounds at the top level (lib.rs). */
 const INI_COMMON_LIMIT_NAMES = new Set([
   'max_source_bytes',
   'max_nesting_depth',
@@ -319,7 +319,7 @@ function iniLimitsWith(name: string, value: number): IniParseLimits {
   return { ...DEFAULT_INI_PARSE_LIMITS, [camel]: value } as IniParseLimits;
 }
 
-/** Validates and binds one INI native-semantic expression (query.rs:117-143). */
+/** Validates and binds one INI native-semantic expression (query.rs). */
 function iniNativeExecutable(expression: QueryExpression): ExecutableQuery {
   const definition = withExpression(newQueryDefinition(domainININativeV1()), expression);
   const validated = validateQuery(definition);
@@ -386,7 +386,7 @@ function queryCase(case_: VectorCase): void {
   }
 }
 
-/** query.validation-limit-cancellation (ini_v1.rs:474-518). */
+/** query.validation-limit-cancellation (ini_v1.rs). */
 function queryValidationLimitCancellation(case_: VectorCase): void {
   const invalid = withExpression(
     newQueryDefinition(domainININativeV1()),
@@ -515,7 +515,7 @@ function projectionCase(case_: VectorCase): void {
   }
 }
 
-/** projection.fragmented-value-provenance (ini_v1.rs:615-640). */
+/** projection.fragmented-value-provenance (ini_v1.rs). */
 function projectionFragments(case_: VectorCase): void {
   const pythonSource = caseField(case_, 'python_source') as string;
   const windowsSource = caseField(case_, 'windows_source') as string;
@@ -545,7 +545,7 @@ function iniRelationPresent(provenance: IniProvenanceMap, relation: IniProvenanc
   );
 }
 
-/** One nested EntryMapping from the vector descriptor ([{section, entries}], ini_v1.rs:1002-1023). */
+/** One nested EntryMapping from the vector descriptor ([{section, entries}], ini_v1.rs). */
 function iniNestedMapping(descriptor: unknown): PortableValue {
   const sections = descriptor as { section: string; entries: unknown[][] }[];
   const outer: EntryMappingEntry[] = [];
@@ -559,7 +559,7 @@ function iniNestedMapping(descriptor: unknown): PortableValue {
   return entryMappingValue(outer);
 }
 
-/** The canonical style request of one profile (ini_v1.rs:167-185). */
+/** The canonical style request of one profile (ini_v1.rs). */
 function iniMaterializationRequest(profile: IniProfile): MaterializationRequest {
   if (profile === IniProfile.PORTABLE_V1) {
     return new MaterializationRequest(profile.id(), iniPortableCanonicalStyle());
@@ -572,7 +572,7 @@ function iniMaterializationRequest(profile: IniProfile): MaterializationRequest 
   return new MaterializationRequest(profile.id(), iniPythonConfigParserCanonicalStyle());
 }
 
-/** Whether the materialized document reprojects to exactly the input value (materialization.rs:489-535). */
+/** Whether the materialized document reprojects to exactly the input value (materialization.rs). */
 function iniMaterializationClosure(document: IniDocument, value: PortableValue): boolean {
   const result = projectIni(document, IniProjectionRequest.bestExactEntryMapping());
   return result.kind === 'Complete' && equal(result.value.value(), value);
@@ -592,7 +592,7 @@ function materializationCase(case_: VectorCase): void {
   }
 }
 
-/** materialization.all-canonical-styles (ini_v1.rs:642-697). */
+/** materialization.all-canonical-styles (ini_v1.rs). */
 function materializationStyles(case_: VectorCase): void {
   const profiles: [string, IniProfile, string][] = [
     ['portable', IniProfile.PORTABLE_V1, 'portable_source'],
@@ -638,7 +638,7 @@ function materializationStyles(case_: VectorCase): void {
   }
 }
 
-/** The per-limit materialization limits (ini_v1.rs:699-744). */
+/** The per-limit materialization limits (ini_v1.rs). */
 function materializationLimitsFor(name: string): MaterializationLimits | null {
   switch (name) {
     case 'max_input_nodes':
@@ -656,7 +656,7 @@ function materializationLimitsFor(name: string): MaterializationLimits | null {
   }
 }
 
-/** materialization.atomic-failures-and-limits (ini_v1.rs:699-744). */
+/** materialization.atomic-failures-and-limits (ini_v1.rs). */
 function materializationLimits(case_: VectorCase): void {
   const scalarResult = materializeIni(stringValue('x'), iniMaterializationRequest(IniProfile.PORTABLE_V1));
   if (scalarResult.kind !== 'Failed') {
@@ -727,7 +727,7 @@ function editCase(case_: VectorCase): void {
   }
 }
 
-/** One committed edit output plus its source-edit count (ini_v1.rs:960-973). */
+/** One committed edit output plus its source-edit count (ini_v1.rs). */
 function collectIniEdit(
   document: IniDocument,
   builder: IniEditTransactionBuilder,
@@ -747,7 +747,7 @@ function collectIniEdit(
   editCounts.push(commit.changeSet().sourceEdits().length);
 }
 
-/** edit.all-eight-operations (ini_v1.rs:746-821). */
+/** edit.all-eight-operations (ini_v1.rs). */
 function editAllOperations(case_: VectorCase): void {
   const source = caseField(case_, 'source') as string;
   const profile = profileOf(caseField(case_, 'profile') as string);
@@ -836,7 +836,7 @@ function editAllOperations(case_: VectorCase): void {
   }
 }
 
-/** edit.dry-run-patch-proof-and-atomic-failure (ini_v1.rs:823-869). */
+/** edit.dry-run-patch-proof-and-atomic-failure (ini_v1.rs). */
 function editAuditArtifacts(case_: VectorCase): void {
   const document = parseCase(case_);
   const value = caseField(case_, 'value') as string;

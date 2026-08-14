@@ -38,15 +38,15 @@
  *    yaml.scalar.invalid-explicit-tag@1         :922 (Semantic, 0.7.0)
  *    yaml.tag.kind-mismatch@1                   :928 (Semantic, 0.7.0)
  *  - kind→code mapping authority:
- *    consema-rs/consema-yaml/src/projection.rs:174-183 (graph),
- *    :480-497 (value); consema-rs/consema-yaml/src/edit.rs:318-343 (edit);
- *    consema-rs/consema-yaml/src/materialization.rs:143-151 (graph
+ *    consema-rs/consema-yaml/src/projection.rs (graph),
+ *    :480-497 (value); consema-rs/consema-yaml/src/edit.rs (edit);
+ *    consema-rs/consema-yaml/src/materialization.rs (graph
  *    materialization); query failures: consema-rs/consema-core/src/query.rs
- *    3114-3219 plus the yaml executor domain gate
- *    consema-rs/consema-yaml/src/query.rs:173-177, :220-224
- *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761;
+ *    plus the yaml executor domain gate
+ *    (consema-rs/consema-yaml/src/query.rs)
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs;
  *    yaml.parse.syntax@1 via backend failure consema-rs/consema-yaml/src/
- *    lib.rs:833-858; the vector case formation.undefined-alias
+ *    lib.rs; the vector case formation.undefined-alias
  *    (conformance/vectors/yaml-v1.json:41-44) pins undefined aliases as
  *    syntax failures
  *
@@ -88,7 +88,7 @@ export class YamlAccessError extends Error {
 // FatalFormationFailure — parse aborted before a document exists
 // ---------------------------------------------------------------------------
 
-/** Fatal parse failure: no Document exists (consema-document lib.rs:643-645). */
+/** Fatal parse failure: no Document exists (consema-document lib.rs). */
 export class FatalFormationFailure extends Error {
   readonly #diagnostics: readonly Diagnostic[];
 
@@ -98,12 +98,12 @@ export class FatalFormationFailure extends Error {
     this.#diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs:649-654). */
+  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs). */
   static fromDiagnostic(diagnostic: Diagnostic): FatalFormationFailure {
     return new FatalFormationFailure([diagnostic]);
   }
 
-  /** Invalid UTF-8 source (lib.rs:657-672; code at error_registry.rs:207). */
+  /** Invalid UTF-8 source (lib.rs; code at error_registry.rs). */
   static invalidUtf8(validUpTo: number): FatalFormationFailure {
     return new FatalFormationFailure([
       {
@@ -123,7 +123,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs:675-761). */
+  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs). */
   static sourceError(error: SourceError): FatalFormationFailure {
     if (error.kind === 'InvalidUtf8') {
       return FatalFormationFailure.invalidUtf8(error.validUpTo ?? 0);
@@ -176,7 +176,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Creates a fatal resource-limit failure (lib.rs:614-639 limit names). */
+  /** Creates a fatal resource-limit failure (lib.rs limit names). */
   static resourceLimit(name: string, observed: number, limit: number): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
       code: 'core.parse.resource-limit@1',
@@ -194,7 +194,7 @@ export class FatalFormationFailure extends Error {
     });
   }
 
-  /** Creates a fatal YAML syntax failure at one decoded offset (lib.rs:840-855). */
+  /** Creates a fatal YAML syntax failure at one decoded offset (lib.rs). */
   static syntaxError(scalarOffset: number, rawByte: number | null): FatalFormationFailure {
     return new FatalFormationFailure([
       {
@@ -213,7 +213,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Creates a fatal profile-version-directive failure (lib.rs:811-827). */
+  /** Creates a fatal profile-version-directive failure (lib.rs). */
   static versionDirective(
     selectedProfile: string,
     declaredVersion: string,
@@ -237,7 +237,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Creates a fatal native composition failure with a frozen code (native.rs:1148-1157). */
+  /** Creates a fatal native composition failure with a frozen code (native.rs). */
   static nativeFailure(code: YamlNativeCode): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
       code,
@@ -251,13 +251,13 @@ export class FatalFormationFailure extends Error {
     });
   }
 
-  /** Ordered fatal diagnostics (lib.rs:644-645). */
+  /** Ordered fatal diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 }
 
-/** Frozen native-composition failure codes (native.rs:1148-1157 uses Semantic category). */
+/** Frozen native-composition failure codes (native.rs uses Semantic category). */
 export type YamlNativeCode =
   | 'yaml.native.trailing-events@1'
   | 'yaml.native.trailing-named-occurrence@1'
@@ -276,7 +276,7 @@ export type YamlNativeCode =
 // QueryExecutionFailure — stable query execution failure
 // ---------------------------------------------------------------------------
 
-/** Stable query execution failure class (core query.rs:3114-3219; yaml query.rs:173-177, :220-224). */
+/** Stable query execution failure class (core query.rs; yaml query.rs, :220-224). */
 export type QueryExecutionFailureKind =
   | 'DomainMismatch'
   | 'ResourceLimitExceeded'
@@ -286,7 +286,7 @@ export type QueryExecutionFailureKind =
 
 export class QueryExecutionFailure extends Error {
   readonly kind: QueryExecutionFailureKind;
-  /** Frozen registered code (core query.rs:3206-3219). */
+  /** Frozen registered code (core query.rs). */
   readonly code: string;
   /** DomainMismatch: the rejected domain. */
   readonly domain?: { readonly id: string; readonly version: number };
@@ -312,7 +312,7 @@ export class QueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (core query.rs:3206-3219). */
+/** Kind→code mapping (core query.rs). */
 export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): string {
   switch (kind) {
     case 'DomainMismatch':
@@ -332,12 +332,12 @@ export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): stri
 // Graph projection failures
 // ---------------------------------------------------------------------------
 
-/** Exact YAML-to-PortableGraph projection error (native.rs:96-109). */
+/** Exact YAML-to-PortableGraph projection error (native.rs). */
 export type GraphProjectionError =
   | { readonly kind: 'UnsupportedTag'; readonly tag: string }
   | { readonly kind: 'Graph'; readonly error: GraphError };
 
-/** Graph projection failure; no graph or provenance is returned (projection.rs:153-161). */
+/** Graph projection failure; no graph or provenance is returned (projection.rs). */
 export type GraphProjectionFailureKind =
   | 'UnsupportedTag'
   | 'Graph'
@@ -345,7 +345,7 @@ export type GraphProjectionFailureKind =
 
 export class GraphProjectionFailure extends Error {
   readonly kind: GraphProjectionFailureKind;
-  /** Frozen registered code (projection.rs:174-183). */
+  /** Frozen registered code (projection.rs). */
   readonly code: string;
   /** UnsupportedTag: the rejected tag. */
   readonly tag?: string;
@@ -365,7 +365,7 @@ export class GraphProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:174-183). */
+/** Kind→code mapping (projection.rs). */
 export function graphProjectionFailureCode(
   kind: GraphProjectionFailureKind,
   error?: GraphError,
@@ -386,7 +386,7 @@ export function graphProjectionFailureCode(
 // Value projection failures
 // ---------------------------------------------------------------------------
 
-/** Stable YAML-to-PortableValue projection failure category (projection.rs:436-476). */
+/** Stable YAML-to-PortableValue projection failure category (projection.rs). */
 export type ValueProjectionFailureKind =
   | 'DocumentCardinality'
   | 'Cycle'
@@ -399,13 +399,13 @@ export type ValueProjectionFailureKind =
 
 export class ValueProjectionFailure extends Error {
   readonly kind: ValueProjectionFailureKind;
-  /** Frozen registered code (projection.rs:480-497). */
+  /** Frozen registered code (projection.rs). */
   readonly code: string;
   /** The source representation identity involved, when present. */
   readonly node?: NodeRef;
   /** UnsupportedTag: the resolved unsupported tag. */
   readonly tag?: string;
-  /** ResourceLimit: the stable limit name (projection.rs:475). */
+  /** ResourceLimit: the stable limit name (projection.rs). */
   readonly limitName?: string;
 
   constructor(
@@ -422,7 +422,7 @@ export class ValueProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:480-497). */
+/** Kind→code mapping (projection.rs). */
 export function valueProjectionFailureCode(kind: ValueProjectionFailureKind): string {
   switch (kind) {
     case 'DocumentCardinality':
@@ -448,7 +448,7 @@ export function valueProjectionFailureCode(kind: ValueProjectionFailureKind): st
 // Graph materialization failures
 // ---------------------------------------------------------------------------
 
-/** Stable PortableGraph-to-YAML materialization failure (materialization.rs:86-111). */
+/** Stable PortableGraph-to-YAML materialization failure (materialization.rs). */
 export type GraphMaterializationFailureKind =
   | 'Materialization'
   | 'UnsupportedTag'
@@ -458,7 +458,7 @@ export type GraphMaterializationFailureKind =
 
 export class GraphMaterializationFailure extends Error {
   readonly kind: GraphMaterializationFailureKind;
-  /** Frozen registered code (materialization.rs:143-151). */
+  /** Frozen registered code (materialization.rs). */
   readonly code: string;
   /** Materialization: the wrapped common failure. */
   readonly failure?: MaterializationFailure;
@@ -485,7 +485,7 @@ export class GraphMaterializationFailure extends Error {
   }
 }
 
-/** Kind→code mapping (materialization.rs:143-151). */
+/** Kind→code mapping (materialization.rs). */
 export function graphMaterializationFailureCode(
   kind: GraphMaterializationFailureKind,
   failure?: MaterializationFailure,
@@ -508,7 +508,7 @@ export function graphMaterializationFailureCode(
 // EditFailure — stable edit validation or commit failure
 // ---------------------------------------------------------------------------
 
-/** Stable edit validation or commit failure (edit.rs:275-314); codes at edit.rs:318-343. */
+/** Stable edit validation or commit failure (edit.rs); codes at edit.rs. */
 export type EditFailureKind =
   | 'WrongSnapshot'
   | 'WrongRole'
@@ -532,11 +532,11 @@ export type EditFailureKind =
 
 export class EditFailure extends Error {
   readonly kind: EditFailureKind;
-  /** Frozen registered code (edit.rs:318-343). */
+  /** Frozen registered code (edit.rs). */
   readonly code: string;
-  /** UnsupportedSemanticValue / UnsupportedInsertedValue: the rejected core kind (edit.rs:285, 301). */
+  /** UnsupportedSemanticValue / UnsupportedInsertedValue: the rejected core kind (edit.rs). */
   readonly valueKind?: Kind;
-  /** ResourceLimit: the stable limit name (edit.rs:310). */
+  /** ResourceLimit: the stable limit name (edit.rs). */
   readonly limitName?: string;
 
   constructor(
@@ -552,7 +552,7 @@ export class EditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:318-343). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: EditFailureKind): string {
   switch (kind) {
     case 'WrongSnapshot':
@@ -593,7 +593,7 @@ export function editFailureCode(kind: EditFailureKind): string {
   }
 }
 
-/** Stable node kind name for projection events (projection.rs:1183-1189). */
+/** Stable node kind name for projection events (projection.rs). */
 export function nodeKindName(kind: YamlNodeKind): string {
   return kind;
 }

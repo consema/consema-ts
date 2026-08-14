@@ -1,8 +1,8 @@
 /**
  * The immutable plist-family document and its typed native handles.
  *
- * authority: consema-rs/consema-plist/src/parser_xml.rs:282-363 (PlistFormedXml),
- * parser_binary.rs:253-335 (PlistFormedBinary), document.rs (the shared
+ * authority: consema-rs/consema-plist/src/parser_xml.rs (PlistFormedXml),
+ * parser_binary.rs (PlistFormedBinary), document.rs (the shared
  * `Document` wrap); RFC 0013 §3
  *  - a `Complete` document covers every admitted source byte under the
  *    Profile's grammar and every configured limit; `Recovered` retains
@@ -15,12 +15,12 @@
  *  - the native value arena is present exactly when it is provable (the
  *    root value for XML; the top object and every proven reference inside
  *    the proven prefix for binary)
- *  - binary facts: parser_binary.rs:53-251 (BinaryObjectFact,
+ *  - binary facts: parser_binary.rs (BinaryObjectFact,
  *    BinaryOffsetFact, BinaryObjectRefFact, BinaryTrailerFacts,
  *    BinaryFacts) — every object/offset/ref fact carries an exact
  *    half-open raw-byte span
- *  - NodeRole spellings for the plist family: consema-document lib.rs:
- *    215-228 ('PlistDocument', 'PlistDictEntry', 'PlistKey',
+ *  - NodeRole spellings for the plist family: consema-document lib.rs
+ *    ('PlistDocument', 'PlistDictEntry', 'PlistKey',
  *    'PlistArrayElement', 'PlistValue', 'PlistSyntaxPiece')
  *
  * Design (TypeScript-idiomatic): one immutable document class for both
@@ -50,10 +50,10 @@ import {
 import type { PlistValue, PlistValueKind } from './native.ts';
 
 // ---------------------------------------------------------------------------
-// Binary structural facts (parser_binary.rs:53-251)
+// Binary structural facts (parser_binary.rs)
 // ---------------------------------------------------------------------------
 
-/** One proven object-table entry fact (parser_binary.rs:57-89). */
+/** One proven object-table entry fact (parser_binary.rs). */
 export class BinaryObjectFact {
   readonly #index: number;
   readonly #offset: number;
@@ -88,7 +88,7 @@ export class BinaryObjectFact {
   }
 }
 
-/** One validated offset-table entry fact (parser_binary.rs:92-117). */
+/** One validated offset-table entry fact (parser_binary.rs). */
 export class BinaryOffsetFact {
   readonly #index: number;
   readonly #offset: number;
@@ -116,7 +116,7 @@ export class BinaryOffsetFact {
   }
 }
 
-/** One decoded object reference of a proven container (parser_binary.rs:120-156). */
+/** One decoded object reference of a proven container (parser_binary.rs). */
 export class BinaryObjectRefFact {
   readonly #owner: number;
   readonly #position: number;
@@ -151,7 +151,7 @@ export class BinaryObjectRefFact {
   }
 }
 
-/** Trailer field facts (parser_binary.rs:158-216; RFC 0013 §5.10). */
+/** Trailer field facts (parser_binary.rs; RFC 0013 §5.10). */
 export class BinaryTrailerFacts {
   readonly #sortVersion: number;
   readonly #offsetIntSize: number;
@@ -215,7 +215,7 @@ export class BinaryTrailerFacts {
   }
 }
 
-/** Complete binary structure facts of one parse (parser_binary.rs:218-251). */
+/** Complete binary structure facts of one parse (parser_binary.rs). */
 export class BinaryFacts {
   readonly #objects: readonly BinaryObjectFact[];
   readonly #offsets: readonly BinaryOffsetFact[];

@@ -45,7 +45,7 @@ import type { OperationArgumentKind, OperationSupport } from '../document/operat
 import { yamlProfileId } from './profile.ts';
 import type { YamlProfile } from './profile.ts';
 
-/** Returns the validated operation registry for one exact YAML profile (operation_registry.rs:9-14). */
+/** Returns the validated operation registry for one exact YAML profile (operation_registry.rs). */
 export function formatOperationRegistry(profile: YamlProfile): FormatOperationRegistry {
   return FormatOperationRegistry.create(yamlProfileId(profile), descriptors());
 }

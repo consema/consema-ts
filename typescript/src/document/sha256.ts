@@ -6,10 +6,10 @@
  *    original byte sequence with no decoding, BOM removal, newline
  *    normalization, or metadata mixed in; `algorithm` is exactly "sha256"
  *    and `hex` is exactly 64 lowercase hexadecimal characters
- *    (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md:47-54)
+ *    (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md)
  *  - vector digests: conformance/vectors/source-v1.json:6-16
  *    ("source.digest.sha256-empty", "source.digest.sha256-abc")
- *  - Rust: consema-rs/consema-document/src/source.rs:15-54 (ContentDigest)
+ *  - Rust: consema-rs/consema-document/src/source.rs (ContentDigest)
  *
  * Design (TypeScript-idiomatic): a zero-dependency FIPS 180-4
  * implementation operating on Uint8Array; the 64 constant words and the
@@ -138,7 +138,7 @@ export function sha256(bytes: Uint8Array): Uint8Array {
   ]);
 }
 
-/** Stable SHA-256 identity of exact raw source bytes (source.rs:15-54). */
+/** Stable SHA-256 identity of exact raw source bytes (source.rs). */
 export class ContentDigest {
   readonly #bytes: Uint8Array;
 
@@ -149,12 +149,12 @@ export class ContentDigest {
     this.#bytes = bytes;
   }
 
-  /** Computes the digest of exact raw bytes (source.rs:20-24). */
+  /** Computes the digest of exact raw bytes (source.rs). */
   static of(bytes: Uint8Array): ContentDigest {
     return new ContentDigest(sha256(bytes));
   }
 
-  /** Constructs a digest value from an already decoded 32-byte record (source.rs:38-42). */
+  /** Constructs a digest value from an already decoded 32-byte record (source.rs). */
   static fromBytes(bytes: Uint8Array): ContentDigest {
     if (bytes.length !== 32) {
       throw new RangeError(`content digest must be exactly 32 bytes, got ${bytes.length}`);
@@ -162,17 +162,17 @@ export class ContentDigest {
     return new ContentDigest(Uint8Array.from(bytes));
   }
 
-  /** Digest algorithm identifier frozen by the v1 source contract (source.rs:27-29). */
+  /** Digest algorithm identifier frozen by the v1 source contract (source.rs). */
   algorithm(): string {
     return 'sha256';
   }
 
-  /** Exact 32 digest bytes; logically immutable (source.rs:32-36) — treat the returned buffer as read-only. */
+  /** Exact 32 digest bytes; logically immutable (source.rs) — treat the returned buffer as read-only. */
   bytes(): Uint8Array {
     return this.#bytes;
   }
 
-  /** Lowercase hexadecimal representation (source.rs:45-53). */
+  /** Lowercase hexadecimal representation (source.rs). */
   toHex(): string {
     let output = '';
     for (const byte of this.#bytes) {

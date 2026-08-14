@@ -66,7 +66,7 @@ import { parse } from './parser.ts';
 // Input record
 // ---------------------------------------------------------------------------
 
-/** Validated input record mirroring `xml.element-tree@1` (materialization.rs:174-237). */
+/** Validated input record mirroring `xml.element-tree@1` (materialization.rs). */
 interface Record {
   readonly declaration: DeclarationRecord | null;
   readonly entities: readonly EntityRecord[];
@@ -120,7 +120,7 @@ type FragmentRecord =
   | { readonly kind: 'PredefinedEntity'; readonly name: string; readonly resolved: string }
   | { readonly kind: 'GeneralEntity'; readonly name: string; readonly resolved: string };
 
-/** Validates the input record structure (materialization.rs:239-304). */
+/** Validates the input record structure (materialization.rs). */
 function validateRecord(
   value: PortableValue,
   analyzed: ValuePath[],
@@ -492,7 +492,7 @@ function sequenceField(
   };
 }
 
-/** The `expanded-name` record of one element or attribute (materialization.rs:313). */
+/** The `expanded-name` record of one element or attribute (materialization.rs). */
 function expandedNameField(
   value: PortableValue,
   path: ValuePath,
@@ -516,7 +516,7 @@ function expandedNameField(
 // Writer
 // ---------------------------------------------------------------------------
 
-/** One input location recorded during generation, paired by order with the reparsed document (materialization.rs:528-563). */
+/** One input location recorded during generation, paired by order with the reparsed document (materialization.rs). */
 type InputItem =
   | { readonly kind: 'Declaration'; readonly path: ValuePath }
   | { readonly kind: 'Entity'; readonly path: ValuePath }
@@ -541,7 +541,7 @@ function inputItemLocation(item: InputItem): MaterializationInputLocation {
   }
 }
 
-/** Deterministic generated-prefix assignment by first-encounter order (materialization.rs:502-526). */
+/** Deterministic generated-prefix assignment by first-encounter order (materialization.rs). */
 class PrefixTable {
   readonly #entries = new Map<string, string>();
   #next = 0;
@@ -623,7 +623,7 @@ class Writer {
     this.push(rest);
   }
 
-  /** Spelling prefix for one expanded namespace, using the current scope (materialization.rs:596-621). */
+  /** Spelling prefix for one expanded namespace, using the current scope (materialization.rs). */
   spellingPrefix(uri: string | null): string | null {
     if (uri === null) {
       return '';
@@ -668,7 +668,7 @@ class Writer {
       const spelling = this.spellingPrefix(input.root.namespace);
       if (spelling === null) {
         // An unbound root namespace cannot be named in the DOCTYPE without a
-        // declaration; fail honestly (materialization.rs:688-699).
+        // declaration; fail honestly (materialization.rs).
         throw new MaterializationFailure('Unrepresentable', {
           path: input.root.path,
           reason: 'unbound root namespace in DOCTYPE',
@@ -702,7 +702,7 @@ class Writer {
     }
     const elementPrefix = this.spellingPrefix(element.namespace) ?? (() => {
       // Unbound URI in a hand-built record: declare a generated default
-      // namespace on this element (materialization.rs:733-753).
+      // namespace on this element (materialization.rs).
       const uri = element.namespace ?? XML_NAMESPACE_URI;
       if (uri === XML_NAMESPACE_URI) {
         return 'xml';
@@ -734,7 +734,7 @@ class Writer {
       this.#items.push({ kind: 'Attribute', path: attribute.path });
       const attributePrefix = this.spellingPrefix(attribute.namespace) ?? (() => {
         // Unbound attribute namespace: declare a generated prefix on this
-        // element (materialization.rs:780-797).
+        // element (materialization.rs).
         const uri = attribute.namespace ?? XML_NAMESPACE_URI;
         const generated = this.#prefixes.prefixFor(uri, null);
         this.push(` xmlns:${generated}="`);
@@ -842,7 +842,7 @@ class Writer {
 // Output encoding
 // ---------------------------------------------------------------------------
 
-/** Encodes canonical UTF-8 text into the requested output encoding (materialization.rs:143-172). */
+/** Encodes canonical UTF-8 text into the requested output encoding (materialization.rs). */
 function encodeText(text: Uint8Array, encoding: SourceEncoding, maxOutputBytes: number): Uint8Array | null {
   let output: Uint8Array;
   switch (encoding.kind) {
@@ -881,7 +881,7 @@ function encodeText(text: Uint8Array, encoding: SourceEncoding, maxOutputBytes: 
   return output;
 }
 
-/** Parse limits derived from one materialization request (materialization.rs:109-140). */
+/** Parse limits derived from one materialization request (materialization.rs). */
 function parseLimitsFor(limits: MaterializationLimits): XmlParseLimits {
   return {
     ...DEFAULT_XML_PARSE_LIMITS,
@@ -920,7 +920,7 @@ function parseLimitsFor(limits: MaterializationLimits): XmlParseLimits {
 // Closure verification
 // ---------------------------------------------------------------------------
 
-/** One matched output origin in the reparsed document (materialization.rs:903-907). */
+/** One matched output origin in the reparsed document (materialization.rs). */
 interface OutputItem {
   readonly node: NodeRef;
   readonly span: Span;
@@ -930,7 +930,7 @@ interface OutputItem {
 /**
  * Walks the input record and the reparsed document in lockstep, compares
  * the promised semantics, and pairs every recorded input location with its
- * exact output origin (materialization.rs:912-1014).
+ * exact output origin (materialization.rs).
  */
 function verifyClosure(
   input: Record,
@@ -999,7 +999,7 @@ function verifyClosure(
     const last = entries[entries.length - 1];
     if (last !== undefined && locationsEqual(last.input(), location)) {
       // Adjacent items with the same input location share one provenance
-      // entry (materialization.rs:1002-1011); the entry is rebuilt with
+      // entry (materialization.rs); the entry is rebuilt with
       // both origins because the class is immutable.
       const combined = [...last.outputs(), origin];
       entries[entries.length - 1] = new MaterializationProvenanceEntry(location, combined);
@@ -1192,7 +1192,7 @@ class ClosureContext {
 
 /**
  * Materializes one `xml.element-tree@1` record into a new canonical
- * `xml.1.0-safe@1` document (materialization.rs:37-50).
+ * `xml.1.0-safe@1` document (materialization.rs).
  */
 export function materialize(
   value: PortableValue,

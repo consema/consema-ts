@@ -15,7 +15,7 @@
  *    1.1 underscores and base-60)
  *  - normalize_decimal_lexeme :831-846, decimal_canonical :914-920
  *    (coefficient, or "coefficient e exponent"; Decimal::new normalization
- *    consema-rs/consema-core/src/value.rs:277-292, parse_json_number :295-323)
+ *    consema-rs/consema-core/src/value.rs, parse_json_number :295-323)
  *  - parse_timestamp :969-1075 (1.1 date/timestamp forms; canonical
  *    "YYYY-MM-DD[T]HH:MM:SS[.fraction]Z|±HH:MM"; no-zone follows the
  *    published 1.1 UTC rule and records Z)
@@ -32,35 +32,35 @@
 import type { YamlProfile } from './profile.ts';
 import type { YamlScalarKind, YamlScalarStyle } from './semantic.ts';
 
-/** tag:yaml.org,2002:null (native.rs:17). */
+/** tag:yaml.org,2002:null (native.rs). */
 export const TAG_NULL = 'tag:yaml.org,2002:null';
-/** tag:yaml.org,2002:bool (native.rs:18). */
+/** tag:yaml.org,2002:bool (native.rs). */
 export const TAG_BOOL = 'tag:yaml.org,2002:bool';
-/** tag:yaml.org,2002:int (native.rs:19). */
+/** tag:yaml.org,2002:int (native.rs). */
 export const TAG_INT = 'tag:yaml.org,2002:int';
-/** tag:yaml.org,2002:float (native.rs:20). */
+/** tag:yaml.org,2002:float (native.rs). */
 export const TAG_FLOAT = 'tag:yaml.org,2002:float';
-/** tag:yaml.org,2002:str (native.rs:21). */
+/** tag:yaml.org,2002:str (native.rs). */
 export const TAG_STR = 'tag:yaml.org,2002:str';
-/** tag:yaml.org,2002:seq (native.rs:22). */
+/** tag:yaml.org,2002:seq (native.rs). */
 export const TAG_SEQ = 'tag:yaml.org,2002:seq';
-/** tag:yaml.org,2002:map (native.rs:23). */
+/** tag:yaml.org,2002:map (native.rs). */
 export const TAG_MAP = 'tag:yaml.org,2002:map';
-/** tag:yaml.org,2002:timestamp (native.rs:24). */
+/** tag:yaml.org,2002:timestamp (native.rs). */
 export const TAG_TIMESTAMP = 'tag:yaml.org,2002:timestamp';
-/** tag:yaml.org,2002:binary (native.rs:25). */
+/** tag:yaml.org,2002:binary (native.rs). */
 export const TAG_BINARY = 'tag:yaml.org,2002:binary';
-/** tag:yaml.org,2002:merge (native.rs:26). */
+/** tag:yaml.org,2002:merge (native.rs). */
 export const TAG_MERGE = 'tag:yaml.org,2002:merge';
-/** tag:yaml.org,2002:omap (native.rs:27). */
+/** tag:yaml.org,2002:omap (native.rs). */
 export const TAG_OMAP = 'tag:yaml.org,2002:omap';
-/** tag:yaml.org,2002:pairs (native.rs:28). */
+/** tag:yaml.org,2002:pairs (native.rs). */
 export const TAG_PAIRS = 'tag:yaml.org,2002:pairs';
-/** tag:yaml.org,2002:set (native.rs:29). */
+/** tag:yaml.org,2002:set (native.rs). */
 export const TAG_SET = 'tag:yaml.org,2002:set';
-/** tag:yaml.org,2002:value (native.rs:30). */
+/** tag:yaml.org,2002:value (native.rs). */
 export const TAG_VALUE = 'tag:yaml.org,2002:value';
-/** tag:yaml.org,2002:yaml (native.rs:31). */
+/** tag:yaml.org,2002:yaml (native.rs). */
 export const TAG_YAML = 'tag:yaml.org,2002:yaml';
 
 /** One resolved native scalar fact (native.rs NativeScalar :62-68 plus its node tag). */
@@ -116,7 +116,7 @@ export function resolveImplicit(
  * Custom category; retained standard repository tags that have no core-tree
  * lowering (merge/value/yaml) keep the Tagged category. Returns null when
  * the content is invalid for the explicit standard tag
- * (yaml.scalar.invalid-explicit-tag@1, native.rs:671).
+ * (yaml.scalar.invalid-explicit-tag@1, native.rs).
  */
 export function resolveExplicit(
   decoded: string,
@@ -179,14 +179,14 @@ function scalar(
   return { tag, decoded, canonical, kind, style };
 }
 
-/** parse_null (native.rs:746-748): canonical null content is the empty string. */
+/** parse_null (native.rs): canonical null content is the empty string. */
 export function parseNull(value: string): string | null {
   return value === '' || value === '~' || value === 'null' || value === 'Null' || value === 'NULL'
     ? ''
     : null;
 }
 
-/** parse_bool (native.rs:750-766): canonical `true` or `false`. */
+/** parse_bool (native.rs): canonical `true` or `false`. */
 export function parseBool(value: string, profile: YamlProfile): string | null {
   switch (value) {
     case 'true':
@@ -227,7 +227,7 @@ export function parseBool(value: string, profile: YamlProfile): string | null {
   return null;
 }
 
-/** parse_integer (native.rs:768-801): canonical unbounded base-10 spelling. */
+/** parse_integer (native.rs): canonical unbounded base-10 spelling. */
 export function parseInteger(value: string, profile: YamlProfile): string | null {
   const split = splitSign(value);
   if (split === null) {
@@ -273,7 +273,7 @@ export function parseInteger(value: string, profile: YamlProfile): string | null
   return (magnitude * BigInt(sign)).toString();
 }
 
-/** parse_float (native.rs:803-829): canonical decimal or frozen non-finite spelling. */
+/** parse_float (native.rs): canonical decimal or frozen non-finite spelling. */
 export function parseFloat(value: string, profile: YamlProfile): string | null {
   switch (value) {
     case '.inf':
@@ -319,7 +319,7 @@ export function parseFloat(value: string, profile: YamlProfile): string | null {
   return decimalCanonical(decimal);
 }
 
-/** normalize_decimal_lexeme (native.rs:831-846): makes a float lexeme JSON-number-shaped. */
+/** normalize_decimal_lexeme (native.rs): makes a float lexeme JSON-number-shaped. */
 export function normalizeDecimalLexeme(value: string): string {
   let result = value;
   if (result.startsWith('+')) {
@@ -350,7 +350,7 @@ function exponentIndex(value: string): number {
 }
 
 /**
- * Decimal::parse_json_number (consema-rs/consema-core/src/value.rs:295-323)
+ * Decimal::parse_json_number (consema-rs/consema-core/src/value.rs)
  * with Decimal::new normalization (:277-292): trailing zeros of the
  * coefficient move into the exponent. The explicit exponent accepts an
  * optional sign, exactly like the Rust BigInteger::parse_decimal.
@@ -392,7 +392,7 @@ export function parseJsonNumber(text: string): { coefficient: bigint; exponent: 
   return normalizeDecimal(coefficient, exponent);
 }
 
-/** Decimal::new normalization (value.rs:277-292). */
+/** Decimal::new normalization (value.rs). */
 export function normalizeDecimal(coefficient: bigint, exponent: bigint): {
   coefficient: bigint;
   exponent: bigint;
@@ -409,7 +409,7 @@ export function normalizeDecimal(coefficient: bigint, exponent: bigint): {
   return { coefficient: c, exponent: e };
 }
 
-/** decimal_canonical (native.rs:914-920). */
+/** decimal_canonical (native.rs). */
 export function decimalCanonical(value: { coefficient: bigint; exponent: bigint }): string {
   if (value.exponent === 0n) {
     return value.coefficient.toString();
@@ -417,7 +417,7 @@ export function decimalCanonical(value: { coefficient: bigint; exponent: bigint 
   return `${value.coefficient}e${value.exponent}`;
 }
 
-/** parse_timestamp (native.rs:969-1075): 1.1 date/timestamp forms only. */
+/** parse_timestamp (native.rs): 1.1 date/timestamp forms only. */
 export function parseTimestamp(value: string): string | null {
   if (value.length >= 10 && isAscii(value) && validDate(value.slice(0, 10))) {
     if (value.length === 10) {
@@ -577,7 +577,7 @@ function takeOneOrTwoDigits(value: string): [number, string] | null {
   return [Number(value.slice(0, count)), value.slice(count)];
 }
 
-/** canonical_base64 (native.rs:1077-1122): whitespace-stripped with padding and unused-bit checks. */
+/** canonical_base64 (native.rs): whitespace-stripped with padding and unused-bit checks. */
 export function canonicalBase64(value: string): string | null {
   const cleaned = value.replace(/\s+/g, '');
   let padding = 0;
@@ -608,7 +608,7 @@ export function canonicalBase64(value: string): string | null {
   return cleaned;
 }
 
-/** Decodes canonical base64 bytes (projection.rs:1191-1217). */
+/** Decodes canonical base64 bytes (projection.rs). */
 export function decodeBase64(value: string): Uint8Array | null {
   const bytes = new TextEncoder().encode(value);
   const output: number[] = [];
@@ -632,7 +632,7 @@ export function decodeBase64(value: string): Uint8Array | null {
   return Uint8Array.from(output);
 }
 
-/** Encodes bytes as canonical base64 (materialization.rs:1574-1609). */
+/** Encodes bytes as canonical base64 (materialization.rs). */
 export function encodeBase64(value: Uint8Array): string {
   const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let output = '';
@@ -667,7 +667,7 @@ function base64Value(value: number): number | null {
   return null;
 }
 
-/** parse_sexagesimal_integer (native.rs:848-870): base-60 with later fields 0..59. */
+/** parse_sexagesimal_integer (native.rs): base-60 with later fields 0..59. */
 export function parseSexagesimalInteger(sign: number, value: string): string | null {
   const parts = value.split(':');
   const first = parts[0];
@@ -697,7 +697,7 @@ export function parseSexagesimalInteger(sign: number, value: string): string | n
   return (magnitude * BigInt(sign)).toString();
 }
 
-/** parse_sexagesimal_float (native.rs:872-912). */
+/** parse_sexagesimal_float (native.rs). */
 export function parseSexagesimalFloat(value: string): string | null {
   const split = splitSign(value);
   if (split === null) {
@@ -776,7 +776,7 @@ function splitSign(value: string): [number, string] | null {
   return [1, value];
 }
 
-/** valid_underscored (native.rs:930-943): 1.1 underscore placement rules. */
+/** valid_underscored (native.rs): 1.1 underscore placement rules. */
 export function validUnderscored(value: string): boolean {
   for (let index = 0; index < value.length; index++) {
     if (

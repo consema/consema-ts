@@ -9,13 +9,13 @@
  *
  * Design (TypeScript-idiomatic): a mutable cursor class; lookups may be
  * repeated and need not be sorted (a lookup behind the cursor restarts the
- * walk, exactly like offsets.rs:57-62).
+ * walk, exactly like offsets.rs).
  */
 
 import { SourceSnapshot } from '../document/source.ts';
 import type { SourceEncoding } from '../document/source.ts';
 
-/** Resolves decoded Unicode scalar offsets to exact raw byte offsets (offsets.rs:16-22). */
+/** Resolves decoded Unicode scalar offsets to exact raw byte offsets (offsets.rs). */
 export class RawByteResolver {
   readonly #text: string;
   readonly #encoding: SourceEncoding;
@@ -32,13 +32,13 @@ export class RawByteResolver {
     this.#encoding = source.encodingFacts().selected();
   }
 
-  /** Exact raw byte offset of one decoded scalar boundary (offsets.rs:43-46). */
+  /** Exact raw byte offset of one decoded scalar boundary (offsets.rs). */
   resolve(scalar: number): number {
     this.#advanceTo(scalar);
     return this.#rawByte;
   }
 
-  /** Decoded-text byte offset of one decoded scalar boundary (offsets.rs:52-55). */
+  /** Decoded-text byte offset of one decoded scalar boundary (offsets.rs). */
   decodedByteAt(scalar: number): number {
     this.#advanceTo(scalar);
     return this.#utf8Byte;

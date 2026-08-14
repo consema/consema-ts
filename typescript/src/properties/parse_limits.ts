@@ -15,7 +15,7 @@
  *    key/value and in total, duplicate-group members, syntax pieces,
  *    diagnostics, and recovery regions
  *  - the vector limit-name vocabulary is pinned by the conformance runner:
- *    consema-rs/consema-conformance/src/properties_v1.rs:1150-1180
+ *    consema-rs/consema-conformance/src/properties_v1.rs
  *
  * Design (TypeScript-idiomatic): a plain record plus a frozen default
  * instance; limits are plain numbers because they are host-size usizes in
@@ -26,7 +26,7 @@
 import { DEFAULT_PARSE_LIMITS } from '../document/formation.ts';
 import type { ParseLimits } from '../document/formation.ts';
 
-/** Java Properties parse and recovery limits (lib.rs:61-98). */
+/** Java Properties parse and recovery limits (lib.rs). */
 export interface PropertiesParseLimits {
   /** Common source, node, piece, and diagnostic limits. */
   readonly common: ParseLimits;
@@ -64,7 +64,7 @@ export interface PropertiesParseLimits {
   readonly maxRecoveryRegions: number;
 }
 
-/** The frozen defaults (lib.rs:100-122). */
+/** The frozen defaults (lib.rs). */
 export const DEFAULT_PROPERTIES_PARSE_LIMITS: Readonly<PropertiesParseLimits> = Object.freeze({
   common: DEFAULT_PARSE_LIMITS,
   maxDecodedUtf8Bytes: 128 * 1024 * 1024,

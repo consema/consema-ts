@@ -19,14 +19,14 @@
  *  - JsonArrayElement :563-610 (ordinal :578-583, node_ref :584-589,
  *    value_node_ref :590-595, span :596-600, value :602-609)
  *  - NodeRole spellings used by the json family: consema-document
- *    lib.rs:120-124 ('ObjectMember', 'ObjectKey', 'ArrayElement',
+ *    lib.rs ('ObjectMember', 'ObjectKey', 'ArrayElement',
  *    'Value', 'JsonSyntaxPiece')
  *
  * Design (TypeScript-idiomatic): the document is an immutable class; typed
  * handles (`JsonValue`/`JsonObjectMember`/`JsonArrayElement`) borrow one
  * document and an entity index. NodeRef ordinals ARE entity indexes
  * (u64), exactly like the Rust `node_ref(index as u64)` mapping
- * (lib.rs:260-262). The `@internal` accessors are consumed only by this
+ * (lib.rs). The `@internal` accessors are consumed only by this
  * family's parser/query/projection/edit modules.
  */
 
@@ -49,7 +49,7 @@ import type { SemanticAvailability, SemanticUnavailable } from './semantic.ts';
 // Native value categories
 // ---------------------------------------------------------------------------
 
-/** Native JSON value category, preserving integer-form versus decimal-form numbers (lib.rs:322-340). */
+/** Native JSON value category, preserving integer-form versus decimal-form numbers (lib.rs). */
 export type JsonValueKind =
   | 'Null'
   | 'Boolean'
@@ -67,7 +67,7 @@ export type JsonValueKind =
 // Internal entities
 // ---------------------------------------------------------------------------
 
-/** Exact arbitrary-precision integer or exact normalized decimal (lib.rs:649-659). */
+/** Exact arbitrary-precision integer or exact normalized decimal (lib.rs). */
 export type InternalValueKind =
   | { readonly kind: 'Null' }
   | { readonly kind: 'Boolean'; readonly value: boolean }
@@ -79,7 +79,7 @@ export type InternalValueKind =
   | { readonly kind: 'Object'; readonly members: readonly number[] }
   | { readonly kind: 'Unavailable'; readonly reason: SemanticUnavailable };
 
-/** One internal entity (lib.rs:623-674). */
+/** One internal entity (lib.rs). */
 export type Entity =
   | {
       readonly kind: 'Value';
@@ -106,7 +106,7 @@ export type Entity =
 // JsonDocument
 // ---------------------------------------------------------------------------
 
-/** Opaque immutable JSON-family document snapshot (lib.rs:171-183). */
+/** Opaque immutable JSON-family document snapshot (lib.rs). */
 export class JsonDocument {
   readonly #authority: DocumentAuthority;
   readonly #source: SourceSnapshot;
@@ -148,57 +148,57 @@ export class JsonDocument {
     this.#parseLimits = parseLimits;
   }
 
-  /** Snapshot identity to which every NodeRef and Span belongs (lib.rs:187-191). */
+  /** Snapshot identity to which every NodeRef and Span belongs (lib.rs). */
   snapshotIdentity() {
     return this.#authority.identity();
   }
 
-  /** Exact immutable source (lib.rs:192-197). */
+  /** Exact immutable source (lib.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Default rendering is the exact current source bytes (lib.rs:198-202). */
+  /** Default rendering is the exact current source bytes (lib.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** JSON format family contract (lib.rs:204-208). */
+  /** JSON format family contract (lib.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('json', 1);
   }
 
-  /** Exact language profile (lib.rs:210-215). */
+  /** Exact language profile (lib.rs). */
   profile(): ProfileId {
     return jsonProfileId(this.#profile);
   }
 
-  /** Whether recovery structure was required (lib.rs:216-220). */
+  /** Whether recovery structure was required (lib.rs). */
   formationStatus(): FormationStatus {
     return this.#formationStatus;
   }
 
-  /** Deterministically ordered document diagnostics (lib.rs:222-226). */
+  /** Deterministically ordered document diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Exhaustive token/trivia/error-region byte coverage (lib.rs:228-233). */
+  /** Exhaustive token/trivia/error-region byte coverage (lib.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex {
     return this.#structuralIndex;
   }
 
-  /** Format-specific kind for every structural piece, in the same source order (lib.rs:234-238). */
+  /** Format-specific kind for every structural piece, in the same source order (lib.rs). */
   losslessSyntaxKinds(): readonly JsonSyntaxKind[] {
     return this.#syntaxKinds;
   }
 
-  /** Root native semantic value (lib.rs:240-247). */
+  /** Root native semantic value (lib.rs). */
   root(): JsonValue {
     return new JsonValue(this, this.#root);
   }
 
-  /** Parse limits under which the document was formed (lib.rs:181-183). */
+  /** Parse limits under which the document was formed (lib.rs). */
   parseLimits(): ParseLimits {
     return this.#parseLimits;
   }
@@ -235,7 +235,7 @@ export class JsonDocument {
     return this.#authority.nodeRef(BigInt(index), role);
   }
 
-  /** @internal — resolves one NodeRef to its entity index (lib.rs:268-285). */
+  /** @internal — resolves one NodeRef to its entity index (lib.rs). */
   resolveEntityIndex(node: NodeRef, roles: readonly NodeRole[]): number {
     try {
       this.#authority.verify(node);
@@ -257,7 +257,7 @@ export class JsonDocument {
 // Typed native handles
 // ---------------------------------------------------------------------------
 
-/** Borrowed typed native semantic value bound to one Document snapshot (lib.rs:343-345). */
+/** Borrowed typed native semantic value bound to one Document snapshot (lib.rs). */
 export class JsonValue {
   readonly #document: JsonDocument;
   readonly #index: number;
@@ -267,17 +267,17 @@ export class JsonValue {
     this.#index = index;
   }
 
-  /** Exact value node handle (lib.rs:351-354). */
+  /** Exact value node handle (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'Value');
   }
 
-  /** Exact syntax span, possibly zero-width for a missing recovered node (lib.rs:356-359). */
+  /** Exact syntax span, possibly zero-width for a missing recovered node (lib.rs). */
   span(): Span {
     return this.#document.spanOf(this.#index);
   }
 
-  /** Native semantic category when available (lib.rs:362-386). */
+  /** Native semantic category when available (lib.rs). */
   kind(): SemanticAvailability<JsonValueKind> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -302,7 +302,7 @@ export class JsonValue {
     }
   }
 
-  /** Boolean value (lib.rs:389-398). */
+  /** Boolean value (lib.rs). */
   asBoolean(): SemanticAvailability<boolean | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -315,7 +315,7 @@ export class JsonValue {
     }
   }
 
-  /** Exact arbitrary-precision integer (lib.rs:400-410). */
+  /** Exact arbitrary-precision integer (lib.rs). */
   asInteger(): SemanticAvailability<bigint | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -328,7 +328,7 @@ export class JsonValue {
     }
   }
 
-  /** Exact normalized decimal (lib.rs:412-422). */
+  /** Exact normalized decimal (lib.rs). */
   asDecimal(): SemanticAvailability<{ coefficient: bigint; exponent: bigint } | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -341,7 +341,7 @@ export class JsonValue {
     }
   }
 
-  /** Exact IEEE-754 binary64 datum used by JSON5 non-finite literals (lib.rs:424-436). */
+  /** Exact IEEE-754 binary64 datum used by JSON5 non-finite literals (lib.rs). */
   asBinaryFloat64(): SemanticAvailability<bigint | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -354,7 +354,7 @@ export class JsonValue {
     }
   }
 
-  /** Decoded Unicode string without normalization (lib.rs:438-448). */
+  /** Decoded Unicode string without normalization (lib.rs). */
   asString(): SemanticAvailability<string | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -367,7 +367,7 @@ export class JsonValue {
     }
   }
 
-  /** Ordered array elements (lib.rs:450-468). */
+  /** Ordered array elements (lib.rs). */
   arrayElements(): SemanticAvailability<readonly JsonArrayElement[] | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -382,7 +382,7 @@ export class JsonValue {
     }
   }
 
-  /** Ordered object members without duplicate collapse (lib.rs:470-488). */
+  /** Ordered object members without duplicate collapse (lib.rs). */
   objectMembers(): SemanticAvailability<readonly JsonObjectMember[] | null> {
     const value = this.#document.valueEntityAt(this.#index).value;
     switch (value.kind) {
@@ -406,7 +406,7 @@ export class JsonValue {
   }
 }
 
-/** Borrowed JSON object member association (lib.rs:496-497). */
+/** Borrowed JSON object member association (lib.rs). */
 export class JsonObjectMember {
   readonly #document: JsonDocument;
   readonly #index: number;
@@ -416,32 +416,32 @@ export class JsonObjectMember {
     this.#index = index;
   }
 
-  /** Zero-based structural member ordinal (lib.rs:510-515). */
+  /** Zero-based structural member ordinal (lib.rs). */
   ordinal(): number {
     return this.#memberEntity().ordinal;
   }
 
-  /** Member association identity (lib.rs:516-520). */
+  /** Member association identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'ObjectMember');
   }
 
-  /** Key node identity (lib.rs:522-527). */
+  /** Key node identity (lib.rs). */
   keyNodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#memberEntity().key, 'ObjectKey');
   }
 
-  /** Value node identity (lib.rs:529-534). */
+  /** Value node identity (lib.rs). */
   valueNodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#memberEntity().value, 'Value');
   }
 
-  /** Whole member source span (lib.rs:535-539). */
+  /** Whole member source span (lib.rs). */
   span(): Span {
     return this.#document.spanOf(this.#index);
   }
 
-  /** Decoded member name (lib.rs:541-551). */
+  /** Decoded member name (lib.rs). */
   name(): SemanticAvailability<string> {
     const value = this.#document.valueEntityAt(this.#memberEntity().key).value;
     switch (value.kind) {
@@ -454,7 +454,7 @@ export class JsonObjectMember {
     }
   }
 
-  /** Associated value (lib.rs:553-561). */
+  /** Associated value (lib.rs). */
   value(): JsonValue {
     return new JsonValue(this.#document, this.#memberEntity().value);
   }
@@ -472,7 +472,7 @@ export class JsonObjectMember {
   }
 }
 
-/** Borrowed JSON array element association (lib.rs:563-566). */
+/** Borrowed JSON array element association (lib.rs). */
 export class JsonArrayElement {
   readonly #document: JsonDocument;
   readonly #index: number;
@@ -482,27 +482,27 @@ export class JsonArrayElement {
     this.#index = index;
   }
 
-  /** Zero-based structural index (lib.rs:578-583). */
+  /** Zero-based structural index (lib.rs). */
   ordinal(): number {
     return this.#elementEntity().ordinal;
   }
 
-  /** Element association identity (lib.rs:584-589). */
+  /** Element association identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'ArrayElement');
   }
 
-  /** Associated value identity (lib.rs:590-595). */
+  /** Associated value identity (lib.rs). */
   valueNodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#elementEntity().value, 'Value');
   }
 
-  /** Whole element span (lib.rs:596-600). */
+  /** Whole element span (lib.rs). */
   span(): Span {
     return this.#document.spanOf(this.#index);
   }
 
-  /** Element value (lib.rs:602-609). */
+  /** Element value (lib.rs). */
   value(): JsonValue {
     return new JsonValue(this.#document, this.#elementEntity().value);
   }
@@ -520,7 +520,7 @@ export class JsonArrayElement {
   }
 }
 
-/** Maps an available handle value while preserving unavailability (lib.rs:297-305). */
+/** Maps an available handle value while preserving unavailability (lib.rs). */
 export function mapJsonValue<T, U>(
   result: SemanticAvailability<T>,
   map: (value: T) => U,

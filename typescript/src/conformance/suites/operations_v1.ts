@@ -58,7 +58,7 @@ function registryManifest(case_: VectorCase): void {
   }
 }
 
-/** core.protocol-message@1 — v3 dual transport over the seven new v3 payloads (operations_v1.rs:192-277). */
+/** core.protocol-message@1 — v3 dual transport over the seven new v3 payloads (operations_v1.rs). */
 function protocolV3DualTransport(case_: VectorCase): void {
   const newPayloadCount = expectedField(case_, 'new_payload_count') as number;
   const jsonEqual = expectedField(case_, 'json_equal') as boolean;

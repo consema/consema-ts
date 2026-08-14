@@ -1,7 +1,7 @@
 /**
  * Structured deterministic diagnostics (provisional document-domain record).
  *
- * authority: consema-rs/consema-core/src/diagnostic.rs:5-124 — category
+ * authority: consema-rs/consema-core/src/diagnostic.rs — category
  * vocabulary (:7-30), severity (:33-41), DiagnosticLocation (:44-52),
  * RelatedLocation (:55-61), Diagnostic fields (:64-82), and the
  * deterministic sort (:106-123).
@@ -14,8 +14,8 @@
  *
  * Design (TypeScript-idiomatic): category and severity are closed
  * string-literal unions; `arguments` is a key-sorted Map so iteration
- * order is deterministic (the Rust BTreeMap invariant, diagnostic.rs:77);
- * `occurrence` is a bigint (u64 on the wire, diagnostic.rs:81).
+ * order is deterministic (the Rust BTreeMap invariant, diagnostic.rs);
+ * `occurrence` is a bigint (u64 on the wire, diagnostic.rs).
  */
 
 export type DiagnosticCategory =
@@ -33,7 +33,7 @@ export type DiagnosticCategory =
 
 export type DiagnosticSeverity = 'Info' | 'Warning' | 'Error';
 
-/** A snapshot-neutral location used by common protocols (diagnostic.rs:44-52). */
+/** A snapshot-neutral location used by common protocols (diagnostic.rs). */
 export interface DiagnosticLocation {
   /** Optional snapshot identity encoded by a document implementation. */
   readonly snapshot: bigint | null;
@@ -43,7 +43,7 @@ export interface DiagnosticLocation {
   readonly endByte: bigint;
 }
 
-/** A related diagnostic location and its stable role (diagnostic.rs:55-61). */
+/** A related diagnostic location and its stable role (diagnostic.rs). */
 export interface RelatedLocation {
   /** Stable namespaced relationship label. */
   readonly role: string;
@@ -51,7 +51,7 @@ export interface RelatedLocation {
   readonly location: DiagnosticLocation;
 }
 
-/** Machine-readable diagnostic (diagnostic.rs:64-82). */
+/** Machine-readable diagnostic (diagnostic.rs). */
 export interface Diagnostic {
   /** Stable namespaced code. */
   readonly code: string;
@@ -71,7 +71,7 @@ export interface Diagnostic {
   readonly occurrence: bigint;
 }
 
-/** Creates a minimal diagnostic (diagnostic.rs:85-104). */
+/** Creates a minimal diagnostic (diagnostic.rs). */
 export function diagnostic(
   code: string,
   category: DiagnosticCategory,
@@ -103,7 +103,7 @@ export function diagnostic(
 
 /**
  * Sorts diagnostics by source order, then category, code, and occurrence
- * (diagnostic.rs:106-123). Returns a new array; the input is untouched.
+ * (diagnostic.rs). Returns a new array; the input is untouched.
  */
 export function sortDiagnostics(diagnostics: readonly Diagnostic[]): Diagnostic[] {
   return [...diagnostics].sort((left, right) => {

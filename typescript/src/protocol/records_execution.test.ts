@@ -4,7 +4,7 @@
  *
  * authority: consema-rs/consema-protocol/src/execution.rs (Completion state
  * invariants :40-187, ExecutionPolicy :189-277, CancellationRequest
- * :279-340) and consema-rs/consema-protocol/src/query.rs:441-560 (path_value,
+ * :279-340) and consema-rs/consema-protocol/src/query.rs (path_value,
  * parse_path, association_value, parse_association); cross-reference
  * consema-go/go/protocol/query_exec_test.go's failure-injection style — every invalid
  * state combination and malformed wire shape rejects with the frozen

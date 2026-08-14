@@ -13,7 +13,7 @@
  *  - the `hcl.expression@1` ExtendedValue (:67-97): `{ "record":
  *    "hcl.expression@1", "kind": <family>, "text": <exact text>,
  *    "fingerprint": <16 hex> }`; the kind family table (:90-96) and the
- *    fingerprint (:98-115, materialization.rs:1507-1516)
+ *    fingerprint (:98-115, materialization.rs)
  *  - ProjectionTarget :166-171, ExpressionPolicy :173-183,
  *    ProjectionRequest :185-239, ProjectionLimits :241-268 (defaults:
  *    2M source nodes, 2M value nodes, 100k report entries, 4M provenance
@@ -65,16 +65,16 @@ import { HclProjectionFailure } from './errors.ts';
 import type { HclProjectionFailureKind } from './errors.ts';
 
 // ---------------------------------------------------------------------------
-// Request and policy (projection.rs:166-268)
+// Request and policy (projection.rs)
 // ---------------------------------------------------------------------------
 
-/** Versioned HCL projection target (projection.rs:166-171). */
+/** Versioned HCL projection target (projection.rs). */
 export type HclProjectionTarget = 'BodyV1';
 
-/** Derived-expression handling for the body target (projection.rs:173-183). */
+/** Derived-expression handling for the body target (projection.rs). */
 export type HclExpressionPolicy = 'Fail' | 'ProjectExpression';
 
-/** Explicit HCL projection request (projection.rs:185-239). */
+/** Explicit HCL projection request (projection.rs). */
 export class HclProjectionRequest {
   readonly #target: HclProjectionTarget;
   readonly #policy: HclExpressionPolicy;
@@ -116,7 +116,7 @@ export class HclProjectionRequest {
   }
 }
 
-/** HCL projection resource limits (projection.rs:241-268). */
+/** HCL projection resource limits (projection.rs). */
 export interface HclProjectionLimits {
   /** Maximum inspected native constructs: every attribute, block, label, and expression node. */
   readonly maxSourceNodes: number;
@@ -128,7 +128,7 @@ export interface HclProjectionLimits {
   readonly maxProvenanceUnits: number;
 }
 
-/** The frozen defaults (projection.rs:259-267). */
+/** The frozen defaults (projection.rs). */
 export const DEFAULT_HCL_PROJECTION_LIMITS: Readonly<HclProjectionLimits> = Object.freeze({
   maxSourceNodes: 2_000_000,
   maxValueNodes: 2_000_000,
@@ -137,16 +137,16 @@ export const DEFAULT_HCL_PROJECTION_LIMITS: Readonly<HclProjectionLimits> = Obje
 });
 
 // ---------------------------------------------------------------------------
-// Completion algebra (projection.rs:270-430)
+// Completion algebra (projection.rs)
 // ---------------------------------------------------------------------------
 
-/** Projection fidelity classification (projection.rs:270-279). */
+/** Projection fidelity classification (projection.rs). */
 export type HclProjectionFidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Source-to-projection relation (projection.rs:281-292). */
+/** Source-to-projection relation (projection.rs). */
 export type HclProvenanceRelation = 'Direct' | 'Derived' | 'Collapsed' | 'ReferenceDerived';
 
-/** One exact source origin (projection.rs:294-305). */
+/** One exact source origin (projection.rs). */
 export class HclSourceOrigin {
   readonly #snapshot: SnapshotIdentity;
   readonly #node: NodeRef;
@@ -181,7 +181,7 @@ export class HclSourceOrigin {
   }
 }
 
-/** One many-valued provenance entry (projection.rs:307-315). */
+/** One many-valued provenance entry (projection.rs). */
 export class HclProvenanceEntry {
   readonly #projected: ValuePath;
   readonly #origins: readonly HclSourceOrigin[];
@@ -202,7 +202,7 @@ export class HclProvenanceEntry {
   }
 }
 
-/** Immutable many-valued provenance mapping (projection.rs:317-346). */
+/** Immutable many-valued provenance mapping (projection.rs). */
 export class HclProvenanceMap {
   readonly #entries: readonly HclProvenanceEntry[];
 
@@ -220,10 +220,10 @@ export class HclProvenanceMap {
   }
 }
 
-/** Projection report category (projection.rs:348-355). */
+/** Projection report category (projection.rs). */
 export type HclProjectionEventKind = 'ExpressionSubstituted';
 
-/** One explicit transformation event (projection.rs:357-368). */
+/** One explicit transformation event (projection.rs). */
 export class HclProjectionEvent {
   readonly #kind: HclProjectionEventKind;
   readonly #expression: NodeRef;
@@ -258,7 +258,7 @@ export class HclProjectionEvent {
   }
 }
 
-/** Complete ordered projection report (projection.rs:370-399). */
+/** Complete ordered projection report (projection.rs). */
 export class HclProjectionReport {
   readonly #events: readonly HclProjectionEvent[];
 
@@ -276,7 +276,7 @@ export class HclProjectionReport {
   }
 }
 
-/** Complete successful projection (projection.rs:401-412). */
+/** Complete successful projection (projection.rs). */
 export class HclCompleteProjection {
   readonly #value: PortableValue;
   readonly #fidelity: HclProjectionFidelity;
@@ -316,7 +316,7 @@ export class HclCompleteProjection {
   }
 }
 
-/** Failed projection attempt without a partial value (projection.rs:414-421). */
+/** Failed projection attempt without a partial value (projection.rs). */
 export class HclFailedProjectionAttempt {
   readonly #diagnostics: readonly Diagnostic[];
   readonly #report: HclProjectionReport;
@@ -337,7 +337,7 @@ export class HclFailedProjectionAttempt {
   }
 }
 
-/** Projection completion algebra (projection.rs:423-430). */
+/** Projection completion algebra (projection.rs). */
 export type HclProjectionResult =
   | { readonly kind: 'Complete'; readonly value: HclCompleteProjection }
   | { readonly kind: 'Failed'; readonly value: HclFailedProjectionAttempt };
@@ -356,7 +356,7 @@ export interface HclExpressionPayload {
   readonly fingerprint: string;
 }
 
-/** Extracts the canonical payload of one expression (projection.rs:536-579). */
+/** Extracts the canonical payload of one expression (projection.rs). */
 export function hclExpressionPayload(document: HclDocument, expression: HclExpr): HclExpressionPayload {
   const span = expression.span;
   const decoded = document.source().decodedText() ?? '';
@@ -468,7 +468,7 @@ function noteReport(state: ProjectState, events: number): void {
   }
 }
 
-/** Projects one body's items in source order (projection.rs:602-1000). */
+/** Projects one body's items in source order (projection.rs). */
 function projectBodyItems(
   document: HclDocument,
   bodyIndex: number,
@@ -603,7 +603,7 @@ function projectExpression(
   return record;
 }
 
-/** Maps one typed literal to the record member (projection.rs:51-66). */
+/** Maps one typed literal to the record member (projection.rs). */
 function projectLiteral(literal: HclLiteralValue, path: ValuePath, state: ProjectState): PortableValue {
   switch (literal.kind) {
     case 'String':
@@ -647,7 +647,7 @@ function projectLiteral(literal: HclLiteralValue, path: ValuePath, state: Projec
   }
 }
 
-/** The canonical string spelling of one literal key (projection.rs:57-65). */
+/** The canonical string spelling of one literal key (projection.rs). */
 function literalKeyString(key: HclLiteralKey, state: ProjectState): string {
   switch (key.kind) {
     case 'Identifier':

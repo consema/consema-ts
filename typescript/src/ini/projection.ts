@@ -43,16 +43,16 @@ import type { IniDocument, IniEntry } from './document.ts';
 import { IniProjectionFailure } from './errors.ts';
 import { optionxform } from './python_case.ts';
 
-/** Versioned INI projection target contract (projection.rs:9-16). */
+/** Versioned INI projection target contract (projection.rs). */
 export type IniProjectionTarget = 'BestExactEntryMappingV1' | 'RequireObjectV1';
 
-/** Name comparison used only by `RequireObjectV1` (projection.rs:18-25). */
+/** Name comparison used only by `RequireObjectV1` (projection.rs). */
 export type IniNameComparison = 'OriginalExact' | 'ProfileEquivalent';
 
-/** Explicit collision behavior for Object projection (projection.rs:27-36). */
+/** Explicit collision behavior for Object projection (projection.rs). */
 export type IniCollisionPolicy = 'Reject' | 'First' | 'Last';
 
-/** Projection resource limits (projection.rs:102-113). */
+/** Projection resource limits (projection.rs). */
 export interface IniProjectionLimits {
   /** Maximum source section and entry associations inspected. */
   readonly maxSourceAssociations: number;
@@ -64,7 +64,7 @@ export interface IniProjectionLimits {
   readonly maxProvenanceUnits: number;
 }
 
-/** The frozen defaults (projection.rs:115-124). */
+/** The frozen defaults (projection.rs). */
 export const DEFAULT_INI_PROJECTION_LIMITS: Readonly<IniProjectionLimits> = Object.freeze({
   maxSourceAssociations: 2_000_000,
   maxValueNodes: 2_000_000,
@@ -72,7 +72,7 @@ export const DEFAULT_INI_PROJECTION_LIMITS: Readonly<IniProjectionLimits> = Obje
   maxProvenanceUnits: 4_000_000,
 });
 
-/** Immutable explicit projection request (projection.rs:38-100). */
+/** Immutable explicit projection request (projection.rs). */
 export class IniProjectionRequest {
   readonly #target: IniProjectionTarget;
   readonly #comparison: IniNameComparison;
@@ -91,12 +91,12 @@ export class IniProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Exact default that preserves duplicate associations (projection.rs:48-57). */
+  /** Exact default that preserves duplicate associations (projection.rs). */
   static bestExactEntryMapping(): IniProjectionRequest {
     return new IniProjectionRequest('BestExactEntryMappingV1', 'OriginalExact', 'Reject', DEFAULT_INI_PROJECTION_LIMITS);
   }
 
-  /** Explicit unique Object request (projection.rs:59-68). */
+  /** Explicit unique Object request (projection.rs). */
   static requireObject(
     comparison: IniNameComparison,
     collisionPolicy: IniCollisionPolicy,
@@ -104,41 +104,41 @@ export class IniProjectionRequest {
     return new IniProjectionRequest('RequireObjectV1', comparison, collisionPolicy, DEFAULT_INI_PROJECTION_LIMITS);
   }
 
-  /** Replaces immutable resource limits (projection.rs:70-75). */
+  /** Replaces immutable resource limits (projection.rs). */
   withLimits(limits: IniProjectionLimits): IniProjectionRequest {
     return new IniProjectionRequest(this.#target, this.#comparison, this.#collisionPolicy, limits);
   }
 
-  /** Frozen target contract (projection.rs:77-81). */
+  /** Frozen target contract (projection.rs). */
   target(): IniProjectionTarget {
     return this.#target;
   }
 
-  /** Explicit Object-name comparison (projection.rs:83-87). */
+  /** Explicit Object-name comparison (projection.rs). */
   comparison(): IniNameComparison {
     return this.#comparison;
   }
 
-  /** Explicit Object collision policy (projection.rs:89-93). */
+  /** Explicit Object collision policy (projection.rs). */
   collisionPolicy(): IniCollisionPolicy {
     return this.#collisionPolicy;
   }
 
-  /** Projection resource limits (projection.rs:95-99). */
+  /** Projection resource limits (projection.rs). */
   limits(): IniProjectionLimits {
     return this.#limits;
   }
 }
 
-/** Projection fidelity classification (projection.rs:126-135). */
+/** Projection fidelity classification (projection.rs). */
 export type IniProjectionFidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Projected value or association location (projection.rs:137-143). */
+/** Projected value or association location (projection.rs). */
 export type IniProjectedLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** Source-to-projection relation (projection.rs:145-158). */
+/** Source-to-projection relation (projection.rs). */
 export type IniProvenanceRelation =
   | 'Direct'
   | 'Derived'
@@ -146,7 +146,7 @@ export type IniProvenanceRelation =
   | 'QuoteDerived'
   | 'Collapsed';
 
-/** One exact source origin (projection.rs:160-172). */
+/** One exact source origin (projection.rs). */
 export class IniSourceOrigin {
   readonly #snapshot: SnapshotIdentity;
   readonly #node: NodeRef;
@@ -160,28 +160,28 @@ export class IniSourceOrigin {
     this.#relation = relation;
   }
 
-  /** Source document snapshot (projection.rs:165-168). */
+  /** Source document snapshot (projection.rs). */
   snapshot(): SnapshotIdentity {
     return this.#snapshot;
   }
 
-  /** Exact structural identity (projection.rs:169-172). */
+  /** Exact structural identity (projection.rs). */
   node(): NodeRef {
     return this.#node;
   }
 
-  /** Exact source range (projection.rs:173-176). */
+  /** Exact source range (projection.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Source relation (projection.rs:177-180). */
+  /** Source relation (projection.rs). */
   relation(): IniProvenanceRelation {
     return this.#relation;
   }
 }
 
-/** One many-valued provenance mapping entry (projection.rs:174-182). */
+/** One many-valued provenance mapping entry (projection.rs). */
 export class IniProvenanceEntry {
   readonly #projected: IniProjectedLocation;
   readonly #origins: readonly IniSourceOrigin[];
@@ -191,18 +191,18 @@ export class IniProvenanceEntry {
     this.#origins = Object.freeze([...origins]);
   }
 
-  /** Projected value or association (projection.rs:176-178). */
+  /** Projected value or association (projection.rs). */
   projected(): IniProjectedLocation {
     return this.#projected;
   }
 
-  /** One or more exact source origins (projection.rs:179-181). */
+  /** One or more exact source origins (projection.rs). */
   origins(): readonly IniSourceOrigin[] {
     return this.#origins;
   }
 }
 
-/** Immutable many-valued provenance mapping (projection.rs:184-195). */
+/** Immutable many-valued provenance mapping (projection.rs). */
 export class IniProvenanceMap {
   readonly #entries: readonly IniProvenanceEntry[];
 
@@ -214,16 +214,16 @@ export class IniProvenanceMap {
     return new IniProvenanceMap(entries);
   }
 
-  /** Deterministically generated entries (projection.rs:190-194). */
+  /** Deterministically generated entries (projection.rs). */
   entries(): readonly IniProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Collision report category (projection.rs:197-204). */
+/** Collision report category (projection.rs). */
 export type IniProjectionEventKind = 'SectionCollisionCollapsed' | 'EntryCollisionCollapsed';
 
-/** One explicit Object collision event (projection.rs:206-223). */
+/** One explicit Object collision event (projection.rs). */
 export class IniProjectionEvent {
   readonly #kind: IniProjectionEventKind;
   readonly #policy: IniCollisionPolicy;
@@ -251,43 +251,43 @@ export class IniProjectionEvent {
     this.#impact = impact;
   }
 
-  /** Stable event kind (projection.rs:225-227). */
+  /** Stable event kind (projection.rs). */
   kind(): IniProjectionEventKind {
     return this.#kind;
   }
 
-  /** Policy that authorized the transformation (projection.rs:228-230). */
+  /** Policy that authorized the transformation (projection.rs). */
   policy(): IniCollisionPolicy {
     return this.#policy;
   }
 
-  /** Comparison mode that formed the collision class (projection.rs:231-233). */
+  /** Comparison mode that formed the collision class (projection.rs). */
   comparison(): IniNameComparison {
     return this.#comparison;
   }
 
-  /** Discarded source occurrence (projection.rs:234-236). */
+  /** Discarded source occurrence (projection.rs). */
   discarded(): NodeRef {
     return this.#discarded;
   }
 
-  /** Retained source occurrence (projection.rs:237-239). */
+  /** Retained source occurrence (projection.rs). */
   retained(): NodeRef {
     return this.#retained;
   }
 
-  /** Association produced from the retained occurrence (projection.rs:240-242). */
+  /** Association produced from the retained occurrence (projection.rs). */
   projected(): AssociationLocation {
     return this.#projected;
   }
 
-  /** Fidelity impact (projection.rs:243-245). */
+  /** Fidelity impact (projection.rs). */
   impact(): IniProjectionFidelity {
     return this.#impact;
   }
 }
 
-/** Complete ordered projection report (projection.rs:225-237). */
+/** Complete ordered projection report (projection.rs). */
 export class IniProjectionReport {
   readonly #events: readonly IniProjectionEvent[];
 
@@ -298,13 +298,13 @@ export class IniProjectionReport {
     this.#events = Object.freeze([...events]);
   }
 
-  /** Ordered structured transformation/loss events (projection.rs:232-236). */
+  /** Ordered structured transformation/loss events (projection.rs). */
   events(): readonly IniProjectionEvent[] {
     return this.#events;
   }
 }
 
-/** Complete successful projection; its value is never partial (projection.rs:239-250). */
+/** Complete successful projection; its value is never partial (projection.rs). */
 export class IniCompleteProjection {
   readonly #value: PortableValue;
   readonly #fidelity: IniProjectionFidelity;
@@ -323,28 +323,28 @@ export class IniCompleteProjection {
     this.#provenance = provenance;
   }
 
-  /** Complete immutable nested mapping (projection.rs:243-246). */
+  /** Complete immutable nested mapping (projection.rs). */
   value(): PortableValue {
     return this.#value;
   }
 
-  /** Worst fidelity of the whole operation (projection.rs:247-249). */
+  /** Worst fidelity of the whole operation (projection.rs). */
   fidelity(): IniProjectionFidelity {
     return this.#fidelity;
   }
 
-  /** Machine-readable collision report (projection.rs:250-252). */
+  /** Machine-readable collision report (projection.rs). */
   report(): IniProjectionReport {
     return this.#report;
   }
 
-  /** Value and association provenance (projection.rs:253-255). */
+  /** Value and association provenance (projection.rs). */
   provenance(): IniProvenanceMap {
     return this.#provenance;
   }
 }
 
-/** Failed attempt without a partial PortableValue (projection.rs:252-259). */
+/** Failed attempt without a partial PortableValue (projection.rs). */
 export class IniFailedProjectionAttempt {
   readonly #diagnostics: readonly Diagnostic[];
   readonly #report: IniProjectionReport;
@@ -354,18 +354,18 @@ export class IniFailedProjectionAttempt {
     this.#report = report;
   }
 
-  /** Ordered diagnostics explaining the failure (projection.rs:262-265). */
+  /** Ordered diagnostics explaining the failure (projection.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Empty report: failed projections publish no partial transformation result (projection.rs:266-268). */
+  /** Empty report: failed projections publish no partial transformation result (projection.rs). */
   report(): IniProjectionReport {
     return this.#report;
   }
 }
 
-/** Projection completion algebra (projection.rs:261-268; RFC 0004 §7 shape). */
+/** Projection completion algebra (projection.rs; RFC 0004 §7 shape). */
 export type IniProjectionResult =
   | { readonly kind: 'Complete'; readonly value: IniCompleteProjection }
   | { readonly kind: 'Failed'; readonly value: IniFailedProjectionAttempt };
@@ -391,7 +391,7 @@ class ProjectionContext {
     return this.#document;
   }
 
-  /** Mirrors projection.rs:326-370 provenance-unit accounting and origin insertion. */
+  /** Mirrors projection.rs provenance-unit accounting and origin insertion. */
   addOrigin(
     projected: IniProjectedLocation,
     node: NodeRef,
@@ -418,7 +418,7 @@ class ProjectionContext {
     }
   }
 
-  /** Mirrors projection.rs:372-379 event accounting and fidelity elevation. */
+  /** Mirrors projection.rs event accounting and fidelity elevation. */
   pushEvent(event: IniProjectionEvent): void {
     if (this.#events.length >= this.#request.limits().maxReportEntries) {
       throw new IniProjectionFailure('ResourceLimit', { limitName: 'max_report_entries' });
@@ -426,7 +426,7 @@ class ProjectionContext {
     this.#events.push(event);
   }
 
-  /** Adds every value origin of one entry, including continuation fragments (projection.rs:381-425). */
+  /** Adds every value origin of one entry, including continuation fragments (projection.rs). */
   addEntryValueOrigins(projected: IniProjectedLocation, entry: IniEntry): void {
     const document = this.#document;
     this.addOrigin(
@@ -499,7 +499,7 @@ function projectedLocationEquals(
 }
 
 /**
- * Applies an immutable explicit projection request (projection.rs:288-314).
+ * Applies an immutable explicit projection request (projection.rs).
  * Recovered documents always fail with ini.projection.incomplete-document@1.
  */
 export function projectIni(
@@ -528,7 +528,7 @@ export function projectIni(
 }
 
 // ---------------------------------------------------------------------------
-// Exact EntryMapping projection (projection.rs:428-537)
+// Exact EntryMapping projection (projection.rs)
 // ---------------------------------------------------------------------------
 
 function projectExact(document: IniDocument, request: IniProjectionRequest): IniCompleteProjection {
@@ -601,7 +601,7 @@ function entryMappingItem(item: { key: string; value: PortableValue }) {
 }
 
 // ---------------------------------------------------------------------------
-// Explicit Object projection (projection.rs:539-785)
+// Explicit Object projection (projection.rs)
 // ---------------------------------------------------------------------------
 
 interface SelectedSection {
@@ -758,7 +758,7 @@ function projectObject(document: IniDocument, request: IniProjectionRequest): In
   );
 }
 
-/** Unique-key Object construction; a duplicate key is a core invariant failure (projection.rs:729-767). */
+/** Unique-key Object construction; a duplicate key is a core invariant failure (projection.rs). */
 function objectValueOf(entries: readonly { key: string; value: PortableValue }[]): PortableValue {
   try {
     return objectValue(entries.map((entry) => ({ key: entry.key, value: entry.value })));
@@ -768,7 +768,7 @@ function objectValueOf(entries: readonly { key: string; value: PortableValue }[]
 }
 
 // ---------------------------------------------------------------------------
-// Selection and comparison (projection.rs:787-846)
+// Selection and comparison (projection.rs)
 // ---------------------------------------------------------------------------
 
 function selectIndices(
@@ -835,7 +835,7 @@ function comparisonName(
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Entries grouped by owning section entity index, in entry order (projection.rs:823-829). */
+/** Entries grouped by owning section entity index, in entry order (projection.rs). */
 function groupEntries(document: IniDocument): Map<number, IniEntry[]> {
   const groups = new Map<number, IniEntry[]>();
   for (const entry of document.entries()) {
@@ -854,7 +854,7 @@ function groupEntries(document: IniDocument): Map<number, IniEntry[]> {
 }
 
 // ---------------------------------------------------------------------------
-// Failure records (projection.rs:852-893)
+// Failure records (projection.rs)
 // ---------------------------------------------------------------------------
 
 function failed(document: IniDocument, failure: IniProjectionFailure): IniProjectionResult {

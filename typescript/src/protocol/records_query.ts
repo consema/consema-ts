@@ -3,7 +3,7 @@
  *
  * authority: consema-rs/consema-protocol/src/query.rs — NativeMatchLocator
  * (:54-124), ProtocolQueryMatch (:126-144), QueryResultMessage (:146-327);
- * the `core.query-definition@1` codec mirrors consema-core query.rs:532-734
+ * the `core.query-definition@1` codec mirrors consema-core query.rs
  * (to_protocol_value/from_protocol_value) with the Python
  * QueryDefinitionCodec (consema/protocol/query.py:1202-1340) as the
  * runner-side cross-reference. The value-path/association-location records
@@ -11,7 +11,7 @@
  *
  * Design (TypeScript-idiomatic): plain records with validated static
  * factories; every record self-registers its full decoder with the envelope
- * payload dispatch (payload.rs:145-157).
+ * payload dispatch (payload.rs).
  */
 
 import type { ObjectValue, PortableValue } from '../core/value.ts';
@@ -37,7 +37,7 @@ import { newQueryDomain } from './query.ts';
 import { Completion } from './records_execution.ts';
 import type { NodeRef } from '../document/identity.ts';
 
-/** The match roles published by `core.query-result@1` (query.rs:628-692). */
+/** The match roles published by `core.query-result@1` (query.rs). */
 const V1_ROLES: readonly MatchRole[] = [
   'Value',
   'ObjectEntry',
@@ -52,7 +52,7 @@ const V1_ROLES: readonly MatchRole[] = [
   'TomlSyntaxPiece',
 ];
 
-/** The native match roles accepted by NativeMatchLocator (query.rs:711-723). */
+/** The native match roles accepted by NativeMatchLocator (query.rs). */
 const NATIVE_ROLES: readonly MatchRole[] = [
   'JsonValue',
   'JsonObjectMember',
@@ -64,12 +64,12 @@ const NATIVE_ROLES: readonly MatchRole[] = [
   'TomlSyntaxPiece',
 ];
 
-/** Parses one canonical match-role spelling published by the v1 record (query.rs:694-709). */
+/** Parses one canonical match-role spelling published by the v1 record (query.rs). */
 export function parseMatchRole(text: string): MatchRole | undefined {
   return (V1_ROLES as readonly string[]).includes(text) ? (text as MatchRole) : undefined;
 }
 
-/** Reports whether the role is published by `core.query-result@1` (query.rs:628-692). */
+/** Reports whether the role is published by `core.query-result@1` (query.rs). */
 export function isV1Role(role: MatchRole): boolean {
   return (V1_ROLES as readonly string[]).includes(role);
 }
@@ -78,7 +78,7 @@ function isNativeRole(role: MatchRole): boolean {
   return (NATIVE_ROLES as readonly string[]).includes(role);
 }
 
-/** Caller-externalized locator for a native semantic query match (query.rs:54-63). */
+/** Caller-externalized locator for a native semantic query match (query.rs). */
 export class NativeMatchLocator {
   readonly sourceId: string;
   readonly nodeLocator: string;
@@ -92,7 +92,7 @@ export class NativeMatchLocator {
     this.ordinal = ordinal;
   }
 
-  /** Creates a transferable locator for one native match (query.rs:64-90). */
+  /** Creates a transferable locator for one native match (query.rs). */
   static new(
     sourceId: string,
     nodeLocator: string,
@@ -111,13 +111,13 @@ export class NativeMatchLocator {
     return new NativeMatchLocator(sourceId, nodeLocator, role, ordinal);
   }
 
-  /** Explicit rejection adapter for raw process-local handles (query.rs:92-99). */
+  /** Explicit rejection adapter for raw process-local handles (query.rs). */
   static fromProcessLocal(_node: NodeRef): never {
     throw processLocalError('$.native_match.node');
   }
 }
 
-/** One transferable query match (query.rs:126-144). */
+/** One transferable query match (query.rs). */
 export class ProtocolQueryMatch {
   readonly kind: 'Value' | 'ObjectEntry' | 'EntryMappingEntry' | 'Native';
   readonly path: ValuePath | null;
@@ -159,7 +159,7 @@ export class ProtocolQueryMatch {
     this.native = options.kind === 'Native' ? options.native : null;
   }
 
-  /** The uniform match role of the record (query.rs:135-143). */
+  /** The uniform match role of the record (query.rs). */
   role(): MatchRole {
     switch (this.kind) {
       case 'Value':
@@ -173,7 +173,7 @@ export class ProtocolQueryMatch {
     }
   }
 
-  /** Encodes one match (query.rs:329-376). */
+  /** Encodes one match (query.rs). */
   toValue(): ObjectValue {
     switch (this.kind) {
       case 'Value':
@@ -210,7 +210,7 @@ export class ProtocolQueryMatch {
     }
   }
 
-  /** Strictly decodes one match (query.rs:378-439). */
+  /** Strictly decodes one match (query.rs). */
   static fromValue(value: PortableValue, path: string): ProtocolQueryMatch {
     if (value.kind !== 'Object' || value.entries.length === 0) {
       throw invalid(path, 'expected match Object');
@@ -276,7 +276,7 @@ export class ProtocolQueryMatch {
   }
 }
 
-/** The complete or explicitly non-complete `core.query-result@1` record (query.rs:146-155). */
+/** The complete or explicitly non-complete `core.query-result@1` record (query.rs). */
 export class QueryResultMessage {
   readonly domain: QueryDomain;
   readonly role: MatchRole;
@@ -298,7 +298,7 @@ export class QueryResultMessage {
     this.diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Validates domain, match roles, ordering ordinals, and completion counts (query.rs:156-200). */
+  /** Validates domain, match roles, ordering ordinals, and completion counts (query.rs). */
   static new(
     domain: QueryDomain,
     role: MatchRole,
@@ -328,7 +328,7 @@ export class QueryResultMessage {
     return new QueryResultMessage(domain, role, matches, completion, diagnostics);
   }
 
-  /** Converts a completed portable query execution (query.rs:202-223). */
+  /** Converts a completed portable query execution (query.rs). */
   static fromPortableExecution(
     domain: QueryDomain,
     role: MatchRole,
@@ -344,7 +344,7 @@ export class QueryResultMessage {
     );
   }
 
-  /** Encodes `core.query-result@1` (query.rs:256-280). */
+  /** Encodes `core.query-result@1` (query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.query-result@1') },
@@ -360,12 +360,12 @@ export class QueryResultMessage {
     ]);
   }
 
-  /** Strictly decodes `core.query-result@1` under the v1 registry (query.rs:282-285). */
+  /** Strictly decodes `core.query-result@1` under the v1 registry (query.rs). */
   static fromValue(value: PortableValue): QueryResultMessage {
     return QueryResultMessage.fromValueWithRegistry(value, new ErrorCodeRegistry(1));
   }
 
-  /** Strictly decodes terminal facts under one explicit registry (query.rs:288-326). */
+  /** Strictly decodes terminal facts under one explicit registry (query.rs). */
   static fromValueWithRegistry(value: PortableValue, registry: ErrorCodeRegistry): QueryResultMessage {
     const fields = schemaFields(
       value,
@@ -397,7 +397,7 @@ export class QueryResultMessage {
 /** The `core.query-definition@1` wire schema discriminator. */
 export const QUERY_DEFINITION_SCHEMA = 'core.query-definition@1';
 
-/** Encodes `core.query-definition@1` (query.rs:532-559). */
+/** Encodes `core.query-definition@1` (query.rs). */
 export function queryDefinitionToValue(definition: QueryDefinition): ObjectValue {
   return objectValueFrom([
     { key: 'schema', value: stringValue(QUERY_DEFINITION_SCHEMA) },
@@ -408,7 +408,7 @@ export function queryDefinitionToValue(definition: QueryDefinition): ObjectValue
   ]);
 }
 
-/** Strictly decodes `core.query-definition@1` (query.rs:561-598). */
+/** Strictly decodes `core.query-definition@1` (query.rs). */
 export function queryDefinitionFromValue(value: PortableValue): QueryDefinition {
   const fields = exactObjectFields(
     value,
@@ -566,7 +566,7 @@ function queryUnsigned32(value: PortableValue, name: string): number {
   return Number(number);
 }
 
-/** Parses one cardinality selection spelling (query.rs:600-608). */
+/** Parses one cardinality selection spelling (query.rs). */
 function parseQuerySelection(text: string): QuerySelection {
   switch (text) {
     case 'All':
@@ -585,7 +585,7 @@ function diagnosticToValueOf(diagnostic: Diagnostic): PortableValue {
   return diagnosticToValue(diagnostic);
 }
 
-// Envelope payload dispatch (payload.rs:145-157): every query payload
+// Envelope payload dispatch (payload.rs): every query payload
 // validates through its record decoder at module load.
 registerPayloadValidator('core.query-result', 1, (payload, registry) => {
   QueryResultMessage.fromValueWithRegistry(payload, new ErrorCodeRegistry(registry.versionOf()));

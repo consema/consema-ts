@@ -111,7 +111,7 @@ test('graph materialization of a shared node emits one anchor and one alias', ()
   assert.equal(result.kind, 'Complete');
   if (result.kind === 'Complete') {
     // The shared scalar has two occurrences and is anchored; the sequence
-    // occurs once and is not (materialization.rs:392-398).
+    // occurs once and is not (materialization.rs).
     assert.equal(render(result.value.document), '--- !!seq [&g0 !!str "one", *g0]\n');
   }
 });

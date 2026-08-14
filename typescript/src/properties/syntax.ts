@@ -15,7 +15,7 @@
  * syntax-query match roles reproduce the Rust spellings byte-for-byte).
  */
 
-/** Closed Java Properties v1 lossless syntax-piece classification (lib.rs:208-235). */
+/** Closed Java Properties v1 lossless syntax-piece classification (lib.rs). */
 export type PropertiesSyntaxKind =
   /** Unicode byte-order mark recognized by the Reader source contract. */
   | 'Bom'
@@ -42,7 +42,7 @@ export type PropertiesSyntaxKind =
   /** Malformed source retained through recovery. */
   | 'ErrorRegion';
 
-/** Resolves one exact stable kind name (lib.rs:257-273). */
+/** Resolves one exact stable kind name (lib.rs). */
 export function propertiesSyntaxKindFromName(name: string): PropertiesSyntaxKind | null {
   switch (name) {
     case 'Bom':

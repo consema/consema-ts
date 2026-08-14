@@ -2,7 +2,7 @@
  * Strict PortableGraph equality and deterministic hashing.
  *
  * authority: RFC 0006 §4 (root-preserving ordered graph isomorphism; builder
- * numbering is not semantic); the canonical numbering (lib.rs:542-578); the
+ * numbering is not semantic); the canonical numbering (lib.rs); the
  * vectors (conformance/vectors/portable-graph-v1.json:
  * graph.isomorphic-builder-numbering, graph.sharing-is-not-duplication).
  *
@@ -75,7 +75,7 @@ export function equal(a: Graph, b: Graph): boolean {
   return true;
 }
 
-/** Compares two nodes under their canonical ID mappings (lib.rs:634-661). */
+/** Compares two nodes under their canonical ID mappings (lib.rs). */
 function canonicalNodeEqual(
   left: Node,
   leftIDs: number[],

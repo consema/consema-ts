@@ -2,7 +2,7 @@
  * Query validation intent tests.
  *
  * These pin the domain/operator table facts of
- * consema-rs/consema-core/src/query.rs:899-1897 and the vector failure names of
+ * consema-rs/consema-core/src/query.rs and the vector failure names of
  * conformance/vectors/v1.json (query.reject-role-mismatch). They run once
  * the toolchain is ready; no gate is claimed before that (§7 START GATE).
  */
@@ -106,7 +106,7 @@ test('semantic argument checks: value-kind vocabulary and state sets', () => {
   // ini.entry-value-state-is expects an IniEntry input; compose the entry
   // path (IniDocument -> IniSection -> IniEntry) so the role check passes and
   // the state vocabulary check runs. The Rust authority checks roles before
-  // arguments (consema-core/src/query.rs:1612-1618), so a bare apply with the
+  // arguments (consema-core/src/query.rs), so a bare apply with the
   // IniDocument input correctly fails as InvalidOperatorComposition instead.
   const iniDefinition = newQueryDefinition({ id: 'ini.native-semantic-query', version: 1 });
   const iniEntry: QueryExpression = {

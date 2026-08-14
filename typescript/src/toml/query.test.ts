@@ -252,7 +252,7 @@ test('cancellation and step limits are execution failures with frozen codes', ()
 });
 
 test('lossless syntax query: toml.syntax-kind-is and syntax-text-equals preserve piece order', () => {
-  // query.rs:598-651 test shape: pieces of "a = 1 # note\nb = 2\n" with a
+  // query.rs test shape: pieces of "a = 1 # note\nb = 2\n" with a
   // StructureOrderMerge of newline kinds and a comment text.
   const document = parseSource('a = 1 # note\nb = 2\n');
   const newlines: QueryExpression = {

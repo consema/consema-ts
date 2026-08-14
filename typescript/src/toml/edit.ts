@@ -2,29 +2,29 @@
  * TOML scalar and structural edit transactions with atomic commit.
  *
  * authority:
- *  - representation policies: consema-rs/consema-toml/src/edit.rs:15-26
- *  - operation vocabulary: edit.rs:28-99 (ScalarReplacement/EditOperation),
- *    the registry ids (operation_registry.rs:18-73; RFC 0004 §10
+ *  - representation policies: consema-rs/consema-toml/src/edit.rs
+ *  - operation vocabulary: edit.rs (ScalarReplacement/EditOperation),
+ *    the registry ids (operation_registry.rs; RFC 0004 §10
  *    :256-261), and the target roles toml.table-item@1 / toml.entry@1 /
  *    toml.array-item@1 / toml.array-element@1 / toml.scalar-item@1
- *  - commit algebra: edit.rs:281-430 (atomicity, conflict checks,
+ *  - commit algebra: edit.rs (atomicity, conflict checks,
  *    source-edit preparation, reparse, mapping, ChangeSet)
- *  - preparation rules: edit.rs:449-1062 (scalar, entry/array insertion
+ *  - preparation rules: edit.rs (scalar, entry/array insertion
  *    with comma ownership, removal, rename, line helpers, newline
  *    preservation, removal comma)
- *  - dependency validation: edit.rs:1064-1100 (DuplicateTarget,
+ *  - dependency validation: edit.rs (DuplicateTarget,
  *    PlacementAnchorRemoved)
- *  - canonical literal spellings: edit.rs:1472-1616 (string escaping,
+ *  - canonical literal spellings: edit.rs (string escaping,
  *    float canonical form, date/time/offset forms)
- *  - exact literal validation: edit.rs:1379-1413 (one complete scalar,
+ *  - exact literal validation: edit.rs (one complete scalar,
  *    span-exact)
- *  - semantic boundaries: edit.rs:1415-1456 (policy algebra; the
+ *  - semantic boundaries: edit.rs (policy algebra; the
  *    representation-fallback diagnostic carries toml.edit.representation-
- *    fallback@1, error_registry.rs:339)
- *  - summaries and metadata: edit.rs:1132-1278 (operation.{index}
+ *    fallback@1, error_registry.rs)
+ *  - summaries and metadata: edit.rs (operation.{index}
  *    metadata keys must match the SourcePatch metadata exactly; the
  *    EditPlan constructor enforces it, document/edit_plan.ts:101-110)
- *  - failure mapping: edit.rs:1308-1331 (core.edit.* codes, RFC 0004 §17)
+ *  - failure mapping: edit.rs (core.edit.* codes, RFC 0004 §17)
  *
  * Design (TypeScript-idiomatic): an immutable transaction built through a
  * builder; `commit` validates and plans every operation before publishing
@@ -54,17 +54,17 @@ import type { TomlSyntaxKind } from './tokenizer.ts';
 import { TomlProfile } from './profile.ts';
 
 // ---------------------------------------------------------------------------
-// Representation policy and operations (edit.rs:15-99)
+// Representation policy and operations (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Explicit semantic scalar representation policy (edit.rs:16-26). */
+/** Explicit semantic scalar representation policy (edit.rs). */
 export type TomlRepresentationPolicy =
   | 'ExactLiteral'
   | 'PreserveCompatible'
   | 'CanonicalForProfile'
   | 'PreserveElseCanonical';
 
-/** One scalar operation bound to a transaction base snapshot (edit.rs:28-47). */
+/** One scalar operation bound to a transaction base snapshot (edit.rs). */
 export type TomlScalarReplacement =
   | {
       readonly kind: 'Semantic';
@@ -78,7 +78,7 @@ export type TomlScalarReplacement =
       readonly literal: Uint8Array;
     };
 
-/** One typed TOML edit operation bound to an immutable base snapshot (edit.rs:57-99). */
+/** One typed TOML edit operation bound to an immutable base snapshot (edit.rs). */
 export type TomlEditOperation =
   | { readonly kind: 'ReplaceScalar'; readonly replacement: TomlScalarReplacement }
   | {
@@ -98,7 +98,7 @@ export type TomlEditOperation =
     }
   | { readonly kind: 'RemoveArrayElement'; readonly target: NodeRef };
 
-/** Immutable transaction; every operation resolves against one base snapshot (edit.rs:101-120). */
+/** Immutable transaction; every operation resolves against one base snapshot (edit.rs). */
 export class TomlEditTransaction {
   readonly #base: SnapshotIdentity;
   readonly #operations: readonly TomlEditOperation[];
@@ -109,28 +109,28 @@ export class TomlEditTransaction {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Base snapshot identity (edit.rs:109-112). */
+  /** Base snapshot identity (edit.rs). */
   baseSnapshot(): SnapshotIdentity {
     return this.#base;
   }
 
-  /** Ordered declared operations (edit.rs:114-119). */
+  /** Ordered declared operations (edit.rs). */
   operations(): readonly TomlEditOperation[] {
     return this.#operations;
   }
 }
 
-/** Builder that is not a committed edit (edit.rs:122-227). */
+/** Builder that is not a committed edit (edit.rs). */
 export class TomlEditTransactionBuilder {
   readonly #base: SnapshotIdentity;
   readonly #operations: TomlEditOperation[] = [];
 
-  /** Binds a new transaction to one immutable base document (edit.rs:130-137). */
+  /** Binds a new transaction to one immutable base document (edit.rs). */
   constructor(document: TomlDocument) {
     this.#base = document.snapshotIdentity();
   }
 
-  /** Adds a semantic scalar replacement (edit.rs:140-153). */
+  /** Adds a semantic scalar replacement (edit.rs). */
   semanticScalar(
     target: NodeRef,
     value: PortableValue,
@@ -143,7 +143,7 @@ export class TomlEditTransactionBuilder {
     return this;
   }
 
-  /** Adds an exact TOML scalar literal replacement (edit.rs:155-163). */
+  /** Adds an exact TOML scalar literal replacement (edit.rs). */
   literalScalar(target: NodeRef, literal: Uint8Array): TomlEditTransactionBuilder {
     this.#operations.push({
       kind: 'ReplaceScalar',
@@ -152,7 +152,7 @@ export class TomlEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one direct TOML table entry insertion (edit.rs:165-180). */
+  /** Adds one direct TOML table entry insertion (edit.rs). */
   insertEntry(
     table: NodeRef,
     key: string,
@@ -163,19 +163,19 @@ export class TomlEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact TOML table entry removal (edit.rs:182-186). */
+  /** Adds one exact TOML table entry removal (edit.rs). */
   removeEntry(target: NodeRef): TomlEditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveEntry', target });
     return this;
   }
 
-  /** Adds one exact TOML direct key rename (edit.rs:188-195). */
+  /** Adds one exact TOML direct key rename (edit.rs). */
   renameEntry(target: NodeRef, key: string): TomlEditTransactionBuilder {
     this.#operations.push({ kind: 'RenameEntry', target, key });
     return this;
   }
 
-  /** Adds one TOML array element insertion (edit.rs:197-209). */
+  /** Adds one TOML array element insertion (edit.rs). */
   insertArrayElement(
     array: NodeRef,
     value: PortableValue,
@@ -185,19 +185,19 @@ export class TomlEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact TOML array element removal (edit.rs:211-217). */
+  /** Adds one exact TOML array element removal (edit.rs). */
   removeArrayElement(target: NodeRef): TomlEditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveArrayElement', target });
     return this;
   }
 
-  /** Completes the immutable request; target validation occurs atomically at commit (edit.rs:219-227). */
+  /** Completes the immutable request; target validation occurs atomically at commit (edit.rs). */
   build(): TomlEditTransaction {
     return new TomlEditTransaction(this.#base, this.#operations);
   }
 }
 
-/** Atomic edit success (edit.rs:229-240). */
+/** Atomic edit success (edit.rs). */
 export class TomlEditCommit {
   readonly #document: TomlDocument;
   readonly #changeSet: ChangeSet;
@@ -216,22 +216,22 @@ export class TomlEditCommit {
     this.#untouchedProof = untouchedProof;
   }
 
-  /** New immutable document (edit.rs:231-233). */
+  /** New immutable document (edit.rs). */
   document(): TomlDocument {
     return this.#document;
   }
 
-  /** Complete old-to-new change facts (edit.rs:234-236). */
+  /** Complete old-to-new change facts (edit.rs). */
   changeSet(): ChangeSet {
     return this.#changeSet;
   }
 
-  /** Portable exact raw-byte application fact (edit.rs:237-239). */
+  /** Portable exact raw-byte application fact (edit.rs). */
   sourcePatch(): SourcePatch {
     return this.#sourcePatch;
   }
 
-  /** Verifiable evidence for every byte outside the replacement set (edit.rs:240-242). */
+  /** Verifiable evidence for every byte outside the replacement set (edit.rs). */
   untouchedProof(): UntouchedByteProof {
     return this.#untouchedProof;
   }
@@ -258,7 +258,7 @@ interface DelimitedSyntax {
   readonly close: TomlSyntaxKind;
 }
 
-/** Prepares and validates every operation against one snapshot (edit.rs:281-447). */
+/** Prepares and validates every operation against one snapshot (edit.rs). */
 export function commitTomlEdits(
   document: TomlDocument,
   transaction: TomlEditTransaction,
@@ -400,7 +400,7 @@ function spansEqual(left: Span, right: Span): boolean {
   return left.startByte() === right.startByte() && left.endByte() === right.endByte();
 }
 
-/** Fully validates and plans an edit without returning a new Document (edit.rs:432-447). */
+/** Fully validates and plans an edit without returning a new Document (edit.rs). */
 export function dryRunTomlEdits(
   document: TomlDocument,
   transaction: TomlEditTransaction,
@@ -858,7 +858,7 @@ function lineFragment(document: TomlDocument, position: number, fragment: Uint8A
   return out;
 }
 
-/** The document's newline bytes: the first Newline piece, or LF (edit.rs:985-994). */
+/** The document's newline bytes: the first Newline piece, or LF (edit.rs). */
 function newlineBytesOf(document: TomlDocument): Uint8Array {
   const pieces = document.losslessStructuralIndex().pieces();
   const kinds = document.losslessSyntaxKinds();
@@ -1100,7 +1100,7 @@ function portableTomlKind(value: PortableValue): string | null {
   }
 }
 
-/** Exact-literal validation: `_ = {literal}` must parse to exactly one scalar spanning the literal bytes (edit.rs:1379-1413). */
+/** Exact-literal validation: `_ = {literal}` must parse to exactly one scalar spanning the literal bytes (edit.rs). */
 function validateExactScalar(document: TomlDocument, literal: Uint8Array): Uint8Array {
   validateExactScalarKind(document, literal);
   return literal;
@@ -1137,7 +1137,7 @@ function validateExactScalarKind(document: TomlDocument, literal: Uint8Array): s
   return kind;
 }
 
-// -- canonical literals (edit.rs:1472-1616) ---------------------------------------------
+// -- canonical literals (edit.rs) ---------------------------------------------
 
 function canonicalLiteral(value: PortableValue): string {
   switch (value.kind) {
@@ -1201,7 +1201,7 @@ function canonicalLiteral(value: PortableValue): string {
   }
 }
 
-/** Deterministic string escaping (edit.rs:1516-1537). */
+/** Deterministic string escaping (edit.rs). */
 export function canonicalString(value: string): string {
   let out = '"';
   for (const character of value) {
@@ -1240,7 +1240,7 @@ export function canonicalString(value: string): string {
   return out;
 }
 
-/** Canonical float spelling; only canonical NaN payloads are representable (edit.rs:1539-1560). */
+/** Canonical float spelling; only canonical NaN payloads are representable (edit.rs). */
 export function canonicalFloat(bits: bigint): string | null {
   const float = floatFromBits(bits);
   if (Number.isNaN(float)) {
@@ -1299,7 +1299,7 @@ function exactNanosecondsOf(fraction: { coefficient: bigint; exponent: bigint })
   return nanoseconds;
 }
 
-// -- dependencies (edit.rs:1064-1100) -----------------------------------------------------
+// -- dependencies (edit.rs) -----------------------------------------------------
 
 function validateDependencies(transaction: TomlEditTransaction): void {
   const destructive = new Set<string>();
@@ -1357,7 +1357,7 @@ function nodeKey(node: NodeRef): string {
   return `${node.snapshot().asBigInt().toString()}:${node.index().toString()}:${node.role()}`;
 }
 
-// -- metadata and summaries (edit.rs:1132-1278) ---------------------------------------------
+// -- metadata and summaries (edit.rs) ---------------------------------------------
 
 function operationMetadata(transaction: TomlEditTransaction): Map<string, string> {
   const metadata = new Map<string, string>();
@@ -1465,7 +1465,7 @@ function policyName(policy: TomlRepresentationPolicy): string {
   }
 }
 
-/** Renders one canonical value fragment, mapping materialization failures to edit failures (edit.rs:1734-1749). */
+/** Renders one canonical value fragment, mapping materialization failures to edit failures (edit.rs). */
 function canonicalFragment(document: TomlDocument, value: PortableValue): Uint8Array {
   try {
     return canonicalTomlFragment(value, fragmentLimits(document));

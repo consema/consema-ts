@@ -7,7 +7,7 @@
  *    formation.escape-and-java-utf16-matrix (:31-34),
  *    formation.latin1-byte-and-bom-content (:51-54)
  *  - RFC 0010 §4 (:108-131) freezes the JavaString contract
- *  - consema-rs/consema-properties/src/lib.rs:124-206 (JavaString), :814-830
+ *  - consema-rs/consema-properties/src/lib.rs (JavaString), :814-830
  *    (classify_java_string), :838-848 (exact-unit preservation test)
  */
 
@@ -16,7 +16,7 @@ import assert from 'node:assert/strict';
 
 import { JavaString, JavaStringConversionError } from '../properties/java_string.ts';
 
-test('java string preserves exact code units and UTF16BE/1 bytes (lib.rs:838-848)', () => {
+test('java string preserves exact code units and UTF16BE/1 bytes (lib.rs)', () => {
   const exact = JavaString.fromCodeUnits([0x0041, 0xd800, 0x0042]);
   assert.deepEqual(exact.codeUnits(), [0x0041, 0xd800, 0x0042]);
   assert.deepEqual(Array.from(exact.utf16beBytes()), [0x00, 0x41, 0xd8, 0x00, 0x00, 0x42]);
@@ -58,14 +58,14 @@ test('formation.latin1-byte-and-bom-content: Latin-1 bytes become exact code uni
   assert.equal(value.utf16beHex(), '00ff');
 });
 
-test('exact equality is over code units, never Unicode normalization (lib.rs:182-194)', () => {
+test('exact equality is over code units, never Unicode normalization (lib.rs)', () => {
   const composed = JavaString.fromUnicode('é');
   const escaped = JavaString.fromCodeUnits([0x00e9]);
   assert.ok(composed.equals(escaped));
   assert.ok(!composed.equals(JavaString.fromCodeUnits([0x0065, 0x0301])));
 });
 
-test('a supplementary scalar round-trips through its surrogate pair (lib.rs:845-847)', () => {
+test('a supplementary scalar round-trips through its surrogate pair (lib.rs)', () => {
   const emoji = JavaString.fromUnicode('😀');
   assert.equal(emoji.utf16beHex(), 'd83dde00');
   assert.equal(emoji.toUnicode(), '😀');

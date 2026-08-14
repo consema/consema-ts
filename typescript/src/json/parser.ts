@@ -11,10 +11,10 @@
  *    :1135-1145), decode_json_string :1232-1315, decode_json5_identifier
  *    :1349-1373, parse_json5_number :1375-1443, DiagnosticSink
  *    :1500-1537 (occurrence ordinals, core.diagnostic.truncated@1 marker)
- *  - source and encoding: consema-rs/consema-document/src/lib.rs:643-761
+ *  - source and encoding: consema-rs/consema-document/src/lib.rs
  *    (FatalFormationFailure; codes in consema-rs/consema-protocol/src/
- *    error_registry.rs:207, 372, 366, 405, 399)
- *  - profiles: consema-rs/consema-json/src/lib.rs:137-159 (RFC 0005 §1)
+ *    error_registry.rs)
+ *  - profiles: consema-rs/consema-json/src/lib.rs (RFC 0005 §1)
  *  - vector-pinned behavior: conformance/vectors/json-family-v2.json
  *    (all json5.parse.* / json5.reject.* / json.strict.* / jsonc.* cases),
  *    conformance/vectors/v1.json (parse.strict-exact-roundtrip,
@@ -97,7 +97,7 @@ interface Lexed {
   readonly recovered: boolean;
 }
 
-/** The strict/JSONC lexer (parser.rs:174-402). */
+/** The strict/JSONC lexer (parser.rs). */
 function lex(
   text: string,
   profile: JsonProfile,
@@ -270,7 +270,7 @@ function lex(
   return { lexemes, tokens, recovered };
 }
 
-/** The Standard JSON5 lexical surface (parser.rs:404-581). */
+/** The Standard JSON5 lexical surface (parser.rs). */
 function lexJson5(
   text: string,
   authority: DocumentAuthority,
@@ -423,7 +423,7 @@ function lexJson5(
   return { lexemes, tokens, recovered };
 }
 
-/** Appends one lexeme and optional token; enforces the token-count limit (parser.rs:382-395, 561-574). */
+/** Appends one lexeme and optional token; enforces the token-count limit (parser.rs). */
 function pushLexeme(
   lexemes: Lexeme[],
   tokens: Token[],
@@ -442,7 +442,7 @@ function pushLexeme(
   }
 }
 
-/** Scans one complete double-quoted strict string token (parser.rs:285-314). */
+/** Scans one complete double-quoted strict string token (parser.rs). */
 function lexStrictString(
   walker: SourceWalker,
   start: number,
@@ -470,7 +470,7 @@ function lexStrictString(
   return { kind: 'Error' };
 }
 
-/** Scans one complete single- or double-quoted JSON5 string token (parser.rs:469-502). */
+/** Scans one complete single- or double-quoted JSON5 string token (parser.rs). */
 function lexJson5String(
   walker: SourceWalker,
   start: number,
@@ -503,7 +503,7 @@ function lexJson5String(
 }
 
 // ---------------------------------------------------------------------------
-// JSON5 lexical predicates (parser.rs:590-687; RFC 0005 §3/§4)
+// JSON5 lexical predicates (parser.rs; RFC 0005 §3/§4)
 // ---------------------------------------------------------------------------
 
 const ID_START = /\p{ID_Start}/u;
@@ -518,7 +518,7 @@ function isJson5LineTerminator(codePoint: number): boolean {
   );
 }
 
-/** JSON5 whitespace is the exact union of RFC 0005 §3 (parser.rs:594-614); never the host predicate. */
+/** JSON5 whitespace is the exact union of RFC 0005 §3 (parser.rs); never the host predicate. */
 function isJson5WhitespaceCodePoint(codePoint: number): boolean {
   return (
     codePoint === 0x0009 ||
@@ -553,7 +553,7 @@ function isJson5IdentifierContinue(character: string): boolean {
   );
 }
 
-/** Scans one IdentifierName candidate; escapes decode before position rules (parser.rs:625-658). */
+/** Scans one IdentifierName candidate; escapes decode before position rules (parser.rs). */
 function scanJson5Identifier(walker: SourceWalker): { valid: boolean; literal: string } {
   let first = true;
   let valid = true;
@@ -581,7 +581,7 @@ function scanJson5Identifier(walker: SourceWalker): { valid: boolean; literal: s
       break;
     }
     if (character === '\\') {
-      // Consumes `\uXXXX` (six ASCII characters, parser.rs:677-687).
+      // Consumes `\uXXXX` (six ASCII characters, parser.rs).
       walker.next();
       walker.next();
       for (let i = 0; i < 4; i++) {
@@ -597,7 +597,7 @@ function scanJson5Identifier(walker: SourceWalker): { valid: boolean; literal: s
   return { valid: valid && !first, literal: literal.join('') };
 }
 
-/** Consumes the invalid word tail after an identifier failure (parser.rs:660-675). */
+/** Consumes the invalid word tail after an identifier failure (parser.rs). */
 function scanJson5InvalidWord(walker: SourceWalker): void {
   while (!walker.atEnd()) {
     const character = walker.peek()!;
@@ -619,7 +619,7 @@ function scanJson5InvalidWord(walker: SourceWalker): void {
   }
 }
 
-/** Decodes one `\uXXXX` identifier escape (parser.rs:677-687). */
+/** Decodes one `\uXXXX` identifier escape (parser.rs). */
 function decodeIdentifierEscape(text: string, charIndex: number): string | null {
   if (!text.startsWith('\\u', charIndex) || charIndex + 6 > text.length) {
     return null;
@@ -636,7 +636,7 @@ function decodeIdentifierEscape(text: string, charIndex: number): string | null 
   return String.fromCodePoint(value);
 }
 
-/** Consumes one JSON5 number candidate (parser.rs:689-699). */
+/** Consumes one JSON5 number candidate (parser.rs). */
 function isNumberScanChar5(character: string): boolean {
   const codePoint = character.codePointAt(0)!;
   return (
@@ -730,10 +730,10 @@ function singleTokenKind(character: string): TokenKind {
 }
 
 // ---------------------------------------------------------------------------
-// Number validation (parser.rs:701-760, 776-815)
+// Number validation (parser.rs)
 // ---------------------------------------------------------------------------
 
-/** RFC-style JSON number grammar (parser.rs:776-815). */
+/** RFC-style JSON number grammar (parser.rs). */
 function validJsonNumber(text: string): boolean {
   let index = 0;
   if (text[index] === '-') {
@@ -776,7 +776,7 @@ function validJsonNumber(text: string): boolean {
   return index === text.length;
 }
 
-/** Standard JSON5 number grammar (parser.rs:701-760). */
+/** Standard JSON5 number grammar (parser.rs). */
 function validJson5Number(text: string): boolean {
   const unsigned = text.startsWith('+') || text.startsWith('-') ? text.slice(1) : text;
   if (unsigned === 'Infinity' || unsigned === 'NaN') {
@@ -835,10 +835,10 @@ function validJson5Number(text: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Number decoding (parser.rs:1375-1443)
+// Number decoding (parser.rs)
 // ---------------------------------------------------------------------------
 
-/** Exact JSON5 number semantics: non-finite bits, hex, normalized decimal/integer (parser.rs:1375-1443). */
+/** Exact JSON5 number semantics: non-finite bits, hex, normalized decimal/integer (parser.rs). */
 function parseJson5Number(text: string): InternalValueKind {
   const negative = text.startsWith('-');
   const unsigned = text.startsWith('+') || text.startsWith('-') ? text.slice(1) : text;
@@ -871,7 +871,7 @@ function parseJson5Number(text: string): InternalValueKind {
   return { kind: 'Integer', value: BigInt(normalized) };
 }
 
-/** Exact decimal from a JSON number literal; canonical trailing-zero normalization (value.rs:277-292). */
+/** Exact decimal from a JSON number literal; canonical trailing-zero normalization (value.rs). */
 function parseJsonDecimal(text: string): { coefficient: bigint; exponent: bigint } {
   const exponentIndex = text.search(/[eE]/);
   const mantissa = exponentIndex === -1 ? text : text.slice(0, exponentIndex);
@@ -886,7 +886,7 @@ function parseJsonDecimal(text: string): { coefficient: bigint; exponent: bigint
 }
 
 // ---------------------------------------------------------------------------
-// String decoding (parser.rs:1232-1347)
+// String decoding (parser.rs)
 // ---------------------------------------------------------------------------
 
 interface DecodedString {
@@ -908,7 +908,7 @@ function charAt(text: string, index: number): string {
   return String.fromCodePoint(text.codePointAt(index)!);
 }
 
-/** Decodes one string literal under the exact profile escape surface (parser.rs:1232-1315). */
+/** Decodes one string literal under the exact profile escape surface (parser.rs). */
 function decodeJsonString(literal: string, profile: JsonProfile): DecodedString | null {
   const quote = literal[0];
   if (quote !== '"' && !(isJson5(profile) && quote === "'")) {
@@ -1049,7 +1049,7 @@ function decodeJsonString(literal: string, profile: JsonProfile): DecodedString 
   return { value: output.join(''), hasUnescapedLineSeparator };
 }
 
-/** Reads four hexadecimal digits as a UTF-16 code unit (parser.rs:1333-1347). */
+/** Reads four hexadecimal digits as a UTF-16 code unit (parser.rs). */
 function readHexQuad(text: string, index: number): number | null {
   const digits = text.slice(index, index + 4);
   if (!/^[0-9a-fA-F]{4}$/.test(digits)) {
@@ -1058,7 +1058,7 @@ function readHexQuad(text: string, index: number): number | null {
   return Number.parseInt(digits, 16);
 }
 
-/** Decodes one validated JSON5 IdentifierName (parser.rs:1349-1373). */
+/** Decodes one validated JSON5 IdentifierName (parser.rs). */
 function decodeJson5Identifier(literal: string): string {
   let output = '';
   let index = 0;
@@ -1150,14 +1150,14 @@ class SourceWalker {
     return character;
   }
 
-  /** Consumes a leading U+FEFF BOM (3 raw bytes, parser.rs:193-214, 414-421). */
+  /** Consumes a leading U+FEFF BOM (3 raw bytes, parser.rs). */
   consumeBom(): void {
     this.#charIndex = 1;
     this.#byteOffset = 3;
   }
 }
 
-/** UTF-8 byte width of one code point (parser.rs:767-774). */
+/** UTF-8 byte width of one code point (parser.rs). */
 function utf8WidthOf(character: string): number {
   const codePoint = character.codePointAt(0)!;
   if (codePoint < 0x80) return 1;
@@ -1167,7 +1167,7 @@ function utf8WidthOf(character: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// Diagnostic sink (parser.rs:1500-1537)
+// Diagnostic sink (parser.rs)
 // ---------------------------------------------------------------------------
 
 /** Bounded diagnostic collection with occurrence ordinals and an explicit truncation marker. */
@@ -1206,7 +1206,7 @@ class DiagnosticSink {
   }
 }
 
-/** Creates one snapshot-bound diagnostic (parser.rs:1458-1498). */
+/** Creates one snapshot-bound diagnostic (parser.rs). */
 function sourceDiagnostic(
   authority: DocumentAuthority,
   code: string,
@@ -1228,7 +1228,7 @@ function sourceDiagnostic(
 // Parser
 // ---------------------------------------------------------------------------
 
-/** Token stream parser producing the immutable document (parser.rs:817-1225). */
+/** Token stream parser producing the immutable document (parser.rs). */
 class Parser {
   readonly #sourceByteLength: number;
   readonly #profile: JsonProfile;
@@ -1258,7 +1258,7 @@ class Parser {
     this.#diagnostics = diagnostics;
   }
 
-  /** Parses the root value; throws FatalFormationFailure on resource exhaustion (parser.rs:830-837). */
+  /** Parses the root value; throws FatalFormationFailure on resource exhaustion (parser.rs). */
   parseRoot(): number {
     const root = this.parseValue(0);
     if (this.#position < this.#tokens.length) {
@@ -1610,7 +1610,7 @@ class Parser {
 
 /**
  * Parses a complete immutable JSON/JSONC/JSON5 document snapshot
- * (parser.rs:73-166). Throws FatalFormationFailure — no partial document
+ * (parser.rs). Throws FatalFormationFailure — no partial document
  * ever exists.
  */
 export function parse(

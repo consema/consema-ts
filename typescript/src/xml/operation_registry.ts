@@ -41,7 +41,7 @@ import type { OperationArgumentKind, OperationSupport } from '../document/operat
 import { xmlProfileId } from './profile.ts';
 import type { XmlProfile } from './profile.ts';
 
-/** Returns the validated operation registry for one exact XML profile (operation_registry.rs:10-14). */
+/** Returns the validated operation registry for one exact XML profile (operation_registry.rs). */
 export function formatOperationRegistry(profile: XmlProfile): FormatOperationRegistry {
   return FormatOperationRegistry.create(xmlProfileId(profile), descriptors());
 }

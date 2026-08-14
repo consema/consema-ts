@@ -6,7 +6,7 @@
  *  - HclTokenKind :103-245 (the token vocabulary, including Dot/Arrow/
  *    Ellipsis/Star that map to the `Operator` syntax kind :281-297)
  *  - syntax kind mapping :251-301 (the frozen RFC 0014 §7.2 kinds,
- *    spellings pinned in native.rs:400-474)
+ *    spellings pinned in native.rs)
  *  - structural classification :305-313 (trivia / token / error region)
  *  - the scanner: scan_root :654-1127 (BOM :1097-1104, lone CR :668-681,
  *    identifier :1113-1115, `_` :1105-1112, number :1090-1092,
@@ -23,7 +23,7 @@
  *    :1738-1777, terminate_heredoc :1783-1811, emit buffering :1895-1921,
  *    emit_error_region :1936-1992, finish_eof :1994-2025 (the outermost
  *    unterminated template owns the error region), finish :2060-2094
- *  - the frozen `hcl.parse.*@1` lexical codes: lexer.rs:457-487
+ *  - the frozen `hcl.parse.*@1` lexical codes: lexer.rs
  *  - the template stack: TemplateFrame :498-537 (interior tokens are
  *    scanned but not emitted — `emitting()` :645-651)
  *  - limits: max_token_count/max_syntax_pieces (:1898-1911),
@@ -65,10 +65,10 @@ import {
 } from './errors.ts';
 
 // ---------------------------------------------------------------------------
-// Syntax kinds (RFC 0014 §7.2 — the frozen 30-kind set, native.rs:334-398)
+// Syntax kinds (RFC 0014 §7.2 — the frozen 30-kind set, native.rs)
 // ---------------------------------------------------------------------------
 
-/** Closed HCL lossless syntax kind set (native.rs:334-398); exactly thirty kinds. */
+/** Closed HCL lossless syntax kind set (native.rs); exactly thirty kinds. */
 export type HclSyntaxKind =
   | 'Whitespace'
   | 'LineBreak'
@@ -101,7 +101,7 @@ export type HclSyntaxKind =
   | 'Operator'
   | 'ErrorRegion';
 
-/** Resolves one kind spelling; `None` for an unknown spelling (native.rs:440-474). */
+/** Resolves one kind spelling; `None` for an unknown spelling (native.rs). */
 export function hclSyntaxKindFromName(name: string): HclSyntaxKind | null {
   switch (name) {
     case 'Whitespace':
@@ -141,10 +141,10 @@ export function hclSyntaxKindFromName(name: string): HclSyntaxKind | null {
 }
 
 // ---------------------------------------------------------------------------
-// Internal token vocabulary (lexer.rs:103-245)
+// Internal token vocabulary (lexer.rs)
 // ---------------------------------------------------------------------------
 
-/** The closed internal token vocabulary of the lexer (lexer.rs:103-245). */
+/** The closed internal token vocabulary of the lexer (lexer.rs). */
 export type HclTokenKind =
   | 'Whitespace'
   | 'LineBreak'
@@ -194,7 +194,7 @@ export type HclTokenKind =
   | 'ErrorRegion'
   | 'Eof';
 
-/** The frozen syntax kind of one token; `null` for the zero-length `Eof` terminal (lexer.rs:251-301). */
+/** The frozen syntax kind of one token; `null` for the zero-length `Eof` terminal (lexer.rs). */
 export function tokenSyntaxKind(kind: HclTokenKind): HclSyntaxKind | null {
   switch (kind) {
     case 'Whitespace':
@@ -250,7 +250,7 @@ export function tokenSyntaxKind(kind: HclTokenKind): HclSyntaxKind | null {
   }
 }
 
-/** The structural classification of one token's piece (lexer.rs:305-313). */
+/** The structural classification of one token's piece (lexer.rs). */
 export function tokenStructuralKind(kind: HclTokenKind): StructuralPieceKind {
   switch (kind) {
     case 'Whitespace':
@@ -265,36 +265,36 @@ export function tokenStructuralKind(kind: HclTokenKind): StructuralPieceKind {
   }
 }
 
-/** One token of the lexer stream (lexer.rs:89-101). */
+/** One token of the lexer stream (lexer.rs). */
 export interface HclToken {
   readonly kind: HclTokenKind;
   readonly startByte: number;
   readonly endByte: number;
 }
 
-/** One recovered error region with its stable code (native.rs:293-325). */
+/** One recovered error region with its stable code (native.rs). */
 export interface HclErrorRegionNode {
   readonly span: Span;
   readonly code: string;
 }
 
-/** Complete result of one lexer pass (lexer.rs:316-359). */
+/** Complete result of one lexer pass (lexer.rs). */
 export interface HclLexOutput {
   /** Ordered token stream, ending with the zero-length `Eof` terminal. */
   readonly tokens: readonly HclToken[];
-  /** Recovered error regions in source order (lexer.rs:348-353). */
+  /** Recovered error regions in source order (lexer.rs). */
   readonly errorRegions: readonly HclErrorRegionNode[];
-  /** Ordered diagnostics (lexer.rs:355-359). */
+  /** Ordered diagnostics (lexer.rs). */
   readonly diagnostics: readonly Diagnostic[];
   /** Whether any lexical deviation was recovered. */
   readonly recovered: boolean;
   /** Exhaustive structural pieces in source order; `null` for a region lex. */
   readonly pieces: readonly StructuralPiece[] | null;
-  /** Syntax kinds parallel to the pieces; empty for a region lex (lexer.rs:2082-2083). */
+  /** Syntax kinds parallel to the pieces; empty for a region lex (lexer.rs). */
   readonly syntaxKinds: readonly HclSyntaxKind[];
 }
 
-/** One open template construct of the scanner stack (lexer.rs:498-537). */
+/** One open template construct of the scanner stack (lexer.rs). */
 type TemplateFrame =
   | { readonly kind: 'Quoted'; readonly open: number }
   | {
@@ -345,7 +345,7 @@ function scalarAt(bytes: Uint8Array, pos: number): { character: string; width: n
 }
 
 /**
- * One deterministic lexer pass over a decoded UTF-8 source (lexer.rs:580-642).
+ * One deterministic lexer pass over a decoded UTF-8 source (lexer.rs).
  * Byte offsets are raw-byte offsets under the UTF-8-only source contract;
  * the scanner is total — every byte of `[start, end)` is consumed by
  * exactly one token or error region.
@@ -361,7 +361,7 @@ class Lexer {
   readonly #errorRegions: HclErrorRegionNode[] = [];
   readonly #diagnostics: Diagnostic[] = [];
   readonly #stack: TemplateFrame[] = [];
-  /** Tokens buffered in the outermost open template frame (lexer.rs:1895-1921). */
+  /** Tokens buffered in the outermost open template frame (lexer.rs). */
   #buffer: HclToken[] = [];
   #recovered = false;
   #pos: number;
@@ -400,7 +400,7 @@ class Lexer {
     this.finishEof();
   }
 
-  /** Whether the current position is outside every interpolation/directive interior (lexer.rs:645-651). */
+  /** Whether the current position is outside every interpolation/directive interior (lexer.rs). */
   #emitting(): boolean {
     return this.#stack.every((frame) => frame.kind !== 'Interp');
   }
@@ -420,7 +420,7 @@ class Lexer {
     return this.#authority.span(start, end);
   }
 
-  /** Emits one token, buffering it when an open quoted/heredoc template owns the position (lexer.rs:1895-1921). */
+  /** Emits one token, buffering it when an open quoted/heredoc template owns the position (lexer.rs). */
   emit(token: HclToken): void {
     const count = this.#tokens.length + this.#buffer.length + 1;
     if (count > this.#limits.common.maxTokenCount) {
@@ -472,7 +472,7 @@ class Lexer {
     }
   }
 
-  /** Emits one error-region token and records its recovery fact (lexer.rs:1936-1992). */
+  /** Emits one error-region token and records its recovery fact (lexer.rs). */
   emitErrorRegion(start: number, end: number, code: string, category: 'Lexical' | 'Syntax' | 'Encoding'): void {
     this.#recovered = true;
     if (end > start) {
@@ -537,7 +537,7 @@ class Lexer {
     this.noteHeredocContent(bytes, lines);
   }
 
-  // -- root scanning (lexer.rs:654-1127) -------------------------------------
+  // -- root scanning (lexer.rs) -------------------------------------
 
   scanRoot(): void {
     const byte = this.byte()!;
@@ -735,7 +735,7 @@ class Lexer {
       case 0x5c:
       case 0x24: {
         // A lone backslash or dollar outside a template is an invalid
-        // character (lexer.rs:1051-1059).
+        // character (lexer.rs).
         this.emitErrorRegion(this.#pos, this.#pos + 1, codeHclParseInvalidCharacter, 'Syntax');
         this.#pos += 1;
         return;
@@ -773,7 +773,7 @@ class Lexer {
     }
   }
 
-  /** Scans one identifier (lexer.rs:1594-1615). */
+  /** Scans one identifier (lexer.rs). */
   scanIdentifier(emit: boolean): void {
     const start = this.#pos;
     for (;;) {
@@ -793,7 +793,7 @@ class Lexer {
     }
   }
 
-  /** Scans one number-shaped run and validates the §4.1 decimal grammar (lexer.rs:1619-1684). */
+  /** Scans one number-shaped run and validates the §4.1 decimal grammar (lexer.rs). */
   scanNumber(emit: boolean): void {
     const start = this.#pos;
     while (this.byte() !== undefined && this.byte()! >= 0x30 && this.byte()! <= 0x39) {
@@ -824,7 +824,7 @@ class Lexer {
     }
     // A continuation that cannot start a fresh token makes the whole run one
     // invalid number: hex/octal/binary forms, underscores, a second
-    // fraction, or an identifier extension (lexer.rs:1646-1679).
+    // fraction, or an identifier extension (lexer.rs).
     let end = this.#pos;
     for (;;) {
       const scalar = scalarAt(this.#bytes, end);
@@ -855,7 +855,7 @@ class Lexer {
     }
   }
 
-  /** Scans a `//` or `#` line comment up to (not including) the newline (lexer.rs:1686-1696). */
+  /** Scans a `//` or `#` line comment up to (not including) the newline (lexer.rs). */
   scanLineComment(emit: boolean): void {
     const start = this.#pos;
     while (this.#pos < this.#end && this.byte() !== 0x0a && this.byte() !== 0x0d) {
@@ -866,7 +866,7 @@ class Lexer {
     }
   }
 
-  /** Scans a `/* ... *​/` inline comment, which may span lines (lexer.rs:1698-1732). */
+  /** Scans a `/* ... *​/` inline comment, which may span lines (lexer.rs). */
   scanInlineComment(emit: boolean): void {
     const start = this.#pos;
     this.#pos += 2;
@@ -888,7 +888,7 @@ class Lexer {
     }
   }
 
-  /** Opens a quoted template at the current `"` (lexer.rs:1377-1391). */
+  /** Opens a quoted template at the current `"` (lexer.rs). */
   openQuoted(emit: boolean): void {
     const open = this.#pos;
     this.#pos += 1;
@@ -899,7 +899,7 @@ class Lexer {
     this.#stack.push({ kind: 'Quoted', open });
   }
 
-  /** Opens a heredoc at the current `<<` or `<<-` (lexer.rs:1393-1484). */
+  /** Opens a heredoc at the current `<<` or `<<-` (lexer.rs). */
   openHeredoc(emit: boolean): void {
     const start = this.#pos;
     this.#pos += 2;
@@ -955,7 +955,7 @@ class Lexer {
     this.failHeredocMarker(start, emit);
   }
 
-  /** A `<<`/`<<-` that does not introduce a heredoc (lexer.rs:1477-1481). */
+  /** A `<<`/`<<-` that does not introduce a heredoc (lexer.rs). */
   failHeredocMarker(start: number, emit: boolean): void {
     if (emit) {
       this.emitErrorRegion(start, this.#pos, codeHclParseHeredocMarker, 'Syntax');
@@ -964,7 +964,7 @@ class Lexer {
     }
   }
 
-  /** Opens an interpolation (`${`) or directive (`%{`) sequence (lexer.rs:1486-1530). */
+  /** Opens an interpolation (`${`) or directive (`%{`) sequence (lexer.rs). */
   openInterpolation(directive: boolean, emit: boolean): void {
     const openStart = this.#pos;
     this.#pos += 2;
@@ -978,7 +978,7 @@ class Lexer {
     this.#stack.push({ kind: 'Interp', directive, depth: 0, interiorStart });
   }
 
-  /** Scans quoted-template content (lexer.rs:1131-1254). */
+  /** Scans quoted-template content (lexer.rs). */
   scanQuoted(): void {
     const emit = this.#emitting();
     let runStart = this.#pos;
@@ -1074,7 +1074,7 @@ class Lexer {
     }
   }
 
-  /** Validates one escape sequence of a quoted template (lexer.rs:1533-1586). */
+  /** Validates one escape sequence of a quoted template (lexer.rs). */
   scanEscape(): void {
     const start = this.#pos;
     this.#pos += 1;
@@ -1128,7 +1128,7 @@ class Lexer {
     return consumed;
   }
 
-  /** Terminates an unterminated quoted template (lexer.rs:1738-1777). */
+  /** Terminates an unterminated quoted template (lexer.rs). */
   terminateString(end: number): void {
     const frame = this.#stack[this.#stack.length - 1];
     if (frame === undefined || frame.kind !== 'Quoted') {
@@ -1143,7 +1143,7 @@ class Lexer {
     }
     if (this.#emitting()) {
       // The terminating template is the outermost one: every token buffered
-      // in it is discarded (lexer.rs:1758-1766), and the content becomes one
+      // in it is discarded (lexer.rs), and the content becomes one
       // error region after the opening quote.
       this.#buffer = [];
       this.#stack.pop();
@@ -1154,7 +1154,7 @@ class Lexer {
     }
   }
 
-  /** Scans one heredoc content line or the closing marker line (lexer.rs:1257-1292). */
+  /** Scans one heredoc content line or the closing marker line (lexer.rs). */
   scanHeredoc(): void {
     if (this.#pos >= this.#end) {
       this.terminateHeredoc(this.#end);
@@ -1190,7 +1190,7 @@ class Lexer {
     this.scanHeredocLine(lineEnd);
   }
 
-  /** Template-scans one heredoc content line (lexer.rs:1297-1372). */
+  /** Template-scans one heredoc content line (lexer.rs). */
   scanHeredocLine(lineEnd: number): void {
     const emit = this.#emitting();
     const lineStart = this.#pos;
@@ -1262,7 +1262,7 @@ class Lexer {
     this.noteHeredocLine(lineBytes);
   }
 
-  /** Terminates an unterminated heredoc (lexer.rs:1783-1811). */
+  /** Terminates an unterminated heredoc (lexer.rs). */
   terminateHeredoc(end: number): void {
     const frame = this.#stack[this.#stack.length - 1];
     if (frame === undefined || frame.kind !== 'Heredoc') {
@@ -1275,7 +1275,7 @@ class Lexer {
     if (this.#emitting()) {
       // The terminating heredoc is the outermost template: the buffered
       // content tokens are discarded and the content becomes one error
-      // region (lexer.rs:1783-1811).
+      // region (lexer.rs).
       this.#buffer = [];
       this.#stack.pop();
       this.emitErrorRegion(frame.contentStart, end, codeHclParseUnterminatedHeredoc, 'Syntax');
@@ -1285,20 +1285,20 @@ class Lexer {
     }
   }
 
-  /** Ends the current literal run as one content token when non-empty (lexer.rs:1813-1824). */
+  /** Ends the current literal run as one content token when non-empty (lexer.rs). */
   endRun(runStart: number, emit: boolean, kind: HclTokenKind): void {
     if (emit && this.#pos > runStart) {
       this.emitKind(kind, runStart, this.#pos);
     }
   }
 
-  /** Appends the top frame's buffered tokens to the stream (lexer.rs:1826-1840). */
+  /** Appends the top frame's buffered tokens to the stream (lexer.rs). */
   flushBuffer(): void {
     this.#tokens.push(...this.#buffer);
     this.#buffer = [];
   }
 
-  /** Pops the template stack at end of source (lexer.rs:1994-2025). */
+  /** Pops the template stack at end of source (lexer.rs). */
   finishEof(): void {
     for (;;) {
       const frame = this.#stack[this.#stack.length - 1];
@@ -1317,7 +1317,7 @@ class Lexer {
     }
   }
 
-  /** Scans interpolation/directive interior bytes (the absorbing scanner, lexer.rs:880-1127). */
+  /** Scans interpolation/directive interior bytes (the absorbing scanner, lexer.rs). */
   scanAbsorb(): void {
     const frame = this.#stack[this.#stack.length - 1];
     const byte = this.byte()!;
@@ -1558,7 +1558,7 @@ class Lexer {
   }
 }
 
-/** Whether one hex range is a valid `\u`/`\U` escape value (lexer.rs:1551-1564). */
+/** Whether one hex range is a valid `\u`/`\U` escape value (lexer.rs). */
 function validUnicodeEscape(bytes: Uint8Array, start: number, end: number): boolean {
   let value = 0;
   for (let pos = start; pos < end; pos++) {
@@ -1576,7 +1576,7 @@ function hexValue(byte: number): number {
 
 /**
  * Lexes one whole HCL source into tokens, recovery regions, diagnostics,
- * and the lossless piece index (lexer.rs:432-455). The caller has already
+ * and the lossless piece index (lexer.rs). The caller has already
  * validated the UTF-8 source and the common limits.
  */
 export function lexHclSource(
@@ -1591,7 +1591,7 @@ export function lexHclSource(
 
 /**
  * Re-lexes one interpolation/directive interior as a token stream bound to
- * the same authority; never emits pieces (lexer.rs:444-455 region lex).
+ * the same authority; never emits pieces (lexer.rs region lex).
  */
 export function lexHclRegion(
   bytes: Uint8Array,

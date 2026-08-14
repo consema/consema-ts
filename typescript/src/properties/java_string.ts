@@ -3,7 +3,7 @@
  * and canonical UTF16BE/1 bytes.
  *
  * authority:
- *  - RFC 0010 §4 (https://github.com/consema/consema/blob/main/docs/rfcs/0010-java-properties-profiles-v1.md:108-131):
+ *  - RFC 0010 §4 (https://github.com/consema/consema/blob/main/docs/rfcs/0010-java-properties-profiles-v1.md):
  *    a Java `String` is an ordered sequence of UTF-16 code units; escape
  *    processing can produce an unpaired surrogate such as `\uD800`, and
  *    rejecting or replacing it would be silent corruption; the native
@@ -11,10 +11,10 @@
  *    bounded `WellFormedUnicode | UnpairedSurrogate` status, conversion to
  *    a Unicode string only when well formed, and canonical `UTF16BE/1`
  *    bytes (even-length big-endian code units, no BOM, no normalization)
- *  - consema-rs/consema-properties/src/lib.rs:124-131 (JavaStringStatus),
+ *  - consema-rs/consema-properties/src/lib.rs (JavaStringStatus),
  *    :133-204 (JavaString), :196-206 (JavaStringConversionError),
  *    :814-830 (classify_java_string)
- *  - exact-wire failure codes: consema-rs/consema-protocol/src/error_registry.rs:
+ *  - exact-wire failure codes: consema-rs/consema-protocol/src/error_registry.rs
  *    :1111-1121 (java-properties.java-string.invalid-wire@1,
  *    java-properties.java-string.non-canonical-wire@1) — reserved by the
  *    wire layer; this module carries no registered codes itself
@@ -27,10 +27,10 @@
  * is not well-formed Unicode.
  */
 
-/** Whether exact Java UTF-16 units form Unicode scalar text (lib.rs:124-131; RFC 0010 §4). */
+/** Whether exact Java UTF-16 units form Unicode scalar text (lib.rs; RFC 0010 §4). */
 export type JavaStringStatus = 'WellFormedUnicode' | 'UnpairedSurrogate';
 
-/** An exact Java string cannot enter a Unicode-only host string (lib.rs:196-206). */
+/** An exact Java string cannot enter a Unicode-only host string (lib.rs). */
 export class JavaStringConversionError extends Error {
   constructor() {
     super('Java UTF-16 string contains an unpaired surrogate');
@@ -38,7 +38,7 @@ export class JavaStringConversionError extends Error {
   }
 }
 
-/** Exact Java string content represented as immutable UTF-16 code units (lib.rs:133-139). */
+/** Exact Java string content represented as immutable UTF-16 code units (lib.rs). */
 export class JavaString {
   readonly #codeUnits: readonly number[];
   readonly #status: JavaStringStatus;
@@ -48,12 +48,12 @@ export class JavaString {
     this.#status = status;
   }
 
-  /** Creates exact Java content and computes surrogate well-formedness (lib.rs:141-147). */
+  /** Creates exact Java content and computes surrogate well-formedness (lib.rs). */
   static fromCodeUnits(codeUnits: readonly number[]): JavaString {
     return new JavaString(codeUnits, classifyJavaString(codeUnits));
   }
 
-  /** Converts one valid Unicode scalar string to its exact UTF-16 units (lib.rs:149-153). */
+  /** Converts one valid Unicode scalar string to its exact UTF-16 units (lib.rs). */
   static fromUnicode(value: string): JavaString {
     const units: number[] = [];
     for (let index = 0; index < value.length; index++) {
@@ -62,12 +62,12 @@ export class JavaString {
     return JavaString.fromCodeUnits(units);
   }
 
-  /** Exact ordered Java UTF-16 code units (lib.rs:155-159); the returned array is frozen. */
+  /** Exact ordered Java UTF-16 code units (lib.rs); the returned array is frozen. */
   codeUnits(): readonly number[] {
     return this.#codeUnits;
   }
 
-  /** Canonical BOM-free big-endian `UTF16BE/1` bytes (lib.rs:161-168; RFC 0010 §4). */
+  /** Canonical BOM-free big-endian `UTF16BE/1` bytes (lib.rs; RFC 0010 §4). */
   utf16beBytes(): Uint8Array {
     const bytes = new Uint8Array(this.#codeUnits.length * 2);
     for (let index = 0; index < this.#codeUnits.length; index++) {
@@ -87,12 +87,12 @@ export class JavaString {
     return output;
   }
 
-  /** Exact surrogate pairing status (lib.rs:170-174). */
+  /** Exact surrogate pairing status (lib.rs). */
   status(): JavaStringStatus {
     return this.#status;
   }
 
-  /** Converts only well-formed Java content to a Unicode string (lib.rs:176-179). */
+  /** Converts only well-formed Java content to a Unicode string (lib.rs). */
   toUnicode(): string {
     let output = '';
     for (const unit of this.#codeUnits) {
@@ -104,7 +104,7 @@ export class JavaString {
     return output;
   }
 
-  /** Strict equality over exact UTF-16 code units (lib.rs:182-194). */
+  /** Strict equality over exact UTF-16 code units (lib.rs). */
   equals(other: JavaString): boolean {
     if (this.#codeUnits.length !== other.#codeUnits.length) {
       return false;
@@ -117,7 +117,7 @@ export class JavaString {
     return true;
   }
 
-  /** Exact code-unit equality against canonical UTF16BE/1 wire bytes (query.rs:653-660). */
+  /** Exact code-unit equality against canonical UTF16BE/1 wire bytes (query.rs). */
   equalsUtf16be(expected: Uint8Array): boolean {
     if (this.#codeUnits.length * 2 !== expected.length) {
       return false;
@@ -135,7 +135,7 @@ export class JavaString {
   }
 }
 
-/** Classifies surrogate pairing (lib.rs:814-830): high+low pairs pass, any other surrogate is unpaired. */
+/** Classifies surrogate pairing (lib.rs): high+low pairs pass, any other surrogate is unpaired. */
 function classifyJavaString(units: readonly number[]): JavaStringStatus {
   let index = 0;
   while (index < units.length) {

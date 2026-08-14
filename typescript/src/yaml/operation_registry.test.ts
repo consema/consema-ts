@@ -1,7 +1,7 @@
 /**
  * Intent documents for the frozen YAML operation registry.
  *
- * authority: consema-rs/consema-yaml/src/operation_registry.rs:16-83 (the eight
+ * authority: consema-rs/consema-yaml/src/operation_registry.rs (the eight
  * descriptors) and :107-135 (both profiles publish the same surface: six
  * structural Supported ops and two scalar ExistingTypedCapability ops);
  * RFC 0007 §12 (:357-368).
@@ -22,7 +22,7 @@ const STRUCTURAL_IDS = [
   'yaml.edit.rename-anchor@1',
 ];
 
-test('both YAML profiles publish the frozen eight-record surface (operation_registry.rs:107-135)', () => {
+test('both YAML profiles publish the frozen eight-record surface (operation_registry.rs)', () => {
   for (const profile of [PROFILE_YAML12_CORE, PROFILE_YAML11_COMPAT]) {
     const registry = formatOperationRegistry(profile);
     const operations = registry.operations();
@@ -47,7 +47,7 @@ test('insert-alias targets yaml.sequence with anchor(NodeRef) and placement(Plac
   }
 });
 
-test('scalar operations are ExistingTypedCapability (RFC 0004 §10:263-265)', () => {
+test('scalar operations are ExistingTypedCapability (RFC 0004 §10)', () => {
   const registry = formatOperationRegistry(PROFILE_YAML11_COMPAT);
   const semantic = registry.descriptor(
     new FormatOperationId('yaml.edit.replace-scalar-semantic', 1),

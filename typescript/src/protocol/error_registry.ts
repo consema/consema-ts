@@ -117,7 +117,7 @@ export class ErrorCodeRegistry {
     return found !== undefined && found.code === candidate ? found : undefined;
   }
 
-  /** Rejects an unregistered public code (error_registry.rs:1495-1510). */
+  /** Rejects an unregistered public code (error_registry.rs). */
   validate(candidate: string): void {
     this.validateAt(candidate, '$.code');
   }
@@ -140,7 +140,7 @@ function errorCode(
 
 /**
  * Merges two strictly sorted code lists into one strictly sorted list,
- * rejecting duplicates (the Rust const-merge builders, error_registry.rs:412-1367).
+ * rejecting duplicates (the Rust const-merge builders, error_registry.rs).
  */
 function mergeErrorCodes(
   old: readonly ErrorCodeDescriptor[],
@@ -435,7 +435,7 @@ export function errorCodeManifestValueV7(): ObjectValue {
 
 /**
  * Strictly validates one transferable `core.error-code-registry@1` value
- * (error_registry.rs:1596-1645). Identity, ordering, category, and stability
+ * (error_registry.rs). Identity, ordering, category, and stability
  * are normative; the descriptions are presentation metadata.
  */
 export function validateErrorCodeManifestValue(value: PortableValue): void {
@@ -467,7 +467,7 @@ export function validateErrorCodeManifestValue(value: PortableValue): void {
   }
 }
 
-/** Requires one canonical category spelling (error_registry.rs:1673-1683). */
+/** Requires one canonical category spelling (error_registry.rs). */
 function validateManifestCategory(value: PortableValue, path: string): void {
   const category = stringOf(value, path);
   if (!(CATEGORIES as readonly string[]).includes(category)) {
@@ -475,7 +475,7 @@ function validateManifestCategory(value: PortableValue, path: string): void {
   }
 }
 
-/** Validates one `id@version` code spelling (error_registry.rs:1647-1655). */
+/** Validates one `id@version` code spelling (error_registry.rs). */
 function validateVersionedCode(code: string, path: string): void {
   const at = code.lastIndexOf('@');
   const idPart = at < 0 ? '' : code.slice(0, at);
@@ -493,7 +493,7 @@ function validateVersionedCode(code: string, path: string): void {
   validateManifestIdentifier(idPart, path);
 }
 
-/** The strict dotted identifier rule of the error-code manifest (contract.rs:559-578). */
+/** The strict dotted identifier rule of the error-code manifest (contract.rs). */
 function validateManifestIdentifier(identifier: string, path: string): void {
   if (identifier.length > 255 || !identifier.includes('.')) {
     throw invalid(path, 'identifier must contain multiple segments and be at most 255 bytes');
@@ -515,7 +515,7 @@ function isManifestLower(code: number): boolean {
   return code >= 0x61 && code <= 0x7a;
 }
 
-// The error-code-registry payload dispatch (payload.rs:60): the envelope
+// The error-code-registry payload dispatch (payload.rs): the envelope
 // validates every core.error-code-registry@1 payload through the strict
 // manifest validator at module load.
 registerPayloadValidator('core.error-code-registry', 1, (payload) => {

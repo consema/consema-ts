@@ -36,18 +36,18 @@
  *    plist.binary.date@1 :1170, plist.binary.uid@1 :1181, plist.binary.
  *    reference@1 :1218, plist.binary.extended-size@1 :1296, plist.binary.
  *    non-string-key@1 :1342, plist.binary.overflow@1 :1604, plist.binary.
- *    internal@1 :1614, plist.binary.encoding@1 (lib.rs:251),
+ *    internal@1 :1614, plist.binary.encoding@1 (lib.rs),
  *    plist.limit.*@1 :2897-3062
- *  - projection codes: consema-rs/consema-plist/src/projection.rs:393-402
+ *  - projection codes: consema-rs/consema-plist/src/projection.rs
  *    (incomplete-document, unpaired-surrogate, collision,
  *    unrepresentable, resource-limit, core-invariant)
- *  - edit codes: consema-rs/consema-plist/src/edit.rs:442-454 (uid-in-xml,
+ *  - edit codes: consema-rs/consema-plist/src/edit.rs (uid-in-xml,
  *    unrepresentable, and the shared core.edit.* codes)
  *  - materialization: the shared MaterializationFailure mapping
- *    consema-rs/consema-plist/src/materialization.rs:78-94 (fractional-date,
+ *    consema-rs/consema-plist/src/materialization.rs (fractional-date,
  *    unrepresentable, resource-limit; core.materialization.* for the
  *    shared codes), code spelling :149
- *  - query execution: consema-rs/consema-core/src/query.rs:3206-3219
+ *  - query execution: consema-rs/consema-core/src/query.rs
  *    (core.query.*); DomainMismatch precedent json/errors.ts
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
@@ -64,7 +64,7 @@ import { SourceError } from '../document/errors.ts';
 // PlistAccessError — typed access failure on one immutable snapshot
 // ---------------------------------------------------------------------------
 
-/** Stable typed plist access failure (document.rs:181-185 precedent). */
+/** Stable typed plist access failure (document.rs precedent). */
 export type PlistAccessErrorKind = 'WrongSnapshot' | 'WrongRole' | 'UnknownNode';
 
 export class PlistAccessError extends Error {
@@ -93,7 +93,7 @@ export class FatalFormationFailure extends Error {
     this.#diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs:643-654 precedent). */
+  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs precedent). */
   static fromDiagnostic(diagnostic: Diagnostic): FatalFormationFailure {
     return new FatalFormationFailure([diagnostic]);
   }
@@ -164,7 +164,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Fatal `plist.limit.<name>@1` resource-limit failure (parser_binary.rs:1648-1664). */
+  /** Fatal `plist.limit.<name>@1` resource-limit failure (parser_binary.rs). */
   static resourceLimit(name: string, observed: number, limit: number): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
       code: `plist.limit.${name}@1`,
@@ -191,7 +191,7 @@ export class FatalFormationFailure extends Error {
 // QueryExecutionFailure — stable query execution failure
 // ---------------------------------------------------------------------------
 
-/** Stable query execution failure (query.rs:3114-3219; plist-family codes). */
+/** Stable query execution failure (query.rs; plist-family codes). */
 export type QueryExecutionFailureKind =
   | 'DomainMismatch'
   | 'UnknownOperator'
@@ -207,7 +207,7 @@ export type QueryExecutionFailureKind =
 
 export class QueryExecutionFailure extends Error {
   readonly kind: QueryExecutionFailureKind;
-  /** Frozen registered code (plist_v1.rs:1141-1153 mapping). */
+  /** Frozen registered code (plist_v1.rs mapping). */
   readonly code: string;
   /** DomainMismatch: the rejected domain. */
   readonly domain?: { readonly id: string; readonly version: number };
@@ -235,8 +235,8 @@ export class QueryExecutionFailure extends Error {
 
 /**
  * Kind→code mapping — the plist-family spellings the conformance suite pins
- * (consema-rs/consema-conformance/src/plist_v1.rs:1141-1153; the underlying
- * core codes are the query.rs:3206-3219 registry entries).
+ * (consema-rs/consema-conformance/src/plist_v1.rs; the underlying
+ * core codes are the query.rs registry entries).
  */
 export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): string {
   switch (kind) {
@@ -269,7 +269,7 @@ export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): stri
 // ProjectionFailure — stable projection failure category
 // ---------------------------------------------------------------------------
 
-/** Stable projection failure kind (projection.rs:353-375); codes at projection.rs:393-402. */
+/** Stable projection failure kind (projection.rs); codes at projection.rs. */
 export type ProjectionFailureKind =
   | 'IncompleteDocument'
   | 'UnpairedSurrogate'
@@ -280,7 +280,7 @@ export type ProjectionFailureKind =
 
 export class ProjectionFailure extends Error {
   readonly kind: ProjectionFailureKind;
-  /** Frozen registered code (projection.rs:393-402). */
+  /** Frozen registered code (projection.rs). */
   readonly code: string;
   /** Collision: the collided key. */
   readonly key?: string;
@@ -303,7 +303,7 @@ export class ProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:393-402). */
+/** Kind→code mapping (projection.rs). */
 export function projectionFailureCode(kind: ProjectionFailureKind): string {
   switch (kind) {
     case 'IncompleteDocument':
@@ -325,7 +325,7 @@ export function projectionFailureCode(kind: ProjectionFailureKind): string {
 // EditFailure — stable edit validation or commit failure
 // ---------------------------------------------------------------------------
 
-/** Stable edit validation or commit failure kind (edit.rs:389-420); codes at edit.rs:442-454. */
+/** Stable edit validation or commit failure kind (edit.rs); codes at edit.rs. */
 export type EditFailureKind =
   | 'WrongSnapshot'
   | 'WrongRole'
@@ -340,7 +340,7 @@ export type EditFailureKind =
 
 export class EditFailure extends Error {
   readonly kind: EditFailureKind;
-  /** Frozen registered code (edit.rs:442-454). */
+  /** Frozen registered code (edit.rs). */
   readonly code: string;
   /** UnrepresentableValue: the blocking native fact. */
   readonly reason?: string;
@@ -360,7 +360,7 @@ export class EditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:442-454). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: EditFailureKind): string {
   switch (kind) {
     case 'WrongSnapshot':

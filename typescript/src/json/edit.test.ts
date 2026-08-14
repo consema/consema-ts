@@ -12,8 +12,8 @@
  *    edit.preserve-else-canonical (:131-135),
  *    edit.preserve-incompatible-rejected (:137-141), edit.wrong-snapshot
  *    (:173-177)
- *  - operation ids (EXACT registry): consema-rs/consema-json/src/edit.rs:
- *    1110-1133; RFC 0005 §10 (:227-241) for move-member ownership
+ *  - operation ids (EXACT registry): consema-rs/consema-json/src/edit.rs
+ *    ; RFC 0005 §10 for move-member ownership
  */
 
 import { test } from 'node:test';
@@ -217,7 +217,7 @@ test('edit.wrong-snapshot: transactions bind exactly one base snapshot (v1.json:
   assert.equal(render(second), '2');
 });
 
-test('structural conflicts fail before a document exists (edit.rs:1025-1078)', () => {
+test('structural conflicts fail before a document exists (edit.rs)', () => {
   const document = parse(bytes('{"a":1,"b":2}'), PROFILE_JSON_STRICT, DEFAULT_PARSE_LIMITS);
   const members = memberRefs(document);
 
@@ -307,11 +307,11 @@ test('scalar edit round-trip: patch reapplies and proof verifies (RFC 0004 §15-
     { source: { maxRawBytes: 1024, maxDecodedUtf8Bytes: 1024, maxDecodedScalars: 1024 }, maxReplacements: 8, maxPatchBytes: 4096 },
   );
   assert.equal(new TextDecoder().decode(reapplied.bytes()), render(commit.document()));
-  // Operation metadata names the exact registered operation id (edit.rs:1110-1133).
+  // Operation metadata names the exact registered operation id (edit.rs).
   assert.equal(patch.metadata().get('operation.0'), 'json.edit.replace-scalar-semantic@1');
 });
 
-test('mapping plans: replaced literals are located in the new snapshot (edit.rs:389-414)', () => {
+test('mapping plans: replaced literals are located in the new snapshot (edit.rs)', () => {
   const document = parse(bytes('{"a": 1}'), PROFILE_JSON_STRICT, DEFAULT_PARSE_LIMITS);
   const members = memberRefs(document);
   const transaction = new EditTransactionBuilder(document)

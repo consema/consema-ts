@@ -50,7 +50,7 @@ interface Lexeme {
   readonly kind: YamlSyntaxKind;
 }
 
-/** Tokenizes one YAML source into exhaustive lossless pieces (syntax.rs:16-71). */
+/** Tokenizes one YAML source into exhaustive lossless pieces (syntax.rs). */
 export function tokenize(
   source: SourceSnapshot,
   authority: DocumentAuthority,
@@ -108,7 +108,7 @@ function isFlowIndicator(value: string): boolean {
   return value === '[' || value === ']' || value === '{' || value === '}' || value === ',';
 }
 
-/** The lossless scanner (syntax.rs:86-95). */
+/** The lossless scanner (syntax.rs). */
 class Scanner {
   readonly #chars: readonly string[];
   #offset = 0;

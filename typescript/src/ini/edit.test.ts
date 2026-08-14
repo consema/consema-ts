@@ -190,7 +190,7 @@ test('golden edit.dry-run-patch-proof-and-atomic-failure', () => {
 });
 
 test('Windows quote preservation and canonical fallback', () => {
-  // edit.rs:1865-1889 — PreserveCompatible keeps a compatible quote style;
+  // edit.rs — PreserveCompatible keeps a compatible quote style;
   // PreserveElseCanonical falls back to canonical quoting for unquoted
   // values with a ini.edit.canonical-fallback@1 warning.
   const document = parseText(IniProfile.WINDOWS_V1, "[S]\r\na='old'\r\nb=plain\r\n");
@@ -207,7 +207,7 @@ test('Windows quote preservation and canonical fallback', () => {
 });
 
 test('Python multiline preservation and canonical shape changes', () => {
-  // edit.rs:1891-1917 — PreserveCompatible retains per-line trivia for the
+  // edit.rs — PreserveCompatible retains per-line trivia for the
   // same multiline shape; a shape change falls back to canonical form with
   // one reported fallback event.
   const source = '[S]\nkey : first  \n\tsecond\t\n\n\tthird\nnext=x\n';
@@ -233,7 +233,7 @@ test('Python multiline preservation and canonical shape changes', () => {
 });
 
 test('section insertion, rename, and removal have exact ownership', () => {
-  // edit.rs:2113-2163 — insertion between sections, name replacement, and
+  // edit.rs — insertion between sections, name replacement, and
   // atomic removal of a section with its owned entries while an
   // independent comment survives.
   const source = '[one]\na=1\n; independent\n[two]\nb=2\n';
@@ -270,7 +270,7 @@ test('section insertion, rename, and removal have exact ownership', () => {
 });
 
 test('section removal owns Python continuations but not comments', () => {
-  // edit.rs:2165-2176 — the multiline entry's continuation lines are owned
+  // edit.rs — the multiline entry's continuation lines are owned
   // by the removed section; an independent comment survives.
   const document = parseText(
     IniProfile.PYTHON_CONFIGPARSER_V1,
@@ -284,7 +284,7 @@ test('section removal owns Python continuations but not comments', () => {
 });
 
 test('appending after an EOF entry introduces one profile newline', () => {
-  // edit.rs:2178-2185 — "[one]\na=1" + insert-section End yields
+  // edit.rs — "[one]\na=1" + insert-section End yields
   // "[one]\na=1\n[two]\n".
   const document = parseText(IniProfile.PORTABLE_V1, '[one]\na=1');
   const builder = new IniEditTransactionBuilder(document);
@@ -294,7 +294,7 @@ test('appending after an EOF entry introduces one profile newline', () => {
 });
 
 test('dependency, name, and collision failures are atomic', () => {
-  // edit.rs:2203-2259 — ancestor conflicts, removed anchors, invalid
+  // edit.rs — ancestor conflicts, removed anchors, invalid
   // names, name collisions, and same-position insertions all fail before a
   // patch exists.
   const document = parseText(IniProfile.PORTABLE_V1, '[one]\na=1\n[two]\nb=2\n');
@@ -355,7 +355,7 @@ test('dependency, name, and collision failures are atomic', () => {
 });
 
 test('entry insertion, rename, and removal preserve unowned comments', () => {
-  // edit.rs:2261-2303.
+  // edit.rs.
   const source = '[s]\na=1\n; independent\nc=3\n[next]\nx=y\n';
   const document = parseText(IniProfile.PORTABLE_V1, source);
   const section = document.sections()[0].nodeRef();
@@ -391,7 +391,7 @@ test('entry insertion, rename, and removal preserve unowned comments', () => {
 });
 
 test('inserted values use each profile canonical entry representation', () => {
-  // edit.rs:2305-2344 — Windows quotes " spaced ", Python multiline uses
+  // edit.rs — Windows quotes " spaced ", Python multiline uses
   // the four-space continuation.
   const windows = parseText(IniProfile.WINDOWS_V1, '[S]\r\na=1\r\n');
   const windowsBuilder = new IniEditTransactionBuilder(windows);
@@ -424,7 +424,7 @@ test('inserted values use each profile canonical entry representation', () => {
 });
 
 test('python key collisions and placements are validated before rendering', () => {
-  // edit.rs:2358-2423 — optionxform collisions fail with
+  // edit.rs — optionxform collisions fail with
   // ini.edit.case-collision@1, invalid keys with ini.edit.invalid-name@1,
   // cross-section anchors with ini.edit.invalid-placement@1, exact
   // duplicates with core.edit.duplicate-key@1.
@@ -481,7 +481,7 @@ test('python key collisions and placements are validated before rendering', () =
 });
 
 test('every edit failure maps to a frozen v6 or common code', () => {
-  // edit.rs:1949-2013 — the complete kind→code table.
+  // edit.rs — the complete kind→code table.
   const cases: [IniEditFailureKind, string][] = [
     ['RecoveredDocument', 'core.edit.incomplete-target@1'],
     ['WrongSnapshot', 'core.edit.wrong-snapshot@1'],
@@ -511,7 +511,7 @@ test('every edit failure maps to a frozen v6 or common code', () => {
 });
 
 test('selected UTF-16 and code-page encodings are preserved by edits', () => {
-  // edit.rs:2057-2111 — a UTF-16LE base keeps its encoding facts after a
+  // edit.rs — a UTF-16LE base keeps its encoding facts after a
   // semantic replacement and after a section insertion; a cp1252 base
   // encodes € exactly.
   const text = '[S]\r\nk=old\r\n';
@@ -556,7 +556,7 @@ test('selected UTF-16 and code-page encodings are preserved by edits', () => {
 });
 
 test('Windows entry edits keep ordered case-equivalent occurrences', () => {
-  // edit.rs:2425-2437 — renaming "other" to "KEY" keeps both occurrences
+  // edit.rs — renaming "other" to "KEY" keeps both occurrences
   // in the same duplicate group.
   const document = parseText(IniProfile.WINDOWS_V1, '[S]\r\nKey=1\r\nother=2\r\n');
   const builder = new IniEditTransactionBuilder(document);

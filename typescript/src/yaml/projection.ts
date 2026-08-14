@@ -73,7 +73,7 @@ import type { YamlScalarKind } from './semantic.ts';
 // Graph projection
 // ---------------------------------------------------------------------------
 
-/** Graph projection resource contract (projection.rs:17-33). */
+/** Graph projection resource contract (projection.rs). */
 export interface GraphProjectionLimits {
   /** PortableGraph construction and traversal limits. */
   readonly graph: Limits;
@@ -81,7 +81,7 @@ export interface GraphProjectionLimits {
   readonly maxProvenanceEntries: number;
 }
 
-/** The frozen defaults (projection.rs:26-32). */
+/** The frozen defaults (projection.rs). */
 export function defaultGraphProjectionLimits(): GraphProjectionLimits {
   return {
     graph: defaultLimits(),
@@ -89,7 +89,7 @@ export function defaultGraphProjectionLimits(): GraphProjectionLimits {
   };
 }
 
-/** Immutable `yaml.projection.best-exact-graph@1` request (projection.rs:35-62). */
+/** Immutable `yaml.projection.best-exact-graph@1` request (projection.rs). */
 export class GraphProjectionRequest {
   readonly #limits: GraphProjectionLimits;
 
@@ -97,23 +97,23 @@ export class GraphProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Creates the frozen exact graph request with default limits (projection.rs:43-48). */
+  /** Creates the frozen exact graph request with default limits (projection.rs). */
   static bestExactV1(): GraphProjectionRequest {
     return new GraphProjectionRequest(defaultGraphProjectionLimits());
   }
 
-  /** Replaces all graph projection limits (projection.rs:50-55). */
+  /** Replaces all graph projection limits (projection.rs). */
   withLimits(limits: GraphProjectionLimits): GraphProjectionRequest {
     return new GraphProjectionRequest(limits);
   }
 
-  /** Exact limits used by the request (projection.rs:57-61). */
+  /** Exact limits used by the request (projection.rs). */
   limits(): GraphProjectionLimits {
     return this.#limits;
   }
 }
 
-/** One exact projected graph location (projection.rs:64-92). */
+/** One exact projected graph location (projection.rs). */
 export type GraphProjectedLocation =
   | { readonly kind: 'Root'; readonly ordinal: bigint }
   | { readonly kind: 'Node'; readonly node: NodeID }
@@ -133,10 +133,10 @@ export type GraphProjectedLocation =
       readonly ordinal: bigint;
     };
 
-/** Source relation shared by graph and tree projection provenance (projection.rs:94-105). */
+/** Source relation shared by graph and tree projection provenance (projection.rs). */
 export type ProvenanceRelation = 'Direct' | 'Reference' | 'Expanded' | 'TagStripped';
 
-/** One exact YAML source origin (projection.rs:107-118). */
+/** One exact YAML source origin (projection.rs). */
 export interface SourceOrigin {
   /** Owning source snapshot identity. */
   readonly snapshot: bigint;
@@ -148,7 +148,7 @@ export interface SourceOrigin {
   readonly relation: ProvenanceRelation;
 }
 
-/** One graph provenance multimap entry (projection.rs:120-127). */
+/** One graph provenance multimap entry (projection.rs). */
 export interface GraphProvenanceEntry {
   /** Projected graph location. */
   readonly projected: GraphProjectedLocation;
@@ -156,7 +156,7 @@ export interface GraphProvenanceEntry {
   readonly origins: readonly SourceOrigin[];
 }
 
-/** Complete deterministic graph provenance multimap (projection.rs:129-141). */
+/** Complete deterministic graph provenance multimap (projection.rs). */
 export class GraphProvenanceMap {
   readonly #entries: readonly GraphProvenanceEntry[];
 
@@ -168,13 +168,13 @@ export class GraphProvenanceMap {
     return new GraphProvenanceMap(entries);
   }
 
-  /** Entries in root/node/association construction order (projection.rs:136-140). */
+  /** Entries in root/node/association construction order (projection.rs). */
   entries(): readonly GraphProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Complete exact graph projection (projection.rs:143-150). */
+/** Complete exact graph projection (projection.rs). */
 export interface CompleteGraphProjection {
   /** Complete immutable graph. */
   readonly graph: Graph;
@@ -183,8 +183,8 @@ export interface CompleteGraphProjection {
 }
 
 /**
- * Projects all document roots to one exact PortableGraph (lib.rs:433-448;
- * native.rs:143-195). Unknown/custom tags fail instead of being treated as
+ * Projects all document roots to one exact PortableGraph (lib.rs;
+ * native.rs). Unknown/custom tags fail instead of being treated as
  * application constructors or untyped strings.
  */
 export function projectGraph(document: YamlDocument, limits: Limits = defaultLimits()): Graph {
@@ -229,7 +229,7 @@ export function projectGraph(document: YamlDocument, limits: Limits = defaultLim
   }
 }
 
-/** Applies exact graph projection with complete node/edge/alias provenance (projection.rs:531-554). */
+/** Applies exact graph projection with complete node/edge/alias provenance (projection.rs). */
 export function projectGraphWithProvenance(
   document: YamlDocument,
   request: GraphProjectionRequest,
@@ -245,16 +245,16 @@ export function projectGraphWithProvenance(
 // Value projection
 // ---------------------------------------------------------------------------
 
-/** Explicit YAML graph-sharing policy for PortableValue projection (projection.rs:204-211). */
+/** Explicit YAML graph-sharing policy for PortableValue projection (projection.rs). */
 export type SharingPolicy = 'Reject' | 'DuplicateAcyclic';
 
-/** Explicit YAML tag policy for PortableValue projection (projection.rs:213-220). */
+/** Explicit YAML tag policy for PortableValue projection (projection.rs). */
 export type TagPolicy = 'RequireKnownPortableTag' | 'StripToNodeKind';
 
-/** YAML mapping-to-tree selection policy (projection.rs:222-231). */
+/** YAML mapping-to-tree selection policy (projection.rs). */
 export type MappingPolicy = 'BestExactObjectOrEntryMapping' | 'RequireObject' | 'RequireEntryMapping';
 
-/** PortableValue projection resource contract (projection.rs:233-258). */
+/** PortableValue projection resource contract (projection.rs). */
 export interface ValueProjectionLimits {
   /** Maximum projected native/value node visits. */
   readonly maxValueNodes: number;
@@ -268,7 +268,7 @@ export interface ValueProjectionLimits {
   readonly maxAmplificationRatio: number;
 }
 
-/** The frozen defaults (projection.rs:248-257). */
+/** The frozen defaults (projection.rs). */
 export function defaultValueProjectionLimits(): ValueProjectionLimits {
   return {
     maxValueNodes: 1_000_000,
@@ -279,7 +279,7 @@ export function defaultValueProjectionLimits(): ValueProjectionLimits {
   };
 }
 
-/** Immutable `yaml.projection.best-exact-value@1` request (projection.rs:260-332). */
+/** Immutable `yaml.projection.best-exact-value@1` request (projection.rs). */
 export class ValueProjectionRequest {
   readonly #sharing: SharingPolicy;
   readonly #tags: TagPolicy;
@@ -298,7 +298,7 @@ export class ValueProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Frozen default: one document, no sharing/cycles, known tags, exact-first mapping (projection.rs:270-279). */
+  /** Frozen default: one document, no sharing/cycles, known tags, exact-first mapping (projection.rs). */
   static bestExactV1(): ValueProjectionRequest {
     return new ValueProjectionRequest(
       'Reject',
@@ -308,56 +308,56 @@ export class ValueProjectionRequest {
     );
   }
 
-  /** Explicitly replaces the sharing policy (projection.rs:281-287). */
+  /** Explicitly replaces the sharing policy (projection.rs). */
   withSharing(sharing: SharingPolicy): ValueProjectionRequest {
     return new ValueProjectionRequest(sharing, this.#tags, this.#mapping, this.#limits);
   }
 
-  /** Explicitly replaces the tag policy (projection.rs:288-293). */
+  /** Explicitly replaces the tag policy (projection.rs). */
   withTags(tags: TagPolicy): ValueProjectionRequest {
     return new ValueProjectionRequest(this.#sharing, tags, this.#mapping, this.#limits);
   }
 
-  /** Explicitly replaces the mapping policy (projection.rs:294-299). */
+  /** Explicitly replaces the mapping policy (projection.rs). */
   withMapping(mapping: MappingPolicy): ValueProjectionRequest {
     return new ValueProjectionRequest(this.#sharing, this.#tags, mapping, this.#limits);
   }
 
-  /** Replaces all value projection limits (projection.rs:300-307). */
+  /** Replaces all value projection limits (projection.rs). */
   withLimits(limits: ValueProjectionLimits): ValueProjectionRequest {
     return new ValueProjectionRequest(this.#sharing, this.#tags, this.#mapping, limits);
   }
 
-  /** Selected sharing policy (projection.rs:309-313). */
+  /** Selected sharing policy (projection.rs). */
   sharing(): SharingPolicy {
     return this.#sharing;
   }
 
-  /** Selected tag policy (projection.rs:315-319). */
+  /** Selected tag policy (projection.rs). */
   tags(): TagPolicy {
     return this.#tags;
   }
 
-  /** Selected mapping policy (projection.rs:321-325). */
+  /** Selected mapping policy (projection.rs). */
   mapping(): MappingPolicy {
     return this.#mapping;
   }
 
-  /** Exact limits (projection.rs:327-331). */
+  /** Exact limits (projection.rs). */
   limits(): ValueProjectionLimits {
     return this.#limits;
   }
 }
 
-/** Projection fidelity classification (projection.rs:334-343). */
+/** Projection fidelity classification (projection.rs). */
 export type Fidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** One PortableValue or association location (projection.rs:345-352). */
+/** One PortableValue or association location (projection.rs). */
 export type ProjectedLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** One PortableValue provenance entry (projection.rs:354-361). */
+/** One PortableValue provenance entry (projection.rs). */
 export interface ProvenanceEntry {
   /** Projected tree location. */
   readonly projected: ProjectedLocation;
@@ -365,7 +365,7 @@ export interface ProvenanceEntry {
   readonly origins: readonly SourceOrigin[];
 }
 
-/** Complete deterministic PortableValue provenance multimap (projection.rs:363-375). */
+/** Complete deterministic PortableValue provenance multimap (projection.rs). */
 export class ProvenanceMap {
   readonly #entries: readonly ProvenanceEntry[];
 
@@ -377,16 +377,16 @@ export class ProvenanceMap {
     return new ProvenanceMap(entries);
   }
 
-  /** Entries in deterministic projection order (projection.rs:370-374). */
+  /** Entries in deterministic projection order (projection.rs). */
   entries(): readonly ProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Structured YAML value projection event category (projection.rs:377-384). */
+/** Structured YAML value projection event category (projection.rs). */
 export type ProjectionEventKind = 'SharingDuplicated' | 'TagStripped';
 
-/** One machine-readable projection transformation/loss event (projection.rs:386-405). */
+/** One machine-readable projection transformation/loss event (projection.rs). */
 export interface ProjectionEvent {
   readonly kind: ProjectionEventKind;
   /** Policy that authorized the event. */
@@ -405,7 +405,7 @@ export interface ProjectionEvent {
   readonly loss: Fidelity;
 }
 
-/** Complete ordered value projection report (projection.rs:407-419). */
+/** Complete ordered value projection report (projection.rs). */
 export class ProjectionReport {
   readonly #events: readonly ProjectionEvent[];
 
@@ -417,13 +417,13 @@ export class ProjectionReport {
     return new ProjectionReport(events);
   }
 
-  /** Events in deterministic traversal order (projection.rs:414-418). */
+  /** Events in deterministic traversal order (projection.rs). */
   events(): readonly ProjectionEvent[] {
     return this.#events;
   }
 }
 
-/** Complete successful PortableValue projection (projection.rs:421-432). */
+/** Complete successful PortableValue projection (projection.rs). */
 export interface CompleteValueProjection {
   /** Complete immutable tree value. */
   readonly value: PortableValue;
@@ -435,14 +435,14 @@ export interface CompleteValueProjection {
   readonly provenance: ProvenanceMap;
 }
 
-/** Complete-or-failed PortableValue projection algebra (projection.rs:522-529). */
+/** Complete-or-failed PortableValue projection algebra (projection.rs). */
 export type ValueProjectionResult =
   | { readonly kind: 'Complete'; readonly complete: CompleteValueProjection }
   | { readonly kind: 'Failed'; readonly failure: ValueProjectionFailure };
 
 /**
  * Applies explicit YAML-to-PortableValue tree projection and returns the
- * complete algebra (projection.rs:556-603).
+ * complete algebra (projection.rs).
  */
 export function projectValueComplete(
   document: YamlDocument,
@@ -1017,7 +1017,7 @@ function binaryFloat64(bits: bigint): PortableValue {
   return { kind: 'BinaryFloat64', bits };
 }
 
-/** object_names (projection.rs:1149-1170): unique str keys only. */
+/** object_names (projection.rs): unique str keys only. */
 function objectNames(
   document: YamlDocument,
   entries: readonly { key: number }[],
@@ -1039,7 +1039,7 @@ function objectNames(
   return names;
 }
 
-/** is_portable_tag (projection.rs:1172-1181). */
+/** is_portable_tag (projection.rs). */
 function isPortableTag(tag: string, contentKind: 'Scalar' | 'Sequence' | 'Mapping'): boolean {
   switch (contentKind) {
     case 'Scalar':
@@ -1097,7 +1097,7 @@ function parseDecimalCanonical(value: string): { coefficient: bigint; exponent: 
   }
 }
 
-/** project_timestamp (projection.rs:1230-1269). */
+/** project_timestamp (projection.rs). */
 function projectTimestamp(value: string): PortableValue | null {
   try {
     const year = BigInt(value.slice(0, 4));

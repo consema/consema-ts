@@ -1,6 +1,6 @@
 /**
  * Envelope payload dispatch for the semantic-model v7 CLI records
- * (payload.rs:27-43): core.batch-plan@1, core.batch-result@1, core.cli-output@1.
+ * (payload.rs): core.batch-plan@1, core.batch-result@1, core.cli-output@1.
  * The decoders live in `cli.ts`; this module registers them with the shared
  * payload dispatch so the common envelope validates them fully.
  */

@@ -2,20 +2,20 @@
  * The immutable TOML document snapshot and its native accessors.
  *
  * authority:
- *  - document surface: consema-rs/consema-toml/src/lib.rs:121-259 — parse
+ *  - document surface: consema-rs/consema-toml/src/lib.rs — parse
  *    (:122-128), Document facts (:144-203: snapshot_identity, source,
  *    render, format_family "toml@1" :163-167, profile, formation_status
  *    Complete :175-179, diagnostics, lossless_structural_index,
  *    lossless_syntax_kinds, parse_limits, root, item), TomlAccessError
  *    (:262-270)
  *  - roles: RFC 0001 §2 (TomlItem/TomlEntry/TomlKey/TomlArrayElement);
- *    NodeRole spellings pinned in consema-rs/consema-document/src/lib.rs:113-251
+ *    NodeRole spellings pinned in consema-rs/consema-document/src/lib.rs
  *    (TomlItem/TomlEntry/TomlKey/TomlArrayElement/TomlSyntaxPiece)
- *  - item kind spellings: consema-rs/consema-toml/src/lib.rs:274-305
+ *  - item kind spellings: consema-rs/consema-toml/src/lib.rs
  *  - parse order and resource limits: RFC 0001 §3 (:51-62) and
- *    parser.rs:17-63 — max_source_bytes then UTF-8 then grammar then
+ *    parser.rs — max_source_bytes then UTF-8 then grammar then
  *    limits; every failure is FatalFormationFailure, never truncated
- *  - exact render: parser.rs:157-161 (byte-for-byte identical to source)
+ *  - exact render: parser.rs (byte-for-byte identical to source)
  *
  * Design (TypeScript-idiomatic): the document is an immutable class whose
  * accessors return snapshot-bound handle objects; roles are the closed
@@ -52,8 +52,8 @@ import { tokenizeTomlSource, preflightDelimiterNesting } from './tokenizer.ts';
 import type { TomlSyntaxKind } from './tokenizer.ts';
 
 /**
- * Parses one complete immutable TOML 1.0 document snapshot (lib.rs:122-128;
- * parser.rs:17-63 formation order). Throws TomlFormationFailure on any
+ * Parses one complete immutable TOML 1.0 document snapshot (lib.rs;
+ * parser.rs formation order). Throws TomlFormationFailure on any
  * failure — a truncated success never exists (RFC 0001 §3).
  */
 export function parseToml(
@@ -99,7 +99,7 @@ export function parseToml(
   );
 }
 
-/** Opaque immutable TOML document snapshot (lib.rs:130-142). */
+/** Opaque immutable TOML document snapshot (lib.rs). */
 export class TomlDocument {
   readonly #authority: DocumentAuthority;
   readonly #source: SourceSnapshot;
@@ -131,62 +131,62 @@ export class TomlDocument {
     this.#parseLimits = parseLimits;
   }
 
-  /** Snapshot identity to which every native handle and span belongs (lib.rs:146-149). */
+  /** Snapshot identity to which every native handle and span belongs (lib.rs). */
   snapshotIdentity(): SnapshotIdentity {
     return this.#authority.identity();
   }
 
-  /** Exact immutable UTF-8 source (lib.rs:152-155). */
+  /** Exact immutable UTF-8 source (lib.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Default rendering is byte-for-byte identical to the source (lib.rs:157-161). */
+  /** Default rendering is byte-for-byte identical to the source (lib.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** TOML format family contract (lib.rs:163-167). */
+  /** TOML format family contract (lib.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('toml', 1);
   }
 
-  /** Exact language profile (lib.rs:169-173). */
+  /** Exact language profile (lib.rs). */
   profile(): ProfileId {
     return this.#profile.id();
   }
 
-  /** TOML 0.2 forms only complete valid documents (lib.rs:175-179). */
+  /** TOML 0.2 forms only complete valid documents (lib.rs). */
   formationStatus(): FormationStatus {
     return 'Complete';
   }
 
-  /** Deterministically ordered non-fatal diagnostics; always empty for complete documents (lib.rs:181-185). */
+  /** Deterministically ordered non-fatal diagnostics; always empty for complete documents (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return [];
   }
 
-  /** Exhaustive token/trivia byte coverage (lib.rs:187-191). */
+  /** Exhaustive token/trivia byte coverage (lib.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex {
     return this.#structuralIndex;
   }
 
-  /** Format-specific kind for every structural piece, in the same source order (lib.rs:193-197). */
+  /** Format-specific kind for every structural piece, in the same source order (lib.rs). */
   losslessSyntaxKinds(): readonly TomlSyntaxKind[] {
     return this.#syntaxKinds;
   }
 
-  /** Resource contract used to form this snapshot and any edit successor (lib.rs:199-203). */
+  /** Resource contract used to form this snapshot and any edit successor (lib.rs). */
   parseLimits(): ParseLimits {
     return this.#parseLimits;
   }
 
-  /** Root native item, which is always `RootTable` (lib.rs:205-212). */
+  /** Root native item, which is always `RootTable` (lib.rs). */
   root(): TomlItem {
     return new TomlItem(this, this.#root);
   }
 
-  /** Resolves a snapshot-bound TOML item handle (lib.rs:214-224). */
+  /** Resolves a snapshot-bound TOML item handle (lib.rs). */
   item(node: NodeRef): TomlItem {
     const index = this.validateRef(node, 'TomlItem');
     if (this.#entities[index].kind.role !== 'Item') {
@@ -221,7 +221,7 @@ export class TomlDocument {
     return this.#authority.nodeRef(BigInt(index), role);
   }
 
-  /** @internal — mirror of lib.rs:241-258. */
+  /** @internal — mirror of lib.rs. */
   validateRef(node: NodeRef, role: NodeRole): number {
     this.#authority.verify(node);
     if (node.role() !== role) {
@@ -234,7 +234,7 @@ export class TomlDocument {
     return index;
   }
 
-  /** @internal — entity index of one snapshot-bound node handle (query.rs:240-247). */
+  /** @internal — entity index of one snapshot-bound node handle (query.rs). */
   resolveIndex(node: NodeRef): number {
     return Number(this.#authority.resolveIndex(node));
   }
@@ -256,7 +256,7 @@ export class TomlDocument {
   }
 }
 
-/** Borrowed native TOML item bound to one document snapshot (lib.rs:351-369). */
+/** Borrowed native TOML item bound to one document snapshot (lib.rs). */
 export class TomlItem {
   readonly #document: TomlDocument;
   readonly #index: number;
@@ -266,17 +266,17 @@ export class TomlItem {
     this.#index = index;
   }
 
-  /** Exact item identity (lib.rs:358-363). */
+  /** Exact item identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRef(this.#index, 'TomlItem');
   }
 
-  /** Exact or contract-authorized logical source span (lib.rs:365-369). */
+  /** Exact or contract-authorized logical source span (lib.rs). */
   span(): Span {
     return this.#document.entity(this.#index).span;
   }
 
-  /** Native item category (lib.rs:274-305). */
+  /** Native item category (lib.rs). */
   kind(): TomlItemKind {
     return itemKindOf(this.#document.itemEntity(this.#index));
   }
@@ -521,7 +521,7 @@ export class TomlArrayElement {
   }
 }
 
-/** Item-kind mapping (lib.rs:613-636). */
+/** Item-kind mapping (lib.rs). */
 export function itemKindOf(item: ItemEntityKind): TomlItemKind {
   switch (item.kind) {
     case 'String':
@@ -532,7 +532,7 @@ export function itemKindOf(item: ItemEntityKind): TomlItemKind {
     case 'InlineTable':
       return item.kind;
     case 'DateTime':
-      // lib.rs:619-625 — the public kind follows the parsed fields.
+      // lib.rs — the public kind follows the parsed fields.
       if (item.value.date !== null && item.value.time !== null && item.value.offset !== null) {
         return 'OffsetDateTime';
       }
@@ -550,7 +550,7 @@ export function itemKindOf(item: ItemEntityKind): TomlItemKind {
   }
 }
 
-/** Table flavor → public kind (lib.rs:232-240, 274-305). */
+/** Table flavor → public kind (lib.rs). */
 export function tableFlavorKind(flavor: TomlTableFlavor): TomlItemKind {
   switch (flavor) {
     case 'Root':

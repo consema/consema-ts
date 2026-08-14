@@ -1,6 +1,6 @@
 /**
  * `consema.conformance@1` runner (30 cases; mirror of
- * consema-rs/consema-conformance/src/lib.rs:217-363).
+ * consema-rs/consema-conformance/src/lib.rs).
  */
 
 import { valueFromInput, bytesEqual } from '../helpers.ts';

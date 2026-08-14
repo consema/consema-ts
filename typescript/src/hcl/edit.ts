@@ -54,10 +54,10 @@ import type { HclParseLimits } from './limits.ts';
 import { canonicalRealFromNumber } from './materialization.ts';
 
 // ---------------------------------------------------------------------------
-// Addresses, placements, and values (edit.rs:93-325)
+// Addresses, placements, and values (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** One root-relative body path step (edit.rs:93-138). */
+/** One root-relative body path step (edit.rs). */
 export class HclBodyPathStep {
   readonly #blockType: string;
   readonly #labels: readonly string[];
@@ -85,7 +85,7 @@ export class HclBodyPathStep {
   }
 }
 
-/** A root-relative path to one body; the empty path denotes the root body (edit.rs:140-174). */
+/** A root-relative path to one body; the empty path denotes the root body (edit.rs). */
 export class HclBodyPath {
   readonly #steps: readonly HclBodyPathStep[];
 
@@ -109,7 +109,7 @@ export class HclBodyPath {
   }
 }
 
-/** One exact body item address (edit.rs:176-212). */
+/** One exact body item address (edit.rs). */
 export type HclEditNodeRef =
   | { readonly kind: 'Attribute'; readonly body: HclBodyPath; readonly name: string }
   | {
@@ -120,13 +120,13 @@ export type HclEditNodeRef =
       readonly occurrence: number;
     };
 
-/** Attribute insertion placement inside one body (edit.rs:214-226). */
+/** Attribute insertion placement inside one body (edit.rs). */
 export type HclBodyPlacement =
   | { readonly kind: 'First' }
   | { readonly kind: 'Last' }
   | { readonly kind: 'After'; readonly anchor: HclEditNodeRef };
 
-/** One typed literal-complete HCL value supplied to an edit (edit.rs:228-308). */
+/** One typed literal-complete HCL value supplied to an edit (edit.rs). */
 export type HclEditValue =
   | { readonly kind: 'Integer'; readonly value: bigint }
   | { readonly kind: 'Real'; readonly value: number }
@@ -141,13 +141,13 @@ export type HclEditValue =
       readonly text: string;
     };
 
-/** One object-constructor literal key (edit.rs:310-325). */
+/** One object-constructor literal key (edit.rs). */
 export type HclEditKey =
   | { readonly kind: 'Identifier'; readonly name: string }
   | { readonly kind: 'Number'; readonly value: bigint }
   | { readonly kind: 'String'; readonly value: string };
 
-/** Stable value-kind spelling for summaries (edit.rs:266-280). */
+/** Stable value-kind spelling for summaries (edit.rs). */
 export function hclEditValueKindName(value: HclEditValue): string {
   switch (value.kind) {
     case 'Integer':
@@ -169,7 +169,7 @@ export function hclEditValueKindName(value: HclEditValue): string {
   }
 }
 
-/** One snapshot-bound HCL structural operation (edit.rs:327-397). */
+/** One snapshot-bound HCL structural operation (edit.rs). */
 export type HclEditOperation =
   | {
       readonly kind: 'SetAttributeValue';
@@ -202,7 +202,7 @@ export type HclEditOperation =
       readonly occurrence: number;
     };
 
-/** Immutable snapshot-bound transaction (edit.rs:399-418). */
+/** Immutable snapshot-bound transaction (edit.rs). */
 export class HclEditTransaction {
   readonly #base: SnapshotIdentity;
   readonly #operations: readonly HclEditOperation[];
@@ -224,7 +224,7 @@ export class HclEditTransaction {
   }
 }
 
-/** Builder that is not a committed edit (edit.rs:420-533). */
+/** Builder that is not a committed edit (edit.rs). */
 export class HclEditTransactionBuilder {
   readonly #base: SnapshotIdentity;
   readonly #operations: HclEditOperation[] = [];
@@ -292,7 +292,7 @@ export class HclEditTransactionBuilder {
   }
 }
 
-/** Atomic edit success (edit.rs:536-545). */
+/** Atomic edit success (edit.rs). */
 export class HclEditCommit {
   readonly #document: HclDocument;
   readonly #changeSet: ChangeSet;
@@ -328,7 +328,7 @@ export class HclEditCommit {
 }
 
 // ---------------------------------------------------------------------------
-// Canonical value rendering (edit.rs:1472-1616; RFC 0014 §10)
+// Canonical value rendering (edit.rs; RFC 0014 §10)
 // ---------------------------------------------------------------------------
 
 /** Renders one typed literal-complete value as canonical HCL source. */
@@ -471,7 +471,7 @@ interface BaseEdit {
   readonly opIndex: number;
 }
 
-/** Maps working-source offsets back to base-source offsets (edit.rs:449-1062). */
+/** Maps working-source offsets back to base-source offsets (edit.rs). */
 class PatchMap {
   readonly #baseLen: number;
   readonly #edits: BaseEdit[] = [];
@@ -780,7 +780,7 @@ function placementOffset(
 // Commit
 // ---------------------------------------------------------------------------
 
-/** Atomically commits structural operations (edit.rs:641-660). */
+/** Atomically commits structural operations (edit.rs). */
 export function commitHclEdits(
   document: HclDocument,
   transaction: HclEditTransaction,
@@ -824,7 +824,7 @@ export function commitHclEdits(
     throw new HclEditFailure('ResourceLimit', { limitName: 'patch-replacements' });
   }
 
-  // Form the target document and verify the promised semantics (edit.rs:
+  // Form the target document and verify the promised semantics (edit.rs
   // "The replacement document could not be formed under the original
   // limits, or the reparsed target does not carry the promised semantics").
   let target: HclDocument;
@@ -867,7 +867,7 @@ function parseWorking(working: Uint8Array, base: HclDocument, limits: HclParseLi
   }
 }
 
-/** The `operation.{index}` metadata keys (edit.rs:2037-2126). */
+/** The `operation.{index}` metadata keys (edit.rs). */
 function editMetadata(transaction: HclEditTransaction): ReadonlyMap<string, string> {
   const metadata = new Map<string, string>();
   transaction.operations().forEach((operation, index) => {
@@ -876,7 +876,7 @@ function editMetadata(transaction: HclEditTransaction): ReadonlyMap<string, stri
   return metadata;
 }
 
-/** The frozen operation id of one operation (edit.rs:2037-2042). */
+/** The frozen operation id of one operation (edit.rs). */
 export function operationId(operation: HclEditOperation): FormatOperationId {
   switch (operation.kind) {
     case 'SetAttributeValue':
@@ -894,7 +894,7 @@ export function operationId(operation: HclEditOperation): FormatOperationId {
   }
 }
 
-/** Prepares one operation against one working document (edit.rs:449-1062). */
+/** Prepares one operation against one working document (edit.rs). */
 function prepareOperation(
   document: HclDocument,
   operation: HclEditOperation,
@@ -1022,7 +1022,7 @@ function previousLineStart(document: HclDocument, offset: number): number {
 // Dry-run EditPlan (RFC 0004 §14)
 // ---------------------------------------------------------------------------
 
-/** Fully validates and plans a transaction without returning a new Document (edit.rs:621-637). */
+/** Fully validates and plans a transaction without returning a new Document (edit.rs). */
 export function dryRunHclEdits(
   document: HclDocument,
   transaction: HclEditTransaction,
@@ -1039,7 +1039,7 @@ export function dryRunHclEdits(
   );
 }
 
-/** One safe, content-free summary of a declared edit operation (edit.rs:2046-2126). */
+/** One safe, content-free summary of a declared edit operation (edit.rs). */
 function operationSummary(operation: HclEditOperation): EditOperationSummary {
   const arguments_ = new Map<string, string>();
   switch (operation.kind) {

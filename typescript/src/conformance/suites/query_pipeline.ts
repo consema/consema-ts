@@ -1,6 +1,6 @@
 /**
  * Query pipeline construction and family execution (mirror of the Rust
- * runner's `pipeline` helper, lib.rs:560-582, and the family executors).
+ * runner's `pipeline` helper, lib.rs, and the family executors).
  *
  * A pipeline is a sequence of `name@version` operator descriptors applied
  * to `Input`; the empty pipeline is the bare `Input` expression. A
@@ -104,7 +104,7 @@ export function validateAndBind(definition: QueryDefinition): ExecutableQuery {
   return bound.query;
 }
 
-/** The capability set every validated query requires (lib.rs:554-558). */
+/** The capability set every validated query requires (lib.rs). */
 export function orderedResultsCapabilities(): CapabilitySet {
   const capabilities = new CapabilitySet();
   capabilities.insert(newCapabilityId('core.query.ordered-results', 1));

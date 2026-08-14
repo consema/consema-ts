@@ -2,12 +2,12 @@
  * Typed graph and PGCE/1 failures with frozen registered codes.
  *
  * authority: the Rust StableFailure mappings
- * (consema-rs/consema-graph/src/lib.rs:230-242 for the builder codes,
- * consema-rs/consema-graph/src/pgce.rs:162-216 for the codec codes). The codes
+ * (consema-rs/consema-graph/src/lib.rs for the builder codes,
+ * consema-rs/consema-graph/src/pgce.rs for the codec codes). The codes
  * are registered in the error-code registry v5+ (core.graph.invalid@1,
  * core.graph.resource-limit@1, core.pgce.invalid@1, core.pgce.non-
  * canonical@1, core.pgce.resource-limit@1, core.pgce.unsupported-version@1;
- * consema-rs/consema-protocol/src/error_registry.rs:694-724).
+ * consema-rs/consema-protocol/src/error_registry.rs).
  *
  * Design (TypeScript-idiomatic): each failure is a typed Error subclass
  * carrying the frozen `code` property and a closed string-literal `kind`.
@@ -28,7 +28,7 @@ export type GraphErrorKind =
 export const codeGraphResourceLimit = 'core.graph.resource-limit@1';
 export const codeGraphInvalid = 'core.graph.invalid@1';
 
-/** The typed graph construction failure (consema-rs/consema-graph/src/lib.rs:230-242). */
+/** The typed graph construction failure (consema-rs/consema-graph/src/lib.rs). */
 export class GraphError extends Error {
   readonly kind: GraphErrorKind;
   /** Frozen registered code (RFC 0016 §6). */
@@ -121,7 +121,7 @@ export const codePGCEResourceLimit = 'core.pgce.resource-limit@1';
 export const codePGCENonCanonical = 'core.pgce.non-canonical@1';
 export const codePGCEUnsupportedVersion = 'core.pgce.unsupported-version@1';
 
-/** The typed PGCE/1 codec failure (consema-rs/consema-graph/src/pgce.rs:162-216). */
+/** The typed PGCE/1 codec failure (consema-rs/consema-graph/src/pgce.rs). */
 export class PGCEError extends Error {
   readonly kind: PGCEErrorKind;
   /** Frozen registered code (RFC 0016 §6). */
@@ -203,7 +203,7 @@ export class PGCEError extends Error {
   }
 }
 
-/** The frozen code mapping (consema-rs/consema-graph/src/pgce.rs:162-216). */
+/** The frozen code mapping (consema-rs/consema-graph/src/pgce.rs). */
 function pgceCode(kind: PGCEErrorKind, cause?: GraphError): string {
   switch (kind) {
     case 'ResourceLimit':

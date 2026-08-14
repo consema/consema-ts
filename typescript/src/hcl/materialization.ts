@@ -159,7 +159,7 @@ function invalidRecord(reason: string): MaterializationFailure {
  * Normalizes one body record; any deviation is InvalidRequest "invalid-record".
  *
  * The `record: "hcl.body@1"` discriminator is required at the top level only
- * (materialization.rs:380-402). A block item's nested body is validated by
+ * (materialization.rs). A block item's nested body is validated by
  * `Body::validate` (:522-543), which reads only the `items` member, so the
  * published vector spelling `{ "items": [...] }` without the discriminator
  * is accepted at nested levels (hcl-v1.json canonical-document block item).
@@ -345,7 +345,7 @@ export function canonicalRealFromNumber(value: number): string {
 }
 
 // ---------------------------------------------------------------------------
-// The canonical writer (materialization.rs:1140-1366)
+// The canonical writer (materialization.rs)
 // ---------------------------------------------------------------------------
 
 class Writer {
@@ -381,7 +381,7 @@ class Writer {
   }
 }
 
-/** Escapes one string with the minimal deterministic escape set (materialization.rs:1296-1333). */
+/** Escapes one string with the minimal deterministic escape set (materialization.rs). */
 export function escapeText(text: string): string {
   let out = '';
   let index = 0;
@@ -431,12 +431,12 @@ export function escapeText(text: string): string {
   return out;
 }
 
-/** C0 controls other than the named escapes, DEL, and the C1 controls (materialization.rs:1280-1286). */
+/** C0 controls other than the named escapes, DEL, and the C1 controls (materialization.rs). */
 function isEscapedControl(value: number): boolean {
   return value < 0x20 || (value >= 0x7f && value <= 0x9f);
 }
 
-/** Whether one text is a valid UAX #31 identifier with the frozen hyphen continuation (materialization.rs:1266-1278). */
+/** Whether one text is a valid UAX #31 identifier with the frozen hyphen continuation (materialization.rs). */
 function isPlainIdentifier(text: string): boolean {
   if (text.length === 0) {
     return false;
@@ -544,7 +544,7 @@ function writeObjectKey(writer: Writer, key: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// Closure verification (materialization.rs:1773-1860)
+// Closure verification (materialization.rs)
 // ---------------------------------------------------------------------------
 
 /** Compares the reparsed native model to the promised input semantics (RFC 0014 §9). */
@@ -797,7 +797,7 @@ function literalKeyValueCanonical(value: import('./expression.ts').HclLiteralVal
 }
 
 // ---------------------------------------------------------------------------
-// Parse limits for the closure reparse (materialization.rs:295-328)
+// Parse limits for the closure reparse (materialization.rs)
 // ---------------------------------------------------------------------------
 
 /** Derived limits so a bounded input cannot fail its own closure. */
@@ -886,7 +886,7 @@ export function materializeHcl(
   }
 }
 
-/** The exact target profile under the frozen style contract (materialization.rs:266-285). */
+/** The exact target profile under the frozen style contract (materialization.rs). */
 function validateRequest(request: MaterializationRequest): HclProfile {
   const target = request.targetProfile();
   const style = request.style();
@@ -962,7 +962,7 @@ function walkValue(
 
 // The tfvars profile refuses any record containing a block
 // (RFC 0014 §5, §9); the failure carries `hcl.materialization.unrepresentable@1`
-// through the conformance code mapping (hcl_v1.rs:1621). The check happens
+// through the conformance code mapping (hcl_v1.rs). The check happens
 // in normalizeBody's callers: materializeHcl validates the profile target
 // first, then rejects blocks under the tfvars profile here.
 function tfvarsBlockCheck(profile: HclProfile, body: NormalizedBody): void {

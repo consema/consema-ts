@@ -12,7 +12,7 @@
  * canonical "id@version" spelling used by the wire contracts.
  */
 
-/** Stable namespaced format family contract (lib.rs:344-372). */
+/** Stable namespaced format family contract (lib.rs). */
 export class FormatFamilyId {
   readonly #id: string;
   readonly #version: number;
@@ -25,12 +25,12 @@ export class FormatFamilyId {
     this.#version = version;
   }
 
-  /** Namespace (lib.rs:361-364). */
+  /** Namespace (lib.rs). */
   id(): string {
     return this.#id;
   }
 
-  /** Version (lib.rs:366-370). */
+  /** Version (lib.rs). */
   version(): number {
     return this.#version;
   }
@@ -45,7 +45,7 @@ export class FormatFamilyId {
   }
 }
 
-/** Immutable named language profile (lib.rs:374-402). */
+/** Immutable named language profile (lib.rs). */
 export class ProfileId {
   readonly #id: string;
   readonly #version: number;
@@ -58,12 +58,12 @@ export class ProfileId {
     this.#version = version;
   }
 
-  /** Namespace (lib.rs:392-395). */
+  /** Namespace (lib.rs). */
   id(): string {
     return this.#id;
   }
 
-  /** Version (lib.rs:397-401). */
+  /** Version (lib.rs). */
   version(): number {
     return this.#version;
   }

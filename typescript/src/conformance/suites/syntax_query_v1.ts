@@ -237,8 +237,8 @@ function compareMatches(case_: VectorCase, matches: { kind: string; text: string
   }
 }
 
-/** The ordered cursor terminal face (syntax_query_v1.rs:318-366; the Rust
- * OrderedQueryCursor, query.rs:3047-3110). */
+/** The ordered cursor terminal face (syntax_query_v1.rs; the Rust
+ * OrderedQueryCursor, query.rs). */
 function runCursor(case_: VectorCase): void {
   const values = caseField(case_, 'values') as number[];
   const mode = caseField(case_, 'mode') as string;

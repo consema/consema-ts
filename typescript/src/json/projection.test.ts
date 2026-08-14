@@ -10,8 +10,7 @@
  *    mapping (:89-93), projection.object-reject-duplicates (:95-99),
  *    projection.object-last-wins (:101-105), projection.object-key-
  *    provenance (:155-159)
- *  - projection failure codes: consema-rs/consema-json/src/projection.rs:
- *    754-765
+ *  - projection failure codes: consema-rs/consema-json/src/projection.rs（定义处）
  */
 
 import { test } from 'node:test';
@@ -126,7 +125,7 @@ test('projection.object-key-provenance: entry and key associations (v1.json:155-
   assert.equal(associations.filter((role) => role === 'ObjectKey').length, 2);
 });
 
-test('recovered documents never enter projection (projection.rs:361-366)', () => {
+test('recovered documents never enter projection (projection.rs)', () => {
   const document = parse(bytes('{"a"1,...}'), PROFILE_JSON_STRICT, DEFAULT_PARSE_LIMITS);
   assert.equal(document.formationStatus(), 'Recovered');
   const request = new ProjectionRequestBuilder('BestExactCoreV1').build();
@@ -151,14 +150,14 @@ test('projection fidelity check: strict JSON round-trips as Exact with Direct or
   }
 });
 
-test('json5.projection.duplicates-nonfinite: rejected for the strict profile (projection.rs:367-376)', () => {
+test('json5.projection.duplicates-nonfinite: rejected for the strict profile (projection.rs)', () => {
   const document = parse(bytes('{"a":1}'), PROFILE_JSON_STRICT, DEFAULT_PARSE_LIMITS);
   const request = new ProjectionRequestBuilder('Json5BestExactCoreV1').build();
   const result = failed(project(document, request));
   assert.equal(result.diagnostics()[0].code, 'core.projection.target-not-applicable@1');
 });
 
-test('ProjectionTarget stable names cover the frozen matrix (projection.rs:14-24)', () => {
+test('ProjectionTarget stable names cover the frozen matrix (projection.rs)', () => {
   const targets: ProjectionTarget[] = [
     'ProjectAsObjectV1',
     'ProjectAsEntryMappingV1',

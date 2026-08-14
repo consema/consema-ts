@@ -35,7 +35,7 @@ import { AssociationLocation, ValuePath } from './portable_locations.ts';
 import type { SourceEncoding } from './source.ts';
 import type { Diagnostic } from './diagnostic.ts';
 
-/** Versioned format-owned materialization style identifier (materialization.rs:11-39). */
+/** Versioned format-owned materialization style identifier (materialization.rs). */
 export class MaterializationStyleId {
   readonly #id: string;
   readonly #version: number;
@@ -48,12 +48,12 @@ export class MaterializationStyleId {
     this.#version = version;
   }
 
-  /** Namespaced style ID without version suffix (materialization.rs:30-33). */
+  /** Namespaced style ID without version suffix (materialization.rs). */
   id(): string {
     return this.#id;
   }
 
-  /** Immutable style version (materialization.rs:35-38). */
+  /** Immutable style version (materialization.rs). */
   version(): number {
     return this.#version;
   }
@@ -68,10 +68,10 @@ export class MaterializationStyleId {
   }
 }
 
-/** Explicit output newline policy (materialization.rs:41-62). */
+/** Explicit output newline policy (materialization.rs). */
 export type NewlinePolicy = 'None' | 'Lf' | 'CrLf';
 
-/** Exact selected newline bytes (materialization.rs:53-62). */
+/** Exact selected newline bytes (materialization.rs). */
 export function newlineBytes(policy: NewlinePolicy): Uint8Array {
   switch (policy) {
     case 'None':
@@ -83,13 +83,13 @@ export function newlineBytes(policy: NewlinePolicy): Uint8Array {
   }
 }
 
-/** Explicit treatment of ordered mappings at object-only targets (materialization.rs:64-71). */
+/** Explicit treatment of ordered mappings at object-only targets (materialization.rs). */
 export type MappingPolicy = 'RequireObject' | 'UniqueStringEntriesToObject';
 
-/** Closed v1 representability policy (materialization.rs:73-78; RFC 0004 §3). */
+/** Closed v1 representability policy (materialization.rs; RFC 0004 §3). */
 export type RepresentabilityPolicy = 'ExactOnly';
 
-/** Resource limits for one complete materialization (materialization.rs:80-93). */
+/** Resource limits for one complete materialization (materialization.rs). */
 export interface MaterializationLimits {
   /** Maximum input PortableValue nodes visited. */
   readonly maxInputNodes: number;
@@ -103,7 +103,7 @@ export interface MaterializationLimits {
   readonly maxProvenanceEntries: number;
 }
 
-/** The frozen defaults (materialization.rs:95-105): 1M nodes, 64 MiB, depth 256, 100k report, 2M provenance. */
+/** The frozen defaults (materialization.rs): 1M nodes, 64 MiB, depth 256, 100k report, 2M provenance. */
 export const DEFAULT_MATERIALIZATION_LIMITS: Readonly<MaterializationLimits> = Object.freeze({
   maxInputNodes: 1_000_000,
   maxOutputBytes: 64 * 1024 * 1024,
@@ -112,7 +112,7 @@ export const DEFAULT_MATERIALIZATION_LIMITS: Readonly<MaterializationLimits> = O
   maxProvenanceEntries: 2_000_000,
 });
 
-/** Complete immutable request for creating one new target document (materialization.rs:107-203). */
+/** Complete immutable request for creating one new target document (materialization.rs). */
 export class MaterializationRequest {
   readonly #targetProfile: ProfileId;
   readonly #style: MaterializationStyleId;
@@ -125,7 +125,7 @@ export class MaterializationRequest {
   #representability: RepresentabilityPolicy;
   #limits: MaterializationLimits;
 
-  /** Creates a strict request with UTF-8, LF, Object-only, and ExactOnly defaults (materialization.rs:120-132). */
+  /** Creates a strict request with UTF-8, LF, Object-only, and ExactOnly defaults (materialization.rs). */
   constructor(targetProfile: ProfileId, style: MaterializationStyleId) {
     this.#targetProfile = targetProfile;
     this.#style = style;
@@ -136,28 +136,28 @@ export class MaterializationRequest {
     this.#limits = DEFAULT_MATERIALIZATION_LIMITS;
   }
 
-  /** Selects an explicit output encoding (materialization.rs:134-139). */
+  /** Selects an explicit output encoding (materialization.rs). */
   withEncoding(encoding: SourceEncoding): MaterializationRequest {
     const copy = this.#copy();
     copy.#encoding = encoding;
     return copy;
   }
 
-  /** Selects an explicit newline policy (materialization.rs:141-146). */
+  /** Selects an explicit newline policy (materialization.rs). */
   withNewline(newline: NewlinePolicy): MaterializationRequest {
     const copy = this.#copy();
     copy.#newline = newline;
     return copy;
   }
 
-  /** Selects explicit ordered-mapping behavior (materialization.rs:148-153). */
+  /** Selects explicit ordered-mapping behavior (materialization.rs). */
   withMappingPolicy(policy: MappingPolicy): MaterializationRequest {
     const copy = this.#copy();
     copy.#mappingPolicy = policy;
     return copy;
   }
 
-  /** Replaces immutable materialization limits (materialization.rs:155-160). */
+  /** Replaces immutable materialization limits (materialization.rs). */
   withLimits(limits: MaterializationLimits): MaterializationRequest {
     const copy = this.#copy();
     copy.#limits = limits;
@@ -174,50 +174,50 @@ export class MaterializationRequest {
     return copy;
   }
 
-  /** Exact target Profile (materialization.rs:162-166). */
+  /** Exact target Profile (materialization.rs). */
   targetProfile(): ProfileId {
     return this.#targetProfile;
   }
 
-  /** Exact versioned target style (materialization.rs:168-172). */
+  /** Exact versioned target style (materialization.rs). */
   style(): MaterializationStyleId {
     return this.#style;
   }
 
-  /** Selected output encoding (materialization.rs:174-178). */
+  /** Selected output encoding (materialization.rs). */
   encoding(): SourceEncoding {
     return this.#encoding;
   }
 
-  /** Selected newline behavior (materialization.rs:180-184). */
+  /** Selected newline behavior (materialization.rs). */
   newline(): NewlinePolicy {
     return this.#newline;
   }
 
-  /** Ordered-mapping behavior (materialization.rs:186-190). */
+  /** Ordered-mapping behavior (materialization.rs). */
   mappingPolicy(): MappingPolicy {
     return this.#mappingPolicy;
   }
 
-  /** Representability behavior (materialization.rs:192-196). */
+  /** Representability behavior (materialization.rs). */
   representability(): RepresentabilityPolicy {
     return this.#representability;
   }
 
-  /** Resource limits (materialization.rs:198-202). */
+  /** Resource limits (materialization.rs). */
   limits(): MaterializationLimits {
     return this.#limits;
   }
 }
 
-/** Whole-operation semantic fidelity (materialization.rs:205-212). */
+/** Whole-operation semantic fidelity (materialization.rs). */
 export type MaterializationFidelity = 'Exact' | 'Transformed';
 
-/** Complete ordered materialization report (materialization.rs:214-237). */
+/** Complete ordered materialization report (materialization.rs). */
 export class MaterializationReport {
   readonly #events: readonly Diagnostic[];
 
-  /** Creates a report after enforcing its configured event limit (materialization.rs:220-229). */
+  /** Creates a report after enforcing its configured event limit (materialization.rs). */
   constructor(events: readonly Diagnostic[], limits: MaterializationLimits) {
     if (events.length > limits.maxReportEntries) {
       throw new MaterializationFailure('ResourceLimit', { reason: 'report-entries' });
@@ -225,21 +225,21 @@ export class MaterializationReport {
     this.#events = Object.freeze([...events]);
   }
 
-  /** Ordered structured events (materialization.rs:232-236). */
+  /** Ordered structured events (materialization.rs). */
   events(): readonly Diagnostic[] {
     return this.#events;
   }
 }
 
-/** Portable input value or association location (materialization.rs:239-247; RFC 0004 §8). */
+/** Portable input value or association location (materialization.rs; RFC 0004 §8). */
 export type MaterializationInputLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** Relationship from portable input fact to generated target syntax (materialization.rs:249-257). */
+/** Relationship from portable input fact to generated target syntax (materialization.rs). */
 export type MaterializationRelation = 'Direct' | 'Reencoded' | 'Generated';
 
-/** One exact output origin in the newly materialized snapshot (materialization.rs:259-270). */
+/** One exact output origin in the newly materialized snapshot (materialization.rs). */
 export class MaterializedOrigin {
   readonly #snapshot: SnapshotIdentity;
   readonly #node: NodeRef;
@@ -253,28 +253,28 @@ export class MaterializedOrigin {
     this.#relation = relation;
   }
 
-  /** Target snapshot identity (materialization.rs:271-273). */
+  /** Target snapshot identity (materialization.rs). */
   snapshot(): SnapshotIdentity {
     return this.#snapshot;
   }
 
-  /** Target structural identity (materialization.rs:274-277). */
+  /** Target structural identity (materialization.rs). */
   node(): NodeRef {
     return this.#node;
   }
 
-  /** Exact target raw span (materialization.rs:278-281). */
+  /** Exact target raw span (materialization.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Input-to-output relationship (materialization.rs:282-285). */
+  /** Input-to-output relationship (materialization.rs). */
   relation(): MaterializationRelation {
     return this.#relation;
   }
 }
 
-/** One input location mapped to one or more target origins (materialization.rs:272-279). */
+/** One input location mapped to one or more target origins (materialization.rs). */
 export class MaterializationProvenanceEntry {
   readonly #input: MaterializationInputLocation;
   readonly #outputs: readonly MaterializedOrigin[];
@@ -284,18 +284,18 @@ export class MaterializationProvenanceEntry {
     this.#outputs = Object.freeze([...outputs]);
   }
 
-  /** Portable input location (materialization.rs:281-283). */
+  /** Portable input location (materialization.rs). */
   input(): MaterializationInputLocation {
     return this.#input;
   }
 
-  /** One or more target origins (materialization.rs:284-286). */
+  /** One or more target origins (materialization.rs). */
   outputs(): readonly MaterializedOrigin[] {
     return this.#outputs;
   }
 }
 
-/** Complete input-to-output provenance map (materialization.rs:281-325). */
+/** Complete input-to-output provenance map (materialization.rs). */
 export class MaterializationProvenanceMap {
   readonly #entries: readonly MaterializationProvenanceEntry[];
 
@@ -303,7 +303,7 @@ export class MaterializationProvenanceMap {
     this.#entries = Object.freeze([...entries]);
   }
 
-  /** Validates snapshot binding, non-empty outputs, and configured size (materialization.rs:287-318). */
+  /** Validates snapshot binding, non-empty outputs, and configured size (materialization.rs). */
   static create(
     entries: readonly MaterializationProvenanceEntry[],
     target: SnapshotIdentity,
@@ -335,13 +335,13 @@ export class MaterializationProvenanceMap {
     return new MaterializationProvenanceMap(entries);
   }
 
-  /** Deterministically ordered provenance entries (materialization.rs:320-324). */
+  /** Deterministically ordered provenance entries (materialization.rs). */
   entries(): readonly MaterializationProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Failed attempt without a Document or partial output bytes (materialization.rs:393-402; RFC 0004 §7). */
+/** Failed attempt without a Document or partial output bytes (materialization.rs; RFC 0004 §7). */
 export class FailedMaterializationAttempt {
   readonly #failure: MaterializationFailure;
   readonly #report: MaterializationReport;
@@ -357,23 +357,23 @@ export class FailedMaterializationAttempt {
     this.#analyzedInputPaths = Object.freeze([...analyzedInputPaths]);
   }
 
-  /** Stable failure (materialization.rs:403-405). */
+  /** Stable failure (materialization.rs). */
   failure(): MaterializationFailure {
     return this.#failure;
   }
 
-  /** Events discovered before failure (materialization.rs:406-408). */
+  /** Events discovered before failure (materialization.rs). */
   report(): MaterializationReport {
     return this.#report;
   }
 
-  /** Stable input paths analyzed before failure (materialization.rs:409-411). */
+  /** Stable input paths analyzed before failure (materialization.rs). */
   analyzedInputPaths(): readonly ValuePath[] {
     return this.#analyzedInputPaths;
   }
 }
 
-/** Complete successful materialization; its document and audit facts are never partial (materialization.rs:406-415). */
+/** Complete successful materialization; its document and audit facts are never partial (materialization.rs). */
 export class CompleteMaterialization<D> {
   readonly #document: D;
   readonly #fidelity: MaterializationFidelity;
@@ -392,28 +392,28 @@ export class CompleteMaterialization<D> {
     this.#provenance = provenance;
   }
 
-  /** Newly formed immutable target document (materialization.rs:416-419). */
+  /** Newly formed immutable target document (materialization.rs). */
   document(): D {
     return this.#document;
   }
 
-  /** Worst fidelity of the whole operation (materialization.rs:420-422). */
+  /** Worst fidelity of the whole operation (materialization.rs). */
   fidelity(): MaterializationFidelity {
     return this.#fidelity;
   }
 
-  /** Complete ordered transformation report (materialization.rs:423-426). */
+  /** Complete ordered transformation report (materialization.rs). */
   report(): MaterializationReport {
     return this.#report;
   }
 
-  /** Complete portable-input-to-target provenance (materialization.rs:427-430). */
+  /** Complete portable-input-to-target provenance (materialization.rs). */
   provenance(): MaterializationProvenanceMap {
     return this.#provenance;
   }
 }
 
-/** Closed materialization completion algebra (materialization.rs:417-424; RFC 0004 §7). */
+/** Closed materialization completion algebra (materialization.rs; RFC 0004 §7). */
 export type MaterializationResult<D> =
   | { readonly kind: 'Complete'; readonly value: CompleteMaterialization<D> }
   | { readonly kind: 'Failed'; readonly value: FailedMaterializationAttempt };

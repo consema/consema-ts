@@ -3,26 +3,26 @@
  * commit.
  *
  * authority:
- *  - representation policies: consema-rs/consema-ini/src/edit.rs:15-26
- *  - operation vocabulary: edit.rs:28-106 (ValueReplacement/EditOperation),
- *    the registry ids (operation_registry.rs:16-80; RFC 0009 §12
+ *  - representation policies: consema-rs/consema-ini/src/edit.rs
+ *  - operation vocabulary: edit.rs (ValueReplacement/EditOperation),
+ *    the registry ids (operation_registry.rs; RFC 0009 §12
  *    :437-472), and the target roles ini.document@1 / ini.section@1 /
  *    ini.entry@1
- *  - commit algebra: edit.rs:305-553 (atomicity, conflict checks,
+ *  - commit algebra: edit.rs (atomicity, conflict checks,
  *    source-edit preparation, reparse, mapping, ChangeSet)
- *  - preparation rules: edit.rs:572-1516 (value ownership, insertion
+ *  - preparation rules: edit.rs (value ownership, insertion
  *    placement and newline conventions, removal ownership, rename
  *    validation, Python multiline preservation and canonical forms)
- *  - dependency validation: edit.rs:863-920 (PlacementAnchorRemoved,
+ *  - dependency validation: edit.rs (PlacementAnchorRemoved,
  *    AncestorDescendantConflict, DuplicateTarget)
- *  - canonical entry/value spellings: edit.rs:1101-1167, 1261-1430
- *    (windows_value_needs_quotes at materialization.rs:874-888)
- *  - exact literal validation: edit.rs:384-403 (reparse must form one
+ *  - canonical entry/value spellings: edit.rs
+ *    (windows_value_needs_quotes at materialization.rs)
+ *  - exact literal validation: edit.rs (reparse must form one
  *    complete document; literal-only failures map to InvalidLiteral)
- *  - summaries and metadata: edit.rs:1604-1702 (operation.{index}
+ *  - summaries and metadata: edit.rs (operation.{index}
  *    metadata keys must match the SourcePatch metadata exactly; the
  *    EditPlan constructor enforces it, document/edit_plan.ts:101-110)
- *  - failure mapping: edit.rs:1754-1779 (core.edit.* and ini.edit.* codes,
+ *  - failure mapping: edit.rs (core.edit.* and ini.edit.* codes,
  *    RFC 0004 §17; RFC 0009 §14)
  *
  * Design (TypeScript-idiomatic): an immutable transaction built through a
@@ -51,17 +51,17 @@ import type { IniEncodingSelection, IniParseLimits, IniSyntaxKind } from './prof
 import { optionxform } from './python_case.ts';
 
 // ---------------------------------------------------------------------------
-// Representation policy and operations (edit.rs:15-106)
+// Representation policy and operations (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Explicit semantic value representation policy (edit.rs:16-26). */
+/** Explicit semantic value representation policy (edit.rs). */
 export type IniRepresentationPolicy =
   | 'ExactLiteral'
   | 'PreserveCompatible'
   | 'CanonicalForProfile'
   | 'PreserveElseCanonical';
 
-/** One INI value replacement bound to a transaction base snapshot (edit.rs:29-55). */
+/** One INI value replacement bound to a transaction base snapshot (edit.rs). */
 export type IniValueReplacement =
   | {
       readonly kind: 'Semantic';
@@ -75,7 +75,7 @@ export type IniValueReplacement =
       readonly literal: Uint8Array;
     };
 
-/** One typed INI edit operation bound to an immutable base snapshot (edit.rs:57-106). */
+/** One typed INI edit operation bound to an immutable base snapshot (edit.rs). */
 export type IniEditOperation =
   | { readonly kind: 'ReplaceValue'; readonly replacement: IniValueReplacement }
   | {
@@ -96,7 +96,7 @@ export type IniEditOperation =
   | { readonly kind: 'RemoveEntry'; readonly target: NodeRef }
   | { readonly kind: 'RenameEntry'; readonly target: NodeRef; readonly key: string };
 
-/** Immutable transaction; every operation resolves against one base snapshot (edit.rs:108-127). */
+/** Immutable transaction; every operation resolves against one base snapshot (edit.rs). */
 export class IniEditTransaction {
   readonly #base: SnapshotIdentity;
   readonly #operations: readonly IniEditOperation[];
@@ -107,28 +107,28 @@ export class IniEditTransaction {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Base snapshot identity (edit.rs:116-119). */
+  /** Base snapshot identity (edit.rs). */
   baseSnapshot(): SnapshotIdentity {
     return this.#base;
   }
 
-  /** Ordered declared operations (edit.rs:120-125). */
+  /** Ordered declared operations (edit.rs). */
   operations(): readonly IniEditOperation[] {
     return this.#operations;
   }
 }
 
-/** Builder for one immutable edit transaction (edit.rs:129-243). */
+/** Builder for one immutable edit transaction (edit.rs). */
 export class IniEditTransactionBuilder {
   readonly #base: SnapshotIdentity;
   readonly #operations: IniEditOperation[] = [];
 
-  /** Binds a new transaction to one immutable INI document (edit.rs:137-144). */
+  /** Binds a new transaction to one immutable INI document (edit.rs). */
   constructor(document: IniDocument) {
     this.#base = document.snapshotIdentity();
   }
 
-  /** Adds one semantic stored-value replacement (edit.rs:146-158). */
+  /** Adds one semantic stored-value replacement (edit.rs). */
   semanticValue(
     target: NodeRef,
     value: string,
@@ -141,7 +141,7 @@ export class IniEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact raw value-representation replacement (edit.rs:159-170). */
+  /** Adds one exact raw value-representation replacement (edit.rs). */
   literalValue(target: NodeRef, literal: Uint8Array): IniEditTransactionBuilder {
     this.#operations.push({
       kind: 'ReplaceValue',
@@ -150,7 +150,7 @@ export class IniEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one canonical section insertion (edit.rs:171-181). */
+  /** Adds one canonical section insertion (edit.rs). */
   insertSection(
     document: NodeRef,
     name: string,
@@ -160,19 +160,19 @@ export class IniEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact section removal, including that occurrence's owned entries (edit.rs:183-192). */
+  /** Adds one exact section removal, including that occurrence's owned entries (edit.rs). */
   removeSection(target: NodeRef): IniEditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveSection', target });
     return this;
   }
 
-  /** Adds one exact section-name replacement (edit.rs:194-202). */
+  /** Adds one exact section-name replacement (edit.rs). */
   renameSection(target: NodeRef, name: string): IniEditTransactionBuilder {
     this.#operations.push({ kind: 'RenameSection', target, name });
     return this;
   }
 
-  /** Adds one canonical entry insertion (edit.rs:204-218). */
+  /** Adds one canonical entry insertion (edit.rs). */
   insertEntry(
     section: NodeRef,
     key: string,
@@ -183,25 +183,25 @@ export class IniEditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact entry removal (edit.rs:220-224). */
+  /** Adds one exact entry removal (edit.rs). */
   removeEntry(target: NodeRef): IniEditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveEntry', target });
     return this;
   }
 
-  /** Adds one exact entry-key replacement (edit.rs:226-232). */
+  /** Adds one exact entry-key replacement (edit.rs). */
   renameEntry(target: NodeRef, key: string): IniEditTransactionBuilder {
     this.#operations.push({ kind: 'RenameEntry', target, key });
     return this;
   }
 
-  /** Completes the immutable request; target validation occurs atomically at commit (edit.rs:234-242). */
+  /** Completes the immutable request; target validation occurs atomically at commit (edit.rs). */
   build(): IniEditTransaction {
     return new IniEditTransaction(this.#base, this.#operations);
   }
 }
 
-/** Atomic edit success (edit.rs:245-256). */
+/** Atomic edit success (edit.rs). */
 export class IniEditCommit {
   readonly #document: IniDocument;
   readonly #changeSet: ChangeSet;
@@ -220,22 +220,22 @@ export class IniEditCommit {
     this.#untouchedProof = untouchedProof;
   }
 
-  /** New immutable document (edit.rs:248-250). */
+  /** New immutable document (edit.rs). */
   document(): IniDocument {
     return this.#document;
   }
 
-  /** Complete old-to-new change facts (edit.rs:251-253). */
+  /** Complete old-to-new change facts (edit.rs). */
   changeSet(): ChangeSet {
     return this.#changeSet;
   }
 
-  /** Portable exact raw-byte application fact (edit.rs:254-256). */
+  /** Portable exact raw-byte application fact (edit.rs). */
   sourcePatch(): SourcePatch {
     return this.#sourcePatch;
   }
 
-  /** Verifiable evidence for every byte outside the replacement set (edit.rs:257-259). */
+  /** Verifiable evidence for every byte outside the replacement set (edit.rs). */
   untouchedProof(): UntouchedByteProof {
     return this.#untouchedProof;
   }
@@ -265,7 +265,7 @@ interface PreparedEdit {
   readonly mergeableDeletion: boolean;
 }
 
-/** Prepares and validates every operation against one snapshot (edit.rs:305-553). */
+/** Prepares and validates every operation against one snapshot (edit.rs). */
 export function commitIniEdits(
   document: IniDocument,
   transaction: IniEditTransaction,
@@ -456,7 +456,7 @@ export function commitIniEdits(
   return new IniEditCommit(newDocument, changeSet, sourcePatch, untouchedProof);
 }
 
-/** Fully validates and plans an edit without returning a new Document (edit.rs:555-570). */
+/** Fully validates and plans an edit without returning a new Document (edit.rs). */
 export function dryRunIniEdits(
   document: IniDocument,
   transaction: IniEditTransaction,
@@ -501,7 +501,7 @@ function prepareOperation(
   }
 }
 
-// -- value replacement (edit.rs:572-615) -------------------------------------
+// -- value replacement (edit.rs) -------------------------------------
 
 function prepareValue(
   document: IniDocument,
@@ -536,7 +536,7 @@ function prepareValue(
   };
 }
 
-/** The value ownership span of one entry (edit.rs:1445-1475). */
+/** The value ownership span of one entry (edit.rs). */
 function valueOwnership(document: IniDocument, entry: IniEntry): Span {
   const profileTag = document.profileTag();
   if (profileTag === 'PortableV1') {
@@ -632,7 +632,7 @@ function canonicalValue(document: IniDocument, entry: IniEntry, value: string): 
   }
 }
 
-/** Per-line Python value preservation (edit.rs:1305-1385). */
+/** Per-line Python value preservation (edit.rs). */
 function preservedPythonValue(document: IniDocument, entry: IniEntry, value: string): Uint8Array {
   const logical = logicalEntityOf(document, entry.index());
   const physicalLines = logical.kind.physicalLines;
@@ -692,7 +692,7 @@ function preservedPythonValue(document: IniDocument, entry: IniEntry, value: str
   return Uint8Array.from(output);
 }
 
-/** Canonical Python multiline form (edit.rs:1387-1430). */
+/** Canonical Python multiline form (edit.rs). */
 function canonicalPythonValue(document: IniDocument, entry: IniEntry, value: string): Uint8Array {
   const logical = logicalEntityOf(document, entry.index());
   const first = document.entity(logical.kind.physicalLines[0]);
@@ -737,7 +737,7 @@ function encodeValue(document: IniDocument, value: string): Uint8Array {
   }
 }
 
-// -- structural operations (edit.rs:652-861) -----------------------------------
+// -- structural operations (edit.rs) -----------------------------------
 
 function prepareInsertSection(
   document: IniDocument,
@@ -752,8 +752,8 @@ function prepareInsertSection(
   let position: number;
   switch (placement.kind) {
     case 'Start':
-      // The Go implementation guards an empty section list (consema-go/go/ini/edit.go:
-      // 906-913: position = source.Len()); the Rust authority indexes
+      // The Go implementation guards an empty section list (consema-go/go/ini/edit.go 的
+      // source.Len 空节列表守卫); the Rust authority indexes
       // sections()[0] unconditionally. The guard is adopted here.
       position = sections.length === 0 ? 0 : sectionLineStart(document, sections[0].index());
       break;
@@ -912,7 +912,7 @@ function prepareRenameEntry(document: IniDocument, target: NodeRef, key: string)
   };
 }
 
-/** Canonical inserted entry text (edit.rs:1101-1167). */
+/** Canonical inserted entry text (edit.rs). */
 function canonicalEntryText(document: IniDocument, key: string, value: string): string {
   let text = '';
   switch (document.profileTag()) {
@@ -948,7 +948,7 @@ function canonicalEntryText(document: IniDocument, key: string, value: string): 
   return text;
 }
 
-// -- dependency validation (edit.rs:863-920) ----------------------------------
+// -- dependency validation (edit.rs) ----------------------------------
 
 function validateDependencies(document: IniDocument, transaction: IniEditTransaction): void {
   const removedSections = new Set<number>();
@@ -1007,7 +1007,7 @@ function validateDependencies(document: IniDocument, transaction: IniEditTransac
   }
 }
 
-// -- target resolution and validation (edit.rs:922-1069) ----------------------
+// -- target resolution and validation (edit.rs) ----------------------
 
 function resolveDocumentOf(document: IniDocument, target: NodeRef): void {
   try {
@@ -1045,7 +1045,7 @@ function editAccessFailure(error: unknown): IniEditFailure {
     }
   }
   // DocumentAuthority.verify throws LocationError for foreign-snapshot refs
-  // (edit.rs:922-931 resolves the snapshot before the role).
+  // (edit.rs resolves the snapshot before the role).
   if (error instanceof LocationError && error.kind === 'WrongSnapshot') {
     return new IniEditFailure('WrongSnapshot');
   }
@@ -1161,7 +1161,7 @@ function validateSemanticValue(profileTag: string, value: string): void {
   }
 }
 
-// -- line and span helpers (edit.rs:1071-1226) ---------------------------------
+// -- line and span helpers (edit.rs) ---------------------------------
 
 function sectionLineStart(document: IniDocument, sectionIndex: number): number {
   const kind = document.entity(sectionIndex).kind;
@@ -1300,7 +1300,7 @@ function profileNewline(document: IniDocument): string {
   return document.profileTag() === 'WindowsV1' ? '\r\n' : '\n';
 }
 
-// -- mapping resolution helpers (edit.rs:426-524) ------------------------------
+// -- mapping resolution helpers (edit.rs) ------------------------------
 
 function findEntryByOwnership(document: IniDocument, expectedKey: string, newSpan: Span): NodeRef | null {
   for (const entry of document.entries()) {
@@ -1423,7 +1423,7 @@ function nodeKey(node: NodeRef): string {
 }
 
 // ---------------------------------------------------------------------------
-// Encoding selection, metadata, and summaries (edit.rs:1570-1720)
+// Encoding selection, metadata, and summaries (edit.rs)
 // ---------------------------------------------------------------------------
 
 function originalEncodingSelection(document: IniDocument): IniEncodingSelection {
@@ -1537,7 +1537,7 @@ function sourcePatchLimitsFor(limits: IniParseLimits, operationCount: number): S
 }
 
 // ---------------------------------------------------------------------------
-// Character classes (edit.rs:1518-1568)
+// Character classes (edit.rs)
 // ---------------------------------------------------------------------------
 
 function allBytes(value: string, predicate: (byte: number) => boolean): boolean {

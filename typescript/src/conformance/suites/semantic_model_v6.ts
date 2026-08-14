@@ -114,7 +114,7 @@ function payloadsEqual(left: PortableValue, right: PortableValue): boolean {
   return bytesEqual(EncodeJSON(left, LIMITS), EncodeJSON(right, LIMITS));
 }
 
-/** Proves JSON/PVCE transport identity of one payload under the v6 registry (dual_roundtrip, semantic_model_v6.rs:903-924). */
+/** Proves JSON/PVCE transport identity of one payload under the v6 registry (dual_roundtrip, semantic_model_v6.rs). */
 function dualRoundtrip(contract: ContractId, payload: PortableValue): void {
   const message = new ProtocolMessage(contract, payload, V6);
   const json = message.toJSON(LIMITS);
@@ -160,7 +160,7 @@ function appendObjectField(value: PortableValue, name: string, appended: Portabl
   return objectValueFrom([...value.entries, { key: name, value: appended }]);
 }
 
-/** One frozen Windows code page encoding (code_page_encoding, semantic_model_v6.rs:926-930). */
+/** One frozen Windows code page encoding (code_page_encoding, semantic_model_v6.rs). */
 function codePageEncoding(number: number) {
   const page = WindowsCodePage.fromNumber(number);
   if (page === null) {
@@ -169,7 +169,7 @@ function codePageEncoding(number: number) {
   return windowsCodePageEncoding(page);
 }
 
-/** One code-page snapshot under TreatAsContent (code_page_snapshot, semantic_model_v6.rs:932-940). */
+/** One code-page snapshot under TreatAsContent (code_page_snapshot, semantic_model_v6.rs). */
 function codePageSnapshot(number: number, bytes: Uint8Array): SourceSnapshot {
   return SourceSnapshot.fromRaw(
     bytes,
@@ -178,7 +178,7 @@ function codePageSnapshot(number: number, bytes: Uint8Array): SourceSnapshot {
   );
 }
 
-/** One input role spelling → the closed INI role (parse_ini_role, semantic_model_v6.rs:957-969). */
+/** One input role spelling → the closed INI role (parse_ini_role, semantic_model_v6.rs). */
 function parseIniRole(text: string): MatchRole {
   switch (text) {
     case 'IniDocument':
@@ -195,7 +195,7 @@ function parseIniRole(text: string): MatchRole {
   }
 }
 
-/** One input role spelling → the closed Properties role (parse_properties_role, semantic_model_v6.rs:971-983). */
+/** One input role spelling → the closed Properties role (parse_properties_role, semantic_model_v6.rs). */
 function parsePropertiesRole(text: string): MatchRole {
   switch (text) {
     case 'PropertiesDocument':
@@ -212,7 +212,7 @@ function parsePropertiesRole(text: string): MatchRole {
   }
 }
 
-/** The frozen completion Success(produced, produced) (success, semantic_model_v6.rs:942-944). */
+/** The frozen completion Success(produced, produced) (success, semantic_model_v6.rs). */
 function success(produced: number): Completion {
   return Completion.new('Success', BigInt(produced), BigInt(produced));
 }
@@ -360,7 +360,7 @@ function sourceSnapshotV2(case_: VectorCase): void {
     }
     case 'source.snapshot-v2-code-page-boundaries': {
       // The cp932 decode and boundary facts (source_boundaries,
-      // semantic_model_v6.rs:340-364): the two-byte code 82a0 decodes to
+      // semantic_model_v6.rs): the two-byte code 82a0 decodes to
       // U+3042, so raw boundaries 0/2/3 are the scalar boundaries and raw
       // byte 1 (mid-scalar) is not.
       const snapshot = codePageSnapshot(
@@ -438,7 +438,7 @@ function sourcePatchV2(case_: VectorCase): void {
     );
     const patch = SourcePatch.create(base, [replacement], new Map(), DEFAULT_SOURCE_PATCH_LIMITS);
     // Wire roundtrip through the v2 patch record, then atomic apply
-    // (semantic_model_v6.rs:388-425).
+    // (semantic_model_v6.rs).
     const wire = SourcePatchMessageV2.fromPatch(patch).toValue();
     const decodedPatch = SourcePatchMessageV2.fromValue(wire, DEFAULT_SOURCE_PATCH_LIMITS).patch();
     const target = decodedPatch.apply(base, DEFAULT_SOURCE_PATCH_LIMITS);
@@ -540,7 +540,7 @@ function materializationResultV2(case_: VectorCase): void {
   }
 }
 
-/** Replaces the outcome snapshot of a result wire with a forged snapshot value (replace_outcome_snapshot, semantic_model_v6.rs:998-1009). */
+/** Replaces the outcome snapshot of a result wire with a forged snapshot value (replace_outcome_snapshot, semantic_model_v6.rs). */
 function replaceOutcomeSnapshot(result: ObjectValue, snapshot: PortableValue): ObjectValue {
   const outcome = result.entries.find((entry) => entry.key === 'outcome')!.value;
   if (outcome.kind !== 'Object') {
@@ -696,7 +696,7 @@ function propertiesQuery(case_: VectorCase): void {
   }
 }
 
-/** The eight v6-contract payloads rejected by every old registry (new_payloads, semantic_model_v6.rs:814-901). */
+/** The eight v6-contract payloads rejected by every old registry (new_payloads, semantic_model_v6.rs). */
 function v6NewPayloads(): { contract: ContractId; payload: PortableValue }[] {
   const encoding = codePageEncoding(1252);
   const snapshot = codePageSnapshot(1252, utf8('k=1'));

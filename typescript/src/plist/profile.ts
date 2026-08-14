@@ -2,13 +2,13 @@
  * Frozen plist language profiles and formation limits.
  *
  * authority (frozen data — do not guess):
- *  - PlistProfile and profile ids: consema-rs/consema-plist/src/lib.rs:76-92
+ *  - PlistProfile and profile ids: consema-rs/consema-plist/src/lib.rs
  *    (XmlV1 -> "plist.xml@1", BinaryV1 -> "plist.binary@1");
- *    RFC 0013 §1 (https://github.com/consema/consema/blob/main/docs/rfcs/0013-plist-family-profiles-v1.md:27-32)
- *  - PlistEncodingSelection: lib.rs:103-110 (ProfileDefault |
+ *    RFC 0013 §1 (https://github.com/consema/consema/blob/main/docs/rfcs/0013-plist-family-profiles-v1.md)
+ *  - PlistEncodingSelection: lib.rs (ProfileDefault |
  *    Explicit(SourceEncoding); the binary profile has no text encoding
  *    and no BOM, RFC 0013 §2.2)
- *  - PlistParseLimits fields and defaults: lib.rs:119-194 (common limits
+ *  - PlistParseLimits fields and defaults: lib.rs (common limits
  *    from consema-document ParseLimits, max_decoded_utf8_bytes 128 MiB,
  *    max_decoded_scalars 64 MiB, max_object_count 1_000_000,
  *    max_container_depth 256, max_dict_entries 1_000_000,
@@ -32,7 +32,7 @@ import { DEFAULT_PARSE_LIMITS } from '../document/formation.ts';
 import type { ParseLimits } from '../document/formation.ts';
 import type { SourceEncoding } from '../document/source.ts';
 
-/** Frozen plist formation profile (lib.rs:76-81). */
+/** Frozen plist formation profile (lib.rs). */
 export type PlistProfile = 'XmlV1' | 'BinaryV1';
 
 /** `plist.xml@1` — the plist value vocabulary as XML 1.0 (RFC 0013 §4). */
@@ -40,7 +40,7 @@ export const PROFILE_PLIST_XML: PlistProfile = 'XmlV1';
 /** `plist.binary@1` — the binary object-table representation (RFC 0013 §5). */
 export const PROFILE_PLIST_BINARY: PlistProfile = 'BinaryV1';
 
-/** Stable profile identifier (lib.rs:83-92). */
+/** Stable profile identifier (lib.rs). */
 export function plistProfileId(profile: PlistProfile): ProfileId {
   switch (profile) {
     case 'XmlV1':
@@ -51,7 +51,7 @@ export function plistProfileId(profile: PlistProfile): ProfileId {
 }
 
 /**
- * Explicit source-encoding selection (lib.rs:94-110; RFC 0013 §2).
+ * Explicit source-encoding selection (lib.rs; RFC 0013 §2).
  *
  * For the XML profile the selection follows the RFC 0012 source contract:
  * no-BOM source defaults to UTF-8, and an explicit caller choice is
@@ -112,7 +112,7 @@ export interface PlistParseLimits {
   readonly maxRecoveryRegions: number;
 }
 
-/** The frozen defaults (lib.rs:168-194). */
+/** The frozen defaults (lib.rs). */
 export const DEFAULT_PLIST_PARSE_LIMITS: Readonly<PlistParseLimits> = Object.freeze({
   common: DEFAULT_PARSE_LIMITS,
   maxDecodedUtf8Bytes: 128 * 1024 * 1024,

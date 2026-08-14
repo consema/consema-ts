@@ -78,12 +78,12 @@ import type { PlistValueKind } from './native.ts';
 // Paths, placements, and values
 // ---------------------------------------------------------------------------
 
-/** One root-relative path step (edit.rs:76-90). */
+/** One root-relative path step (edit.rs). */
 export type EditPathStep =
   | { readonly kind: 'DictKey'; readonly key: string; readonly occurrence: number }
   | { readonly kind: 'ArrayIndex'; readonly index: number };
 
-/** A root-relative path to one value or container (edit.rs:91-130). */
+/** A root-relative path to one value or container (edit.rs). */
 export class EditPath {
   readonly #steps: readonly EditPathStep[];
 
@@ -112,13 +112,13 @@ export class EditPath {
   }
 }
 
-/** Dictionary entry insertion placement inside one dictionary (edit.rs:132-143). */
+/** Dictionary entry insertion placement inside one dictionary (edit.rs). */
 export type DictPlacement =
   | { readonly kind: 'End' }
   | { readonly kind: 'Before'; readonly index: number }
   | { readonly kind: 'After'; readonly index: number };
 
-/** One typed native plist value supplied to an edit (edit.rs:145-185). */
+/** One typed native plist value supplied to an edit (edit.rs). */
 export type EditValue =
   | { readonly kind: 'String'; readonly text: string }
   | { readonly kind: 'Integer'; readonly value: bigint }
@@ -128,7 +128,7 @@ export type EditValue =
   | { readonly kind: 'Data'; readonly bytes: Uint8Array }
   | { readonly kind: 'Uid'; readonly value: number };
 
-/** Closed native kind of one edit value (edit.rs:171-185). */
+/** Closed native kind of one edit value (edit.rs). */
 export function editValueKind(value: EditValue): PlistValueKind {
   switch (value.kind) {
     case 'String':
@@ -148,7 +148,7 @@ export function editValueKind(value: EditValue): PlistValueKind {
   }
 }
 
-/** One snapshot-bound plist structural operation (edit.rs:187-251). */
+/** One snapshot-bound plist structural operation (edit.rs). */
 export type EditOperation =
   | { readonly op: 'SetValue'; readonly path: EditPath; readonly value: EditValue }
   | {
@@ -179,7 +179,7 @@ export type EditOperation =
     }
   | { readonly op: 'RemoveArrayElement'; readonly path: EditPath; readonly index: number };
 
-/** Stable operation identifier of one operation (edit.rs:2151-2160). */
+/** Stable operation identifier of one operation (edit.rs). */
 export function editOperationId(operation: EditOperation): string {
   switch (operation.op) {
     case 'SetValue':
@@ -197,7 +197,7 @@ export function editOperationId(operation: EditOperation): string {
   }
 }
 
-/** Immutable snapshot-bound transaction (edit.rs:253-272). */
+/** Immutable snapshot-bound transaction (edit.rs). */
 export class EditTransaction {
   readonly #base: ReturnType<PlistDocument['snapshotIdentity']>;
   readonly #operations: readonly EditOperation[];
@@ -219,7 +219,7 @@ export class EditTransaction {
   }
 }
 
-/** Builds one transaction against one immutable snapshot (edit.rs:274-374). */
+/** Builds one transaction against one immutable snapshot (edit.rs). */
 export class EditTransactionBuilder {
   readonly #base: ReturnType<PlistDocument['snapshotIdentity']>;
   readonly #operations: EditOperation[] = [];
@@ -271,7 +271,7 @@ export class EditTransactionBuilder {
   }
 }
 
-/** One complete committed edit (edit.rs:376-387). */
+/** One complete committed edit (edit.rs). */
 export class EditCommit {
   readonly #document: PlistDocument;
   readonly #changeSet: ChangeSet;
@@ -307,7 +307,7 @@ export class EditCommit {
 }
 
 // ---------------------------------------------------------------------------
-// Splice machinery (edit.rs:578-746)
+// Splice machinery (edit.rs)
 // ---------------------------------------------------------------------------
 
 /** One applied raw-byte splice, recorded for base-coordinate translation. */
@@ -326,7 +326,7 @@ function structuralSplice(preStart: number, preLen: number, replacement: Uint8Ar
   return { preStart, preLen, replacement, structural: true };
 }
 
-/** Maps one position from the final state back to the base snapshot (edit.rs:627-644). */
+/** Maps one position from the final state back to the base snapshot (edit.rs). */
 function unmapIn(edits: readonly AppliedEdit[], pos: number): number {
   for (let index = edits.length - 1; index >= 0; index--) {
     const edit = edits[index];
@@ -342,7 +342,7 @@ function unmapIn(edits: readonly AppliedEdit[], pos: number): number {
   return pos;
 }
 
-/** Maps one position from one pre-state to the final state (edit.rs:648-659). */
+/** Maps one position from one pre-state to the final state (edit.rs). */
 function mapIn(edits: readonly AppliedEdit[], pos: number): number {
   for (const edit of edits) {
     if (pos <= edit.preStart) {
@@ -356,7 +356,7 @@ function mapIn(edits: readonly AppliedEdit[], pos: number): number {
   return pos;
 }
 
-/** Records one splice and rejects duplicate-target insertions (edit.rs:668-728). */
+/** Records one splice and rejects duplicate-target insertions (edit.rs). */
 function recordEdit(edits: AppliedEdit[], preStart: number, preLen: number, replacement: Uint8Array, structural: boolean): void {
   if (preLen === 0 && replacement.length === 0) {
     return;
@@ -418,7 +418,7 @@ function addLengthDelta(delta: number, newLen: number, oldLen: number): number {
   return result;
 }
 
-/** Applies one step's splices against the working bytes (edit.rs:581-607). */
+/** Applies one step's splices against the working bytes (edit.rs). */
 function applyStep(edits: AppliedEdit[], bytes: Uint8Array, limits: PlistParseLimits, splices: readonly AppliedEdit[]): Uint8Array {
   let targetLen = bytes.length;
   for (const item of splices) {
@@ -449,7 +449,7 @@ function applyStep(edits: AppliedEdit[], bytes: Uint8Array, limits: PlistParseLi
 }
 
 // ---------------------------------------------------------------------------
-// Path resolution (edit.rs:748-787)
+// Path resolution (edit.rs)
 // ---------------------------------------------------------------------------
 
 /** Resolves one path against one native arena; the empty path is the root. */
@@ -499,7 +499,7 @@ function nthKeyPosition(entries: readonly { readonly key: string; readonly value
 }
 
 // ---------------------------------------------------------------------------
-// XML byte-level layout (edit.rs:789-1040)
+// XML byte-level layout (edit.rs)
 // ---------------------------------------------------------------------------
 
 /** One value element's byte facts, indexed by native arena ordinal. */
@@ -731,7 +731,7 @@ function pieceText(source: SourceSnapshot, start: number, end: number): string {
 }
 
 // ---------------------------------------------------------------------------
-// XML markup encoders (edit.rs:1225-1399)
+// XML markup encoders (edit.rs)
 // ---------------------------------------------------------------------------
 
 /** Encodes one decoded string under the source encoding. */
@@ -783,7 +783,7 @@ function escapeXmlText(text: string): string {
   return out;
 }
 
-/** One value element written as markup (edit.rs:1257-1308). */
+/** One value element written as markup (edit.rs). */
 function encodeXmlElement(value: EditValue, encoding: SourceEncoding): Uint8Array {
   let text = '';
   switch (value.kind) {
@@ -820,17 +820,17 @@ function encodeXmlElement(value: EditValue, encoding: SourceEncoding): Uint8Arra
   return encodeText(text, encoding);
 }
 
-/** One key element written as markup (edit.rs:1310-1321). */
+/** One key element written as markup (edit.rs). */
 function encodeXmlKey(key: string, encoding: SourceEncoding): Uint8Array {
   return encodeText(`<key>${escapeXmlText(key)}</key>`, encoding);
 }
 
-/** Escaped key content only (edit.rs:1323-1333). */
+/** Escaped key content only (edit.rs). */
 function encodeKeyText(key: string, encoding: SourceEncoding): Uint8Array {
   return encodeText(escapeXmlText(key), encoding);
 }
 
-/** `<key>..</key>` plus one value element (edit.rs:1246-1255). */
+/** `<key>..</key>` plus one value element (edit.rs). */
 function entryMarkup(key: string, value: EditValue, encoding: SourceEncoding): Uint8Array {
   const keyBytes = encodeXmlKey(key, encoding);
   const valueBytes = encodeXmlElement(value, encoding);
@@ -840,7 +840,7 @@ function entryMarkup(key: string, value: EditValue, encoding: SourceEncoding): U
   return out;
 }
 
-/** Validates one typed value for the XML representation (edit.rs:1352-1377). */
+/** Validates one typed value for the XML representation (edit.rs). */
 function checkXmlValue(value: EditValue): void {
   switch (value.kind) {
     case 'String':
@@ -868,7 +868,7 @@ function checkXmlValue(value: EditValue): void {
   }
 }
 
-/** Validates one key content for the XML representation (edit.rs:1379-1388). */
+/** Validates one key content for the XML representation (edit.rs). */
 function checkXmlKey(key: string): void {
   if (classifySurrogates(key) === 'UnpairedSurrogate' || !isXmlText(key)) {
     throw new EditFailure('UnrepresentableValue', { reason: 'unpaired-surrogate' });
@@ -977,7 +977,7 @@ function renderDate(fields: { year: number; month: number; day: number; hour: nu
   return `${sign}${year}-${pad(fields.month)}-${pad(fields.day)}T${pad(fields.hour)}:${pad(fields.minute)}:${pad(fields.second)}Z`;
 }
 
-/** Unwrapped standard-alphabet base64 with exact `=` padding (edit.rs:1298-1302). */
+/** Unwrapped standard-alphabet base64 with exact `=` padding (edit.rs). */
 function encodeBase64(bytes: Uint8Array): string {
   const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let out = '';
@@ -1000,7 +1000,7 @@ function bitsOfFloat64(value: number): bigint {
 }
 
 // ---------------------------------------------------------------------------
-// XML operations (edit.rs:1042-1223)
+// XML operations (edit.rs)
 // ---------------------------------------------------------------------------
 
 /** Prepares one XML operation's splices against the current formed state. */
@@ -1167,7 +1167,7 @@ function concatBytes(...parts: Uint8Array[]): Uint8Array {
 }
 
 // ---------------------------------------------------------------------------
-// Binary structural operations (edit.rs:1402-1927)
+// Binary structural operations (edit.rs)
 // ---------------------------------------------------------------------------
 
 interface BinaryPlan {
@@ -1294,7 +1294,7 @@ function containerIsDict(native: PlistNativeDocument, index: number): boolean {
   return native.get(PlistValueRef.fromIndex(index))?.kind === 'Dict';
 }
 
-/** Encodes one container object (edit.rs:1772-1787). */
+/** Encodes one container object (edit.rs). */
 function encodeContainer(refs: readonly number[], isDict: boolean, refSize: number): Uint8Array {
   const count = isDict ? refs.length / 2 : refs.length;
   const parts: Uint8Array[] = [sizedMarkerBytes(isDict ? 0xd0 : 0xa0, count)];
@@ -1304,7 +1304,7 @@ function encodeContainer(refs: readonly number[], isDict: boolean, refSize: numb
   return concatBytes(...parts);
 }
 
-/** Encodes one typed value as a binary object (edit.rs:1789-1832). */
+/** Encodes one typed value as a binary object (edit.rs). */
 function encodeBinaryValue(value: EditValue): Uint8Array {
   switch (value.kind) {
     case 'String':
@@ -1334,7 +1334,7 @@ function encodeBinaryValue(value: EditValue): Uint8Array {
   }
 }
 
-/** Encodes one string object (edit.rs:1836-1851). */
+/** Encodes one string object (edit.rs). */
 function encodeBinaryString(text: string): Uint8Array {
   const ascii = [...text].every((c) => c.charCodeAt(0) < 0x80);
   const parts: Uint8Array[] = [sizedMarkerBytes(ascii ? 0x50 : 0x60, text.length)];
@@ -1408,7 +1408,7 @@ function widthTrailingZeros(width: number): number {
   }
 }
 
-/** Computes one binary operation's structural splices (edit.rs:1422-1568). */
+/** Computes one binary operation's structural splices (edit.rs). */
 function binaryStep(
   document: PlistDocument,
   native: PlistNativeDocument,
@@ -1520,10 +1520,10 @@ function writeBe(bytes: Uint8Array, offset: number, value: bigint, width: number
 }
 
 // ---------------------------------------------------------------------------
-// Commit assembly (edit.rs:1935-2160)
+// Commit assembly (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Maps one fatal target formation failure to a stable edit failure (edit.rs:2124-2133). */
+/** Maps one fatal target formation failure to a stable edit failure (edit.rs). */
 function mapFatal(fatal: FatalFormationFailure): EditFailure {
   if (
     fatal
@@ -1535,7 +1535,7 @@ function mapFatal(fatal: FatalFormationFailure): EditFailure {
   return new EditFailure('NewDocumentFormationFailed');
 }
 
-/** Builds the commit facts: ChangeSet, replayable SourcePatch, and the untouched-byte proof (edit.rs:1935-2033). */
+/** Builds the commit facts: ChangeSet, replayable SourcePatch, and the untouched-byte proof (edit.rs). */
 function buildCommit(
   base: PlistDocument,
   transaction: EditTransaction,
@@ -1617,7 +1617,7 @@ function buildCommit(
   return new EditCommit(finalDocument, changeSet, sourcePatch, untouchedProof);
 }
 
-/** One old-to-new mapping per operation whose target resolves in the base snapshot (edit.rs:2037-2108). */
+/** One old-to-new mapping per operation whose target resolves in the base snapshot (edit.rs). */
 function buildMappings(base: PlistDocument, transaction: EditTransaction, finalDocument: PlistDocument): NodeMapping[] {
   const baseNative = base.document();
   const finalNative = finalDocument.document();
@@ -1715,7 +1715,7 @@ function mappingFor(
   );
 }
 
-/** Patch construction bounds derived from the parse limits (edit.rs:2111-2121). */
+/** Patch construction bounds derived from the parse limits (edit.rs). */
 function sourcePatchLimits(limits: PlistParseLimits): SourcePatchLimits {
   return {
     source: {
@@ -1728,7 +1728,7 @@ function sourcePatchLimits(limits: PlistParseLimits): SourcePatchLimits {
   };
 }
 
-/** Deterministic patch metadata: one operation id per declared operation (edit.rs:2136-2148). */
+/** Deterministic patch metadata: one operation id per declared operation (edit.rs). */
 function operationMetadata(transaction: EditTransaction): ReadonlyMap<string, string> {
   const metadata = new Map<string, string>();
   transaction.operations().forEach((operation, index) => {
@@ -1737,7 +1737,7 @@ function operationMetadata(transaction: EditTransaction): ReadonlyMap<string, st
   return metadata;
 }
 
-/** Content-free operation summaries for the dry-run plan (edit.rs:2163-2220). */
+/** Content-free operation summaries for the dry-run plan (edit.rs). */
 function operationSummaries(transaction: EditTransaction): EditOperationSummary[] {
   return transaction.operations().map((operation) => {
     const id = editOperationId(operation);
@@ -1788,7 +1788,7 @@ function placementName(placement: DictPlacement): string {
 // PlistDocument edit surface
 // ---------------------------------------------------------------------------
 
-/** Atomically commits structural operations. On failure the base stays unchanged (edit.rs:457-575). */
+/** Atomically commits structural operations. On failure the base stays unchanged (edit.rs). */
 export function commitEdits(
   base: PlistDocument,
   transaction: EditTransaction,
@@ -1847,7 +1847,7 @@ export function commitEdits(
   return buildCommit(base, transaction, finalDocument, edits);
 }
 
-/** Fully validates and plans a transaction without returning a new Document (edit.rs:466-480). */
+/** Fully validates and plans a transaction without returning a new Document (edit.rs). */
 export function dryRunEdits(
   base: PlistDocument,
   transaction: EditTransaction,

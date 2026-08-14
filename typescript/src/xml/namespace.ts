@@ -17,17 +17,17 @@
  * Design (TypeScript-idiomatic): the scope is an immutable linked chain —
  * `declare` returns a NEW scope with the binding appended, so the
  * ancestry-derived chain of a tree stays immutable exactly like the Rust
- * struct (namespace.rs:91-99). Prefix spelling is source representation;
+ * struct (namespace.rs). Prefix spelling is source representation;
  * expanded-name equality never consults prefixes.
  */
 
-/** Standard URI permanently bound to the `xml` prefix (namespace.rs:10). */
+/** Standard URI permanently bound to the `xml` prefix (namespace.rs). */
 export const XML_NAMESPACE_URI = 'http://www.w3.org/XML/1998/namespace';
 
-/** URI of the reserved `xmlns` prefix (namespace.rs:13). */
+/** URI of the reserved `xmlns` prefix (namespace.rs). */
 export const XMLNS_NAMESPACE_URI = 'http://www.w3.org/2000/xmlns/';
 
-/** One lexical QName with its source-derived parts (namespace.rs:15-23). */
+/** One lexical QName with its source-derived parts (namespace.rs). */
 export interface QName {
   /** Prefix spelling before the colon, when present. */
   readonly prefix: string | null;
@@ -35,12 +35,12 @@ export interface QName {
   readonly local: string;
 }
 
-/** Full lexical spelling `prefix:local` or `local` (namespace.rs:31-39). */
+/** Full lexical spelling `prefix:local` or `local` (namespace.rs). */
 export function qnameAsStr(name: QName): string {
   return name.prefix === null ? name.local : `${name.prefix}:${name.local}`;
 }
 
-/** Resolved expanded name = `{ namespace URI or none, local name }` (namespace.rs:41-49). */
+/** Resolved expanded name = `{ namespace URI or none, local name }` (namespace.rs). */
 export interface ExpandedName {
   /** Namespace URI, or `None` for an unprefixed attribute or an unbound default namespace. */
   readonly namespace: string | null;
@@ -48,7 +48,7 @@ export interface ExpandedName {
   readonly local: string;
 }
 
-/** One in-scope namespace binding (namespace.rs:59-66). */
+/** One in-scope namespace binding (namespace.rs). */
 export interface Binding {
   /** Bound prefix; `null` is the default namespace. */
   readonly prefix: string | null;
@@ -56,14 +56,14 @@ export interface Binding {
   readonly uri: string;
 }
 
-/** Namespace resolution failure (namespace.rs:68-89). */
+/** Namespace resolution failure (namespace.rs). */
 export type NamespaceError =
   | { readonly kind: 'UnboundPrefix'; readonly prefix: string }
   | { readonly kind: 'ReservedPrefix'; readonly prefix: string }
   | { readonly kind: 'IllegalXmlRebinding'; readonly uri: string }
   | { readonly kind: 'IllegalDefaultXmlns' };
 
-/** Stable diagnostic code of one namespace error (parser.rs:130-137). */
+/** Stable diagnostic code of one namespace error (parser.rs). */
 export function namespaceErrorCode(error: NamespaceError): string {
   switch (error.kind) {
     case 'UnboundPrefix':
@@ -78,7 +78,7 @@ export function namespaceErrorCode(error: NamespaceError): string {
 }
 
 /**
- * Immutable, ancestry-derived namespace scope (namespace.rs:91-99).
+ * Immutable, ancestry-derived namespace scope (namespace.rs).
  *
  * A scope is never mutated in place. Declaring a binding appends to a new
  * child scope, so the immutable ancestry chain of a tree is preserved.
@@ -88,24 +88,24 @@ export function namespaceErrorCode(error: NamespaceError): string {
 export class NamespaceScope {
   readonly #bindings: readonly Binding[];
 
-  /** Creates an empty scope holding only the permanent `xml` binding rule (namespace.rs:102-108). */
+  /** Creates an empty scope holding only the permanent `xml` binding rule (namespace.rs). */
   constructor(bindings: readonly Binding[] = []) {
     this.#bindings = Object.freeze([...bindings]);
   }
 
-  /** Creates an empty scope (namespace.rs:102-108). */
+  /** Creates an empty scope (namespace.rs). */
   static empty(): NamespaceScope {
     return new NamespaceScope();
   }
 
-  /** All in-scope bindings in declaration order; a `null` prefix is the default namespace (namespace.rs:110-115). */
+  /** All in-scope bindings in declaration order; a `null` prefix is the default namespace (namespace.rs). */
   bindings(): readonly Binding[] {
     return this.#bindings;
   }
 
   /**
    * Appends one namespace declaration and returns the child scope
-   * (namespace.rs:122-144).
+   * (namespace.rs).
    *
    * The `xmlns` prefix can never be declared, the `xml` prefix can only be
    * declared to its standard URI, and the `xmlns` URI cannot become the
@@ -126,7 +126,7 @@ export class NamespaceScope {
     return new NamespaceScope([...this.#bindings, { prefix, uri }]);
   }
 
-  /** Resolves an element name: the default namespace applies (namespace.rs:147-155). */
+  /** Resolves an element name: the default namespace applies (namespace.rs). */
   resolveElement(name: QName): { kind: 'Resolved'; expanded: ExpandedName } | { kind: 'Error'; error: NamespaceError } {
     if (name.prefix === null) {
       return { kind: 'Resolved', expanded: { namespace: this.#lookupDefault(), local: name.local } };
@@ -134,7 +134,7 @@ export class NamespaceScope {
     return this.#resolvePrefixed(name, name.prefix);
   }
 
-  /** Resolves an attribute name: the default namespace never applies (namespace.rs:158-166). */
+  /** Resolves an attribute name: the default namespace never applies (namespace.rs). */
   resolveAttribute(name: QName): { kind: 'Resolved'; expanded: ExpandedName } | { kind: 'Error'; error: NamespaceError } {
     if (name.prefix === null) {
       return { kind: 'Resolved', expanded: { namespace: null, local: name.local } };
@@ -144,7 +144,7 @@ export class NamespaceScope {
 
   /**
    * Expanded name of a namespace declaration attribute itself
-   * (namespace.rs:173-179).
+   * (namespace.rs).
    *
    * `xmlns` is `{ xmlns-URI, "xmlns" }` and `xmlns:p` is
    * `{ xmlns-URI, "p" }`, used for attribute-uniqueness checks.

@@ -5,7 +5,7 @@
  * case id in conformance/vectors/yaml-v1.json:
  *  - query.mapping-entries (:51-54), query.alias-target (:56-59),
  *    query.syntax-comments (:61-64), query.resource-limit (:66-69)
- * Domain gating: consema-rs/consema-yaml/src/query.rs:173-177, :220-224.
+ * Domain gating: consema-rs/consema-yaml/src/query.rs, :220-224.
  */
 
 import { test } from 'node:test';
@@ -134,7 +134,7 @@ test('query.resource-limit — max_results is enforced without a completed prefi
   );
 });
 
-test('domain gate — wrong domains are rejected before execution (query.rs:173-177)', () => {
+test('domain gate — wrong domains are rejected before execution (query.rs)', () => {
   const document = parse(bytes('a: 1\n'), PROFILE_YAML12_CORE, DEFAULT_PARSE_LIMITS);
   assert.throws(
     () =>

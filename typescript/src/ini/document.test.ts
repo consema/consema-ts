@@ -138,7 +138,7 @@ test('golden formation.profile-counterexample-matrix: same bytes, three profiles
     assert.deepEqual(outcomes, expected[profileName], profileName);
   }
   // The portable ": value" line recovers as missing-delimiter and never
-  // fabricates an entry (RFC 0009 §4:145-146).
+  // fabricates an entry (RFC 0009 §4).
   const recovered = parseText(IniProfile.PORTABLE_V1, '[s]\nkey:value\n');
   assert.equal(recovered.entries().length, 0);
   assert.equal(recovered.errorLines().length, 1);
@@ -295,7 +295,7 @@ test('duplicate semantics: portable duplicates recover, Windows duplicates stay 
 });
 
 test('profile encoding contracts: BOM, code pages, and ASCII-only Windows input', () => {
-  // RFC 0009 §3; parser.rs:37-104. A UTF-8 BOM is a profile error for
+  // RFC 0009 §3; parser.rs. A UTF-8 BOM is a profile error for
   // portable; non-ASCII UTF-8 without a BOM is fatal for Windows without
   // an explicit code page; ASCII-only bytes form a Complete Windows
   // document; UTF-16BE is rejected.
@@ -344,8 +344,8 @@ test('resource.formation-limit-matrix: every configured limit fails without a do
       if (failure instanceof IniFormationFailure) {
         failed = true;
         // Source-construction limits carry core.source.resource-limit@1
-        // (consema-document lib.rs:701-705); parser limits carry
-        // core.parse.resource-limit@1 (lib.rs:771-791).
+        // (consema-document lib.rs); parser limits carry
+        // core.parse.resource-limit@1 (lib.rs).
         const sourceLevel = ['max_source_bytes', 'max_decoded_utf8_bytes', 'max_decoded_scalars'];
         assert.equal(
           failure.code,

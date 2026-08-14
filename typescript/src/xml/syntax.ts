@@ -16,7 +16,7 @@
  * (typescript/src/protocol/query.ts:1192-1235).
  */
 
-/** Closed XML v1 lossless syntax-piece classification (document.rs:22-94). */
+/** Closed XML v1 lossless syntax-piece classification (document.rs). */
 export type XmlSyntaxKind =
   /** Unicode byte-order mark. */
   | 'bom'
@@ -93,7 +93,7 @@ export type XmlSyntaxKind =
   /** Recovered error region. */
   | 'error-region';
 
-/** Resolves one exact stable kind name (document.rs:848-889). */
+/** Resolves one exact stable kind name (document.rs). */
 export function xmlSyntaxKindFromName(name: string): XmlSyntaxKind | null {
   switch (name) {
     case 'bom':

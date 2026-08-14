@@ -30,15 +30,15 @@
  *    dependency@1 — the e420ad7 fixed behavior)
  *  - validate_dependencies :1974-2014 (DuplicateTarget,
  *    StructuralContainerConflict — at most one structural mutation per
- *    base container, RFC 0007 §12:380-382)
+ *    base container, RFC 0007 §12)
  *  - validate_candidate :1682-1764 and validate_structural_candidate
  *    :1766-1947 (the cycle-safe representation-graph isomorphism via
  *    ValidationModel :2024-2317), canonical_scalar_fragment :1569-1614,
  *    canonical_value_fragment :1616-1644, validate_literal :1536-1567,
  *    validate_anchor_name :1646-1672, preserved_literal :2326-2362
  *  - operation ids (EXACT registry, do not guess):
- *    consema-rs/consema-yaml/src/operation_registry.rs:16-83 and
- *    edit.rs:2577-2604 (yaml.edit.replace-scalar-semantic@1,
+ *    consema-rs/consema-yaml/src/operation_registry.rs and
+ *    edit.rs (yaml.edit.replace-scalar-semantic@1,
  *    yaml.edit.replace-scalar-literal@1, yaml.edit.rename-anchor@1,
  *    yaml.edit.insert-mapping-entry@1, yaml.edit.remove-mapping-entry@1,
  *    yaml.edit.insert-sequence-element@1, yaml.edit.remove-sequence-element@1,
@@ -93,14 +93,14 @@ import type { YamlProfile } from './profile.ts';
 // Operations
 // ---------------------------------------------------------------------------
 
-/** Explicit semantic scalar representation policy (edit.rs:21-32). */
+/** Explicit semantic scalar representation policy (edit.rs). */
 export type RepresentationPolicy =
   | 'ExactLiteral'
   | 'PreserveCompatible'
   | 'CanonicalForProfile'
   | 'PreserveElseCanonical';
 
-/** One scalar operation bound to the transaction's base snapshot (edit.rs:34-53). */
+/** One scalar operation bound to the transaction's base snapshot (edit.rs). */
 export type ScalarReplacement =
   | {
       readonly kind: 'Semantic';
@@ -118,7 +118,7 @@ export type ScalarReplacement =
       readonly literal: Uint8Array;
     };
 
-/** One typed YAML edit operation bound to an immutable base snapshot (edit.rs:63-114). */
+/** One typed YAML edit operation bound to an immutable base snapshot (edit.rs). */
 export type EditOperation =
   | { readonly kind: 'ReplaceScalar'; readonly operation: ScalarReplacement }
   | {
@@ -148,7 +148,7 @@ export type EditOperation =
       readonly placement: AssociationPlacement;
     };
 
-/** Immutable transaction; every operation resolves against one base snapshot (edit.rs:116-135). */
+/** Immutable transaction; every operation resolves against one base snapshot (edit.rs). */
 export class EditTransaction {
   readonly #base: SnapshotIdentity;
   readonly #operations: readonly EditOperation[];
@@ -158,46 +158,46 @@ export class EditTransaction {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Base snapshot identity (edit.rs:124-127). */
+  /** Base snapshot identity (edit.rs). */
   baseSnapshot(): SnapshotIdentity {
     return this.#base;
   }
 
-  /** Ordered declared operations (edit.rs:129-134). */
+  /** Ordered declared operations (edit.rs). */
   operations(): readonly EditOperation[] {
     return this.#operations;
   }
 }
 
-/** Builder that is not a committed edit (edit.rs:137-258). */
+/** Builder that is not a committed edit (edit.rs). */
 export class EditTransactionBuilder {
   readonly #base: SnapshotIdentity;
   readonly #operations: EditOperation[] = [];
 
-  /** Binds a new transaction to one immutable base document (edit.rs:145-152). */
+  /** Binds a new transaction to one immutable base document (edit.rs). */
   constructor(document: YamlDocument) {
     this.#base = document.snapshotIdentity();
   }
 
-  /** Adds one semantic scalar replacement (edit.rs:154-168). */
+  /** Adds one semantic scalar replacement (edit.rs). */
   semanticScalar(target: NodeRef, value: PortableValue, policy: RepresentationPolicy): EditTransactionBuilder {
     this.#operations.push({ kind: 'ReplaceScalar', operation: { kind: 'Semantic', target, value, policy } });
     return this;
   }
 
-  /** Adds one exact scalar-literal replacement (edit.rs:169-178). */
+  /** Adds one exact scalar-literal replacement (edit.rs). */
   literalScalar(target: NodeRef, literal: Uint8Array): EditTransactionBuilder {
     this.#operations.push({ kind: 'ReplaceScalar', operation: { kind: 'Literal', target, literal } });
     return this;
   }
 
-  /** Adds one anchor rename that also updates every dependent alias (edit.rs:180-188). */
+  /** Adds one anchor rename that also updates every dependent alias (edit.rs). */
   renameAnchor(target: NodeRef, name: string): EditTransactionBuilder {
     this.#operations.push({ kind: 'RenameAnchor', target, name });
     return this;
   }
 
-  /** Adds one arbitrary-key mapping association insertion (edit.rs:190-204). */
+  /** Adds one arbitrary-key mapping association insertion (edit.rs). */
   insertMappingEntry(
     mapping: NodeRef,
     key: PortableValue,
@@ -208,13 +208,13 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact mapping-association removal (edit.rs:206-211). */
+  /** Adds one exact mapping-association removal (edit.rs). */
   removeMappingEntry(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveMappingEntry', target });
     return this;
   }
 
-  /** Adds one sequence value insertion (edit.rs:213-226). */
+  /** Adds one sequence value insertion (edit.rs). */
   insertSequenceElement(
     sequence: NodeRef,
     value: PortableValue,
@@ -224,13 +224,13 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact sequence-association removal (edit.rs:228-233). */
+  /** Adds one exact sequence-association removal (edit.rs). */
   removeSequenceElement(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveSequenceElement', target });
     return this;
   }
 
-  /** Adds one sequence alias insertion to an earlier visible anchor (edit.rs:235-248). */
+  /** Adds one sequence alias insertion to an earlier visible anchor (edit.rs). */
   insertAlias(
     sequence: NodeRef,
     anchor: NodeRef,
@@ -240,7 +240,7 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Completes the immutable request; validation happens atomically at commit (edit.rs:250-257). */
+  /** Completes the immutable request; validation happens atomically at commit (edit.rs). */
   build(): EditTransaction {
     return new EditTransaction(this.#base, this.#operations);
   }
@@ -250,7 +250,7 @@ export class EditTransactionBuilder {
 // Commit records
 // ---------------------------------------------------------------------------
 
-/** Atomic edit success (edit.rs:260-271). */
+/** Atomic edit success (edit.rs). */
 export class EditCommit {
   readonly #document: YamlDocument;
   readonly #changeSet: ChangeSet;
@@ -269,22 +269,22 @@ export class EditCommit {
     this.#untouchedProof = untouchedProof;
   }
 
-  /** New immutable document (edit.rs:263-265). */
+  /** New immutable document (edit.rs). */
   document(): YamlDocument {
     return this.#document;
   }
 
-  /** Complete old-to-new change facts (edit.rs:266-268). */
+  /** Complete old-to-new change facts (edit.rs). */
   changeSet(): ChangeSet {
     return this.#changeSet;
   }
 
-  /** Portable exact raw-byte application fact (edit.rs:269-271). */
+  /** Portable exact raw-byte application fact (edit.rs). */
   sourcePatch(): SourcePatch {
     return this.#sourcePatch;
   }
 
-  /** Verifiable evidence for every byte outside the replacement set (edit.rs:272-274). */
+  /** Verifiable evidence for every byte outside the replacement set (edit.rs). */
   untouchedProof(): UntouchedByteProof {
     return this.#untouchedProof;
   }
@@ -323,7 +323,7 @@ interface CanonicalScalar {
 
 /**
  * Atomically commits validated YAML scalar, collection, anchor, and alias
- * operations (edit.rs:401-551). On failure `self` remains unchanged.
+ * operations (edit.rs). On failure `self` remains unchanged.
  */
 export function commitEdits(document: YamlDocument, transaction: EditTransaction): EditCommit {
   if (!transaction.baseSnapshot().equals(document.snapshotIdentity())) {
@@ -464,7 +464,7 @@ export function commitEdits(document: YamlDocument, transaction: EditTransaction
   return new EditCommit(newDocument, changeSet, sourcePatch, untouchedProof);
 }
 
-/** Fully validates and plans an edit without returning a new Document (edit.rs:553-568). */
+/** Fully validates and plans an edit without returning a new Document (edit.rs). */
 export function dryRunEdits(
   document: YamlDocument,
   transaction: EditTransaction,
@@ -1331,7 +1331,7 @@ function syntaxBetween(
 // Validation
 // ---------------------------------------------------------------------------
 
-/** validate_dependencies (edit.rs:1974-2014): duplicate targets and one structural mutation per container. */
+/** validate_dependencies (edit.rs): duplicate targets and one structural mutation per container. */
 function validateDependencies(document: YamlDocument, transaction: EditTransaction): void {
   const targets = new Set<string>();
   const structuralContainers = new Set<number>();
@@ -1387,7 +1387,7 @@ function validateDependencies(document: YamlDocument, transaction: EditTransacti
   }
 }
 
-/** validate_removal_dependencies (edit.rs:1398-1418) + collect_owned_nodes (:1420-1442). */
+/** validate_removal_dependencies (edit.rs) + collect_owned_nodes (:1420-1442). */
 function validateRemovalDependencies(
   document: YamlDocument,
   owned: Span,
@@ -1438,7 +1438,7 @@ function collectOwnedNodes(document: YamlDocument, node: number, output: Set<num
   }
 }
 
-/** validate_visible_anchor (edit.rs:1346-1396): the last visible definition of the name before the insertion. */
+/** validate_visible_anchor (edit.rs): the last visible definition of the name before the insertion. */
 function validateVisibleAnchor(
   document: YamlDocument,
   sequence: number,
@@ -2204,7 +2204,7 @@ function validationModelForValue(document: YamlDocument, value: PortableValue): 
 }
 
 // ---------------------------------------------------------------------------
-// Validation model (edit.rs:2024-2317)
+// Validation model (edit.rs)
 // ---------------------------------------------------------------------------
 
 interface ValidationNode {

@@ -40,7 +40,7 @@ import type { Graph, NodeID } from '../graph/graph.ts';
 import { nodeAt, canonicalOrder, defaultLimits } from '../graph/graph.ts';
 
 // ---------------------------------------------------------------------------
-// Failure model (query.rs:3112-3221; python core_query.py:29-45)
+// Failure model (query.rs; python core_query.py:29-45)
 // ---------------------------------------------------------------------------
 
 /** One query failure kind, including the execution-time kinds the
@@ -58,7 +58,7 @@ export type QueryExecutionFailureKind =
   | 'Cancelled'
   | 'TargetUnavailable';
 
-/** The registered diagnostic codes (error_registry.ts:205-220; query.rs:3206-3221). */
+/** The registered diagnostic codes (error_registry.ts:205-220; query.rs). */
 const EXECUTION_FAILURE_CODES: Record<QueryExecutionFailureKind, string> = {
   DomainMismatch: 'core.query.domain-mismatch@1',
   UnknownOperator: 'core.query.unknown-operator@1',
@@ -83,7 +83,7 @@ export function queryFailureCode(kind: QueryExecutionFailureKind): string {
   return EXECUTION_FAILURE_CODES[kind];
 }
 
-/** One execution-time query failure (the Rust QueryFailure, query.rs:3112-3221). */
+/** One execution-time query failure (the Rust QueryFailure, query.rs). */
 export class QueryExecutionFailure extends Error {
   readonly kind: QueryExecutionFailureKind;
   readonly code: string;
@@ -114,21 +114,21 @@ export class QueryExecutionFailure extends Error {
 }
 
 // ---------------------------------------------------------------------------
-// Execution limits and cancellation (query.rs:2965-3004)
+// Execution limits and cancellation (query.rs)
 // ---------------------------------------------------------------------------
 
-/** Immutable query execution limits (query.rs:2965-2981). */
+/** Immutable query execution limits (query.rs). */
 export interface QueryExecutionLimits {
   readonly maxSteps: number;
   readonly maxResults: number;
 }
 
-/** The frozen defaults (query.rs:2974-2981). */
+/** The frozen defaults (query.rs). */
 export function defaultQueryExecutionLimits(): QueryExecutionLimits {
   return { maxSteps: 100_000, maxResults: 100_000 };
 }
 
-/** Cooperative cancellation signal (query.rs:2983-3004). */
+/** Cooperative cancellation signal (query.rs). */
 export interface CancellationTokenLike {
   isCancelled(): boolean;
 }
@@ -160,7 +160,7 @@ export interface OrderedResult {
   readonly entry?: { readonly key: PortableValue; readonly value: PortableValue };
 }
 
-/** The ordered-result cursor terminal states (RFC 0003; query.rs:3036-3045). */
+/** The ordered-result cursor terminal states (RFC 0003; query.rs). */
 export type TerminalState = 'Completed' | 'Cancelled' | 'Failed';
 
 /**
@@ -229,7 +229,7 @@ export class PortableCursor {
 
 /**
  * The ordered cursor over an already-complete result sequence with a
- * declared terminal state (query.rs:3047-3110). Cancellation pre-empts the
+ * declared terminal state (query.rs). Cancellation pre-empts the
  * stream with Cancelled; the declared terminal stays hidden until the stream
  * is exhausted; terminal_state() is undefined while the stream is open.
  */
@@ -250,7 +250,7 @@ export class OrderedCursor<T> {
     this.cancellation = cancellation;
   }
 
-  /** Yields the next value, or null at a terminal state (query.rs:3092-3110). */
+  /** Yields the next value, or null at a terminal state (query.rs). */
   next(): T | null {
     if (this.cancellation !== undefined && this.cancellation.isCancelled()) {
       this.terminal = 'Cancelled';
@@ -272,7 +272,7 @@ export class OrderedCursor<T> {
 }
 
 // ---------------------------------------------------------------------------
-// The portable-value executor (python core_query.py:122-296; query.rs:2670-2861)
+// The portable-value executor (python core_query.py:122-296; query.rs)
 // ---------------------------------------------------------------------------
 
 /** The expression depth limit: a deeper operator tree fails with
@@ -282,7 +282,7 @@ const MAX_EXPRESSION_DEPTH = 256;
 /**
  * Executes one validated expression over a core value and returns the
  * ordered result stream. The root is the first standard result and may not
- * bypass max_results (the Rust RootCounter, query.rs:2670-2699); a stream
+ * bypass max_results (the Rust RootCounter, query.rs); a stream
  * longer than max_results fails with ResourceLimitExceeded; cancellation
  * fails with Cancelled.
  */
@@ -307,7 +307,7 @@ export function executePortable(
 
 /**
  * Returns a lazy ordered pull cursor over one portable-value query
- * (python core_query.py:470-504; query.rs:834-846). Definition and
+ * (python core_query.py:470-504; query.rs). Definition and
  * capability errors are the caller's validation concern; mid-stream the
  * max_results bound surfaces a Failed terminal.
  */
@@ -367,7 +367,7 @@ function evaluateExpression(
 }
 
 /** The domain-agnostic stream operators and the per-match operator table
- * (python core_query.py:186-261; query.rs:2435-2467, 2701-2861). */
+ * (python core_query.py:186-261; query.rs). */
 function applyOperator(operator: OperatorCall, inputs: OrderedResult[]): OrderedResult[] {
   if (operator.id === 'core.take') {
     return inputs.slice(0, integerArgument(operator, 'count'));
@@ -517,10 +517,10 @@ function integerArgument(operator: OperatorCall, name: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// The portable-graph executor (consema-rs/consema-graph/src/query.rs:11-412)
+// The portable-graph executor (consema-rs/consema-graph/src/query.rs)
 // ---------------------------------------------------------------------------
 
-/** One portable-graph query match (query.rs:13-39). */
+/** One portable-graph query match (query.rs). */
 export type GraphOrderedResult =
   | { readonly kind: 'GraphNode'; readonly node: NodeID }
   | {
@@ -538,7 +538,7 @@ export type GraphOrderedResult =
     };
 
 /** Executes one validated portable-graph expression over a built graph
- * (query.rs:142-174): the Input expression yields one Node match per root in
+ * (query.rs): the Input expression yields one Node match per root in
  * root order, then the operator chain runs with the max_results bound. */
 export function executeGraph(
   graph: Graph,
@@ -561,7 +561,7 @@ export function executeGraph(
 }
 
 /** Recursively evaluates a graph expression over the root matches
- * (query.rs:177-212). */
+ * (query.rs). */
 function evaluateGraphExpression(
   graph: Graph,
   expression: QueryExpression,
@@ -587,7 +587,7 @@ function evaluateGraphExpression(
     }
     case 'StructureOrderMerge': {
       // The Rust merge sorts the branch union by canonical node rank and
-      // deduplicates by match identity (query.rs:200-210).
+      // deduplicates by match identity (query.rs).
       const output: GraphOrderedResult[] = [];
       for (const branch of expression.branches) {
         output.push(...evaluateGraphExpression(graph, branch, inputs, depth + 1));
@@ -626,7 +626,7 @@ function compareTuple(left: readonly number[], right: readonly number[]): number
   return 0;
 }
 
-/** One graph operator applied to the whole input stream (query.rs:218-384). */
+/** One graph operator applied to the whole input stream (query.rs). */
 function applyGraphOperator(
   graph: Graph,
   operator: OperatorCall,
@@ -652,7 +652,7 @@ function applyGraphOperator(
     }
     case 'graph.reachable-nodes': {
       // The canonical first-discovery traversal with one shared visited set
-      // over all inputs (query.rs:242-265; portable_graph_v1.py:391-402).
+      // over all inputs (query.rs; portable_graph_v1.py:391-402).
       const seen = new Set<string>();
       for (const match of inputs) {
         requireGraphNode(match, operator);
@@ -761,7 +761,7 @@ function requireGraphNode(
   }
 }
 
-/** Match identity for distinct-by-identity (query.rs:65-83). */
+/** Match identity for distinct-by-identity (query.rs). */
 function graphMatchIdentity(match: GraphOrderedResult): string {
   switch (match.kind) {
     case 'GraphNode':
@@ -778,7 +778,7 @@ function nodeIdentityKey(node: NodeID): string {
 }
 
 /** Children in reverse order so the DFS pop visits them forward
- * (query.rs:256-262; portable_graph_v1.py:284-298). */
+ * (query.rs; portable_graph_v1.py:284-298). */
 function outgoingReverse(graph: Graph, id: NodeID): NodeID[] {
   const node = nodeAt(graph, id);
   if (node === undefined) {

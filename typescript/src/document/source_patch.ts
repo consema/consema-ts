@@ -2,8 +2,8 @@
  * Verifiable raw-byte patches between immutable source snapshots.
  *
  * authority:
- *  - RFC 0003 §10 (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md:
- *    250-291): `core.source-patch@1` fields, replacement facts, and the
+ *  - RFC 0003 §10 (https://github.com/consema/consema/blob/main/docs/rfcs/0003-source-syntax-query-and-patch-v1.md
+ *    ): `core.source-patch@1` fields, replacement facts, and the
  *    application rules — half-open ordered non-overlapping old ranges,
  *    original exactly equals the base bytes, zero-width insertions
  *    permitted but two replacements may not target the same insertion
@@ -19,7 +19,7 @@
  *    SourcePatch :133-365 (derive :143-205, new :206-224, create :226-251,
  *    apply :253-280), redaction :312-364, error kinds :387-432, code
  *    mapping :434-459, validation :469-566
- *  - conformance runner: consema-rs/consema-conformance/src/source_v1.rs:245-317
+ *  - conformance runner: consema-rs/consema-conformance/src/source_v1.rs
  *    (patch case modes create-apply / stale-base / wrong-original /
  *    overlap / count-limit / wrong-target / encoding-change)
  *
@@ -45,7 +45,7 @@ import {
 } from './source.ts';
 import { ChangeSet } from './change_set.ts';
 
-/** Resource bounds for constructing or applying one source patch (source_patch.rs:8-27). */
+/** Resource bounds for constructing or applying one source patch (source_patch.rs). */
 export interface SourcePatchLimits {
   /** Limits for the resulting source snapshot. */
   readonly source: SourceLimits;
@@ -55,14 +55,14 @@ export interface SourcePatchLimits {
   readonly maxPatchBytes: number;
 }
 
-/** The frozen defaults (source_patch.rs:19-27): default source limits, 100_000 replacements, 128 MiB patch bytes. */
+/** The frozen defaults (source_patch.rs): default source limits, 100_000 replacements, 128 MiB patch bytes. */
 export const DEFAULT_SOURCE_PATCH_LIMITS: Readonly<SourcePatchLimits> = Object.freeze({
   source: DEFAULT_SOURCE_LIMITS,
   maxReplacements: 100_000,
   maxPatchBytes: 128 * 1024 * 1024,
 });
 
-/** One raw-byte precondition and replacement in a source patch (source_patch.rs:29-131). */
+/** One raw-byte precondition and replacement in a source patch (source_patch.rs). */
 export class SourceReplacement {
   readonly #oldStart: number;
   readonly #oldEnd: number;
@@ -86,14 +86,14 @@ export class SourceReplacement {
     this.#redactReplacement = false;
   }
 
-  /** Controls whether the original bytes are hidden in review/debug presentation (source_patch.rs:59-63). */
+  /** Controls whether the original bytes are hidden in review/debug presentation (source_patch.rs). */
   withOriginalRedacted(redacted: boolean): SourceReplacement {
     const copy = this.#copy();
     copy.#redactOriginal = redacted;
     return copy;
   }
 
-  /** Controls whether replacement bytes are hidden in review/debug presentation (source_patch.rs:65-70). */
+  /** Controls whether replacement bytes are hidden in review/debug presentation (source_patch.rs). */
   withReplacementRedacted(redacted: boolean): SourceReplacement {
     const copy = this.#copy();
     copy.#redactReplacement = redacted;
@@ -107,37 +107,37 @@ export class SourceReplacement {
     return copy;
   }
 
-  /** Inclusive start raw byte (source_patch.rs:73-77). */
+  /** Inclusive start raw byte (source_patch.rs). */
   oldStart(): number {
     return this.#oldStart;
   }
 
-  /** Exclusive end raw byte (source_patch.rs:79-83). */
+  /** Exclusive end raw byte (source_patch.rs). */
   oldEnd(): number {
     return this.#oldEnd;
   }
 
-  /** Exact bytes required at the old range (source_patch.rs:85-89); logically immutable — treat the returned buffer as read-only. */
+  /** Exact bytes required at the old range (source_patch.rs); logically immutable — treat the returned buffer as read-only. */
   original(): Uint8Array {
     return this.#original;
   }
 
-  /** Exact bytes written in place of the old range (source_patch.rs:91-95); logically immutable — treat the returned buffer as read-only. */
+  /** Exact bytes written in place of the old range (source_patch.rs); logically immutable — treat the returned buffer as read-only. */
   replacement(): Uint8Array {
     return this.#replacement;
   }
 
-  /** Whether review/debug presentation hides the original bytes (source_patch.rs:97-101). */
+  /** Whether review/debug presentation hides the original bytes (source_patch.rs). */
   redactOriginal(): boolean {
     return this.#redactOriginal;
   }
 
-  /** Whether review/debug presentation hides the replacement bytes (source_patch.rs:103-107). */
+  /** Whether review/debug presentation hides the replacement bytes (source_patch.rs). */
   redactReplacement(): boolean {
     return this.#redactReplacement;
   }
 
-  /** Review/debug presentation honoring the redaction flags (source_patch.rs:110-131). */
+  /** Review/debug presentation honoring the redaction flags (source_patch.rs). */
   debugString(): string {
     const original = this.#redactOriginal ? '<redacted>' : bytesToHex(this.#original);
     const replacement = this.#redactReplacement ? '<redacted>' : bytesToHex(this.#replacement);
@@ -149,7 +149,7 @@ export class SourceReplacement {
 
 /**
  * Immutable, transferable facts needed to verify one raw source
- * transition (source_patch.rs:133-141).
+ * transition (source_patch.rs).
  */
 export class SourcePatch {
   readonly #baseDigest: ContentDigest;
@@ -174,7 +174,7 @@ export class SourcePatch {
 
   /**
    * Creates a patch from externally supplied facts after structural and
-   * resource validation (the Rust `new`, source_patch.rs:206-224).
+   * resource validation (the Rust `new`, source_patch.rs).
    */
   static create(
     baseDigest: ContentDigest,
@@ -184,7 +184,7 @@ export class SourcePatch {
     metadata: ReadonlyMap<string, string>,
     limits: SourcePatchLimits,
   ): SourcePatch;
-  /** Builds a self-consistent patch against one immutable base snapshot (the Rust `create`, source_patch.rs:226-251). */
+  /** Builds a self-consistent patch against one immutable base snapshot (the Rust `create`, source_patch.rs). */
   static create(
     base: SourceSnapshot,
     replacements: readonly SourceReplacement[],
@@ -230,7 +230,7 @@ export class SourcePatch {
     );
   }
 
-  /** Derives and verifies a portable patch from one complete document-level change fact (source_patch.rs:143-205). */
+  /** Derives and verifies a portable patch from one complete document-level change fact (source_patch.rs). */
   static derive(
     base: SourceSnapshot,
     target: SourceSnapshot,
@@ -273,7 +273,7 @@ export class SourcePatch {
           (newRange.start === previousNew.start && newRange.end <= previousNew.end))
       ) {
         // New ranges must be strictly increasing: new_range <= previous or
-        // new_range.0 < previous.1 is a ChangeSetMismatch (source_patch.rs:175-179).
+        // new_range.0 < previous.1 is a ChangeSetMismatch (source_patch.rs).
         throw new SourcePatchError('ChangeSetMismatch', { index });
       }
       const original = baseBytes.slice(oldSpan.startByte(), oldSpan.endByte());
@@ -295,7 +295,7 @@ export class SourcePatch {
     return patch;
   }
 
-  /** Applies all facts atomically and returns a new immutable snapshot only on complete success (source_patch.rs:253-280). */
+  /** Applies all facts atomically and returns a new immutable snapshot only on complete success (source_patch.rs). */
   apply(base: SourceSnapshot, limits: SourcePatchLimits): SourceSnapshot {
     validateReplacements(this.#replacements, limits);
     if (!base.digest().equals(this.#baseDigest)) {
@@ -317,32 +317,32 @@ export class SourcePatch {
     return target;
   }
 
-  /** Required base content identity (source_patch.rs:282-286). */
+  /** Required base content identity (source_patch.rs). */
   baseDigest(): ContentDigest {
     return this.#baseDigest;
   }
 
-  /** Required result content identity (source_patch.rs:288-292). */
+  /** Required result content identity (source_patch.rs). */
   targetDigest(): ContentDigest {
     return this.#targetDigest;
   }
 
-  /** Encoding facts that both base and result must reproduce (source_patch.rs:294-298). */
+  /** Encoding facts that both base and result must reproduce (source_patch.rs). */
   encodingFacts(): EncodingFacts {
     return this.#encoding;
   }
 
-  /** Ordered non-overlapping replacements (source_patch.rs:300-304). */
+  /** Ordered non-overlapping replacements (source_patch.rs). */
   replacements(): readonly SourceReplacement[] {
     return this.#replacements;
   }
 
-  /** Deterministically ordered audit metadata, which never affects application (source_patch.rs:306-310). */
+  /** Deterministically ordered audit metadata, which never affects application (source_patch.rs). */
   metadata(): ReadonlyMap<string, string> {
     return this.#metadata;
   }
 
-  /** Marks every replacement payload for redacted review/debug presentation (source_patch.rs:312-336). */
+  /** Marks every replacement payload for redacted review/debug presentation (source_patch.rs). */
   withAllReplacementsRedacted(redactOriginal: boolean, redactReplacement: boolean): SourcePatch {
     return new SourcePatch(
       this.#baseDigest,
@@ -355,7 +355,7 @@ export class SourcePatch {
     );
   }
 
-  /** Marks one exact replacement payload for redacted review/debug presentation (source_patch.rs:338-364). */
+  /** Marks one exact replacement payload for redacted review/debug presentation (source_patch.rs). */
   withReplacementRedacted(
     index: number,
     redactOriginal: boolean,
@@ -373,7 +373,7 @@ export class SourcePatch {
   }
 }
 
-/** Wraps a source-construction failure as SourcePatchError::Source (source_patch.rs:430-432). */
+/** Wraps a source-construction failure as SourcePatchError::Source (source_patch.rs). */
 function wrapSourceFailure<T>(build: () => T): T {
   try {
     return build();
@@ -385,7 +385,7 @@ function wrapSourceFailure<T>(build: () => T): T {
   }
 }
 
-/** Structural and resource validation of an ordered replacement set (source_patch.rs:469-512). */
+/** Structural and resource validation of an ordered replacement set (source_patch.rs). */
 function validateReplacements(
   replacements: readonly SourceReplacement[],
   limits: SourcePatchLimits,
@@ -434,7 +434,7 @@ function validateReplacements(
   }
 }
 
-/** Applies an ordered replacement set to base bytes (source_patch.rs:514-554). */
+/** Applies an ordered replacement set to base bytes (source_patch.rs). */
 function applyReplacements(
   base: Uint8Array,
   replacements: readonly SourceReplacement[],

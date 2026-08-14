@@ -34,7 +34,7 @@ export class JavaUtf16String {
     this.#unicodeStatus = unicodeStatus;
   }
 
-  /** Builds an exact string while enforcing the same limits as wire decoding (java_utf16.rs:27-52). */
+  /** Builds an exact string while enforcing the same limits as wire decoding (java_utf16.rs). */
   static new(units: readonly number[], limits: ProtocolLimits): JavaUtf16String {
     for (const unit of units) {
       if (!Number.isInteger(unit) || unit < 0 || unit > 0xffff) {
@@ -69,7 +69,7 @@ export class JavaUtf16String {
     return this.#unicodeStatus;
   }
 
-  /** Encodes `core.java-utf16-string@1` in canonical field order (java_utf16.rs:74-89). */
+  /** Encodes `core.java-utf16-string@1` in canonical field order (java_utf16.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.java-utf16-string@1' } },
@@ -89,7 +89,7 @@ export class JavaUtf16String {
     ]);
   }
 
-  /** Strictly decodes and canonically re-verifies one exact Java string (java_utf16.rs:93-168). */
+  /** Strictly decodes and canonically re-verifies one exact Java string (java_utf16.rs). */
   static fromValue(value: PortableValue, limits: ProtocolLimits): JavaUtf16String {
     const fields = schemaFields(
       value,
@@ -140,14 +140,14 @@ export class JavaUtf16String {
   }
 }
 
-/** The container-entry limit on the unit list (java_utf16.rs:171-179). */
+/** The container-entry limit on the unit list (java_utf16.rs). */
 function checkUnitCount(count: number, limits: ProtocolLimits): void {
   if (count > limits.maxContainerEntries) {
     throw resource('$.code_units', 'code-unit count exceeds the configured container limit');
   }
 }
 
-/** Parses one exactly-four-digit uppercase hexadecimal unit (java_utf16.rs:181-190). */
+/** Parses one exactly-four-digit uppercase hexadecimal unit (java_utf16.rs). */
 function parseUnit(value: string): number | undefined {
   if (value.length !== 4 || !/^[0-9A-F]{4}$/.test(value)) {
     return undefined;
@@ -155,7 +155,7 @@ function parseUnit(value: string): number | undefined {
   return Number.parseInt(value, 16);
 }
 
-/** Classifies surrogate pairing (java_utf16.rs:192-208). */
+/** Classifies surrogate pairing (java_utf16.rs). */
 function classify(units: readonly number[]): JavaUnicodeStatus {
   let index = 0;
   while (index < units.length) {
@@ -176,7 +176,7 @@ function classify(units: readonly number[]): JavaUnicodeStatus {
   return 'WellFormedUnicode';
 }
 
-/** Parses one canonical status spelling (java_utf16.rs:217-223). */
+/** Parses one canonical status spelling (java_utf16.rs). */
 function parseStatus(value: string): JavaUnicodeStatus {
   switch (value) {
     case 'WellFormedUnicode':

@@ -10,9 +10,9 @@
  *
  * Design (TypeScript-idiomatic): plain records with validated static
  * factories; every record self-registers its full decoder with the envelope
- * payload dispatch (payload.rs:133-144). The registry descriptor records
+ * payload dispatch (payload.rs). The registry descriptor records
  * (capability-declaration / profile-descriptor / registry-manifest) are owned
- * by the frozen registry_descriptor.ts; their dispatch rows (payload.rs:35,
+ * by the frozen registry_descriptor.ts; their dispatch rows (payload.rs,
  * 129, 158) are registered here at module load so the common envelope
  * validates descriptor payloads.
  */
@@ -47,7 +47,7 @@ import {
   registryManifestFromValue,
 } from './registry_descriptor.ts';
 
-/** A versioned policy contract reference with deterministic arguments (projection.rs:19-47). */
+/** A versioned policy contract reference with deterministic arguments (projection.rs). */
 export class ProjectionPolicy {
   readonly contract: { readonly id: string; readonly version: number };
   /** Deterministically sorted arguments; values may be ANY PortableValue kind. */
@@ -76,7 +76,7 @@ export class ProjectionPolicy {
     return true;
   }
 
-  /** Encodes the `{id, version, arguments}` policy reference (projection.rs:726-741). */
+  /** Encodes the `{id, version, arguments}` policy reference (projection.rs). */
   toValue(): ObjectValue {
     const names = [...this.arguments.keys()].sort();
     return objectValueFrom([
@@ -92,7 +92,7 @@ export class ProjectionPolicy {
     ]);
   }
 
-  /** Strictly decodes one policy reference (projection.rs:743-763; contract.rs:20-30). */
+  /** Strictly decodes one policy reference (projection.rs; contract.rs). */
   static fromValue(value: PortableValue, path: string): ProjectionPolicy {
     const fields = exactFields(value, ['id', 'version', 'arguments'], path);
     const id = stringOf(fields[0], `${path}.id`);
@@ -109,7 +109,7 @@ export class ProjectionPolicy {
   }
 }
 
-/** Transferable projection rule scope (projection.rs:49-74). */
+/** Transferable projection rule scope (projection.rs). */
 export class ProjectionScope {
   readonly kind: 'Global' | 'ExactNativePath' | 'ResolvedQuery';
   /** Exact caller-defined native path scope source ID. */
@@ -146,7 +146,7 @@ export class ProjectionScope {
     return new ProjectionScope('ResolvedQuery', null, null, query);
   }
 
-  /** Encodes the scope (projection.rs:765-783). */
+  /** Encodes the scope (projection.rs). */
   toValue(): ObjectValue {
     switch (this.kind) {
       case 'Global':
@@ -165,7 +165,7 @@ export class ProjectionScope {
     }
   }
 
-  /** Strictly decodes one scope (projection.rs:785-819). */
+  /** Strictly decodes one scope (projection.rs). */
   static fromValue(value: PortableValue, path: string): ProjectionScope {
     if (value.kind !== 'Object' || value.entries.length === 0) {
       throw protocolError('WrongType', path, 'expected scope Object');
@@ -214,7 +214,7 @@ export function projectionScopesEqual(left: ProjectionScope, right: ProjectionSc
   }
 }
 
-/** One auditable scoped projection policy rule (projection.rs:76-87). */
+/** One auditable scoped projection policy rule (projection.rs). */
 export class ProjectionRule {
   readonly ruleId: string;
   readonly scope: ProjectionScope;
@@ -228,7 +228,7 @@ export class ProjectionRule {
     this.policy = policy;
   }
 
-  /** Encodes one rule (projection.rs:821-831). */
+  /** Encodes one rule (projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'rule_id', value: stringValue(this.ruleId) },
@@ -238,7 +238,7 @@ export class ProjectionRule {
     ]);
   }
 
-  /** Strictly decodes one rule (projection.rs:833-841). */
+  /** Strictly decodes one rule (projection.rs). */
   static fromValue(value: PortableValue, path: string): ProjectionRule {
     const fields = exactFields(value, ['rule_id', 'scope', 'priority', 'policy'], path);
     return new ProjectionRule(
@@ -250,7 +250,7 @@ export class ProjectionRule {
   }
 }
 
-/** The `core.projection-request@1` record (projection.rs:89-97). */
+/** The `core.projection-request@1` record (projection.rs). */
 export class ProjectionRequestMessage {
   readonly target: { readonly id: string; readonly version: number };
   readonly defaultPolicy: ProjectionPolicy;
@@ -269,7 +269,7 @@ export class ProjectionRequestMessage {
     this.limits = new Map(limits);
   }
 
-  /** Validates rule IDs, portable scopes, and semantic conflicts (projection.rs:98-148). */
+  /** Validates rule IDs, portable scopes, and semantic conflicts (projection.rs). */
   static new(
     target: { readonly id: string; readonly version: number },
     defaultPolicy: ProjectionPolicy,
@@ -303,7 +303,7 @@ export class ProjectionRequestMessage {
     return new ProjectionRequestMessage(target, defaultPolicy, rules, limits);
   }
 
-  /** Encodes `core.projection-request@1` (projection.rs:175-194). */
+  /** Encodes `core.projection-request@1` (projection.rs). */
   toValue(): ObjectValue {
     const names = [...this.limits.keys()].sort();
     return objectValueFrom([
@@ -321,7 +321,7 @@ export class ProjectionRequestMessage {
     ]);
   }
 
-  /** Strictly decodes `core.projection-request@1` (projection.rs:197-229). */
+  /** Strictly decodes `core.projection-request@1` (projection.rs). */
   static fromValue(value: PortableValue): ProjectionRequestMessage {
     const fields = schemaFields(
       value,
@@ -346,7 +346,7 @@ export class ProjectionRequestMessage {
   }
 }
 
-/** Validates one portable rule scope (projection.rs:685-706). */
+/** Validates one portable rule scope (projection.rs). */
 function validateScope(scope: ProjectionScope): void {
   switch (scope.kind) {
     case 'Global':
@@ -371,10 +371,10 @@ function validateScope(scope: ProjectionScope): void {
   }
 }
 
-/** The provenance relationship from source fact to projected fact (projection.rs:241-254). */
+/** The provenance relationship from source fact to projected fact (projection.rs). */
 export type ProvenanceRelation = 'Direct' | 'Derived' | 'Expanded' | 'Merged' | 'Generated';
 
-/** Transferable source origin with stable external identities (projection.rs:256-269). */
+/** Transferable source origin with stable external identities (projection.rs). */
 export class SourceOriginMessage {
   readonly sourceId: string;
   readonly nodeLocator: string | null;
@@ -396,7 +396,7 @@ export class SourceOriginMessage {
     this.relation = relation;
   }
 
-  /** Validates a transferable source origin (projection.rs:271-300). */
+  /** Validates a transferable source origin (projection.rs). */
   static new(
     sourceId: string,
     nodeLocator: string | null,
@@ -415,7 +415,7 @@ export class SourceOriginMessage {
     return new SourceOriginMessage(sourceId, nodeLocator, startByte, endByte, relation);
   }
 
-  /** Encodes one origin (projection.rs:871-888). */
+  /** Encodes one origin (projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'source_id', value: stringValue(this.sourceId) },
@@ -426,7 +426,7 @@ export class SourceOriginMessage {
     ]);
   }
 
-  /** Strictly decodes one origin (projection.rs:890-909). */
+  /** Strictly decodes one origin (projection.rs). */
   static fromValue(value: PortableValue, path: string): SourceOriginMessage {
     const fields = exactFields(
       value,
@@ -443,7 +443,7 @@ export class SourceOriginMessage {
   }
 }
 
-/** A projected value or association location (projection.rs:232-239). */
+/** A projected value or association location (projection.rs). */
 export class ProjectedLocationMessage {
   readonly kind: 'ValuePath' | 'AssociationLocation';
   readonly path: ValuePath | null;
@@ -481,7 +481,7 @@ export class ProjectedLocationMessage {
     return this.path!.equal(other.path!);
   }
 
-  /** Encodes the kind-first location record (projection.rs:843-854). */
+  /** Encodes the kind-first location record (projection.rs). */
   toValue(): ObjectValue {
     if (this.kind === 'ValuePath') {
       return objectValueFrom([
@@ -495,7 +495,7 @@ export class ProjectedLocationMessage {
     ]);
   }
 
-  /** Strictly decodes one projected location (projection.rs:856-869). */
+  /** Strictly decodes one projected location (projection.rs). */
   static fromValue(value: PortableValue, path: string): ProjectedLocationMessage {
     const fields = exactFields(value, ['kind', 'value'], path);
     const kind = stringOf(fields[0], `${path}.kind`);
@@ -510,7 +510,7 @@ export class ProjectedLocationMessage {
   }
 }
 
-/** One projected location and all of its source origins (projection.rs:312-319). */
+/** One projected location and all of its source origins (projection.rs). */
 export class ProvenanceEntryMessage {
   readonly projected: ProjectedLocationMessage;
   readonly origins: readonly SourceOriginMessage[];
@@ -521,7 +521,7 @@ export class ProvenanceEntryMessage {
   }
 }
 
-/** The sorted unique `core.provenance-map@1` record (projection.rs:321-326). */
+/** The sorted unique `core.provenance-map@1` record (projection.rs). */
 export class ProvenanceMapMessage {
   readonly entries: readonly ProvenanceEntryMessage[];
 
@@ -534,7 +534,7 @@ export class ProvenanceMapMessage {
     return new ProvenanceMapMessage([]);
   }
 
-  /** Validates sorted unique projected locations and non-empty origins (projection.rs:327-341). */
+  /** Validates sorted unique projected locations and non-empty origins (projection.rs). */
   static new(entries: readonly ProvenanceEntryMessage[]): ProvenanceMapMessage {
     for (const entry of entries) {
       if (entry.origins.length === 0) {
@@ -549,7 +549,7 @@ export class ProvenanceMapMessage {
     return new ProvenanceMapMessage(entries);
   }
 
-  /** Encodes `core.provenance-map@1` (projection.rs:350-367). */
+  /** Encodes `core.provenance-map@1` (projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.provenance-map@1') },
@@ -571,7 +571,7 @@ export class ProvenanceMapMessage {
     ]);
   }
 
-  /** Strictly decodes `core.provenance-map@1` (projection.rs:370-391). */
+  /** Strictly decodes `core.provenance-map@1` (projection.rs). */
   static fromValue(value: PortableValue): ProvenanceMapMessage {
     const fields = schemaFields(value, 'core.provenance-map@1', ['entries'], '$');
     const entries = sequenceOf(fields[0], '$.entries').map((entryValue, index) => {
@@ -587,10 +587,10 @@ export class ProvenanceMapMessage {
   }
 }
 
-/** Event loss classification independent from reversibility (projection.rs:405-414). */
+/** Event loss classification independent from reversibility (projection.rs). */
 export type LossClassification = 'None' | 'Reversible' | 'Lossy';
 
-/** One machine-readable projection report event (projection.rs:416-437). */
+/** One machine-readable projection report event (projection.rs). */
 export class ProjectionEventMessage {
   readonly code: string;
   readonly policyRuleId: string | null;
@@ -624,7 +624,7 @@ export class ProjectionEventMessage {
     this.arguments = new Map(options.arguments ?? []);
   }
 
-  /** Encodes one event (projection.rs:911-955). */
+  /** Encodes one event (projection.rs). */
   toValue(): ObjectValue {
     const names = [...this.arguments.keys()].sort();
     return objectValueFrom([
@@ -661,7 +661,7 @@ export class ProjectionEventMessage {
     ]);
   }
 
-  /** Strictly decodes one event (projection.rs:957-1029). */
+  /** Strictly decodes one event (projection.rs). */
   static fromValue(value: PortableValue, path: string): ProjectionEventMessage {
     const fields = exactFields(
       value,
@@ -710,7 +710,7 @@ export class ProjectionEventMessage {
   }
 }
 
-/** The ordered `core.projection-report@1` record (projection.rs:439-444). */
+/** The ordered `core.projection-report@1` record (projection.rs). */
 export class ProjectionReportMessage {
   readonly events: readonly ProjectionEventMessage[];
 
@@ -723,12 +723,12 @@ export class ProjectionReportMessage {
     return new ProjectionReportMessage([]);
   }
 
-  /** Validates event cross-field invariants against the v1 registry (projection.rs:445-449). */
+  /** Validates event cross-field invariants against the v1 registry (projection.rs). */
   static new(events: readonly ProjectionEventMessage[]): ProjectionReportMessage {
     return ProjectionReportMessage.newWithRegistry(events, new ErrorCodeRegistry(1));
   }
 
-  /** Validates events under one explicit semantic-model error registry (projection.rs:451-471). */
+  /** Validates events under one explicit semantic-model error registry (projection.rs). */
   static newWithRegistry(
     events: readonly ProjectionEventMessage[],
     registry: ErrorCodeRegistry,
@@ -748,7 +748,7 @@ export class ProjectionReportMessage {
     return new ProjectionReportMessage(events);
   }
 
-  /** Encodes `core.projection-report@1` (projection.rs:479-490). */
+  /** Encodes `core.projection-report@1` (projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.projection-report@1') },
@@ -756,12 +756,12 @@ export class ProjectionReportMessage {
     ]);
   }
 
-  /** Strictly decodes `core.projection-report@1` under the v1 registry (projection.rs:492-495). */
+  /** Strictly decodes `core.projection-report@1` under the v1 registry (projection.rs). */
   static fromValue(value: PortableValue): ProjectionReportMessage {
     return ProjectionReportMessage.fromValueWithRegistry(value, new ErrorCodeRegistry(1));
   }
 
-  /** Strictly decodes a report under one explicit registry (projection.rs:498-514). */
+  /** Strictly decodes a report under one explicit registry (projection.rs). */
   static fromValueWithRegistry(value: PortableValue, registry: ErrorCodeRegistry): ProjectionReportMessage {
     const fields = schemaFields(value, 'core.projection-report@1', ['events'], '$');
     const events = sequenceOf(fields[0], '$.events').map((item, index) =>
@@ -771,10 +771,10 @@ export class ProjectionReportMessage {
   }
 }
 
-/** Projection fidelity classification (projection.rs:394-403). */
+/** Projection fidelity classification (projection.rs). */
 export type ProjectionFidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** The complete or explicitly failed `core.projection-result@1` record (projection.rs:517-527). */
+/** The complete or explicitly failed `core.projection-result@1` record (projection.rs). */
 export class ProjectionResultMessage {
   readonly completion: Completion;
   readonly value: PortableValue | null;
@@ -802,7 +802,7 @@ export class ProjectionResultMessage {
     this.diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Validates success/value/fidelity and loss-report invariants (projection.rs:528-570). */
+  /** Validates success/value/fidelity and loss-report invariants (projection.rs). */
   static new(
     completion: Completion,
     value: PortableValue | null,
@@ -825,7 +825,7 @@ export class ProjectionResultMessage {
     return new ProjectionResultMessage(completion, value, hasValue, fidelity, report, provenance, diagnostics);
   }
 
-  /** Encodes `core.projection-result@1` (projection.rs:609-636). */
+  /** Encodes `core.projection-result@1` (projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.projection-result@1') },
@@ -846,12 +846,12 @@ export class ProjectionResultMessage {
     ]);
   }
 
-  /** Strictly decodes `core.projection-result@1` under the v1 registry (projection.rs:638-641). */
+  /** Strictly decodes `core.projection-result@1` under the v1 registry (projection.rs). */
   static fromValue(value: PortableValue): ProjectionResultMessage {
     return ProjectionResultMessage.fromValueWithRegistry(value, new ErrorCodeRegistry(1));
   }
 
-  /** Strictly decodes terminal facts under one explicit registry (projection.rs:644-682). */
+  /** Strictly decodes terminal facts under one explicit registry (projection.rs). */
   static fromValueWithRegistry(value: PortableValue, registry: ErrorCodeRegistry): ProjectionResultMessage {
     const fields = schemaFields(
       value,
@@ -884,7 +884,7 @@ export class ProjectionResultMessage {
   }
 }
 
-/** The canonical `{id, version}` reference record (projection.rs:708-716). */
+/** The canonical `{id, version}` reference record (projection.rs). */
 function referenceValue(contract: { readonly id: string; readonly version: number }): ObjectValue {
   return objectValueFrom([
     { key: 'id', value: stringValue(contract.id) },
@@ -892,7 +892,7 @@ function referenceValue(contract: { readonly id: string; readonly version: numbe
   ]);
 }
 
-/** Parses a `{id, version}` reference record (projection.rs:718-724; contract.rs:20-30). */
+/** Parses a `{id, version}` reference record (projection.rs; contract.rs). */
 function parseReference(
   value: PortableValue,
   path: string,
@@ -906,7 +906,7 @@ function parseReference(
   return { id, version };
 }
 
-/** Parses one provenance relation spelling (projection.rs:1041-1053). */
+/** Parses one provenance relation spelling (projection.rs). */
 function parseRelation(text: string, path: string): ProvenanceRelation {
   switch (text) {
     case 'Direct':
@@ -920,7 +920,7 @@ function parseRelation(text: string, path: string): ProvenanceRelation {
   }
 }
 
-/** Parses one loss-classification spelling (projection.rs:1083-1093). */
+/** Parses one loss-classification spelling (projection.rs). */
 function parseLoss(text: string, path: string): LossClassification {
   switch (text) {
     case 'None':
@@ -932,7 +932,7 @@ function parseLoss(text: string, path: string): LossClassification {
   }
 }
 
-/** Parses one fidelity spelling (projection.rs:1063-1073). */
+/** Parses one fidelity spelling (projection.rs). */
 function parseFidelity(text: string): ProjectionFidelity {
   switch (text) {
     case 'Exact':
@@ -944,7 +944,7 @@ function parseFidelity(text: string): ProjectionFidelity {
   }
 }
 
-/** The stable lowercase limit-name rule (projection.rs:1095-1101). */
+/** The stable lowercase limit-name rule (projection.rs). */
 function validLimitName(name: string): boolean {
   if (name === '' || name.length > 255) {
     return false;
@@ -962,7 +962,7 @@ function validLimitName(name: string): boolean {
 
 /**
  * Rejects an unregistered public code with the frozen InvalidValue rejection
- * (error_registry.rs:1500-1510; the registry helper itself throws a plain
+ * (error_registry.rs; the registry helper itself throws a plain
  * Error, so the record boundary converts it).
  */
 function validateRegisteredCode(registry: ErrorCodeRegistry, code: string, path: string): void {
@@ -996,7 +996,7 @@ function diagnosticToValueOf(diagnostic: Diagnostic): PortableValue {
   return diagnosticToValue(diagnostic);
 }
 
-// Envelope payload dispatch (payload.rs:133-144): every projection and
+// Envelope payload dispatch (payload.rs): every projection and
 // provenance payload validates through its record decoder at module load.
 registerPayloadValidator('core.projection-request', 1, (payload) => {
   ProjectionRequestMessage.fromValue(payload);
@@ -1014,7 +1014,7 @@ registerPayloadValidator('core.provenance-map', 1, (payload) => {
   ProvenanceMapMessage.fromValue(payload);
 });
 
-// The registry descriptor dispatch rows (payload.rs:35, 129, 158). The
+// The registry descriptor dispatch rows (payload.rs). The
 // descriptor decoders live in the frozen registry_descriptor.ts; their
 // envelope registration lives here so the common envelope validates
 // descriptor payloads exactly like the Rust dispatch.

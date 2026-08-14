@@ -73,10 +73,10 @@ const DECLARATION_OPEN_BYTES = 5;
 const CDATA_OPEN_BYTES = 9;
 /** Byte length of `<!--`. */
 const COMMENT_OPEN_BYTES = 4;
-/** Exact plist DOCTYPE identifiers (RFC 0013 §4.1; parser_xml.rs:62-64). */
+/** Exact plist DOCTYPE identifiers (RFC 0013 §4.1; parser_xml.rs). */
 const PLIST_DOCTYPE_PUBLIC = '-//Apple//DTD PLIST 1.0//EN';
 const PLIST_DOCTYPE_SYSTEM = 'http://www.apple.com/DTDs/PropertyList-1.0.dtd';
-/** Exact root version value (RFC 0013 §4.2; parser_xml.rs:66). */
+/** Exact root version value (RFC 0013 §4.2; parser_xml.rs). */
 const PLIST_VERSION = '1.0';
 
 // ---------------------------------------------------------------------------
@@ -447,7 +447,7 @@ function decodeUtf8Slice(bytes: Uint8Array, start: number, end: number): string 
 }
 
 // ---------------------------------------------------------------------------
-// Value grammar helpers (parser_xml.rs:2451-2767)
+// Value grammar helpers (parser_xml.rs)
 // ---------------------------------------------------------------------------
 
 /** Signed 64-bit integer grammar (RFC 0013 §4.5). */
@@ -517,7 +517,7 @@ export function parsePlistReal(content: string): number | null {
 /**
  * Date grammar (RFC 0013 §4.7): `[-]YYYY-MM-DDTHH:MM:SSZ` with calendar
  * validation; the value is the exact double seconds since the plist epoch
- * (parser_xml.rs:2580-2632).
+ * (parser_xml.rs).
  */
 export function parsePlistDate(content: string): number | null {
   const match = /^(-?)([0-9]+)-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})Z$/.exec(content);
@@ -661,7 +661,7 @@ function base64Value(byte: number): number | null {
   return null;
 }
 
-/** XML 1.0 `Char` production (parser_xml.rs:2442-2449). */
+/** XML 1.0 `Char` production (parser_xml.rs). */
 function isXmlCharCode(code: number): boolean {
   return (
     code === 0x09 ||
@@ -677,7 +677,7 @@ function isXmlCharCode(code: number): boolean {
 // Frame and parser state
 // ---------------------------------------------------------------------------
 
-/** Ordered association state of one open `<dict>` (parser_xml.rs:588-595). */
+/** Ordered association state of one open `<dict>` (parser_xml.rs). */
 interface DictState {
   readonly entries: Array<{ readonly key: string; readonly value: number }>;
   readonly groups: Map<string, number>;
@@ -691,7 +691,7 @@ type FrameValue =
   | { readonly kind: 'Dict'; readonly state: DictState }
   | { readonly kind: 'Array'; readonly elements: number[] };
 
-/** One open element frame (parser_xml.rs:610-628). */
+/** One open element frame (parser_xml.rs). */
 interface Frame {
   readonly kind: PlistElementKind | null;
   readonly name: string;
@@ -753,7 +753,7 @@ interface Piece {
   readonly structural: 'Token' | 'Trivia' | 'ErrorRegion';
 }
 
-/** Formation state for one XML source (parser_xml.rs:648-665). */
+/** Formation state for one XML source (parser_xml.rs). */
 class Parser {
   readonly #source: SourceSnapshot;
   readonly #decoded: Uint8Array;
@@ -849,7 +849,7 @@ class Parser {
     );
   }
 
-  /** One tokenizer-error region plus the well-formedness diagnostic (parser_xml.rs:2118-2147). */
+  /** One tokenizer-error region plus the well-formedness diagnostic (parser_xml.rs). */
   recoverErrorRegion(start: number, end: number): void {
     this.#recovered = true;
     if (this.#unknownDepth === 0) {
@@ -1162,7 +1162,7 @@ class Parser {
     const isVersion = isRoot && versionUnset && token.prefix === '' && token.local === 'version';
     if (isVersion) {
       // The name piece ends at the `=` and the value piece runs from the
-      // `=` through the closing quote (parser_xml.rs:1291-1299). The
+      // `=` through the closing quote (parser_xml.rs). The
       // scanner's nameEnd is the quote position, so the `=` is the last
       // non-space byte before it (a forward search would find a LATER
       // attribute's `=`).
@@ -1578,7 +1578,7 @@ class Parser {
 
   /**
    * Splits one text run into Text/CharacterReference/EntityReference pieces
-   * and returns the resolved normalized content (parser_xml.rs:1925-1995).
+   * and returns the resolved normalized content (parser_xml.rs).
    */
   resolveFragments(start: number, end: number, text: string, mode: 'Text' | 'Attribute', emitPieces: boolean): string {
     let content = '';
@@ -1735,7 +1735,7 @@ class Parser {
       }
     }
     const status: FormationStatus = this.#recovered ? 'Recovered' : 'Complete';
-    // Sort pieces and close any gaps (parser_xml.rs:2226-2314).
+    // Sort pieces and close any gaps (parser_xml.rs).
     const sorted = [...this.#pieces].sort((left, right) => left.start - right.start);
     const finalPieces: Piece[] = [];
     let next = 0;
@@ -1818,7 +1818,7 @@ export function parseXml(
     const scanned = nextXmlToken(decoded, pos);
     if (scanned === null) {
       // Tokenizer error: deterministic error region at the last byte, then
-      // resume at the next `<` (parser_xml.rs:697-715).
+      // resume at the next `<` (parser_xml.rs).
       const end = Math.min(pos + 1, decoded.length);
       const start = Math.max(0, end - 1);
       if (end > 0) {
@@ -1839,7 +1839,7 @@ export function parseXml(
     if (token.kind === 'Text' && parser.stackEmpty() && ![...token.text].every(isWsChar)) {
       // Non-whitespace text in the prolog or epilog is an XML 1.0
       // well-formedness violation; the xmlparser backend reports it as a
-      // tokenizer error (parser_xml.rs:697-715), so the diagnostic is
+      // tokenizer error (parser_xml.rs), so the diagnostic is
       // plist.parse.well-formedness@1 (vector: plist.xml-formation.
       // trailing-content).
       const end = Math.min(token.start + 1, decoded.length);
@@ -1881,7 +1881,7 @@ export function parseXml(
   return parser.finish();
 }
 
-/** Skips XML declaration spaces (parser_xml.rs:2396-2405). */
+/** Skips XML declaration spaces (parser_xml.rs). */
 function skipDeclarationSpaces(text: string, rel: number): number {
   while (rel < text.length && isWsChar(text[rel])) {
     rel += 1;
@@ -1904,7 +1904,7 @@ function scanQuotedInText(text: string, rel: number): { readonly value: string; 
   return { value: text.slice(valueStart, valueEnd), start: rel, end: valueEnd + 1 };
 }
 
-/** Appends literal text with XML line-end normalization (parser_xml.rs:2417-2439). */
+/** Appends literal text with XML line-end normalization (parser_xml.rs). */
 function appendNormalized(text: string, mode: 'Text' | 'Attribute'): string {
   let out = '';
   const chars = [...text];

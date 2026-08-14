@@ -30,7 +30,7 @@
  *    placement names :1150-1157
  *  - RFC 0010 §13 (:383-413) freezes the five operations and the
  *    transaction/conflict algebra
- *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:1099-1109
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs
  *    (java-properties.edit.canonical-fallback@1, invalid-placement@1);
  *    :262-276/556-604 (core.edit.*@1)
  *  - vector-pinned behavior: conformance/vectors/java-properties-v1.json
@@ -70,7 +70,7 @@ import { encodeFragment } from './materialization.ts';
 // Operations
 // ---------------------------------------------------------------------------
 
-/** One typed Java Properties structural edit operation (edit.rs:16-56). */
+/** One typed Java Properties structural edit operation (edit.rs). */
 export type EditOperation =
   | {
       readonly kind: 'ReplaceSemanticValue';
@@ -122,7 +122,7 @@ function destructiveTarget(operation: EditOperation): NodeRef | null {
   }
 }
 
-/** Immutable edit transaction; every operation resolves against one base snapshot (edit.rs:70-89). */
+/** Immutable edit transaction; every operation resolves against one base snapshot (edit.rs). */
 export class EditTransaction {
   readonly #base: SnapshotIdentity;
   readonly #operations: readonly EditOperation[];
@@ -132,40 +132,40 @@ export class EditTransaction {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Base snapshot identity (edit.rs:78-81). */
+  /** Base snapshot identity (edit.rs). */
   baseSnapshot(): SnapshotIdentity {
     return this.#base;
   }
 
-  /** Ordered declared operations (edit.rs:83-87). */
+  /** Ordered declared operations (edit.rs). */
   operations(): readonly EditOperation[] {
     return this.#operations;
   }
 }
 
-/** Builder for one immutable Properties edit transaction (edit.rs:92-163). */
+/** Builder for one immutable Properties edit transaction (edit.rs). */
 export class EditTransactionBuilder {
   readonly #base: SnapshotIdentity;
   readonly #operations: EditOperation[] = [];
 
-  /** Binds a new transaction to one immutable Properties document (edit.rs:99-105). */
+  /** Binds a new transaction to one immutable Properties document (edit.rs). */
   constructor(document: PropertiesDocument) {
     this.#base = document.snapshotIdentity();
   }
 
-  /** Adds one semantic Java-string value replacement (edit.rs:107-112). */
+  /** Adds one semantic Java-string value replacement (edit.rs). */
   semanticValue(target: NodeRef, value: JavaString): EditTransactionBuilder {
     this.#operations.push({ kind: 'ReplaceSemanticValue', target, value });
     return this;
   }
 
-  /** Adds one exact raw value-literal replacement (edit.rs:114-120). */
+  /** Adds one exact raw value-literal replacement (edit.rs). */
   literalValue(target: NodeRef, literal: Uint8Array): EditTransactionBuilder {
     this.#operations.push({ kind: 'ReplaceLiteralValue', target, literal: Uint8Array.from(literal) });
     return this;
   }
 
-  /** Adds one canonical property insertion (edit.rs:122-132). */
+  /** Adds one canonical property insertion (edit.rs). */
   insertProperty(
     document: NodeRef,
     key: JavaString,
@@ -176,19 +176,19 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact property removal (edit.rs:134-139). */
+  /** Adds one exact property removal (edit.rs). */
   removeProperty(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveProperty', target });
     return this;
   }
 
-  /** Adds one semantic Java-string property rename (edit.rs:141-149). */
+  /** Adds one semantic Java-string property rename (edit.rs). */
   renameProperty(target: NodeRef, key: JavaString): EditTransactionBuilder {
     this.#operations.push({ kind: 'RenameProperty', target, key });
     return this;
   }
 
-  /** Completes the request; validation remains atomic at dry-run or commit (edit.rs:151-158). */
+  /** Completes the request; validation remains atomic at dry-run or commit (edit.rs). */
   build(): EditTransaction {
     return new EditTransaction(this.#base, this.#operations);
   }
@@ -198,7 +198,7 @@ export class EditTransactionBuilder {
 // Commit and dry-run
 // ---------------------------------------------------------------------------
 
-/** Atomic edit success (edit.rs:165-176). */
+/** Atomic edit success (edit.rs). */
 export class EditCommit {
   readonly #document: PropertiesDocument;
   readonly #changeSet: ChangeSet;
@@ -217,22 +217,22 @@ export class EditCommit {
     this.#untouchedProof = untouchedProof;
   }
 
-  /** New immutable document (edit.rs:167-169). */
+  /** New immutable document (edit.rs). */
   document(): PropertiesDocument {
     return this.#document;
   }
 
-  /** Complete old-to-new change facts (edit.rs:170-172). */
+  /** Complete old-to-new change facts (edit.rs). */
   changeSet(): ChangeSet {
     return this.#changeSet;
   }
 
-  /** Replayable exact raw-byte patch (edit.rs:173-175). */
+  /** Replayable exact raw-byte patch (edit.rs). */
   sourcePatch(): SourcePatch {
     return this.#sourcePatch;
   }
 
-  /** Evidence for every byte outside the replacement set (edit.rs:176-178). */
+  /** Evidence for every byte outside the replacement set (edit.rs). */
   untouchedProof(): UntouchedByteProof {
     return this.#untouchedProof;
   }
@@ -253,7 +253,7 @@ interface PreparedEdit {
 }
 
 /**
- * Atomically commits every declared Properties operation (edit.rs:270-442).
+ * Atomically commits every declared Properties operation (edit.rs).
  * On failure the base document remains unchanged.
  */
 export function commitEdits(
@@ -422,7 +422,7 @@ export function commitEdits(
   return new EditCommit(newDocument, changeSet, sourcePatch, untouchedProof);
 }
 
-/** Fully validates and plans an edit without publishing a new document (edit.rs:444-459; RFC 0004 §14). */
+/** Fully validates and plans an edit without publishing a new document (edit.rs; RFC 0004 §14). */
 export function dryRunEdits(
   document: PropertiesDocument,
   transaction: EditTransaction,
@@ -528,7 +528,7 @@ function insertionLocation(
   }
 }
 
-/** The property's natural-line ownership interval (edit.rs:543-560). */
+/** The property's natural-line ownership interval (edit.rs). */
 function recordOwnership(document: PropertiesDocument, property: Property): Span {
   const logical = property.logicalLine();
   const naturals = logical.naturalLines();
@@ -559,7 +559,7 @@ function fragmentOwnership(fragments: readonly Span[], anchor: Span): Span {
   );
 }
 
-/** Preserves a direct unescaped single-line value spelling when possible (edit.rs:578-599). */
+/** Preserves a direct unescaped single-line value spelling when possible (edit.rs). */
 function preserveDirectValue(
   document: PropertiesDocument,
   property: Property,
@@ -598,7 +598,7 @@ function preserveDirectValue(
   }
 }
 
-/** Canonical escaped fragment for one Java string (edit.rs:601-614). */
+/** Canonical escaped fragment for one Java string (edit.rs). */
 function canonicalFragment(document: PropertiesDocument, value: JavaString, isKey: boolean): Uint8Array {
   const text = canonicalJavaString(
     value,
@@ -620,7 +620,7 @@ function canonicalFragment(document: PropertiesDocument, value: JavaString, isKe
   }
 }
 
-/** Canonical full record `key=value<newline>` for one insertion (edit.rs:616-663). */
+/** Canonical full record `key=value<newline>` for one insertion (edit.rs). */
 function canonicalRecord(
   document: PropertiesDocument,
   position: number,
@@ -653,7 +653,7 @@ function canonicalRecord(
   }
 }
 
-/** First line-terminator convention of the decoded source (edit.rs:665-683). */
+/** First line-terminator convention of the decoded source (edit.rs). */
 function newlineConvention(document: PropertiesDocument): string {
   const text = document.source().decodedText();
   if (text === null) {
@@ -671,7 +671,7 @@ function newlineConvention(document: PropertiesDocument): string {
   return '\n';
 }
 
-/** Whether the raw insertion point is preceded by a line terminator (edit.rs:685-692). */
+/** Whether the raw insertion point is preceded by a line terminator (edit.rs). */
 function isLineBoundary(document: PropertiesDocument, raw: number): boolean {
   const jsIndex = document.rawBoundaryJsIndex(raw);
   const text = document.source().decodedText();
@@ -681,7 +681,7 @@ function isLineBoundary(document: PropertiesDocument, raw: number): boolean {
   return text[jsIndex - 1] === '\r' || text[jsIndex - 1] === '\n';
 }
 
-/** Literal bytes must decode and form exactly one raw value element (edit.rs:694-720). */
+/** Literal bytes must decode and form exactly one raw value element (edit.rs). */
 function validateLiteral(document: PropertiesDocument, literal: Uint8Array): void {
   if (literal.length > document.parseLimits().common.maxSourceBytes) {
     throw new EditFailure('ResourceLimit', { limitName: 'replacement-bytes' });
@@ -891,7 +891,7 @@ function buildNodeMappings(
 }
 
 // ---------------------------------------------------------------------------
-// Canonical Java-string escaping (edit.rs:925-990; RFC 0010 §12)
+// Canonical Java-string escaping (edit.rs; RFC 0010 §12)
 // ---------------------------------------------------------------------------
 
 function canonicalJavaString(
@@ -974,7 +974,7 @@ function pushUnicodeEscape(currentLength: number, value: number, limit: number):
   return text;
 }
 
-/** Rust `char::is_control()` (edit.rs:968). */
+/** Rust `char::is_control()` (edit.rs). */
 function isControlCodePoint(codePoint: number): boolean {
   return codePoint <= 0x1f || (codePoint >= 0x7f && codePoint <= 0x9f);
 }

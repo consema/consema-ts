@@ -26,12 +26,12 @@
  *    portable_json_kind :1755-1767, canonical_literal :1769-1795,
  *    encode_json_string :1797-1805, push_json_string_char :1807-1829,
  *    validate_literal :1831-1862, find_value_by_literal_span :1864-1882)
- *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:213
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs
  *    (json.edit.representation-fallback@1), :262-276 (core.edit.*),
- *    kind→code mapping edit.rs:1299-1323
+ *    kind→code mapping edit.rs
  *  - operation ids (EXACT registry, do not guess):
- *    consema-rs/consema-json/src/operation_registry.rs:19-78 and
- *    edit.rs:1110-1133 ("json.edit.replace-scalar-semantic@1",
+ *    consema-rs/consema-json/src/operation_registry.rs and
+ *    edit.rs ("json.edit.replace-scalar-semantic@1",
  *    "json.edit.replace-scalar-literal@1", "json.edit.insert-member@1",
  *    "json.edit.remove-member@1", "json.edit.move-member@1",
  *    "json.edit.rename-member@1", "json.edit.insert-array-element@1",
@@ -82,14 +82,14 @@ import { canonicalFragment } from './materialization.ts';
 // Operations
 // ---------------------------------------------------------------------------
 
-/** Explicit semantic scalar representation policy (edit.rs:17-28). */
+/** Explicit semantic scalar representation policy (edit.rs). */
 export type RepresentationPolicy =
   | 'ExactLiteral'
   | 'PreserveCompatible'
   | 'CanonicalForProfile'
   | 'PreserveElseCanonical';
 
-/** One scalar operation bound to the transaction's base snapshot (edit.rs:30-49). */
+/** One scalar operation bound to the transaction's base snapshot (edit.rs). */
 export type ScalarReplacement =
   | {
       readonly kind: 'Semantic';
@@ -107,7 +107,7 @@ export type ScalarReplacement =
       readonly literal: Uint8Array;
     };
 
-/** One typed JSON edit operation bound to an immutable base snapshot (edit.rs:59-108). */
+/** One typed JSON edit operation bound to an immutable base snapshot (edit.rs). */
 export type EditOperation =
   | { readonly kind: 'ReplaceScalar'; readonly operation: ScalarReplacement }
   | {
@@ -132,7 +132,7 @@ export type EditOperation =
     }
   | { readonly kind: 'RemoveArrayElement'; readonly target: NodeRef };
 
-/** Immutable transaction; every operation resolves against one base snapshot (edit.rs:110-129). */
+/** Immutable transaction; every operation resolves against one base snapshot (edit.rs). */
 export class EditTransaction {
   readonly #base: SnapshotIdentity;
   readonly #operations: readonly EditOperation[];
@@ -142,28 +142,28 @@ export class EditTransaction {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Base snapshot identity (edit.rs:118-122). */
+  /** Base snapshot identity (edit.rs). */
   baseSnapshot(): SnapshotIdentity {
     return this.#base;
   }
 
-  /** Ordered declared operations (edit.rs:123-128). */
+  /** Ordered declared operations (edit.rs). */
   operations(): readonly EditOperation[] {
     return this.#operations;
   }
 }
 
-/** Builder that is not a committed edit (edit.rs:131-243). */
+/** Builder that is not a committed edit (edit.rs). */
 export class EditTransactionBuilder {
   readonly #base: SnapshotIdentity;
   readonly #operations: EditOperation[] = [];
 
-  /** Binds a new transaction to one immutable base document (edit.rs:139-146). */
+  /** Binds a new transaction to one immutable base document (edit.rs). */
   constructor(document: JsonDocument) {
     this.#base = document.snapshotIdentity();
   }
 
-  /** Adds semantic scalar replacement (edit.rs:148-162). */
+  /** Adds semantic scalar replacement (edit.rs). */
   semanticScalar(target: NodeRef, value: PortableValue, policy: RepresentationPolicy): EditTransactionBuilder {
     this.#operations.push({
       kind: 'ReplaceScalar',
@@ -172,7 +172,7 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds exact literal scalar replacement (edit.rs:163-172). */
+  /** Adds exact literal scalar replacement (edit.rs). */
   literalScalar(target: NodeRef, literal: Uint8Array): EditTransactionBuilder {
     this.#operations.push({
       kind: 'ReplaceScalar',
@@ -181,7 +181,7 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds one JSON Object member insertion (edit.rs:174-189). */
+  /** Adds one JSON Object member insertion (edit.rs). */
   insertMember(
     object: NodeRef,
     name: string,
@@ -192,25 +192,25 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact JSON Object member removal (edit.rs:191-195). */
+  /** Adds one exact JSON Object member removal (edit.rs). */
   removeMember(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveMember', target });
     return this;
   }
 
-  /** Adds one exact same-Object member move (edit.rs:197-202). */
+  /** Adds one exact same-Object member move (edit.rs). */
   moveMember(target: NodeRef, placement: AssociationPlacement): EditTransactionBuilder {
     this.#operations.push({ kind: 'MoveMember', target, placement });
     return this;
   }
 
-  /** Adds one exact JSON Object member rename (edit.rs:204-211). */
+  /** Adds one exact JSON Object member rename (edit.rs). */
   renameMember(target: NodeRef, name: string): EditTransactionBuilder {
     this.#operations.push({ kind: 'RenameMember', target, name });
     return this;
   }
 
-  /** Adds one JSON Array element insertion (edit.rs:213-227). */
+  /** Adds one JSON Array element insertion (edit.rs). */
   insertArrayElement(
     array: NodeRef,
     value: PortableValue,
@@ -220,13 +220,13 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Adds one exact JSON Array element removal (edit.rs:229-235). */
+  /** Adds one exact JSON Array element removal (edit.rs). */
   removeArrayElement(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveArrayElement', target });
     return this;
   }
 
-  /** Completes the immutable request; target validation happens atomically at commit (edit.rs:236-242). */
+  /** Completes the immutable request; target validation happens atomically at commit (edit.rs). */
   build(): EditTransaction {
     return new EditTransaction(this.#base, this.#operations);
   }
@@ -236,7 +236,7 @@ export class EditTransactionBuilder {
 // Commit records
 // ---------------------------------------------------------------------------
 
-/** Atomic edit success (edit.rs:245-256). */
+/** Atomic edit success (edit.rs). */
 export class EditCommit {
   readonly #document: JsonDocument;
   readonly #changeSet: ChangeSet;
@@ -255,22 +255,22 @@ export class EditCommit {
     this.#untouchedProof = untouchedProof;
   }
 
-  /** New immutable document (edit.rs:248-250). */
+  /** New immutable document (edit.rs). */
   document(): JsonDocument {
     return this.#document;
   }
 
-  /** Complete old-to-new change facts (edit.rs:251-253). */
+  /** Complete old-to-new change facts (edit.rs). */
   changeSet(): ChangeSet {
     return this.#changeSet;
   }
 
-  /** Portable exact raw-byte application fact (edit.rs:254-256). */
+  /** Portable exact raw-byte application fact (edit.rs). */
   sourcePatch(): SourcePatch {
     return this.#sourcePatch;
   }
 
-  /** Verifiable evidence for every byte outside the replacement set (edit.rs:257-259). */
+  /** Verifiable evidence for every byte outside the replacement set (edit.rs). */
   untouchedProof(): UntouchedByteProof {
     return this.#untouchedProof;
   }
@@ -283,7 +283,7 @@ export class EditCommit {
 interface PreparedEdit {
   readonly oldSpan: Span;
   readonly replacement: Uint8Array;
-  /** Mutable during move preparation (edit.rs:764-768 replaces the target mapping). */
+  /** Mutable during move preparation (edit.rs replaces the target mapping). */
   mapping: { readonly old: NodeRef; readonly plan: MappingPlan } | null;
 }
 
@@ -304,7 +304,7 @@ interface InsertionSyntax {
 
 /**
  * Atomically commits scalar and structural operations. On failure `self`
- * remains unchanged (edit.rs:301-451).
+ * remains unchanged (edit.rs).
  */
 export function commitEdits(
   document: JsonDocument,
@@ -458,7 +458,7 @@ export function commitEdits(
 
 /**
  * Fully validates and plans an edit without returning a new Document
- * (edit.rs:453-469; RFC 0004 §14).
+ * (edit.rs; RFC 0004 §14).
  */
 export function dryRunEdits(
   document: JsonDocument,
@@ -1068,10 +1068,10 @@ function nodeKey(node: NodeRef): string {
 }
 
 // ---------------------------------------------------------------------------
-// Scalar preservation engine (edit.rs:1346-1862)
+// Scalar preservation engine (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Maximum digits a preserved fixed-fraction rendering may produce (edit.rs:1388-1390). */
+/** Maximum digits a preserved fixed-fraction rendering may produce (edit.rs). */
 const MAX_PRESERVED_FRACTION_DIGITS = 1_000_000;
 
 function semanticLiteral(
@@ -1116,7 +1116,7 @@ function semanticLiteral(
   }
 }
 
-/** Bounded lexical style retained by `PreserveCompatible` edits (edit.rs:1391-1440). */
+/** Bounded lexical style retained by `PreserveCompatible` edits (edit.rs). */
 type JsonScalarLexicalStyle =
   | { readonly kind: 'Null' }
   | { readonly kind: 'Boolean' }
@@ -1441,7 +1441,7 @@ function renderDecimalStyle(
   return encodeText(output);
 }
 
-/** Strips the leading zero of a leading-point decimal ("-0.5" → "-.5", "0.5" → ".5"); null when not leading-point (edit.rs:1704-1709). */
+/** Strips the leading zero of a leading-point decimal ("-0.5" → "-.5", "0.5" → ".5"); null when not leading-point (edit.rs). */
 function removeLeadingZero(text: string): string | null {
   const zero = text.startsWith('-0.') ? 1 : 0;
   if (text.slice(zero, zero + 2) !== '0.') {
@@ -1644,7 +1644,7 @@ function findValueByLiteralSpan(
 }
 
 // ---------------------------------------------------------------------------
-// Plan metadata (edit.rs:1095-1267)
+// Plan metadata (edit.rs)
 // ---------------------------------------------------------------------------
 
 function sourcePatchLimits(parseLimits: ParseLimits, operationCount: number): SourcePatchLimits {
@@ -1882,7 +1882,7 @@ function charAtCodePoint(text: string, index: number): string {
   return String.fromCodePoint(text.codePointAt(index)!);
 }
 
-/** Reads four hexadecimal digits as a UTF-16 code unit (edit.rs:1546-1547). */
+/** Reads four hexadecimal digits as a UTF-16 code unit (edit.rs). */
 function readHexQuad(text: string, index: number): number | null {
   const digits = text.slice(index, index + 4);
   if (!/^[0-9a-fA-F]{4}$/.test(digits)) {

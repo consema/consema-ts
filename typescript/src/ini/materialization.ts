@@ -68,7 +68,7 @@ import { IniProjectionRequest, projectIni } from './projection.ts';
 
 /**
  * Materializes one complete PortableValue into a new immutable INI
- * document (materialization.rs:27-41). Returns the sealed RFC 0004 §7
+ * document (materialization.rs). Returns the sealed RFC 0004 §7
  * union; a failed attempt contains no Document and no partial bytes.
  */
 export function materializeIni(
@@ -170,7 +170,7 @@ function parseEncodingSelection(profile: IniProfile, encoding: SourceEncoding): 
   return explicitSelection(encoding);
 }
 
-/** Parse limits derived from the materialization limits (materialization.rs:137-160). */
+/** Parse limits derived from the materialization limits (materialization.rs). */
 function parseLimitsFor(limits: MaterializationLimits): IniParseLimits {
   return {
     common: {
@@ -197,7 +197,7 @@ function parseLimitsFor(limits: MaterializationLimits): IniParseLimits {
 }
 
 // ---------------------------------------------------------------------------
-// Writer (materialization.rs:162-461)
+// Writer (materialization.rs)
 // ---------------------------------------------------------------------------
 
 type MappingShape = 'Object' | 'EntryMapping';
@@ -468,7 +468,7 @@ function rejectCaseEquivalentObjectNames(entries: readonly MappingItem[]): void 
 }
 
 // ---------------------------------------------------------------------------
-// Closure and provenance (materialization.rs:489-677)
+// Closure and provenance (materialization.rs)
 // ---------------------------------------------------------------------------
 
 function verifyClosure(
@@ -616,10 +616,10 @@ function provenanceEntry(
 }
 
 // ---------------------------------------------------------------------------
-// Encoding (materialization.rs:679-888)
+// Encoding (materialization.rs)
 // ---------------------------------------------------------------------------
 
-/** UTF-8 budget for the text writer (materialization.rs:724-738). */
+/** UTF-8 budget for the text writer (materialization.rs). */
 function textBudget(encoding: SourceEncoding, maxOutputBytes: number): number {
   switch (encoding.kind) {
     case 'Utf16Le':
@@ -645,8 +645,8 @@ class BoundedText {
   }
 
   pushText(value: string): void {
-    // The budget is a UTF-8 byte budget of the generated text (materialization.rs:
-    // 692-716); the final encoded byte limit is enforced by encodeText.
+    // The budget is a UTF-8 byte budget of the generated text (materialization.rs 的
+    // 输出字节预算); the final encoded byte limit is enforced by encodeText.
     const next = this.#length + new TextEncoder().encode(value).length;
     if (next > this.#max) {
       throw new MaterializationFailure('ResourceLimit', { reason: 'output-bytes' });
@@ -660,7 +660,7 @@ class BoundedText {
   }
 }
 
-/** Encodes one complete text into the requested source encoding with BOM (materialization.rs:740-768). */
+/** Encodes one complete text into the requested source encoding with BOM (materialization.rs). */
 function encodeText(text: string, encoding: SourceEncoding, maxOutputBytes: number): Uint8Array {
   const bomBytes = encoding.kind === 'Utf16Le' || encoding.kind === 'Utf16Be' ? 2 : 0;
   const fragmentLimit = maxOutputBytes - bomBytes;
@@ -679,7 +679,7 @@ function encodeText(text: string, encoding: SourceEncoding, maxOutputBytes: numb
 }
 
 /**
- * Encodes one text fragment strictly (materialization.rs:770-829). Used by
+ * Encodes one text fragment strictly (materialization.rs). Used by
  * the edit module for value/key replacements in the base source encoding.
  */
 export function iniEncodeFragment(
@@ -767,7 +767,7 @@ function utf16Units(text: string): number[] {
   return units;
 }
 
-/** Reverse (scalar → byte) map of one frozen single-byte code page (materialization.rs:831-850). */
+/** Reverse (scalar → byte) map of one frozen single-byte code page (materialization.rs). */
 function codePageEncoder(pageNumber: number): Map<number, number> | null {
   const table = singleByteTableFor(pageNumber);
   if (table === null) {
@@ -783,7 +783,7 @@ function codePageEncoder(pageNumber: number): Map<number, number> | null {
   return encoder;
 }
 
-/** Deterministic quoting decision for Windows canonical values (materialization.rs:874-888). */
+/** Deterministic quoting decision for Windows canonical values (materialization.rs). */
 export function iniWindowsValueNeedsQuotes(value: string): boolean {
   const first = value.charCodeAt(0);
   const last = value.charCodeAt(value.length - 1);
@@ -795,7 +795,7 @@ export function iniWindowsValueNeedsQuotes(value: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Character classes (materialization.rs:856-872)
+// Character classes (materialization.rs)
 // ---------------------------------------------------------------------------
 
 function allBytes(value: string, predicate: (byte: number) => boolean): boolean {

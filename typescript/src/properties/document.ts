@@ -12,7 +12,7 @@
  *  - PropertiesValueState :276-285, PropertiesLogicalLineKind :287-294,
  *    PropertiesEscapeKind :296-307
  *  - NodeRole spellings used by the properties family: consema-document
- *    lib.rs:173-188 ('PropertiesDocument', 'PropertiesNaturalLine',
+ *    lib.rs ('PropertiesDocument', 'PropertiesNaturalLine',
  *    'PropertiesLogicalLine', 'PropertiesProperty', 'PropertiesComment',
  *    'PropertiesEscape', 'PropertiesErrorLine', 'PropertiesSyntaxPiece')
  *  - RFC 0010 §9 (:236-267) freezes the snapshot-bound native roles and
@@ -22,10 +22,10 @@
  * flat entity array whose index IS the NodeRef ordinal (issue order), like
  * the json family (json/document.ts:26-31). Typed handles borrow one
  * document and an entity index; resolution validates snapshot, role, and
- * entity kind exactly like the Rust scan (lib.rs:719-774). A compact
+ * entity kind exactly like the Rust scan (lib.rs). A compact
  * per-atom decoded boundary table (atom start decoded-UTF-8-byte offset and
  * JS code-unit index) supports exact decoded-span text lookups (the Rust
- * `decoded_span_text`, query.rs:636-651) without re-scanning the source.
+ * `decoded_span_text`, query.rs) without re-scanning the source.
  */
 
 import { DocumentAuthority, NodeRef, Span } from '../document/identity.ts';
@@ -46,13 +46,13 @@ import type { PropertiesParseLimits } from './parse_limits.ts';
 // Native vocabulary
 // ---------------------------------------------------------------------------
 
-/** Semantic empty/present state with exact separator provenance (lib.rs:276-285). */
+/** Semantic empty/present state with exact separator provenance (lib.rs). */
 export type PropertiesValueState = 'ImplicitEmpty' | 'ExplicitEmpty' | 'Present';
 
-/** Kind of one logical Properties record (lib.rs:287-294). */
+/** Kind of one logical Properties record (lib.rs). */
 export type PropertiesLogicalLineKind = 'Property' | 'Error';
 
-/** Kind of one retained escape occurrence (lib.rs:296-307). */
+/** Kind of one retained escape occurrence (lib.rs). */
 export type PropertiesEscapeKind = 'Named' | 'Backslash' | 'Unicode' | 'DroppedBackslash';
 
 // ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ export type Entity =
 // PropertiesDocument
 // ---------------------------------------------------------------------------
 
-/** Opaque immutable Java Properties document snapshot (lib.rs:590-608). */
+/** Opaque immutable Java Properties document snapshot (lib.rs). */
 export class PropertiesDocument {
   readonly #authority: DocumentAuthority;
   readonly #source: SourceSnapshot;
@@ -167,87 +167,87 @@ export class PropertiesDocument {
     this.#root = 0;
   }
 
-  /** Snapshot identity to which every NodeRef and Span belongs (lib.rs:612-615). */
+  /** Snapshot identity to which every NodeRef and Span belongs (lib.rs). */
   snapshotIdentity() {
     return this.#authority.identity();
   }
 
-  /** Exact immutable source snapshot (lib.rs:617-621). */
+  /** Exact immutable source snapshot (lib.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Default rendering is byte-for-byte source identity (lib.rs:623-627). */
+  /** Default rendering is byte-for-byte source identity (lib.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** Stable Java Properties format family (lib.rs:629-633). */
+  /** Stable Java Properties format family (lib.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('java-properties', 1);
   }
 
-  /** Exact selected profile (lib.rs:635-639). */
+  /** Exact selected profile (lib.rs). */
   profile(): ProfileId {
     return propertiesProfileId(this.#profile);
   }
 
-  /** Concrete selected profile (lib.rs:641-645). */
+  /** Concrete selected profile (lib.rs). */
   selectedProfile(): PropertiesProfile {
     return this.#profile;
   }
 
-  /** Root Properties document identity (lib.rs:647-651). */
+  /** Root Properties document identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#authority.nodeRef(0n, 'PropertiesDocument');
   }
 
-  /** Complete or explicitly recovered formation state (lib.rs:653-657). */
+  /** Complete or explicitly recovered formation state (lib.rs). */
   formationStatus(): FormationStatus {
     return this.#formationStatus;
   }
 
-  /** Stable ordered diagnostics (lib.rs:659-663). */
+  /** Stable ordered diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Exhaustive ordered source coverage (lib.rs:665-669). */
+  /** Exhaustive ordered source coverage (lib.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex {
     return this.#structuralIndex;
   }
 
-  /** Format kind aligned with every structural piece (lib.rs:671-675). */
+  /** Format kind aligned with every structural piece (lib.rs). */
   losslessSyntaxKinds(): readonly PropertiesSyntaxKind[] {
     return this.#syntaxKinds;
   }
 
-  /** Ordered natural source lines (lib.rs:677-681). */
+  /** Ordered natural source lines (lib.rs). */
   naturalLines(): readonly PropertiesNaturalLine[] {
     return this.#collectEntities('NaturalLine', (index) => new PropertiesNaturalLine(this, index));
   }
 
-  /** Ordered property/error logical lines (lib.rs:683-687). */
+  /** Ordered property/error logical lines (lib.rs). */
   logicalLines(): readonly PropertiesLogicalLine[] {
     return this.#collectEntities('LogicalLine', (index) => new PropertiesLogicalLine(this, index));
   }
 
-  /** Ordered duplicate-preserving property associations (lib.rs:689-693). */
+  /** Ordered duplicate-preserving property associations (lib.rs). */
   properties(): readonly Property[] {
     return this.#collectEntities('Property', (index) => new Property(this, index));
   }
 
-  /** Ordered comment occurrences (lib.rs:695-699). */
+  /** Ordered comment occurrences (lib.rs). */
   comments(): readonly PropertiesComment[] {
     return this.#collectEntities('Comment', (index) => new PropertiesComment(this, index));
   }
 
-  /** Ordered escape occurrences (lib.rs:701-705). */
+  /** Ordered escape occurrences (lib.rs). */
   escapes(): readonly PropertiesEscape[] {
     return this.#collectEntities('Escape', (index) => new PropertiesEscape(this, index));
   }
 
-  /** Ordered recovered error lines (lib.rs:707-711). */
+  /** Ordered recovered error lines (lib.rs). */
   errorLines(): readonly PropertiesErrorLine[] {
     return this.#collectEntities('ErrorLine', (index) => new PropertiesErrorLine(this, index));
   }
@@ -262,30 +262,30 @@ export class PropertiesDocument {
     return Object.freeze(output);
   }
 
-  /** Resource contract used to form this snapshot (lib.rs:713-717). */
+  /** Resource contract used to form this snapshot (lib.rs). */
   parseLimits(): PropertiesParseLimits {
     return this.#parseLimits;
   }
 
-  /** Resolves one property handle only within this snapshot (lib.rs:719-729). */
+  /** Resolves one property handle only within this snapshot (lib.rs). */
   property(node: NodeRef): Property {
     const index = this.#resolveEntityIndex(node, 'PropertiesProperty', 'Property');
     return new Property(this, index);
   }
 
-  /** Resolves one natural-line handle only within this snapshot (lib.rs:731-744). */
+  /** Resolves one natural-line handle only within this snapshot (lib.rs). */
   naturalLine(node: NodeRef): PropertiesNaturalLine {
     const index = this.#resolveEntityIndex(node, 'PropertiesNaturalLine', 'NaturalLine');
     return new PropertiesNaturalLine(this, index);
   }
 
-  /** Resolves one logical-line handle only within this snapshot (lib.rs:746-759). */
+  /** Resolves one logical-line handle only within this snapshot (lib.rs). */
   logicalLine(node: NodeRef): PropertiesLogicalLine {
     const index = this.#resolveEntityIndex(node, 'PropertiesLogicalLine', 'LogicalLine');
     return new PropertiesLogicalLine(this, index);
   }
 
-  /** Resolves one escape handle only within this snapshot (lib.rs:761-774). */
+  /** Resolves one escape handle only within this snapshot (lib.rs). */
   escape(node: NodeRef): PropertiesEscape {
     const index = this.#resolveEntityIndex(node, 'PropertiesEscape', 'Escape');
     return new PropertiesEscape(this, index);
@@ -332,7 +332,7 @@ export class PropertiesDocument {
     return this.#authority.nodeRef(BigInt(index), role);
   }
 
-  /** @internal — exact decoded text of one atom-aligned span (query.rs:636-651). */
+  /** @internal — exact decoded text of one atom-aligned span (query.rs). */
   spanDecodedText(span: Span): string {
     const decodedText = this.#source.decodedText();
     if (decodedText === null) {
@@ -383,7 +383,7 @@ function entityOf<K extends Entity['kind']>(
   return entity as Extract<Entity, { kind: K }>;
 }
 
-/** One exact natural source line (lib.rs:309-342). */
+/** One exact natural source line (lib.rs). */
 export class PropertiesNaturalLine {
   readonly #document: PropertiesDocument;
   readonly #index: number;
@@ -393,22 +393,22 @@ export class PropertiesNaturalLine {
     this.#index = index;
   }
 
-  /** Snapshot-bound natural-line identity (lib.rs:319-322). */
+  /** Snapshot-bound natural-line identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'PropertiesNaturalLine');
   }
 
-  /** Complete source span including the terminator (lib.rs:324-327). */
+  /** Complete source span including the terminator (lib.rs). */
   span(): Span {
     return this.#entity().span;
   }
 
-  /** Content span excluding the terminator (lib.rs:329-334). */
+  /** Content span excluding the terminator (lib.rs). */
   contentSpan(): Span {
     return this.#entity().contentSpan;
   }
 
-  /** LF, CR, or CRLF span; absent for an EOF line (lib.rs:336-341). */
+  /** LF, CR, or CRLF span; absent for an EOF line (lib.rs). */
   lineBreakSpan(): Span | null {
     return this.#entity().lineBreakSpan;
   }
@@ -422,7 +422,7 @@ export class PropertiesNaturalLine {
   }
 }
 
-/** One property/error logical line and its natural-line constituents (lib.rs:344-370). */
+/** One property/error logical line and its natural-line constituents (lib.rs). */
 export class PropertiesLogicalLine {
   readonly #document: PropertiesDocument;
   readonly #index: number;
@@ -432,17 +432,17 @@ export class PropertiesLogicalLine {
     this.#index = index;
   }
 
-  /** Snapshot-bound logical-line identity (lib.rs:353-356). */
+  /** Snapshot-bound logical-line identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'PropertiesLogicalLine');
   }
 
-  /** Property or recovered-error classification (lib.rs:358-361). */
+  /** Property or recovered-error classification (lib.rs). */
   kind(): PropertiesLogicalLineKind {
     return this.#entity().recordKind;
   }
 
-  /** Ordered natural-line constituents (lib.rs:363-368). */
+  /** Ordered natural-line constituents (lib.rs). */
   naturalLines(): readonly PropertiesNaturalLine[] {
     return this.#entity().naturalLines.map((index) => new PropertiesNaturalLine(this.#document, index));
   }
@@ -456,7 +456,7 @@ export class PropertiesLogicalLine {
   }
 }
 
-/** One comment natural line (lib.rs:372-405). */
+/** One comment natural line (lib.rs). */
 export class PropertiesComment {
   readonly #document: PropertiesDocument;
   readonly #index: number;
@@ -466,22 +466,22 @@ export class PropertiesComment {
     this.#index = index;
   }
 
-  /** Snapshot-bound comment identity (lib.rs:381-384). */
+  /** Snapshot-bound comment identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'PropertiesComment');
   }
 
-  /** Owning natural line (lib.rs:386-391). */
+  /** Owning natural line (lib.rs). */
   naturalLine(): PropertiesNaturalLine {
     return new PropertiesNaturalLine(this.#document, this.#entity().naturalLine);
   }
 
-  /** Complete comment content span excluding its line break (lib.rs:393-397). */
+  /** Complete comment content span excluding its line break (lib.rs). */
   span(): Span {
     return this.#entity().span;
   }
 
-  /** Exact comment marker (lib.rs:399-404). */
+  /** Exact comment marker (lib.rs). */
   marker(): string {
     return this.#entity().marker;
   }
@@ -495,7 +495,7 @@ export class PropertiesComment {
   }
 }
 
-/** One source escape and its exact Java-string output range (lib.rs:407-455). */
+/** One source escape and its exact Java-string output range (lib.rs). */
 export class PropertiesEscape {
   readonly #document: PropertiesDocument;
   readonly #index: number;
@@ -505,32 +505,32 @@ export class PropertiesEscape {
     this.#index = index;
   }
 
-  /** Snapshot-bound escape identity (lib.rs:419-422). */
+  /** Snapshot-bound escape identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'PropertiesEscape');
   }
 
-  /** Owning property occurrence (lib.rs:424-429). */
+  /** Owning property occurrence (lib.rs). */
   property(): Property {
     return new Property(this.#document, this.#entity().property);
   }
 
-  /** Whether the output range belongs to the decoded key (lib.rs:431-435). */
+  /** Whether the output range belongs to the decoded key (lib.rs). */
   inKey(): boolean {
     return this.#entity().inKey;
   }
 
-  /** Exact escape kind (lib.rs:437-441). */
+  /** Exact escape kind (lib.rs). */
   kind(): PropertiesEscapeKind {
     return this.#entity().escapeKind;
   }
 
-  /** Complete raw escape spelling (lib.rs:443-447). */
+  /** Complete raw escape spelling (lib.rs). */
   span(): Span {
     return this.#entity().span;
   }
 
-  /** Half-open output code-unit range in the owning key or value (lib.rs:449-455). */
+  /** Half-open output code-unit range in the owning key or value (lib.rs). */
   outputRange(): { readonly start: number; readonly end: number } {
     return { start: this.#entity().outputStart, end: this.#entity().outputEnd };
   }
@@ -544,7 +544,7 @@ export class PropertiesEscape {
   }
 }
 
-/** One distinct source-ordered property association (lib.rs:457-546). */
+/** One distinct source-ordered property association (lib.rs). */
 export class Property {
   readonly #document: PropertiesDocument;
   readonly #index: number;
@@ -554,62 +554,62 @@ export class Property {
     this.#index = index;
   }
 
-  /** Snapshot-bound property association identity (lib.rs:474-477). */
+  /** Snapshot-bound property association identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'PropertiesProperty');
   }
 
-  /** Owning logical line (lib.rs:479-483). */
+  /** Owning logical line (lib.rs). */
   logicalLine(): PropertiesLogicalLine {
     return new PropertiesLogicalLine(this.#document, this.#entity().logicalLine);
   }
 
-  /** Complete first-to-last property source range (lib.rs:485-491). */
+  /** Complete first-to-last property source range (lib.rs). */
   span(): Span {
     return this.#entity().span;
   }
 
-  /** Zero-width source anchor at the start of the decoded key (lib.rs:493-497). */
+  /** Zero-width source anchor at the start of the decoded key (lib.rs). */
   keyAnchor(): Span {
     return this.#entity().keyAnchor;
   }
 
-  /** Zero-width source anchor at the start of the decoded value (lib.rs:499-503). */
+  /** Zero-width source anchor at the start of the decoded value (lib.rs). */
   valueAnchor(): Span {
     return this.#entity().valueAnchor;
   }
 
-  /** Ordered raw source fragments contributing to the key (lib.rs:505-509). */
+  /** Ordered raw source fragments contributing to the key (lib.rs). */
   keyFragments(): readonly Span[] {
     return this.#entity().keyFragments;
   }
 
-  /** Ordered raw source fragments contributing to the value (lib.rs:511-515). */
+  /** Ordered raw source fragments contributing to the value (lib.rs). */
   valueFragments(): readonly Span[] {
     return this.#entity().valueFragments;
   }
 
-  /** Exact decoded Java UTF-16 key (lib.rs:517-521). */
+  /** Exact decoded Java UTF-16 key (lib.rs). */
   key(): JavaString {
     return this.#entity().key;
   }
 
-  /** Exact decoded Java UTF-16 element (lib.rs:523-527). */
+  /** Exact decoded Java UTF-16 element (lib.rs). */
   value(): JavaString {
     return this.#entity().value;
   }
 
-  /** Implicit, explicit empty, or present source state (lib.rs:529-533). */
+  /** Implicit, explicit empty, or present source state (lib.rs). */
   valueState(): PropertiesValueState {
     return this.#entity().valueState;
   }
 
-  /** Ordered escape identities in key-then-value decode order (lib.rs:535-539). */
+  /** Ordered escape identities in key-then-value decode order (lib.rs). */
   escapes(): readonly PropertiesEscape[] {
     return this.#entity().escapes.map((index) => new PropertiesEscape(this.#document, index));
   }
 
-  /** Deterministic exact-code-unit duplicate group (lib.rs:541-545). */
+  /** Deterministic exact-code-unit duplicate group (lib.rs). */
   duplicateGroup(): number | null {
     return this.#entity().duplicateGroup;
   }
@@ -623,7 +623,7 @@ export class Property {
   }
 }
 
-/** One recovered malformed logical line (lib.rs:548-588). */
+/** One recovered malformed logical line (lib.rs). */
 export class PropertiesErrorLine {
   readonly #document: PropertiesDocument;
   readonly #index: number;
@@ -633,27 +633,27 @@ export class PropertiesErrorLine {
     this.#index = index;
   }
 
-  /** Snapshot-bound error identity (lib.rs:558-561). */
+  /** Snapshot-bound error identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#document.nodeRefFor(this.#index, 'PropertiesErrorLine');
   }
 
-  /** Owning recovered logical line (lib.rs:563-567). */
+  /** Owning recovered logical line (lib.rs). */
   logicalLine(): PropertiesLogicalLine {
     return new PropertiesLogicalLine(this.#document, this.#entity().logicalLine);
   }
 
-  /** Natural lines retained by this recovery record (lib.rs:569-574). */
+  /** Natural lines retained by this recovery record (lib.rs). */
   naturalLines(): readonly PropertiesNaturalLine[] {
     return this.#entity().naturalLines.map((index) => new PropertiesNaturalLine(this.#document, index));
   }
 
-  /** Complete recovered source range (lib.rs:576-580). */
+  /** Complete recovered source range (lib.rs). */
   span(): Span {
     return this.#entity().span;
   }
 
-  /** Stable diagnostic code (lib.rs:582-587). */
+  /** Stable diagnostic code (lib.rs). */
   code(): string {
     return this.#entity().code;
   }

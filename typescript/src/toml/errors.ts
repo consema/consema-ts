@@ -14,19 +14,19 @@
  *    "FatalFormationFailure" (conformance/vectors/toml-v1.json:87 "status";
  *    consema-rs/consema-document/src/lib.rs FatalFormationFailure)
  *  - resource-limit diagnostic shape: FatalFormationFailure::resource_limit
- *    (consema-rs/consema-document/src/lib.rs:771-791) — code, category
+ *    (consema-rs/consema-document/src/lib.rs) — code, category
  *    Resource, severity Error, primary None, arguments {limit, name,
  *    observed}
- *  - syntax diagnostic shape: consema-rs/consema-toml/src/parser.rs:65-82 —
+ *  - syntax diagnostic shape: consema-rs/consema-toml/src/parser.rs —
  *    code toml.parse.syntax@1, category Syntax, severity Error, primary =
  *    minimal span, argument "parser_reason"
- *  - projection failure categories: consema-rs/consema-toml/src/projection.rs:
- *    191-200 and the failure→code mapping :410-435
- *  - edit failure categories: consema-rs/consema-toml/src/edit.rs:243-279 and
+ *  - projection failure categories: consema-rs/consema-toml/src/projection.rs
+ *    the failure→code mapping
+ *  - edit failure categories: consema-rs/consema-toml/src/edit.rs and
  *    the diagnostic_code mapping :1308-1331 (core.edit.* codes, RFC 0004
  *    §17); the vector compares the frozen NAME "UnsupportedSemanticValue"
  *    (conformance/vectors/toml-v1.json:81)
- *  - native handle failure: consema-rs/consema-toml/src/lib.rs:262-270
+ *  - native handle failure: consema-rs/consema-toml/src/lib.rs
  *    (TomlAccessError — no registered codes, like LocationError)
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
@@ -72,7 +72,7 @@ export class TomlFormationFailure extends Error {
   readonly code: string;
   /** Ordered diagnostics (exactly one today: syntax, resource limit, or source). */
   readonly diagnostics: readonly Diagnostic[];
-  /** Syntax: stable backend reason (parser.rs:79-80). */
+  /** Syntax: stable backend reason (parser.rs). */
   readonly parserReason?: string;
   /** Syntax: minimal provable error span in original source bytes. */
   readonly startByte?: number;
@@ -158,8 +158,8 @@ function buildDiagnostic(
 // ---------------------------------------------------------------------------
 
 /**
- * Stable projection failure category (projection.rs:191-200); the
- * failure→code mapping is projection.rs:410-435.
+ * Stable projection failure category (projection.rs); the
+ * failure→code mapping is projection.rs.
  */
 export type TomlProjectionFailureKind =
   | 'UnrepresentableDateTime'
@@ -182,7 +182,7 @@ export class TomlProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:410-435; core.projection.resource-limit@1 at error_registry.rs:57). */
+/** Kind→code mapping (projection.rs; core.projection.resource-limit@1 at error_registry.rs). */
 export function projectionFailureCode(kind: TomlProjectionFailureKind): string {
   switch (kind) {
     case 'UnrepresentableDateTime':
@@ -199,9 +199,9 @@ export function projectionFailureCode(kind: TomlProjectionFailureKind): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Stable edit failure category (edit.rs:243-279); the kind NAME is the
+ * Stable edit failure category (edit.rs); the kind NAME is the
  * frozen fact the vectors compare (toml-v1.json:81 "UnsupportedSemanticValue"),
- * the CODE mapping is edit.rs:1308-1331 (RFC 0004 §17).
+ * the CODE mapping is edit.rs (RFC 0004 §17).
  */
 export type TomlEditFailureKind =
   | 'WrongSnapshot'
@@ -222,7 +222,7 @@ export type TomlEditFailureKind =
   | 'ResourceLimit'
   | 'NewDocumentFormationFailed';
 
-/** Atomic edit failure carrying the frozen registered code (edit.rs:1308-1331). */
+/** Atomic edit failure carrying the frozen registered code (edit.rs). */
 export class TomlEditFailure extends Error {
   readonly kind: TomlEditFailureKind;
   readonly code: string;
@@ -241,7 +241,7 @@ export class TomlEditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:1308-1331). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: TomlEditFailureKind): string {
   switch (kind) {
     case 'WrongSnapshot':
@@ -276,7 +276,7 @@ export function editFailureCode(kind: TomlEditFailureKind): string {
   }
 }
 
-/** The frozen 64-bit integer kind name used by operation summaries (edit.rs:1260-1278). */
+/** The frozen 64-bit integer kind name used by operation summaries (edit.rs). */
 export function valueKindName(kind: string): string {
   switch (kind) {
     case 'Null':
@@ -315,12 +315,12 @@ export function valueKindName(kind: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// TomlAccessError — native handle failure (lib.rs:262-270; no registered codes)
+// TomlAccessError — native handle failure (lib.rs; no registered codes)
 // ---------------------------------------------------------------------------
 
 export type TomlAccessErrorKind = 'WrongSnapshot' | 'WrongRole' | 'UnknownNode';
 
-/** Stable native handle failure (lib.rs:262-270); the vector suite compares the frozen NAME. */
+/** Stable native handle failure (lib.rs); the vector suite compares the frozen NAME. */
 export class TomlAccessError extends Error {
   readonly kind: TomlAccessErrorKind;
   readonly code: undefined = undefined;

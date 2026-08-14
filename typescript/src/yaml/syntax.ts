@@ -14,7 +14,7 @@
  * syntax-query match roles reproduce the Rust spellings byte-for-byte).
  */
 
-/** Closed YAML lossless syntax-piece classification (lib.rs:63-116). */
+/** Closed YAML lossless syntax-piece classification (lib.rs). */
 export type YamlSyntaxKind =
   /** Unicode byte-order mark retained in the decoded stream. */
   | 'Bom'
@@ -67,7 +67,7 @@ export type YamlSyntaxKind =
   /** Bytes retained after bounded syntax recovery. */
   | 'ErrorRegion';
 
-/** Resolves one exact stable kind name (lib.rs:200-231). */
+/** Resolves one exact stable kind name (lib.rs). */
 export function yamlSyntaxKindFromName(name: string): YamlSyntaxKind | null {
   switch (name) {
     case 'Bom':
@@ -101,7 +101,7 @@ export function yamlSyntaxKindFromName(name: string): YamlSyntaxKind | null {
   }
 }
 
-/** Whether the kind is presentation trivia (lib.rs:233-238). */
+/** Whether the kind is presentation trivia (lib.rs). */
 export function isYamlTriviaKind(kind: YamlSyntaxKind): boolean {
   return kind === 'Bom' || kind === 'Whitespace' || kind === 'Newline' || kind === 'Comment';
 }

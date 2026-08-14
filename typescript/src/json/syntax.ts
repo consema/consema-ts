@@ -10,7 +10,7 @@
  * syntax-query match roles reproduce the Rust spellings byte-for-byte).
  */
 
-/** Closed JSON/JSONC v1 lossless syntax-piece classification (lib.rs:48-84). */
+/** Closed JSON/JSONC v1 lossless syntax-piece classification (lib.rs). */
 export type JsonSyntaxKind =
   /** Leading UTF-8 byte-order mark. */
   | 'Bom'
@@ -47,7 +47,7 @@ export type JsonSyntaxKind =
   /** Bytes retained after bounded lexical recovery. */
   | 'ErrorRegion';
 
-/** Resolves one exact stable kind name (lib.rs:112-134). */
+/** Resolves one exact stable kind name (lib.rs). */
 export function jsonSyntaxKindFromName(name: string): JsonSyntaxKind | null {
   switch (name) {
     case 'Bom':

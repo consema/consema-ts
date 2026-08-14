@@ -116,7 +116,7 @@ test('golden toml.projection.reject-leap-second: second 60 fails the whole proje
 });
 
 test('table-vs-object distinction: table flavors survive natively and meet Object only here', () => {
-  // RFC 0001 §2 and https://github.com/consema/consema/blob/main/docs/IMPLEMENTATION.md:102 — a DottedTable and a
+  // RFC 0001 §2 and https://github.com/consema/consema/blob/main/docs/IMPLEMENTATION.md — a DottedTable and a
   // StandardTable project to the same Object shape, but the native item
   // kinds remain distinct before projection.
   const document = parseSource('a.b = 1\n[c]\nd = 2\n');

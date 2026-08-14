@@ -15,16 +15,16 @@
  *    build_structural_pieces :698-729, build_atoms :882-907,
  *    decode_java_string :909-996, is_properties_whitespace :998-1000,
  *    structural_kind :1002-1017
- *  - source and encoding: consema-rs/consema-document/src/lib.rs:643-761
+ *  - source and encoding: consema-rs/consema-document/src/lib.rs
  *    (FatalFormationFailure); codes in consema-rs/consema-protocol/src/
- *    error_registry.rs:207, 372, 366, 405, 399
- *  - profiles: consema-rs/consema-properties/src/lib.rs:33-59 (RFC 0010 §1)
+ *    error_registry.rs
+ *  - profiles: consema-rs/consema-properties/src/lib.rs (RFC 0010 §1)
  *  - vector-pinned behavior: conformance/vectors/java-properties-v1.json
  *    (all 17 cases; the 20-limit matrix pins the limit names)
  *
  * Design (TypeScript-idiomatic): the parser walks decoded text one Unicode
  * scalar at a time, tracking exact raw byte offsets through the source
- * snapshot's decoded boundary index (the Rust `build_atoms`, parser.rs:882-
+ * snapshot's decoded boundary index (the Rust `build_atoms`, parser.rs
  * 907). Natural lines, logical assembly, key/value separation, and escape
  * decoding follow parser.rs step for step; the immutable `PropertiesDocument`
  * is built with typed entities, or `FatalFormationFailure` is thrown — no
@@ -52,7 +52,7 @@ import type { PropertiesSyntaxKind } from './syntax.ts';
 // Source contract selection
 // ---------------------------------------------------------------------------
 
-/** Explicit source contract; no extension, locale, or platform default is consulted (lib.rs:52-59). */
+/** Explicit source contract; no extension, locale, or platform default is consulted (lib.rs). */
 export type PropertiesEncodingSelection =
   | { readonly kind: 'Reader'; readonly encoding: SourceEncoding }
   | { readonly kind: 'Latin1' };
@@ -136,7 +136,7 @@ function validateProfileEncoding(
 // Atoms
 // ---------------------------------------------------------------------------
 
-/** One decoded scalar and its exact raw byte range (parser.rs:93-99). */
+/** One decoded scalar and its exact raw byte range (parser.rs). */
 interface Atom {
   readonly ch: string;
   readonly rawStart: number;
@@ -146,11 +146,11 @@ interface Atom {
 
 /**
  * Builds one atom per decoded Unicode scalar with exact raw offsets
- * (parser.rs:882-907).
+ * (parser.rs).
  *
  * NOTE (L1 dependency, recorded): the Rust authority resolves every raw
  * offset through the source snapshot's decoded boundary index
- * (`raw_byte_at`, parser.rs:889-897). The TS source snapshot's boundary
+ * (`raw_byte_at`, parser.rs). The TS source snapshot's boundary
  * index mis-accounts the decoded-UTF-8-byte coordinate for non-ASCII text
  * (typescript/src/document/source.ts `advancePosition` increments it by
  * UTF-16 code units), so `rawByteAt` throws OutOfBounds for any non-ASCII
@@ -160,7 +160,7 @@ interface Atom {
  * independent of the boundary index. The per-atom tables retained by the
  * document (raw starts, decoded UTF-8 byte offsets, JS code-unit indexes)
  * serve the same exact-span lookups the Rust `decoded_span_text` performs
- * through the index (query.rs:636-651).
+ * through the index (query.rs).
  */
 function buildAtoms(source: SourceSnapshot): {
   atoms: Atom[];
@@ -204,14 +204,14 @@ function buildAtoms(source: SourceSnapshot): {
   };
 }
 
-/** Exact raw byte width of one decoded scalar under one text encoding (source.rs:1159-1181). */
+/** Exact raw byte width of one decoded scalar under one text encoding (source.rs). */
 function rawWidth(encoding: SourceEncoding, character: string): number {
   switch (encoding.kind) {
     case 'Utf8':
       return utf8Width(character);
     case 'WindowsCodePage':
       // cp65001 decodes as strict UTF-8; the single-byte pages map one byte
-      // per scalar (source.rs:1159-1181; the L1 divergence note in
+      // per scalar (source.rs; the L1 divergence note in
       // typescript/src/document/source.ts:897-912 covers the multi-byte
       // pages, which the source snapshot rejects before this point).
       return encoding.codePage.number() === 65001 ? utf8Width(character) : 1;
@@ -233,12 +233,12 @@ function utf8Width(character: string): number {
   return 4;
 }
 
-/** Properties whitespace is exactly space, tab, and form feed (parser.rs:998-1000; RFC 0010 §5). */
+/** Properties whitespace is exactly space, tab, and form feed (parser.rs; RFC 0010 §5). */
 function isPropertiesWhitespace(character: string): boolean {
   return character === ' ' || character === '\t' || character === '';
 }
 
-/** Maps a syntax kind to its structural piece class (parser.rs:1002-1017). */
+/** Maps a syntax kind to its structural piece class (parser.rs). */
 function structuralKind(syntax: PropertiesSyntaxKind): StructuralPieceKind {
   switch (syntax) {
     case 'Whitespace':
@@ -260,7 +260,7 @@ function structuralKind(syntax: PropertiesSyntaxKind): StructuralPieceKind {
 }
 
 // ---------------------------------------------------------------------------
-// Escape decoding (parser.rs:909-996; RFC 0010 §7)
+// Escape decoding (parser.rs; RFC 0010 §7)
 // ---------------------------------------------------------------------------
 
 interface EscapeSpec {
@@ -284,7 +284,7 @@ interface DecodeFailure {
 
 type DecodeResult = { readonly ok: true; readonly value: DecodedJavaString } | DecodeFailure;
 
-/** Exact left-to-right escape decoding into Java UTF-16 code units (parser.rs:909-996). */
+/** Exact left-to-right escape decoding into Java UTF-16 code units (parser.rs). */
 function decodeJavaString(atoms: readonly Atom[], atomIndices: readonly number[]): DecodeResult {
   const units: number[] = [];
   const escapes: EscapeSpec[] = [];
@@ -382,7 +382,7 @@ function hexDigit(character: string): number | null {
   return null;
 }
 
-/** Exact UTF-16 code units of one decoded scalar (parser.rs:921-924, 977-981). */
+/** Exact UTF-16 code units of one decoded scalar (parser.rs). */
 function codeUnitsOf(character: string): readonly number[] {
   if (character.length === 1) {
     return [character.charCodeAt(0)];
@@ -391,7 +391,7 @@ function codeUnitsOf(character: string): readonly number[] {
 }
 
 // ---------------------------------------------------------------------------
-// Diagnostic sink (parser.rs:847-879)
+// Diagnostic sink (parser.rs)
 // ---------------------------------------------------------------------------
 
 class DiagnosticSink {
@@ -634,7 +634,7 @@ class Parser {
           leadingCount += 1;
         }
       }
-      // The trailing backslash run decides continuation (parser.rs:383-393).
+      // The trailing backslash run decides continuation (parser.rs).
       let slashRun = 0;
       for (let index = line.atomContentEnd - 1; index >= line.atomStart + leadingCount; index--) {
         if (this.#atoms[index].ch !== '\\') {
@@ -666,7 +666,7 @@ class Parser {
     });
     this.#logicalLineCount += 1;
     // Leading Properties whitespace over the assembled logical atoms
-    // (parser.rs:421-425, take_while).
+    // (parser.rs, take_while).
     let leading = 0;
     while (
       leading < logicalAtoms.length &&
@@ -714,7 +714,7 @@ class Parser {
     return nextLine;
   }
 
-  /** Key/separator/element separation over the assembled logical atoms (parser.rs:471-507; RFC 0010 §6). */
+  /** Key/separator/element separation over the assembled logical atoms (parser.rs; RFC 0010 §6). */
   splitProperty(
     logicalAtoms: readonly number[],
     keyStart: number,
@@ -974,7 +974,7 @@ function valueStateOf(units: readonly number[], hadSeparator: boolean): Properti
 
 /**
  * Parses one immutable Properties snapshot under one exact profile/source
- * contract (parser.rs:17-36; lib.rs:777-785). Throws FatalFormationFailure —
+ * contract (parser.rs; lib.rs). Throws FatalFormationFailure —
  * no partial document ever exists.
  */
 export function parse(
@@ -1011,7 +1011,7 @@ export function parse(
   return parser.parse();
 }
 
-/** Parses Reader input using one explicit published text encoding (lib.rs:787-799). */
+/** Parses Reader input using one explicit published text encoding (lib.rs). */
 export function parseReader(
   bytes: Uint8Array,
   encoding: SourceEncoding,
@@ -1020,7 +1020,7 @@ export function parseReader(
   return parse(bytes, 'ReaderV1', readerSelection(encoding), limits);
 }
 
-/** Parses InputStream-compatible Latin-1 bytes with marker bytes as content (lib.rs:801-812). */
+/** Parses InputStream-compatible Latin-1 bytes with marker bytes as content (lib.rs). */
 export function parseLatin1(bytes: Uint8Array, limits: PropertiesParseLimits): PropertiesDocument {
   return parse(bytes, 'Latin1V1', latin1Selection(), limits);
 }

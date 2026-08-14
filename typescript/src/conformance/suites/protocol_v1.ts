@@ -280,7 +280,7 @@ function completionPayload(): PortableValue {
   return Completion.new('Success', 1n, 1n, null, null).toValue();
 }
 
-/** The 15 stable v1 payloads built from the real records (protocol_v1.rs:243-398). */
+/** The 15 stable v1 payloads built from the real records (protocol_v1.rs). */
 function stablePayloads(registry: ContractRegistry): { id: string; version: number; payload: PortableValue }[] {
   const errorRegistry = new ErrorCodeRegistry(1);
   const profile = newProfileDescriptor('toml', 1, 'toml.1.0', 1, undefined, [], []);
@@ -418,7 +418,7 @@ function diagnosticCases(case_: VectorCase): void {
     case 'protocol.diagnostic.require-source-binding':
       // A core diagnostic whose primary location still references a
       // process-local snapshot handle cannot be externalized; the boundary is
-      // the fixed process-local rejection (protocol_v1.rs:511-527).
+      // the fixed process-local rejection (protocol_v1.rs).
       expectRejected(
         () => {
           throw processLocalError('$.location.snapshot');
@@ -450,7 +450,7 @@ function diagnosticCases(case_: VectorCase): void {
 function completionCases(case_: VectorCase): void {
   switch (case_.id) {
     case 'protocol.completion.reject-contradiction':
-      // Success may not carry a limit name (protocol_v1.rs:547-558).
+      // Success may not carry a limit name (protocol_v1.rs).
       expectRejected(
         () => Completion.new('Success', 1n, 1n, 'max_steps', null),
         case_,
@@ -459,7 +459,7 @@ function completionCases(case_: VectorCase): void {
       return;
     case 'protocol.completion.reject-unregistered-failure-code':
       // The failure code must be registered in the semantic-model v1 error
-      // registry (protocol_v1.rs:560-571).
+      // registry (protocol_v1.rs).
       expectRejected(
         () => Completion.new('Failed', 1n, 0n, null, 'example.failure@1'),
         case_,
@@ -545,7 +545,7 @@ function queryWireCases(case_: VectorCase): void {
     }
     case 'protocol.query.reject-native-handle': {
       // A process-local NodeRef cannot be externalized into a native match
-      // locator (protocol_v1.rs:612-618).
+      // locator (protocol_v1.rs).
       const authority = DocumentAuthority.fresh();
       expectRejected(
         () => NativeMatchLocator.fromProcessLocal(authority.nodeRef(0n, 'TomlItem')),
@@ -603,7 +603,7 @@ function projectionWireCases(case_: VectorCase): void {
     }
     case 'protocol.projection.reject-unregistered-event-code':
       // The event code must be registered in the semantic-model v1 error
-      // registry (protocol_v1.rs:662-677).
+      // registry (protocol_v1.rs).
       expectRejected(
         () =>
           ProjectionReportMessage.new([

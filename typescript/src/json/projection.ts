@@ -24,7 +24,7 @@
  *    provenance origins :659-678, report events :680-688)
  *  - duplicate selection :691-726, failure diagnostics :728-765
  *    (kind→code table :754-765)
- *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs:191-195
+ *  - frozen codes: consema-rs/consema-protocol/src/error_registry.rs
  *    (core.projection.*), :221-222, :286 (json.projection.*),
  *    :1332 (json.projection.incomplete-document@1)
  *  - vector-pinned behavior: conformance/vectors/json-family-v2.json
@@ -63,7 +63,7 @@ import { JsonDocument, JsonObjectMember, JsonValue } from './document.ts';
 // ---------------------------------------------------------------------------
 
 /**
- * Versioned projection target contract (projection.rs:14-24). The stable
+ * Versioned projection target contract (projection.rs). The stable
  * names are the Rust enum spellings; the conformance runner maps the
  * vector shorthands ("BestExactCore@1", "ProjectAsObject@1" in v1,
  * "json-best-exact"/"json5-best-exact" in v2).
@@ -74,10 +74,10 @@ export type ProjectionTarget =
   | 'BestExactCoreV1'
   | 'Json5BestExactCoreV1';
 
-/** Explicit duplicate member policy (projection.rs:26-35). */
+/** Explicit duplicate member policy (projection.rs). */
 export type DuplicateKeyPolicy = 'Reject' | 'FirstWins' | 'LastWins';
 
-/** Scope supported by the 0.1.0 projection policy rules (projection.rs:37-44). */
+/** Scope supported by the 0.1.0 projection policy rules (projection.rs). */
 export type ProjectionPolicyScope =
   | { readonly kind: 'Global' }
   | { readonly kind: 'ExactNodeRef'; readonly node: NodeRef };
@@ -87,7 +87,7 @@ interface DuplicateRule {
   readonly policy: DuplicateKeyPolicy;
 }
 
-/** Projection resource limits (projection.rs:146-157). */
+/** Projection resource limits (projection.rs). */
 export interface ProjectionLimits {
   /** Maximum produced PortableValue nodes. */
   readonly maxValueNodes: number;
@@ -99,7 +99,7 @@ export interface ProjectionLimits {
   readonly maxDepth: number;
 }
 
-/** The frozen defaults (projection.rs:159-168). */
+/** The frozen defaults (projection.rs). */
 export const DEFAULT_PROJECTION_LIMITS: Readonly<ProjectionLimits> = Object.freeze({
   maxValueNodes: 1_000_000,
   maxReportEntries: 100_000,
@@ -107,7 +107,7 @@ export const DEFAULT_PROJECTION_LIMITS: Readonly<ProjectionLimits> = Object.free
   maxDepth: 256,
 });
 
-/** Immutable versioned projection request (projection.rs:52-72). */
+/** Immutable versioned projection request (projection.rs). */
 export class ProjectionRequest {
   readonly #target: ProjectionTarget;
   readonly #duplicateRules: readonly DuplicateRule[];
@@ -124,36 +124,36 @@ export class ProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Target contract (projection.rs:62-66). */
+  /** Target contract (projection.rs). */
   target(): ProjectionTarget {
     return this.#target;
   }
 
-  /** Ordered policy rules; exact-node scopes precede the global rule (projection.rs:641-657). */
+  /** Ordered policy rules; exact-node scopes precede the global rule (projection.rs). */
   duplicateRules(): readonly { readonly scope: ProjectionPolicyScope; readonly policy: DuplicateKeyPolicy }[] {
     return this.#duplicateRules;
   }
 
-  /** Projection resource limits (projection.rs:68-71). */
+  /** Projection resource limits (projection.rs). */
   limits(): ProjectionLimits {
     return this.#limits;
   }
 }
 
-/** Builder that rejects conflicting equal-precedence rules (projection.rs:74-144). */
+/** Builder that rejects conflicting equal-precedence rules (projection.rs). */
 export class ProjectionRequestBuilder {
   readonly #target: ProjectionTarget;
   #duplicateRules: DuplicateRule[];
   #limits: ProjectionLimits;
 
-  /** Starts with `ExactOrReject` behavior (projection.rs:83-94). */
+  /** Starts with `ExactOrReject` behavior (projection.rs). */
   constructor(target: ProjectionTarget) {
     this.#target = target;
     this.#duplicateRules = [{ scope: { kind: 'Global' }, policy: 'Reject' }];
     this.#limits = DEFAULT_PROJECTION_LIMITS;
   }
 
-  /** Replaces the global duplicate policy (projection.rs:96-106). */
+  /** Replaces the global duplicate policy (projection.rs). */
   withGlobalDuplicatePolicy(policy: DuplicateKeyPolicy): ProjectionRequestBuilder {
     const builder = this.#copy();
     builder.#duplicateRules = [
@@ -163,7 +163,7 @@ export class ProjectionRequestBuilder {
     return builder;
   }
 
-  /** Adds an exact-node override (projection.rs:108-120). */
+  /** Adds an exact-node override (projection.rs). */
   withExactNodeDuplicatePolicy(
     node: NodeRef,
     policy: DuplicateKeyPolicy,
@@ -176,14 +176,14 @@ export class ProjectionRequestBuilder {
     return builder;
   }
 
-  /** Sets immutable resource limits (projection.rs:122-127). */
+  /** Sets immutable resource limits (projection.rs). */
   withLimits(limits: ProjectionLimits): ProjectionRequestBuilder {
     const builder = this.#copy();
     builder.#limits = limits;
     return builder;
   }
 
-  /** Validates rule precedence and completes the request (projection.rs:129-143). */
+  /** Validates rule precedence and completes the request (projection.rs). */
   build(): ProjectionRequest {
     for (let index = 0; index < this.#duplicateRules.length; index++) {
       for (let other = index + 1; other < this.#duplicateRules.length; other++) {
@@ -219,18 +219,18 @@ function sameScope(left: ProjectionPolicyScope, right: ProjectionPolicyScope): b
 // Fidelity, report, and provenance records
 // ---------------------------------------------------------------------------
 
-/** Projection fidelity classification (projection.rs:170-179). */
+/** Projection fidelity classification (projection.rs). */
 export type Fidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Projected value or association location (projection.rs:181-188). */
+/** Projected value or association location (projection.rs). */
 export type ProjectedLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** Source-to-projection relation (projection.rs:190-203). */
+/** Source-to-projection relation (projection.rs). */
 export type ProvenanceRelation = 'Direct' | 'Derived' | 'Expanded' | 'Merged' | 'Generated';
 
-/** One exact source origin (projection.rs:205-216). */
+/** One exact source origin (projection.rs). */
 export class SourceOrigin {
   readonly #snapshot: ReturnType<JsonDocument['snapshotIdentity']>;
   readonly #node: NodeRef;
@@ -249,28 +249,28 @@ export class SourceOrigin {
     this.#relation = relation;
   }
 
-  /** Source document snapshot (projection.rs:207-210). */
+  /** Source document snapshot (projection.rs). */
   snapshot() {
     return this.#snapshot;
   }
 
-  /** Exact structural identity (projection.rs:211-213). */
+  /** Exact structural identity (projection.rs). */
   node(): NodeRef {
     return this.#node;
   }
 
-  /** Exact source range (projection.rs:214-216). */
+  /** Exact source range (projection.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Source relation (projection.rs:217-219). */
+  /** Source relation (projection.rs). */
   relation(): ProvenanceRelation {
     return this.#relation;
   }
 }
 
-/** One many-valued provenance mapping entry (projection.rs:218-225). */
+/** One many-valued provenance mapping entry (projection.rs). */
 export class ProvenanceEntry {
   readonly #projected: ProjectedLocation;
   readonly #origins: readonly SourceOrigin[];
@@ -280,18 +280,18 @@ export class ProvenanceEntry {
     this.#origins = Object.freeze([...origins]);
   }
 
-  /** Projected value or association (projection.rs:221-223). */
+  /** Projected value or association (projection.rs). */
   projected(): ProjectedLocation {
     return this.#projected;
   }
 
-  /** Zero or more source origins (projection.rs:224-226). */
+  /** Zero or more source origins (projection.rs). */
   origins(): readonly SourceOrigin[] {
     return this.#origins;
   }
 }
 
-/** Immutable multi-map from projected locations to source origins (projection.rs:227-239). */
+/** Immutable multi-map from projected locations to source origins (projection.rs). */
 export class ProvenanceMap {
   readonly #entries: readonly ProvenanceEntry[];
 
@@ -304,13 +304,13 @@ export class ProvenanceMap {
     return new ProvenanceMap(entries);
   }
 
-  /** Deterministically generated entries (projection.rs:233-238). */
+  /** Deterministically generated entries (projection.rs). */
   entries(): readonly ProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Machine-readable projection event category (projection.rs:241-256). */
+/** Machine-readable projection event category (projection.rs). */
 export type ProjectionEventKind =
   | 'StructureReencoded'
   | 'TypeMapped'
@@ -319,7 +319,7 @@ export type ProjectionEventKind =
   | 'ValueRounded'
   | 'FieldDropped';
 
-/** One structured projection report event (projection.rs:258-277). */
+/** One structured projection report event (projection.rs). */
 export class ProjectionEvent {
   readonly #kind: ProjectionEventKind;
   readonly #policy: DuplicateKeyPolicy | null;
@@ -350,48 +350,48 @@ export class ProjectionEvent {
     this.#loss = options.loss;
   }
 
-  /** Stable event kind (projection.rs:262-264). */
+  /** Stable event kind (projection.rs). */
   kind(): ProjectionEventKind {
     return this.#kind;
   }
 
-  /** Policy rule that authorized it (projection.rs:265-267). */
+  /** Policy rule that authorized it (projection.rs). */
   policy(): DuplicateKeyPolicy | null {
     return this.#policy;
   }
 
-  /** Exact source identity (projection.rs:268-269). */
+  /** Exact source identity (projection.rs). */
   source(): NodeRef {
     return this.#source;
   }
 
-  /** Result location when one exists (projection.rs:270-272). */
+  /** Result location when one exists (projection.rs). */
   projected(): ProjectedLocation | null {
     return this.#projected;
   }
 
-  /** Stable old semantic category (projection.rs:273-274). */
+  /** Stable old semantic category (projection.rs). */
   oldCategory(): string {
     return this.#oldCategory;
   }
 
-  /** Stable new semantic category (projection.rs:275-276). */
+  /** Stable new semantic category (projection.rs). */
   newCategory(): string {
     return this.#newCategory;
   }
 
-  /** Whether the source fact can be recovered from output plus contract (projection.rs:277-278). */
+  /** Whether the source fact can be recovered from output plus contract (projection.rs). */
   reversible(): boolean {
     return this.#reversible;
   }
 
-  /** Fidelity impact (projection.rs:279-280). */
+  /** Fidelity impact (projection.rs). */
   loss(): Fidelity {
     return this.#loss;
   }
 }
 
-/** Complete ordered projection report (projection.rs:279-291). */
+/** Complete ordered projection report (projection.rs). */
 export class ProjectionReport {
   readonly #events: readonly ProjectionEvent[];
 
@@ -408,13 +408,13 @@ export class ProjectionReport {
     return new ProjectionReport(events);
   }
 
-  /** Events in source/operation order (projection.rs:285-290). */
+  /** Events in source/operation order (projection.rs). */
   events(): readonly ProjectionEvent[] {
     return this.#events;
   }
 }
 
-/** Complete successful projection; its value is never partial (projection.rs:293-304). */
+/** Complete successful projection; its value is never partial (projection.rs). */
 export class CompleteProjection {
   readonly #value: PortableValue;
   readonly #fidelity: Fidelity;
@@ -433,28 +433,28 @@ export class CompleteProjection {
     this.#provenance = provenance;
   }
 
-  /** Complete immutable value (projection.rs:296-299). */
+  /** Complete immutable value (projection.rs). */
   value(): PortableValue {
     return this.#value;
   }
 
-  /** Worst fidelity of the whole operation (projection.rs:300-302). */
+  /** Worst fidelity of the whole operation (projection.rs). */
   fidelity(): Fidelity {
     return this.#fidelity;
   }
 
-  /** Machine-readable transformation/loss report (projection.rs:303-305). */
+  /** Machine-readable transformation/loss report (projection.rs). */
   report(): ProjectionReport {
     return this.#report;
   }
 
-  /** Basic value and association provenance (projection.rs:306-308). */
+  /** Basic value and association provenance (projection.rs). */
   provenance(): ProvenanceMap {
     return this.#provenance;
   }
 }
 
-/** Failed attempt without a partial PortableValue (projection.rs:306-315). */
+/** Failed attempt without a partial PortableValue (projection.rs). */
 export class FailedProjectionAttempt {
   readonly #diagnostics: readonly Diagnostic[];
   readonly #report: ProjectionReport;
@@ -470,23 +470,23 @@ export class FailedProjectionAttempt {
     this.#partialAnalysis = Object.freeze([...partialAnalysis]);
   }
 
-  /** Ordered operation diagnostics (projection.rs:309-311). */
+  /** Ordered operation diagnostics (projection.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Events discovered before the failed completion check (projection.rs:312-313). */
+  /** Events discovered before the failed completion check (projection.rs). */
   report(): ProjectionReport {
     return this.#report;
   }
 
-  /** Stable path descriptions of locally analyzed regions (projection.rs:314-315). */
+  /** Stable path descriptions of locally analyzed regions (projection.rs). */
   partialAnalysis(): readonly string[] {
     return this.#partialAnalysis;
   }
 }
 
-/** Projection completion algebra (projection.rs:317-324). */
+/** Projection completion algebra (projection.rs). */
 export type ProjectionResult =
   | { readonly kind: 'Complete'; readonly value: CompleteProjection }
   | { readonly kind: 'Failed'; readonly value: FailedProjectionAttempt };
@@ -507,7 +507,7 @@ interface ProjectionContextState {
 
 /**
  * Applies an immutable request. A failure never contains a partial value
- * (projection.rs:357-429).
+ * (projection.rs).
  */
 export function project(
   document: JsonDocument,
@@ -751,7 +751,7 @@ function projectObject(
   return objectValue(entries);
 }
 
-/** The exact key literal span (projection.rs:624-631). */
+/** The exact key literal span (projection.rs). */
 function keySpan(state: ProjectionContextState, member: JsonObjectMember): Span {
   const entity = state.document.entityAt(member.entityIndex());
   return state.document.spanOf(entity.kind === 'Member' ? entity.key : member.entityIndex());
@@ -867,7 +867,7 @@ function failed(
   };
 }
 
-/** Human-readable path description for partial analysis (presentation only, projection.rs:456). */
+/** Human-readable path description for partial analysis (presentation only, projection.rs). */
 function pathText(path: ValuePath): string {
   const segments = path
     .segments()

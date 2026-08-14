@@ -2,7 +2,7 @@
  * Frozen `hcl.native@1` / `hcl.tfvars@1` formation, structure, recovery,
  * and report limits (RFC 0014 §11).
  *
- * authority: consema-rs/consema-hcl/src/lib.rs:166-273 — HclParseLimits
+ * authority: consema-rs/consema-hcl/src/lib.rs — HclParseLimits
  *  (:179-234) and the frozen R-3 defaults (:236-273). The common limits
  *  (`ParseLimits` from the document domain) bound source bytes, generic
  *  nesting, token and node counts, and diagnostics; the flat fields bound
@@ -26,59 +26,59 @@
 import { DEFAULT_PARSE_LIMITS } from '../document/formation.ts';
 import type { ParseLimits } from '../document/formation.ts';
 
-/** One complete HCL formation-limit set (lib.rs:179-234). */
+/** One complete HCL formation-limit set (lib.rs). */
 export interface HclParseLimits {
-  /** Common source, nesting, token, node, and diagnostic limits (lib.rs:181-184). */
+  /** Common source, nesting, token, node, and diagnostic limits (lib.rs). */
   readonly common: ParseLimits;
-  /** Maximum decoded UTF-8 bytes (lib.rs:184-186). */
+  /** Maximum decoded UTF-8 bytes (lib.rs). */
   readonly maxDecodedUtf8Bytes: number;
-  /** Maximum decoded Unicode scalars (lib.rs:187-188). */
+  /** Maximum decoded Unicode scalars (lib.rs). */
   readonly maxDecodedScalars: number;
-  /** Maximum body nesting depth; the root body is depth 1 (lib.rs:188-189). */
+  /** Maximum body nesting depth; the root body is depth 1 (lib.rs). */
   readonly maxBodyDepth: number;
-  /** Maximum expression depth, shared by structural equality and the literal predicate (lib.rs:192-193). */
+  /** Maximum expression depth, shared by structural equality and the literal predicate (lib.rs). */
   readonly maxExpressionDepth: number;
-  /** Maximum template nesting depth (interpolations and directives may contain nested templates) (lib.rs:194-195). */
+  /** Maximum template nesting depth (interpolations and directives may contain nested templates) (lib.rs). */
   readonly maxTemplateDepth: number;
-  /** Maximum attributes in one body (lib.rs:196-197). */
+  /** Maximum attributes in one body (lib.rs). */
   readonly maxAttributeCount: number;
-  /** Maximum blocks in one body (lib.rs:198-199). */
+  /** Maximum blocks in one body (lib.rs). */
   readonly maxBlockCount: number;
-  /** Maximum labels on one block (lib.rs:200-201). */
+  /** Maximum labels on one block (lib.rs). */
   readonly maxLabelCount: number;
-  /** Maximum body items (attributes plus blocks) in one body (lib.rs:202-203). */
+  /** Maximum body items (attributes plus blocks) in one body (lib.rs). */
   readonly maxBodyItemCount: number;
-  /** Maximum identifier byte length (attributes, blocks, labels, variables, functions) (lib.rs:204-205). */
+  /** Maximum identifier byte length (attributes, blocks, labels, variables, functions) (lib.rs). */
   readonly maxIdentifierLen: number;
-  /** Maximum quoted-template byte length (lib.rs:206-207). */
+  /** Maximum quoted-template byte length (lib.rs). */
   readonly maxStringLen: number;
-  /** Maximum canonical-decimal digit count of one number (lib.rs:208-209). */
+  /** Maximum canonical-decimal digit count of one number (lib.rs). */
   readonly maxNumberDigits: number;
-  /** Maximum template (quoted or heredoc content) byte length (lib.rs:210-211). */
+  /** Maximum template (quoted or heredoc content) byte length (lib.rs). */
   readonly maxTemplateLen: number;
-  /** Maximum interpolation or directive sequences in one template (lib.rs:212-213). */
+  /** Maximum interpolation or directive sequences in one template (lib.rs). */
   readonly maxTemplateInterpolations: number;
-  /** Maximum lines in one heredoc (lib.rs:214-215). */
+  /** Maximum lines in one heredoc (lib.rs). */
   readonly maxHeredocLines: number;
-  /** Maximum heredoc bytes; bounds the error region of an unterminated heredoc (lib.rs:216-219). */
+  /** Maximum heredoc bytes; bounds the error region of an unterminated heredoc (lib.rs). */
   readonly maxHeredocBytes: number;
-  /** Maximum elements in one tuple constructor (lib.rs:220-221). */
+  /** Maximum elements in one tuple constructor (lib.rs). */
   readonly maxTupleElements: number;
-  /** Maximum entries in one object constructor (lib.rs:222-223). */
+  /** Maximum entries in one object constructor (lib.rs). */
   readonly maxObjectEntries: number;
-  /** Maximum extent of one for-expression (lib.rs:224-225). */
+  /** Maximum extent of one for-expression (lib.rs). */
   readonly maxForExtent: number;
-  /** Maximum recovery regions in one document (lib.rs:226-227). */
+  /** Maximum recovery regions in one document (lib.rs). */
   readonly maxRecoveryRegions: number;
-  /** Maximum error regions in one document (lib.rs:228-229). */
+  /** Maximum error regions in one document (lib.rs). */
   readonly maxErrorRegions: number;
-  /** Maximum lossless syntax pieces in one document (lib.rs:230-231). */
+  /** Maximum lossless syntax pieces in one document (lib.rs). */
   readonly maxSyntaxPieces: number;
-  /** Maximum projection, materialization, or edit report events (lib.rs:232-233). */
+  /** Maximum projection, materialization, or edit report events (lib.rs). */
   readonly maxReportEvents: number;
 }
 
-/** The frozen R-3 defaults (lib.rs:245-272). */
+/** The frozen R-3 defaults (lib.rs). */
 export const DEFAULT_HCL_PARSE_LIMITS: Readonly<HclParseLimits> = Object.freeze({
   common: DEFAULT_PARSE_LIMITS,
   maxDecodedUtf8Bytes: 128 * 1024 * 1024,

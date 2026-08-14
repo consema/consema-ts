@@ -32,11 +32,11 @@
  *    source_patch_limits :1346-1356, operation_metadata :1358-1370,
  *    operation_id :1372-1383, operation_summaries :1385-1435,
  *    occurrence iterators :1438-1497
- *  - frozen codes: consema-rs/consema-xml/src/edit.rs:388-408 (the core.edit.*
+ *  - frozen codes: consema-rs/consema-xml/src/edit.rs (the core.edit.*
  *    codes; the XML-specific ones are pinned by this file per RFC 0012 §12)
  *  - the ReplaceText vocabulary boundary: XML ReplaceText excludes CDATA —
  *    `xml.edit.replace-text@1` targets exactly one `xml.text@1` occurrence
- *    (operation_registry.rs:18-23) — a documented boundary of the v1
+ *    (operation_registry.rs) — a documented boundary of the v1
  *    operation set (RFC 0012 §11 :395-397)
  *  - vector-pinned behavior: conformance/vectors/xml-1-0-safe-v1.json
  *    (all xml.edit.* cases)
@@ -72,7 +72,7 @@ import { parse } from './parser.ts';
 
 /**
  * A validated element or attribute name for structural operations
- * (edit.rs:62-89). The prefix must already be bound to `namespace` in the
+ * (edit.rs). The prefix must already be bound to `namespace` in the
  * target's in-scope scope; the edit never guesses or fabricates namespace
  * declarations.
  */
@@ -81,7 +81,7 @@ export class NameFacts {
   readonly #local: string;
   readonly #namespace: string | null;
 
-  /** Creates name facts from an already validated prefix/local pair (edit.rs:72-81). */
+  /** Creates name facts from an already validated prefix/local pair (edit.rs). */
   constructor(prefix: string | null, local: string, namespace: string | null) {
     this.#prefix = prefix;
     this.#local = local;
@@ -103,25 +103,25 @@ export class NameFacts {
     return this.#namespace;
   }
 
-  /** Full lexical spelling (edit.rs:83-88). */
+  /** Full lexical spelling (edit.rs). */
   spelling(): string {
     return this.#prefix === null ? this.#local : `${this.#prefix}:${this.#local}`;
   }
 }
 
-/** Attribute insertion placement inside one start tag (edit.rs:91-100). */
+/** Attribute insertion placement inside one start tag (edit.rs). */
 export type AttributePlacement =
   | { readonly kind: 'Before'; readonly anchor: NodeRef }
   | { readonly kind: 'After'; readonly anchor: NodeRef }
   | { readonly kind: 'End' };
 
-/** Content insertion placement inside one element (edit.rs:102-111). */
+/** Content insertion placement inside one element (edit.rs). */
 export type ContentPlacement =
   | { readonly kind: 'Before'; readonly anchor: NodeRef }
   | { readonly kind: 'After'; readonly anchor: NodeRef }
   | { readonly kind: 'End' };
 
-/** One snapshot-bound XML structural operation (edit.rs:113-176). */
+/** One snapshot-bound XML structural operation (edit.rs). */
 export type EditOperation =
   | {
       readonly kind: 'ReplaceText';
@@ -184,7 +184,7 @@ export type EditOperation =
       readonly name: NameFacts;
     };
 
-/** Immutable snapshot-bound transaction (edit.rs:178-197). */
+/** Immutable snapshot-bound transaction (edit.rs). */
 export class EditTransaction {
   readonly #base: bigint;
   readonly #operations: readonly EditOperation[];
@@ -195,34 +195,34 @@ export class EditTransaction {
     this.#operations = Object.freeze([...operations]);
   }
 
-  /** Base snapshot identity (edit.rs:183-187). */
+  /** Base snapshot identity (edit.rs). */
   baseSnapshot(): bigint {
     return this.#base;
   }
 
-  /** Ordered operations (edit.rs:189-193). */
+  /** Ordered operations (edit.rs). */
   operations(): readonly EditOperation[] {
     return this.#operations;
   }
 }
 
-/** Builds one transaction against one immutable snapshot (edit.rs:199-204). */
+/** Builds one transaction against one immutable snapshot (edit.rs). */
 export class EditTransactionBuilder {
   readonly #base: bigint;
   readonly #operations: EditOperation[] = [];
 
-  /** Creates a builder bound to one snapshot (edit.rs:206-214). */
+  /** Creates a builder bound to one snapshot (edit.rs). */
   constructor(document: XmlDocument) {
     this.#base = document.snapshotIdentity().asBigInt();
   }
 
-  /** Replaces one text occurrence with new literal content (edit.rs:215-223). */
+  /** Replaces one text occurrence with new literal content (edit.rs). */
   replaceText(target: NodeRef, text: string): EditTransactionBuilder {
     this.#operations.push({ kind: 'ReplaceText', target, text });
     return this;
   }
 
-  /** Inserts one attribute with explicit placement (edit.rs:224-240). */
+  /** Inserts one attribute with explicit placement (edit.rs). */
   insertAttribute(
     target: NodeRef,
     name: NameFacts,
@@ -233,25 +233,25 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Removes one attribute association (edit.rs:241-247). */
+  /** Removes one attribute association (edit.rs). */
   removeAttribute(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveAttribute', target });
     return this;
   }
 
-  /** Renames one attribute (edit.rs:248-254). */
+  /** Renames one attribute (edit.rs). */
   renameAttribute(target: NodeRef, name: NameFacts): EditTransactionBuilder {
     this.#operations.push({ kind: 'RenameAttribute', target, name });
     return this;
   }
 
-  /** Replaces one attribute value (edit.rs:255-263). */
+  /** Replaces one attribute value (edit.rs). */
   setAttributeValue(target: NodeRef, value: string): EditTransactionBuilder {
     this.#operations.push({ kind: 'SetAttributeValue', target, value });
     return this;
   }
 
-  /** Inserts one element into a parent's mixed content (edit.rs:264-280). */
+  /** Inserts one element into a parent's mixed content (edit.rs). */
   insertElement(
     target: NodeRef,
     name: NameFacts,
@@ -262,25 +262,25 @@ export class EditTransactionBuilder {
     return this;
   }
 
-  /** Removes one element subtree (edit.rs:281-287). */
+  /** Removes one element subtree (edit.rs). */
   removeElement(target: NodeRef): EditTransactionBuilder {
     this.#operations.push({ kind: 'RemoveElement', target });
     return this;
   }
 
-  /** Renames one element (edit.rs:288-294). */
+  /** Renames one element (edit.rs). */
   renameElement(target: NodeRef, name: NameFacts): EditTransactionBuilder {
     this.#operations.push({ kind: 'RenameElement', target, name });
     return this;
   }
 
-  /** Closes the transaction (edit.rs:296-304). */
+  /** Closes the transaction (edit.rs). */
   build(): EditTransaction {
     return new EditTransaction(this.#base, this.#operations);
   }
 }
 
-/** One complete committed edit (edit.rs:306-317). */
+/** One complete committed edit (edit.rs). */
 export class EditCommit {
   readonly #document: XmlDocument;
   readonly #changeSet: ChangeSet;
@@ -324,7 +324,7 @@ export class EditCommit {
 // Prepared edits
 // ---------------------------------------------------------------------------
 
-/** One prepared raw-byte edit owned by the transaction (edit.rs:44-50). */
+/** One prepared raw-byte edit owned by the transaction (edit.rs). */
 interface PreparedEdit {
   readonly oldSpan: Span;
   readonly replacement: Uint8Array;
@@ -333,7 +333,7 @@ interface PreparedEdit {
 
 type MappingPlan = 'Replaced' | 'Deleted';
 
-/** Cross-operation dependency checks before any span is computed (edit.rs:597-641). */
+/** Cross-operation dependency checks before any span is computed (edit.rs). */
 function validateDependencies(transaction: EditTransaction): void {
   const targets = new Set<string>();
   for (const operation of transaction.operations()) {
@@ -379,7 +379,7 @@ function validateDependencies(transaction: EditTransaction): void {
 // Commit
 // ---------------------------------------------------------------------------
 
-/** Commits structural operations atomically; `document` remains unchanged on failure (edit.rs:410-570). */
+/** Commits structural operations atomically; `document` remains unchanged on failure (edit.rs). */
 export function commit(
   document: XmlDocument,
   transaction: EditTransaction,
@@ -514,7 +514,7 @@ export function commit(
   return new EditCommit(newDocument, changeSet, sourcePatch, untouchedProof);
 }
 
-/** Fully validates and plans a transaction without returning a new Document (edit.rs:572-588). */
+/** Fully validates and plans a transaction without returning a new Document (edit.rs). */
 export function dryRun(
   document: XmlDocument,
   transaction: EditTransaction,
@@ -535,7 +535,7 @@ export function dryRun(
 }
 
 // ---------------------------------------------------------------------------
-// Preparation (edit.rs:745-1070)
+// Preparation (edit.rs)
 // ---------------------------------------------------------------------------
 
 function prepareOperation(document: XmlDocument, operation: EditOperation): PreparedEdit[] {
@@ -753,7 +753,7 @@ function prepareInsertElement(
         const elementEnd = element.span.endByte();
         if (emptyElementTagClose(document.source().bytes(), elementEnd, encoding)) {
           // `<root/>`: replace the `/>` close with `>` plus the new element
-          // plus a fresh `</parent-name>` close (edit.rs:977-989).
+          // plus a fresh `</parent-name>` close (edit.rs).
           const wrapped = concatBytes([
             encodeText('>', encoding),
             markup,
@@ -838,10 +838,10 @@ function prepareRenameElement(
 }
 
 // ---------------------------------------------------------------------------
-// Target resolution (edit.rs:1073-1186)
+// Target resolution (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Resolves one element occurrence by arena index (edit.rs:1073-1087). */
+/** Resolves one element occurrence by arena index (edit.rs). */
 function elementFor(document: XmlDocument, target: NodeRef): XmlElementData {
   if (target.snapshot().asBigInt() !== document.snapshotIdentity().asBigInt() || target.role() !== 'XmlElement') {
     throw new EditFailure('WrongSnapshot');
@@ -860,7 +860,7 @@ function elementFor(document: XmlDocument, target: NodeRef): XmlElementData {
   return node.data;
 }
 
-/** Resolves one attribute association by ordinal (edit.rs:1090-1098). */
+/** Resolves one attribute association by ordinal (edit.rs). */
 function attributeFor(document: XmlDocument, target: NodeRef): XmlAttributeData {
   if (target.snapshot().asBigInt() !== document.snapshotIdentity().asBigInt() || target.role() !== 'XmlAttribute') {
     throw new EditFailure('WrongSnapshot');
@@ -877,7 +877,7 @@ function attributeFor(document: XmlDocument, target: NodeRef): XmlAttributeData 
   throw new EditFailure('TargetNotFound');
 }
 
-/** Resolves one text occurrence by ordinal (edit.rs:1101-1108). */
+/** Resolves one text occurrence by ordinal (edit.rs). */
 function textFor(document: XmlDocument, target: NodeRef): XmlTextData {
   if (target.snapshot().asBigInt() !== document.snapshotIdentity().asBigInt() || target.role() !== 'XmlText') {
     throw new EditFailure('WrongSnapshot');
@@ -891,7 +891,7 @@ function textFor(document: XmlDocument, target: NodeRef): XmlTextData {
   throw new EditFailure('TargetNotFound');
 }
 
-/** The exact end of one content item's full extent (edit.rs:1112-1144). */
+/** The exact end of one content item's full extent (edit.rs). */
 function contentExtentEnd(document: XmlDocument, index: number): number {
   const node = document.nodeAt(index);
   if (node.kind !== 'Element') {
@@ -910,7 +910,7 @@ function contentExtentEnd(document: XmlDocument, index: number): number {
   return lastChildEnd + 2 * width + data.qname.span.len() + width;
 }
 
-/** Resolves one content item span by role (edit.rs:1147-1186). */
+/** Resolves one content item span by role (edit.rs). */
 function contentSpanFor(
   document: XmlDocument,
   target: NodeRef,
@@ -963,7 +963,7 @@ function findOccurrence(
   return null;
 }
 
-/** Whether the anchor content item is a direct child of the element (edit.rs:956-959, 964-967). */
+/** Whether the anchor content item is a direct child of the element (edit.rs). */
 function isChildOf(document: XmlDocument, element: XmlElementData, span: Span): boolean {
   return element.children.some((child) => {
     const node = document.nodeAt(child);
@@ -972,10 +972,10 @@ function isChildOf(document: XmlDocument, element: XmlElementData, span: Span): 
 }
 
 // ---------------------------------------------------------------------------
-// Name validation (edit.rs:1189-1306)
+// Name validation (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Validates name facts against one element's in-scope scope (edit.rs:1189-1255). */
+/** Validates name facts against one element's in-scope scope (edit.rs). */
 function validateNameFacts(name: NameFacts, element: XmlElementData, attribute: boolean): void {
   if (
     name.local().length === 0 ||
@@ -1018,7 +1018,7 @@ function validateNameFacts(name: NameFacts, element: XmlElementData, attribute: 
   }
 }
 
-/** The most recent binding satisfying one predicate (namespace.rs:181-218). */
+/** The most recent binding satisfying one predicate (namespace.rs). */
 function lastBinding(
   bindings: readonly { readonly prefix: string | null; readonly uri: string }[],
   predicate: (binding: { readonly prefix: string | null; readonly uri: string }) => boolean,
@@ -1031,7 +1031,7 @@ function lastBinding(
   return null;
 }
 
-/** The expanded name promised by name facts, when resolvable (edit.rs:1258-1287). */
+/** The expanded name promised by name facts, when resolvable (edit.rs). */
 function expandedNameForFacts(name: NameFacts, element: XmlElementData): ExpandedName | null {
   const namespace = name.namespace();
   if (namespace === null) {
@@ -1050,7 +1050,7 @@ function expandedNameForFacts(name: NameFacts, element: XmlElementData): Expande
   return { namespace, local: name.local() };
 }
 
-/** Rejects an attribute whose expanded name already exists on the element (edit.rs:1290-1306). */
+/** Rejects an attribute whose expanded name already exists on the element (edit.rs). */
 function rejectDuplicateAttribute(element: XmlElementData, name: NameFacts): void {
   const promised = expandedNameForFacts(name, element);
   if (promised === null) {
@@ -1066,15 +1066,15 @@ function rejectDuplicateAttribute(element: XmlElementData, name: NameFacts): voi
 }
 
 // ---------------------------------------------------------------------------
-// Encoding helpers (edit.rs:643-743)
+// Encoding helpers (edit.rs)
 // ---------------------------------------------------------------------------
 
-/** Raw bytes per decoded character under the source encoding (edit.rs:643-649). */
+/** Raw bytes per decoded character under the source encoding (edit.rs). */
 function charWidth(encoding: { readonly kind: string }): number {
   return encoding.kind === 'Utf16Le' || encoding.kind === 'Utf16Be' ? 2 : 1;
 }
 
-/** Whether the element tag ending at `spanEnd` is written with a `/>` close (edit.rs:651-664). */
+/** Whether the element tag ending at `spanEnd` is written with a `/>` close (edit.rs). */
 function emptyElementTagClose(source: Uint8Array, spanEnd: number, encoding: { readonly kind: string }): boolean {
   const offset = spanEnd - 2 * charWidth(encoding);
   if (offset < 0) {
@@ -1084,7 +1084,7 @@ function emptyElementTagClose(source: Uint8Array, spanEnd: number, encoding: { r
   return source[slash] === 0x2f;
 }
 
-/** Appends literal text to a replacement buffer under the source encoding (edit.rs:666-687). */
+/** Appends literal text to a replacement buffer under the source encoding (edit.rs). */
 function encodeText(text: string, encoding: { readonly kind: string }): Uint8Array {
   const units: number[] = [];
   for (let index = 0; index < text.length; index++) {
@@ -1107,7 +1107,7 @@ function encodeText(text: string, encoding: { readonly kind: string }): Uint8Arr
   return utf8BytesOf(text);
 }
 
-/** Encodes one name spelling under the source encoding (edit.rs:696-715). */
+/** Encodes one name spelling under the source encoding (edit.rs). */
 function spellingBytes(name: NameFacts, encoding: { readonly kind: string }): Uint8Array {
   const parts: Uint8Array[] = [];
   if (name.prefix() !== null) {
@@ -1118,7 +1118,7 @@ function spellingBytes(name: NameFacts, encoding: { readonly kind: string }): Ui
   return concatBytes(parts);
 }
 
-/** Encodes one source QName spelling under the source encoding (edit.rs:707-715). */
+/** Encodes one source QName spelling under the source encoding (edit.rs). */
 function qnameSpellingBytes(qname: QNameFacts, encoding: { readonly kind: string }): Uint8Array {
   const parts: Uint8Array[] = [];
   if (qname.prefix !== null) {
@@ -1129,7 +1129,7 @@ function qnameSpellingBytes(qname: QNameFacts, encoding: { readonly kind: string
   return concatBytes(parts);
 }
 
-/** Escapes literal character data for text content under the source encoding (edit.rs:717-728). */
+/** Escapes literal character data for text content under the source encoding (edit.rs). */
 function escapeText(text: string, encoding: { readonly kind: string }): Uint8Array {
   const parts: Uint8Array[] = [];
   for (const character of text) {
@@ -1148,7 +1148,7 @@ function escapeText(text: string, encoding: { readonly kind: string }): Uint8Arr
   return concatBytes(parts);
 }
 
-/** Escapes literal text for double-quoted attribute values under the source encoding (edit.rs:730-743). */
+/** Escapes literal text for double-quoted attribute values under the source encoding (edit.rs). */
 function escapeAttribute(text: string, encoding: { readonly kind: string }): Uint8Array {
   const parts: Uint8Array[] = [];
   for (const character of text) {
@@ -1218,7 +1218,7 @@ function spansEqual(left: Span, right: Span): boolean {
   return left.startByte() === right.startByte() && left.endByte() === right.endByte();
 }
 
-/** All element data in document order (edit.rs:1477-1485). */
+/** All element data in document order (edit.rs). */
 function elementsOf(document: XmlDocument): XmlElementData[] {
   const out: XmlElementData[] = [];
   for (const node of document.nodes()) {
@@ -1229,7 +1229,7 @@ function elementsOf(document: XmlDocument): XmlElementData[] {
   return out;
 }
 
-/** Finds a node by its exact reparse span (edit.rs:1310-1336). */
+/** Finds a node by its exact reparse span (edit.rs). */
 function findNodeBySpan(document: XmlDocument, start: number, end: number): NodeRef | null {
   for (let index = 0; index < document.nodes().length; index++) {
     const node = document.nodes()[index];
@@ -1259,7 +1259,7 @@ function contentRoleOf(node: XmlContent): NodeRole {
   }
 }
 
-/** The start of the whitespace run immediately before `start` (edit.rs:1338-1344). */
+/** The start of the whitespace run immediately before `start` (edit.rs). */
 function leadingWhitespaceStart(source: Uint8Array, start: number): number {
   let cursor = start;
   while (cursor > 0 && isSourceWhitespace(source[cursor - 1])) {
@@ -1273,7 +1273,7 @@ function isSourceWhitespace(byte: number): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Plan metadata (edit.rs:1346-1435)
+// Plan metadata (edit.rs)
 // ---------------------------------------------------------------------------
 
 function sourcePatchLimits(limits: XmlParseLimits, operationCount: number): SourcePatchLimits {

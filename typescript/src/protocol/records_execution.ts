@@ -9,7 +9,7 @@
  *
  * Design (TypeScript-idiomatic): plain records with private constructors and
  * validated static factories; every record self-registers its full decoder
- * with the envelope payload dispatch (payload.rs:34/44-46/61).
+ * with the envelope payload dispatch (payload.rs).
  */
 
 import type { ObjectValue, PortableValue } from '../core/value.ts';
@@ -26,7 +26,7 @@ import { invalid } from './errors.ts';
 import { ErrorCodeRegistry } from './error_registry.ts';
 import { registerPayloadValidator } from './payload_validators.ts';
 
-/** The six frozen completion states (execution.rs:11-25). */
+/** The six frozen completion states (execution.rs). */
 export type CompletionStatus =
   | 'Success'
   | 'Failed'
@@ -35,7 +35,7 @@ export type CompletionStatus =
   | 'Unsupported'
   | 'NotApplicable';
 
-/** The `core.completion@1` control-flow facts (execution.rs:40-49). */
+/** The `core.completion@1` control-flow facts (execution.rs). */
 export class Completion {
   readonly status: CompletionStatus;
   /** Work items consumed before terminal state (u64). */
@@ -61,7 +61,7 @@ export class Completion {
     this.failureCode = failureCode;
   }
 
-  /** Validates the state invariants against the semantic-model v1 error registry (execution.rs:51-67). */
+  /** Validates the state invariants against the semantic-model v1 error registry (execution.rs). */
   static new(
     status: CompletionStatus,
     processed: bigint,
@@ -79,7 +79,7 @@ export class Completion {
     );
   }
 
-  /** Validates completion facts against one explicit semantic-model registry (execution.rs:69-107). */
+  /** Validates completion facts against one explicit semantic-model registry (execution.rs). */
   static newWithRegistry(
     status: CompletionStatus,
     processed: bigint,
@@ -105,7 +105,7 @@ export class Completion {
     return new Completion(status, processed, produced, limitName, failureCode);
   }
 
-  /** Encodes `core.completion@1` (execution.rs:141-153). */
+  /** Encodes `core.completion@1` (execution.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.completion@1') },
@@ -117,12 +117,12 @@ export class Completion {
     ]);
   }
 
-  /** Strictly decodes `core.completion@1` under the v1 registry (execution.rs:156-158). */
+  /** Strictly decodes `core.completion@1` under the v1 registry (execution.rs). */
   static fromValue(value: PortableValue): Completion {
     return Completion.fromValueWithRegistry(value, new ErrorCodeRegistry(1));
   }
 
-  /** Strictly decodes `core.completion@1` under one explicit registry (execution.rs:161-186). */
+  /** Strictly decodes `core.completion@1` under one explicit registry (execution.rs). */
   static fromValueWithRegistry(value: PortableValue, registry: ErrorCodeRegistry): Completion {
     const fields = schemaFields(
       value,
@@ -152,7 +152,7 @@ export class Completion {
   }
 }
 
-/** The transferable `core.execution-policy@1` record (execution.rs:189-195). */
+/** The transferable `core.execution-policy@1` record (execution.rs). */
 export class ExecutionPolicy {
   /** Named limits sorted by key on the wire. */
   readonly limits: ReadonlyMap<string, bigint>;
@@ -167,7 +167,7 @@ export class ExecutionPolicy {
     this.cancellationRequestId = cancellationRequestId;
   }
 
-  /** Validates the limit names and the cancellation ID (execution.rs:196-221). */
+  /** Validates the limit names and the cancellation ID (execution.rs). */
   static new(
     limits: ReadonlyMap<string, bigint>,
     cancellationRequestId: string | null = null,
@@ -186,7 +186,7 @@ export class ExecutionPolicy {
     return new ExecutionPolicy(limits, cancellationRequestId);
   }
 
-  /** Encodes `core.execution-policy@1` (execution.rs:237-252). */
+  /** Encodes `core.execution-policy@1` (execution.rs). */
   toValue(): ObjectValue {
     const names = [...this.limits.keys()].sort();
     return objectValueFrom([
@@ -205,7 +205,7 @@ export class ExecutionPolicy {
     ]);
   }
 
-  /** Strictly decodes `core.execution-policy@1` (execution.rs:255-276). */
+  /** Strictly decodes `core.execution-policy@1` (execution.rs). */
   static fromValue(value: PortableValue): ExecutionPolicy {
     const fields = schemaFields(
       value,
@@ -222,7 +222,7 @@ export class ExecutionPolicy {
   }
 }
 
-/** The idempotent outer-transport `core.cancellation-request@1` record (execution.rs:279-290). */
+/** The idempotent outer-transport `core.cancellation-request@1` record (execution.rs). */
 export class CancellationRequest {
   readonly requestId: string;
   readonly reason: string | null;
@@ -232,7 +232,7 @@ export class CancellationRequest {
     this.reason = reason;
   }
 
-  /** Creates a request; this is not a serialized CancellationToken (execution.rs:286-299). */
+  /** Creates a request; this is not a serialized CancellationToken (execution.rs). */
   static new(requestId: string, reason: string | null = null): CancellationRequest {
     if (requestId === '' || requestId.length > 1024) {
       throw invalid('$.request_id', 'invalid request ID');
@@ -240,7 +240,7 @@ export class CancellationRequest {
     return new CancellationRequest(requestId, reason);
   }
 
-  /** Encodes `core.cancellation-request@1` (execution.rs:313-325). */
+  /** Encodes `core.cancellation-request@1` (execution.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.cancellation-request@1') },
@@ -249,7 +249,7 @@ export class CancellationRequest {
     ]);
   }
 
-  /** Strictly decodes `core.cancellation-request@1` (execution.rs:328-339). */
+  /** Strictly decodes `core.cancellation-request@1` (execution.rs). */
   static fromValue(value: PortableValue): CancellationRequest {
     const fields = schemaFields(
       value,
@@ -264,7 +264,7 @@ export class CancellationRequest {
   }
 }
 
-/** Parses one canonical completion status spelling (execution.rs:353-366). */
+/** Parses one canonical completion status spelling (execution.rs). */
 function parseCompletionStatus(text: string): CompletionStatus {
   switch (text) {
     case 'Success':
@@ -279,7 +279,7 @@ function parseCompletionStatus(text: string): CompletionStatus {
   }
 }
 
-/** The stable lowercase limit-name rule (execution.rs:368-374). */
+/** The stable lowercase limit-name rule (execution.rs). */
 function validLimitName(name: string): boolean {
   if (name === '' || name.length > 255) {
     return false;
@@ -298,7 +298,7 @@ function validLimitName(name: string): boolean {
 /**
  * Rejects an unregistered public code with the frozen InvalidValue rejection.
  * The registry helper itself throws a plain Error; the record boundary
- * converts it to the protocol rejection exactly like error_registry.rs:1500-1510.
+ * converts it to the protocol rejection exactly like error_registry.rs.
  */
 function validateRegisteredCode(registry: ErrorCodeRegistry, code: string, path: string): void {
   try {
@@ -313,7 +313,7 @@ function nullableStringValue(value: string | null): PortableValue {
   return value === null ? nullValue() : stringValue(value);
 }
 
-// Envelope payload dispatch (payload.rs:34, 44-46, 61): every completion,
+// Envelope payload dispatch (payload.rs): every completion,
 // execution-policy, and cancellation-request payload validates through its
 // record decoder at module load.
 registerPayloadValidator('core.completion', 1, (payload, registry) => {

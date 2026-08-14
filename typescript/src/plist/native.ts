@@ -32,14 +32,14 @@
 
 /**
  * Seconds between the Unix epoch and the plist epoch; the origin of every
- * `PlistDate` value (native.rs:35; RFC 0013 §5.5).
+ * `PlistDate` value (native.rs; RFC 0013 §5.5).
  */
 export const PLIST_EPOCH_OFFSET_UNIX = 978_307_200.0;
 
-/** Whether exact UTF-16 code units form Unicode scalar text (native.rs:39-44). */
+/** Whether exact UTF-16 code units form Unicode scalar text (native.rs). */
 export type PlistStringStatus = 'WellFormedUnicode' | 'UnpairedSurrogate';
 
-/** Computes the surrogate well-formedness status of one JS string (native.rs:56-127). */
+/** Computes the surrogate well-formedness status of one JS string (native.rs). */
 export function classifyPlistString(value: string): PlistStringStatus {
   for (let index = 0; index < value.length; index++) {
     const unit = value.charCodeAt(index);
@@ -57,10 +57,10 @@ export function classifyPlistString(value: string): PlistStringStatus {
   return 'WellFormedUnicode';
 }
 
-/** Width fact of one exact IEEE 754 real payload (native.rs:219-224). */
+/** Width fact of one exact IEEE 754 real payload (native.rs). */
 export type RealWidth = 'Float64' | 'Float32';
 
-/** Exact IEEE 754 real with its source width fact (native.rs:233-293). */
+/** Exact IEEE 754 real with its source width fact (native.rs). */
 export class PlistReal {
   readonly #bits: bigint;
   readonly #width: RealWidth;
@@ -80,7 +80,7 @@ export class PlistReal {
     return new PlistReal(BigInt(float32Bits(value)), 'Float32');
   }
 
-  /** Creates a real from the exact source-width bit pattern (native.rs:263-271). */
+  /** Creates a real from the exact source-width bit pattern (native.rs). */
   static fromBits(width: RealWidth, bits: bigint): PlistReal {
     if (width === 'Float64') {
       return new PlistReal(bits & 0xffffffffffffffffn, 'Float64');
@@ -88,17 +88,17 @@ export class PlistReal {
     return new PlistReal(bits & 0xffffffffn, 'Float32');
   }
 
-  /** Exact source-width bit pattern (native.rs:275-278). */
+  /** Exact source-width bit pattern (native.rs). */
   bits(): bigint {
     return this.#bits;
   }
 
-  /** Source width fact (native.rs:280-283). */
+  /** Source width fact (native.rs). */
   width(): RealWidth {
     return this.#width;
   }
 
-  /** Exact double-converted value (native.rs:287-292; RFC 0013 §5.5). */
+  /** Exact double-converted value (native.rs; RFC 0013 §5.5). */
   asF64(): number {
     if (this.#width === 'Float64') {
       return float64FromBits(this.#bits);
@@ -171,7 +171,7 @@ export interface PlistDictEntry {
   readonly value: number;
 }
 
-/** Arena reference to one native value node (native.rs:416-431). */
+/** Arena reference to one native value node (native.rs). */
 export class PlistValueRef {
   readonly #index: number;
 
@@ -218,7 +218,7 @@ export class PlistArenaError extends Error {
   }
 }
 
-/** Native arena limits (lib.rs:196-205). */
+/** Native arena limits (lib.rs). */
 export interface PlistArenaLimits {
   readonly maxObjects: number;
   readonly maxContainerDepth: number;
@@ -325,7 +325,7 @@ export class PlistDocument {
 }
 
 /**
- * Compares two reachable value graphs structurally (native.rs:866-941).
+ * Compares two reachable value graphs structurally (native.rs).
  *
  * The comparison is a pair-memo bisimulation: every (left, right) arena
  * pair is compared at most once, and sharing patterns on either side never

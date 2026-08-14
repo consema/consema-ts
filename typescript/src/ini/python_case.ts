@@ -11,18 +11,18 @@
  * `optionxform` (:201-215) and `simple_lowercase` (:217-232).
  *
  * The profile contract that consumes this table is RFC 0009 §7
- * (https://github.com/consema/consema/blob/main/docs/rfcs/0009-ini-family-profiles-v1.md:235-239): option comparison and
+ * (https://github.com/consema/consema/blob/main/docs/rfcs/0009-ini-family-profiles-v1.md): option comparison and
  * duplicate detection use the Python 3.14 default lowercase `optionxform`,
  * pinned to Unicode 16.0 independently of the host runtime's Unicode
  * tables; original option spelling is still retained.
  *
  * Design (TypeScript-idiomatic): frozen tuples with the same layout as the
  * Rust slices; lookup is a binary search over the ordered range table
- * (partition-point semantics, python_case.rs:218-226) followed by a binary
+ * (partition-point semantics, python_case.rs) followed by a binary
  * search over the exception singles.
  */
 
-/** (start, end, step, delta) ordered lowercase ranges (python_case.rs:9-99). */
+/** (start, end, step, delta) ordered lowercase ranges (python_case.rs). */
 const LOWER_RANGES: readonly (readonly [number, number, number, number])[] = [
   [0x000041, 0x00005a, 1, 32],
   [0x0000c0, 0x0000d6, 1, 32],
@@ -115,7 +115,7 @@ const LOWER_RANGES: readonly (readonly [number, number, number, number])[] = [
   [0x01e900, 0x01e921, 1, 34],
 ];
 
-/** (upper, lower) exception singles (python_case.rs:101-199). */
+/** (upper, lower) exception singles (python_case.rs). */
 const LOWER_SINGLES: readonly (readonly [number, number])[] = [
   [0x000178, 0x0000ff],
   [0x000181, 0x000253],
@@ -216,7 +216,7 @@ const LOWER_SINGLES: readonly (readonly [number, number])[] = [
   [0x00a7f5, 0x00a7f6],
 ];
 
-/** The Python 3.14 default optionxform pinned to Unicode 16.0 (python_case.rs:201-215). */
+/** The Python 3.14 default optionxform pinned to Unicode 16.0 (python_case.rs). */
 export function optionxform(value: string): string {
   let output = '';
   for (const character of value) {
@@ -232,7 +232,7 @@ export function optionxform(value: string): string {
   return output;
 }
 
-/** One-scalar Unicode 16.0 unconditional full-lowercase mapping (python_case.rs:217-232). */
+/** One-scalar Unicode 16.0 unconditional full-lowercase mapping (python_case.rs). */
 function simpleLowercase(code: number): number | null {
   // Partition point: the last range whose start is <= code.
   let low = 0;

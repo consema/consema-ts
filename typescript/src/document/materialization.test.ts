@@ -32,7 +32,7 @@ function request(): MaterializationRequest {
   );
 }
 
-test('request defaults are strict: UTF-8, Lf, RequireObject, ExactOnly (materialization.rs:120-132)', () => {
+test('request defaults are strict: UTF-8, Lf, RequireObject, ExactOnly (materialization.rs)', () => {
   const r = request();
   assert.equal(r.targetProfile().toString(), 'json.strict@1');
   assert.equal(r.style().toString(), 'json.canonical-pretty@1');
@@ -43,7 +43,7 @@ test('request defaults are strict: UTF-8, Lf, RequireObject, ExactOnly (material
   assert.deepEqual(r.limits(), DEFAULT_MATERIALIZATION_LIMITS);
 });
 
-test('request builders keep every explicit policy (materialization.rs:134-160)', () => {
+test('request builders keep every explicit policy (materialization.rs)', () => {
   const r = request()
     .withEncoding(utf8Encoding())
     .withNewline('CrLf')
@@ -56,13 +56,13 @@ test('request builders keep every explicit policy (materialization.rs:134-160)',
   assert.equal(request().newline(), 'Lf');
 });
 
-test('newline bytes are the frozen sequences (materialization.rs:53-62)', () => {
+test('newline bytes are the frozen sequences (materialization.rs)', () => {
   assert.deepEqual(Array.from(newlineBytes('None')), []);
   assert.deepEqual(Array.from(newlineBytes('Lf')), [0x0a]);
   assert.deepEqual(Array.from(newlineBytes('CrLf')), [0x0d, 0x0a]);
 });
 
-test('report enforces the event limit (materialization.rs:220-229)', () => {
+test('report enforces the event limit (materialization.rs)', () => {
   const limits: MaterializationLimits = { ...DEFAULT_MATERIALIZATION_LIMITS, maxReportEntries: 1 };
   const report = new MaterializationReport(
     [diagnostic('core.materialization.mapping-transformed@1', 'Materialization', 'Warning', null, 0n)],
@@ -88,7 +88,7 @@ test('report enforces the event limit (materialization.rs:220-229)', () => {
   );
 });
 
-test('provenance is target bound and limited (materialization.rs:287-325)', () => {
+test('provenance is target bound and limited (materialization.rs)', () => {
   const authority = DocumentAuthority.fresh();
   const target = authority.identity();
   const origin = new MaterializedOrigin(

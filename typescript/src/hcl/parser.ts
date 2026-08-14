@@ -80,7 +80,7 @@ import type {
 // Native parse output (RFC 0014 §6)
 // ---------------------------------------------------------------------------
 
-/** One parsed attribute occurrence (native.rs:145-193). */
+/** One parsed attribute occurrence (native.rs). */
 export interface ParsedAttribute {
   readonly name: string;
   readonly nameSpan: Span;
@@ -89,14 +89,14 @@ export interface ParsedAttribute {
   readonly span: Span;
 }
 
-/** One parsed block label with its quote/naked fact (native.rs:259-291). */
+/** One parsed block label with its quote/naked fact (native.rs). */
 export interface ParsedBlockLabel {
   readonly text: string;
   readonly span: Span;
   readonly quoted: boolean;
 }
 
-/** One parsed block occurrence (native.rs:203-251). */
+/** One parsed block occurrence (native.rs). */
 export interface ParsedBlock {
   readonly type: string;
   readonly labels: readonly ParsedBlockLabel[];
@@ -104,12 +104,12 @@ export interface ParsedBlock {
   readonly span: Span;
 }
 
-/** One body item: an attribute or a block occurrence (native.rs:111-136). */
+/** One body item: an attribute or a block occurrence (native.rs). */
 export type ParsedItem =
   | { readonly kind: 'attribute'; readonly attribute: ParsedAttribute }
   | { readonly kind: 'block'; readonly block: ParsedBlock };
 
-/** An ordered body item container (native.rs:72-103). */
+/** An ordered body item container (native.rs). */
 export interface ParsedBody {
   readonly items: readonly ParsedItem[];
   readonly span: Span;
@@ -121,7 +121,7 @@ export interface ParsedErrorRegion {
   readonly code: string;
 }
 
-/** One formed HCL document (parser.rs:109-178). */
+/** One formed HCL document (parser.rs). */
 export interface ParsedFormed {
   readonly body: ParsedBody;
   readonly errorRegions: readonly ParsedErrorRegion[];
@@ -238,10 +238,10 @@ function utf8Width(character: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// Literal decoders (parser.rs:2387-2510)
+// Literal decoders (parser.rs)
 // ---------------------------------------------------------------------------
 
-/** Decodes one quoted-template literal run (parser.rs:2387-2482). */
+/** Decodes one quoted-template literal run (parser.rs). */
 function decodeQuotedLiteral(text: string): string {
   let out = '';
   let index = 0;
@@ -329,7 +329,7 @@ function decodeQuotedLiteral(text: string): string {
   return out;
 }
 
-/** Decodes one heredoc literal run (parser.rs:2484-2510). */
+/** Decodes one heredoc literal run (parser.rs). */
 function decodeHeredocLiteral(text: string): string {
   let out = '';
   let index = 0;
@@ -368,7 +368,7 @@ type AttributeOutcome =
   | { readonly kind: 'Formed'; readonly attribute: ParsedAttribute }
   | { readonly kind: 'Failed'; readonly code: string };
 
-/** One recursive-descent pass over one token stream (parser.rs:317-354). */
+/** One recursive-descent pass over one token stream (parser.rs). */
 class HclParser {
   readonly #bytes: Uint8Array;
   readonly #view: DecodedView;
@@ -380,7 +380,7 @@ class HclParser {
   readonly #errorRegions: ParsedErrorRegion[] = [];
   #recovered = false;
   #truncated = false;
-  /** Brackets opened by the expression parser but never closed (parser.rs:329-331). */
+  /** Brackets opened by the expression parser but never closed (parser.rs). */
   #brackets: Delim[] = [];
 
   constructor(bytes: Uint8Array, view: DecodedView, authority: DocumentAuthority, limits: HclParseLimits, tokens: readonly HclToken[]) {
@@ -429,14 +429,14 @@ class HclParser {
     return this.#authority.span(start, end);
   }
 
-  /** Skips same-line trivia: whitespace and inline comments only (parser.rs:421-428). */
+  /** Skips same-line trivia: whitespace and inline comments only (parser.rs). */
   skipTrivia(): void {
     while (this.at('Whitespace') || this.at('InlineComment')) {
       this.#pos += 1;
     }
   }
 
-  /** Skips all trivia, including newlines and line comments (parser.rs:430-441). */
+  /** Skips all trivia, including newlines and line comments (parser.rs). */
   skipStructural(): void {
     while (this.at('Whitespace') || this.at('InlineComment') || this.at('LineBreak') || this.at('LineComment')) {
       this.#pos += 1;
@@ -451,7 +451,7 @@ class HclParser {
     }
   }
 
-  /** Records one recovery diagnostic and marks the parse Recovered (parser.rs:469-479). */
+  /** Records one recovery diagnostic and marks the parse Recovered (parser.rs). */
   diagnose(code: string, span: Span): void {
     this.#recovered = true;
     this.pushDiagnostic(makeDiagnostic(code, 'Syntax', 'Error', span.diagnosticLocation(), 0n));
@@ -466,7 +466,7 @@ class HclParser {
     }
   }
 
-  /** Emits one error region with its diagnostic (parser.rs:483-504). */
+  /** Emits one error region with its diagnostic (parser.rs). */
   emitErrorRegion(start: number, end: number, code: string): void {
     this.#recovered = true;
     const span = this.span(start, end);
@@ -500,7 +500,7 @@ class HclParser {
 
   /**
    * Scans forward to the recovery boundary and advances `pos` to the
-   * boundary token (parser.rs:549-588). A newline or line comment stops the
+   * boundary token (parser.rs). A newline or line comment stops the
    * scan when no bracket is open; an open bracket pushes; a close that
    * matches the innermost open bracket pops it and ends the region after
    * the close when the stack empties; a close with an empty stack ends the
@@ -556,7 +556,7 @@ class HclParser {
     }
   }
 
-  /** Fails one body item: error region from the item start to the deterministic boundary (parser.rs:524-537). */
+  /** Fails one body item: error region from the item start to the deterministic boundary (parser.rs). */
   failItem(start: number, code: string): void {
     const brackets = [...this.#brackets];
     this.#brackets = [];
@@ -564,7 +564,7 @@ class HclParser {
     this.emitErrorRegion(start, boundary, code);
   }
 
-  /** Consumes tokens through the next `}` at brace depth zero (parser.rs:590-616). */
+  /** Consumes tokens through the next `}` at brace depth zero (parser.rs). */
   scanToCloseBrace(): number | null {
     let braces = 0;
     for (;;) {
@@ -591,7 +591,7 @@ class HclParser {
     }
   }
 
-  // -- body grammar (parser.rs:620-970) -------------------------------------
+  // -- body grammar (parser.rs) -------------------------------------
 
   parseBody(depth: number, end: BodyEnd): ParsedBody {
     if (depth > this.#limits.maxBodyDepth) {
@@ -685,7 +685,7 @@ class HclParser {
     }
   }
 
-  /** Parses one attribute occurrence (parser.rs:700-767). */
+  /** Parses one attribute occurrence (parser.rs). */
   parseAttribute(nameToken: HclToken, name: string, singleLine: boolean): AttributeOutcome {
     this.skipTrivia();
     const equals = this.eat('Equals');
@@ -719,7 +719,7 @@ class HclParser {
     };
   }
 
-  /** Parses one block occurrence (parser.rs:769-864). */
+  /** Parses one block occurrence (parser.rs). */
   parseBlock(typeToken: HclToken, depth: number): ParsedBlock | null {
     const blockStart = typeToken.startByte;
     const blockType = this.text(typeToken);
@@ -808,7 +808,7 @@ class HclParser {
     };
   }
 
-  /** Parses one quoted block label (parser.rs:866-899). */
+  /** Parses one quoted block label (parser.rs). */
   parseQuotedLabel(): ParsedBlockLabel | null {
     const open = this.advance();
     let text = '';
@@ -836,7 +836,7 @@ class HclParser {
     }
   }
 
-  /** Parses a one-line block body (parser.rs:901-970). */
+  /** Parses a one-line block body (parser.rs). */
   parseOneLineBody(blockStart: number): { body: ParsedBody; closeEnd: number } | null {
     switch (this.peekKind()) {
       case 'BraceClose': {
@@ -898,7 +898,7 @@ class HclParser {
     }
   }
 
-  // -- expression grammar (parser.rs:982-1620) ------------------------------
+  // -- expression grammar (parser.rs) ------------------------------
 
   parseExpression(mode: ExprMode, depth: number): HclExpr | null {
     if (depth >= this.#limits.maxExpressionDepth) {
@@ -939,7 +939,7 @@ class HclParser {
     };
   }
 
-  /** One left-associative binary level; `||` (parser.rs:1041-1071). */
+  /** One left-associative binary level; `||` (parser.rs). */
   parseOr(mode: ExprMode, depth: number): HclExpr | null {
     let lhs = this.parseAnd(mode, depth);
     if (lhs === null) {
@@ -966,7 +966,7 @@ class HclParser {
     return lhs;
   }
 
-  /** `&&` (parser.rs:1073-1103). */
+  /** `&&` (parser.rs). */
   parseAnd(mode: ExprMode, depth: number): HclExpr | null {
     let lhs = this.parseEquality(mode, depth);
     if (lhs === null) {
@@ -993,7 +993,7 @@ class HclParser {
     return lhs;
   }
 
-  /** `==`/`!=` (parser.rs:1105-1137). */
+  /** `==`/`!=` (parser.rs). */
   parseEquality(mode: ExprMode, depth: number): HclExpr | null {
     let lhs = this.parseRelational(mode, depth);
     if (lhs === null) {
@@ -1025,7 +1025,7 @@ class HclParser {
     return lhs;
   }
 
-  /** `<`/`>`/`<=`/`>=` (parser.rs:1139-1173). */
+  /** `<`/`>`/`<=`/`>=` (parser.rs). */
   parseRelational(mode: ExprMode, depth: number): HclExpr | null {
     let lhs = this.parseAdditive(mode, depth);
     if (lhs === null) {
@@ -1061,7 +1061,7 @@ class HclParser {
     return lhs;
   }
 
-  /** `+`/`-` (parser.rs:1175-1207). */
+  /** `+`/`-` (parser.rs). */
   parseAdditive(mode: ExprMode, depth: number): HclExpr | null {
     let lhs = this.parseMultiplicative(mode, depth);
     if (lhs === null) {
@@ -1093,7 +1093,7 @@ class HclParser {
     return lhs;
   }
 
-  /** `*`/`/`/`%` (parser.rs:1209-1242). */
+  /** `*`/`/`/`%` (parser.rs). */
   parseMultiplicative(mode: ExprMode, depth: number): HclExpr | null {
     let lhs = this.parseTerm(mode, depth);
     if (lhs === null) {
@@ -1137,7 +1137,7 @@ class HclParser {
     };
   }
 
-  /** The term layer: unary chains over the base term (parser.rs:1263-1327). */
+  /** The term layer: unary chains over the base term (parser.rs). */
   parseTerm(mode: ExprMode, depth: number): HclExpr | null {
     if (depth >= this.#limits.maxExpressionDepth) {
       throw this.fatalLimit('expression-depth', depth + 1, this.#limits.maxExpressionDepth);
@@ -1526,7 +1526,7 @@ class HclParser {
     return { kind: 'Object', entries, span: this.span(open.startByte, close.endByte) };
   }
 
-  /** Parses the shared `for` introduction (parser.rs:1810-1870). */
+  /** Parses the shared `for` introduction (parser.rs). */
   parseForIntro(forStart: number, depth: number, expectColon: boolean): HclForIntro | null {
     this.skipStructural();
     let firstToken: HclToken;
@@ -1678,9 +1678,9 @@ class HclParser {
     }
   }
 
-  // -- templates (parser.rs:2030-2212) --------------------------------------
+  // -- templates (parser.rs) --------------------------------------
 
-  /** Parses one quoted template (parser.rs:2030-2098). */
+  /** Parses one quoted template (parser.rs). */
   parseQuotedTemplate(depth: number): HclExpr | null {
     const open = this.advance();
     const parts: HclTemplatePart[] = [];
@@ -1741,7 +1741,7 @@ class HclParser {
     }
   }
 
-  /** Parses one heredoc template (parser.rs:2100-2212). */
+  /** Parses one heredoc template (parser.rs). */
   parseHeredoc(depth: number): HclExpr | null {
     const open = this.advance();
     this.skipTrivia();
@@ -1811,7 +1811,7 @@ class HclParser {
     }
   }
 
-  /** Re-lexes one interior and parses it as an expression (parser.rs:2214-2267). */
+  /** Re-lexes one interior and parses it as an expression (parser.rs). */
   parseRegionExpression(content: HclToken, depth: number): HclExpr | null {
     const output = this.lexRegion(content.startByte, content.endByte);
     const sub = new HclParser(this.#bytes, this.#view, this.#authority, this.#limits, output.tokens);
@@ -1832,7 +1832,7 @@ class HclParser {
     return lexHclRegion(this.#bytes, this.#authority, this.#limits, start, end);
   }
 
-  /** Merges one sub-parser's recovery facts into this pass (parser.rs:2235-2267). */
+  /** Merges one sub-parser's recovery facts into this pass (parser.rs). */
   mergeRegion(output: HclLexOutput, sub: HclParser): void {
     this.#recovered = this.#recovered || output.recovered || sub.#recovered;
     for (const diagnostic of output.diagnostics) {
@@ -1850,7 +1850,7 @@ class HclParser {
     this.checkErrorRegionLimits();
   }
 
-  /** One expression over the region token stream (parser.rs:2269-2289). */
+  /** One expression over the region token stream (parser.rs). */
   parseExpressionRegion(depth: number): HclExpr | null {
     const expression = this.parseExpression('Nested', depth);
     if (expression === null) {
@@ -1864,7 +1864,7 @@ class HclParser {
     return null;
   }
 
-  /** One template directive over the region token stream (parser.rs:2291-2360). */
+  /** One template directive over the region token stream (parser.rs). */
   parseDirective(depth: number): HclDirective | null {
     this.skipStructural();
     const token = this.peek();
@@ -1920,7 +1920,7 @@ class HclParser {
 
   // -- assembly --------------------------------------------------------------
 
-  /** Merges one lexer pass's recovery facts into this pass (parser.rs:356-364). */
+  /** Merges one lexer pass's recovery facts into this pass (parser.rs). */
   mergeLexed(lexed: HclLexOutput): void {
     this.#recovered = this.#recovered || lexed.recovered;
     for (const diagnostic of lexed.diagnostics) {
@@ -1947,7 +1947,7 @@ class HclParser {
 }
 
 /**
- * Forms one HCL document from a validated UTF-8 source (parser.rs:356-376;
+ * Forms one HCL document from a validated UTF-8 source (parser.rs;
  * RFC 0014 §3). The lexer's recovery facts merge with the parser's own;
  * every limit failure is fatal, never a truncated success.
  */

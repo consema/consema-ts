@@ -76,7 +76,7 @@ import type { ProjectionTarget } from './projection.ts';
 // Styles
 // ---------------------------------------------------------------------------
 
-/** Deterministic generation style of one JSON-family profile (materialization.rs:95-111). */
+/** Deterministic generation style of one JSON-family profile (materialization.rs). */
 type JsonStyle = 'Compact' | 'Pretty' | 'Json5Compact' | 'Json5Pretty';
 
 function styleIsPretty(style: JsonStyle): boolean {
@@ -126,7 +126,7 @@ function requestedStyle(
   return new MaterializationFailure('UnsupportedStyle');
 }
 
-/** Parse limits derived from one materialization request (materialization.rs:144-152). */
+/** Parse limits derived from one materialization request (materialization.rs). */
 function parseLimitsFor(limits: MaterializationLimits): ParseLimits {
   return {
     maxSourceBytes: limits.maxOutputBytes,
@@ -141,7 +141,7 @@ function parseLimitsFor(limits: MaterializationLimits): ParseLimits {
 // Bounded output
 // ---------------------------------------------------------------------------
 
-/** Bounded output buffer with checked growth (materialization.rs:456-492). */
+/** Bounded output buffer with checked growth (materialization.rs). */
 class BoundedOutput {
   #bytes: Uint8Array;
   #length = 0;
@@ -263,7 +263,7 @@ function writeValue(
   }
 }
 
-/** Exact frozen IEEE-754 spellings only (materialization.rs:299-317; RFC 0005 §9). */
+/** Exact frozen IEEE-754 spellings only (materialization.rs; RFC 0005 §9). */
 function writeBinaryFloat64(
   state: WriterState,
   bits: bigint,
@@ -292,7 +292,7 @@ function writeBinaryFloat64(
   state.output.pushText(spelling);
 }
 
-/** Deterministic JSON escaping (materialization.rs:270-297). */
+/** Deterministic JSON escaping (materialization.rs). */
 function writeString(state: WriterState, value: string): void {
   state.output.pushByte(0x22); // "
   for (const character of value) {
@@ -442,7 +442,7 @@ function memberSeparator(state: WriterState, index: number, depth: number): void
   }
 }
 
-/** Newline bytes plus two ASCII spaces per level (materialization.rs:447-453; RFC 0004 §4). */
+/** Newline bytes plus two ASCII spaces per level (materialization.rs; RFC 0004 §4). */
 function layoutNewline(state: WriterState, depth: number): void {
   state.output.pushBytes(newlineBytes(state.newline));
   for (let level = 0; level < depth; level++) {
@@ -678,7 +678,7 @@ function availableMembers(output: JsonValue): readonly JsonObjectMember[] | null
   return members.value;
 }
 
-/** The exact key literal span (materialization.rs:618-622). */
+/** The exact key literal span (materialization.rs). */
 function keySpanOf(document: JsonDocument, memberIndex: number): Span {
   const entity = document.entityAt(memberIndex);
   return document.spanOf(entity.kind === 'Member' ? entity.key : memberIndex);
@@ -690,7 +690,7 @@ function keySpanOf(document: JsonDocument, memberIndex: number): Span {
 
 /**
  * Materializes one complete PortableValue into a new immutable JSON or
- * JSONC document (materialization.rs:18-32).
+ * JSONC document (materialization.rs).
  */
 export function materialize(
   value: PortableValue,
@@ -782,7 +782,7 @@ function encodingIsUtf8(encoding: SourceEncoding): boolean {
 
 /**
  * Canonical fragment for one value under the exact profile (used by edit
- * insertions; materialization.rs:34-52).
+ * insertions; materialization.rs).
  */
 export function canonicalFragment(
   value: PortableValue,

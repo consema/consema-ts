@@ -1,6 +1,6 @@
 /**
  * Intent documents for the dry-run EditPlan (RFC 0004 §14;
- * consema-rs/consema-document/src/edit_plan.rs:72-197): a plan closes only
+ * consema-rs/consema-document/src/edit_plan.rs): a plan closes only
  * when its ordered operation metadata matches its exact SourcePatch, and
  * possessing a plan never authorizes a write.
  */
@@ -20,7 +20,7 @@ import { decodeHex } from './hex.ts';
 
 const LIMITS = DEFAULT_SOURCE_PATCH_LIMITS;
 
-test('plan requires a non-empty bounded external source identity (edit_plan.rs:17-24)', () => {
+test('plan requires a non-empty bounded external source identity (edit_plan.rs)', () => {
   assert.throws(
     () => new EditPlanSourceId(''),
     (error: unknown) => {
@@ -37,7 +37,7 @@ test('plan requires a non-empty bounded external source identity (edit_plan.rs:1
   assert.equal(new EditPlanSourceId('config.json').asString(), 'config.json');
 });
 
-test('plan closes only when operation metadata matches the patch (edit_plan.rs:82-121)', () => {
+test('plan closes only when operation metadata matches the patch (edit_plan.rs)', () => {
   const source = SourceSnapshot.fromRaw(decodeHex('61'), EncodingRequest.create(utf8Encoding()), DEFAULT_SOURCE_LIMITS);
   const operation = new FormatOperationId('json.edit.remove-member', 1);
   const patch = SourcePatch.create(
@@ -87,7 +87,7 @@ test('plan closes only when operation metadata matches the patch (edit_plan.rs:8
   );
 });
 
-test('operation summaries reject raw edited values and invalid names (edit_plan.rs:33-70)', () => {
+test('operation summaries reject raw edited values and invalid names (edit_plan.rs)', () => {
   assert.throws(
     () => new EditOperationSummary(new FormatOperationId('json.edit.remove-member', 1), new Map([['Bad-Name', 'x']])),
     (error: unknown) => error instanceof EditPlanError && error.kind === 'InvalidOperationSummary',

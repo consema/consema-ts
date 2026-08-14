@@ -9,7 +9,7 @@
  *
  * Design (TypeScript-idiomatic): plain records with validated static
  * factories; the record self-registers its full decoder with the envelope
- * payload dispatch (payload.rs:36-39).
+ * payload dispatch (payload.rs).
  */
 
 import type { ObjectValue, PortableValue } from '../core/value.ts';
@@ -37,7 +37,7 @@ import type { ChangeSet } from '../document/change_set.ts';
 import type { NodeMappingStatus } from '../document/change_set.ts';
 import type { NodeRef } from '../document/identity.ts';
 
-/** One ordered source replacement in wire coordinates (change.rs:12-25). */
+/** One ordered source replacement in wire coordinates (change.rs). */
 export class SourceEditMessage {
   readonly oldStart: bigint;
   readonly oldEnd: bigint;
@@ -59,7 +59,7 @@ export class SourceEditMessage {
     this.replacement = Uint8Array.from(replacement);
   }
 
-  /** Validates range order and replacement/new-range agreement (change.rs:26-52). */
+  /** Validates range order and replacement/new-range agreement (change.rs). */
   static new(
     oldStart: bigint,
     oldEnd: bigint,
@@ -74,7 +74,7 @@ export class SourceEditMessage {
     return new SourceEditMessage(oldStart, oldEnd, newStart, newEnd, replacement);
   }
 
-  /** Encodes one source edit (change.rs:380-391). */
+  /** Encodes one source edit (change.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'old_start', value: integerValue(this.oldStart) },
@@ -85,7 +85,7 @@ export class SourceEditMessage {
     ]);
   }
 
-  /** Strictly decodes one source edit (change.rs:393-422). */
+  /** Strictly decodes one source edit (change.rs). */
   static fromValue(value: PortableValue, path: string): SourceEditMessage {
     const fields = exactFields(
       value,
@@ -105,7 +105,7 @@ export class SourceEditMessage {
   }
 }
 
-/** One portable node-mapping fact using caller-defined stable locators (change.rs:55-65). */
+/** One portable node-mapping fact using caller-defined stable locators (change.rs). */
 export class NodeMappingMessage {
   readonly oldLocators: readonly string[];
   readonly newLocators: readonly string[];
@@ -124,7 +124,7 @@ export class NodeMappingMessage {
     this.reason = reason;
   }
 
-  /** Validates locator topology against mapping status (change.rs:66-121). */
+  /** Validates locator topology against mapping status (change.rs). */
   static new(
     oldLocators: readonly string[],
     newLocators: readonly string[],
@@ -172,7 +172,7 @@ export class NodeMappingMessage {
     return new NodeMappingMessage(oldLocators, newLocators, status, reason);
   }
 
-  /** Encodes one node-mapping fact (change.rs:424-442). */
+  /** Encodes one node-mapping fact (change.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       {
@@ -188,7 +188,7 @@ export class NodeMappingMessage {
     ]);
   }
 
-  /** Strictly decodes one node-mapping fact (change.rs:444-461). */
+  /** Strictly decodes one node-mapping fact (change.rs). */
   static fromValue(value: PortableValue, path: string): NodeMappingMessage {
     const fields = exactFields(value, ['old_locators', 'new_locators', 'status', 'reason'], path);
     return NodeMappingMessage.new(
@@ -200,7 +200,7 @@ export class NodeMappingMessage {
   }
 }
 
-/** The complete `core.change-set@1` record with external source and node identities (change.rs:124-132). */
+/** The complete `core.change-set@1` record with external source and node identities (change.rs). */
 export class ChangeSetMessage {
   readonly oldSourceId: string;
   readonly newSourceId: string;
@@ -222,7 +222,7 @@ export class ChangeSetMessage {
     this.diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Validates source identities, edit order, and global old-locator uniqueness (change.rs:134-181). */
+  /** Validates source identities, edit order, and global old-locator uniqueness (change.rs). */
   static new(
     oldSourceId: string,
     newSourceId: string,
@@ -258,7 +258,7 @@ export class ChangeSetMessage {
     return new ChangeSetMessage(oldSourceId, newSourceId, sourceEdits, nodeMappings, diagnostics);
   }
 
-  /** Externalizes an in-process ChangeSet through explicit source IDs and node binding (change.rs:183-198). */
+  /** Externalizes an in-process ChangeSet through explicit source IDs and node binding (change.rs). */
   static fromDocument(
     changeSet: ChangeSet,
     oldSourceId: string,
@@ -274,7 +274,7 @@ export class ChangeSetMessage {
     );
   }
 
-  /** Externalizes a ChangeSet under one explicit semantic-model registry (change.rs:200-268). */
+  /** Externalizes a ChangeSet under one explicit semantic-model registry (change.rs). */
   static fromDocumentWithRegistry(
     changeSet: ChangeSet,
     oldSourceId: string,
@@ -312,7 +312,7 @@ export class ChangeSetMessage {
     return ChangeSetMessage.new(oldSourceId, newSourceId, sourceEdits, nodeMappings, diagnostics);
   }
 
-  /** Encodes `core.change-set@1` (change.rs:301-329). */
+  /** Encodes `core.change-set@1` (change.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: stringValue('core.change-set@1') },
@@ -333,12 +333,12 @@ export class ChangeSetMessage {
     ]);
   }
 
-  /** Strictly decodes `core.change-set@1` under the v1 registry (change.rs:331-334). */
+  /** Strictly decodes `core.change-set@1` under the v1 registry (change.rs). */
   static fromValue(value: PortableValue): ChangeSetMessage {
     return ChangeSetMessage.fromValueWithRegistry(value, new ErrorCodeRegistry(1));
   }
 
-  /** Strictly decodes diagnostics under one explicit semantic-model registry (change.rs:337-377). */
+  /** Strictly decodes diagnostics under one explicit semantic-model registry (change.rs). */
   static fromValueWithRegistry(value: PortableValue, registry: ErrorCodeRegistry): ChangeSetMessage {
     const fields = schemaFields(
       value,
@@ -365,12 +365,12 @@ export class ChangeSetMessage {
   }
 }
 
-/** Strictly reads a locator sequence (change.rs:463-469). */
+/** Strictly reads a locator sequence (change.rs). */
 function parseLocators(value: PortableValue, path: string): string[] {
   return sequenceOf(value, path).map((item, index) => stringOf(item, `${path}[${index}]`));
 }
 
-/** Parses one node-mapping status spelling (change.rs:482-495). */
+/** Parses one node-mapping status spelling (change.rs). */
 function parseMappingStatus(text: string, path: string): NodeMappingStatus {
   switch (text) {
     case 'Preserved':
@@ -389,7 +389,7 @@ function uniqueLocators(values: readonly string[]): boolean {
   return new Set(values).size === values.length;
 }
 
-/** Externalizes one document-domain diagnostic to the wire record (diagnostic.rs:130-163). */
+/** Externalizes one document-domain diagnostic to the wire record (diagnostic.rs). */
 function fromCoreDiagnostic(
   diagnostic: DocumentDiagnostic,
   sourceId: string,
@@ -424,7 +424,7 @@ function diagnosticToValueOf(diagnostic: Diagnostic): PortableValue {
   return diagnosticToValue(diagnostic);
 }
 
-// Envelope payload dispatch (payload.rs:36-39): every change-set payload
+// Envelope payload dispatch (payload.rs): every change-set payload
 // validates through the strict decoder at module load.
 registerPayloadValidator('core.change-set', 1, (payload, registry) => {
   ChangeSetMessage.fromValueWithRegistry(payload, new ErrorCodeRegistry(registry.versionOf()));

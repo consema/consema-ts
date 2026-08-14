@@ -11,7 +11,7 @@
  *    - a tokenizer-level failure jumps the stream to the end of the input
  *      (xmlparser Stream::jump_to_end), so the recovery region is always
  *      the final decoded byte and tokenization stops
- *      (parser.rs:255-269; consema-go/go/xml/parser.go:153-161)
+ *      (parser.rs; consema-go/go/xml/parser.go:153-161)
  *    - EOF between tokens is a clean end; EOF inside a construct is a
  *      tokenizer error (xmlparser next() loop)
  *    - top-level (outside the root) whitespace is skipped without a token;
@@ -23,23 +23,23 @@
  *      (S encoding Eq value)? (S standalone Eq value)? S? `?>`
  *    - an attribute value can never contain `<`
  *    - a text run can never contain `]]>`
- *  - profile/encoding: parser.rs:22-108 (encoding_request :56-80,
+ *  - profile/encoding: parser.rs (encoding_request :56-80,
  *    validate_profile_encoding :82-108; RFC 0012 §2 :54-67)
- *  - declaration: parser.rs:334-503 (declaration_parts :411-503)
- *  - PI/comment/CDATA: parser.rs:505-644, 1371-1401
- *  - doctype: parser.rs:646-911 (doctype_start :646-667,
+ *  - declaration: parser.rs (declaration_parts :411-503)
+ *  - PI/comment/CDATA: parser.rs
+ *  - doctype: parser.rs (doctype_start :646-667,
  *    doctype_empty :669-689, build_doctype :692-711, entity_declaration
  *    :747-849, dtd_end :851-863, scan_excluded_dtd_markup :865-911)
- *  - elements/attributes: parser.rs:913-1305 (element_start :913-961,
+ *  - elements/attributes: parser.rs (element_start :913-961,
  *    attribute :963-1063, finalize_start_tag :1067-1174, element_end
  *    :1176-1248, close_frame :1250-1305)
- *  - text/references: parser.rs:1307-1729 (text :1307-1369,
+ *  - text/references: parser.rs (text :1307-1369,
  *    text_fragments :1467-1555, resolve_reference :1558-1645,
  *    resolve_nested :1651-1692, value_fragments :1696-1729)
- *  - recovery and finish: parser.rs:1736-1914 (recover :1736-1749,
+ *  - recovery and finish: parser.rs (recover :1736-1749,
  *    entity_limit :1751-1757, recover_error_region :1759-1786,
  *    finish :1792-1914 — gap filling :1830-1891)
- *  - qname facts: parser.rs:1916-2007
+ *  - qname facts: parser.rs
  *  - the exact xml.* diagnostic codes and categories: parser.rs (see
  *    typescript/src/xml/errors.ts header for the full file:line map);
  *    xml.* codes are registered by RFC 0012 §12, not the core registry
@@ -54,8 +54,8 @@
  * published vector xml.syntax-query.kind-and-text-filter list the second
  * local-name as ordinal 10, while the current Rust crate emits ordinal 11
  * (the vector's ordinal field is informational — the conformance runner
- * checks kind and text only, consema-rs/consema-conformance/src/xml_v1.rs:
- * 297-325 — and the vector predates the text-piece emission). This
+ * checks kind and text only, consema-rs/consema-conformance/src/xml_v1.rs
+ * (kind/text 检查区间) — and the vector predates the text-piece emission). This
  * implementation follows the current Rust crate: the end-tag local-name
  * is ordinal 11.
  *
@@ -106,7 +106,7 @@ import { utf8ByteOffset } from '../document/source.ts';
 
 /**
  * Parses a complete immutable `xml.1.0-safe@1` document snapshot
- * (lib.rs:174-186). Throws FatalFormationFailure — no partial document
+ * (lib.rs). Throws FatalFormationFailure — no partial document
  * ever exists.
  */
 export function parse(
@@ -140,7 +140,7 @@ export function parse(
   return new XmlParser(source, limits).parse(decoded);
 }
 
-/** Resolves the source encoding request under the RFC 0012 §2 table (parser.rs:56-80). */
+/** Resolves the source encoding request under the RFC 0012 §2 table (parser.rs). */
 function encodingRequest(selection: XmlEncodingSelection): EncodingRequest {
   if (selection.kind === 'ProfileDefault') {
     return EncodingRequest.create({ kind: 'Utf8' }).withBomPolicy('DetectUnicode');
@@ -155,7 +155,7 @@ function encodingRequest(selection: XmlEncodingSelection): EncodingRequest {
   return EncodingRequest.create({ kind: 'Utf8' }).withCallerOverride(encoding);
 }
 
-/** Source limits derived from the XML parse limits (parser.rs:29-40). */
+/** Source limits derived from the XML parse limits (parser.rs). */
 function sourceLimitsFor(limits: XmlParseLimits): SourceLimits {
   return {
     maxRawBytes: limits.common.maxSourceBytes,
@@ -164,7 +164,7 @@ function sourceLimitsFor(limits: XmlParseLimits): SourceLimits {
   };
 }
 
-/** Re-checks the selected encoding under the RFC 0012 §2 table (parser.rs:82-108). */
+/** Re-checks the selected encoding under the RFC 0012 §2 table (parser.rs). */
 function validateProfileEncoding(
   source: SourceSnapshot,
   selection: XmlEncodingSelection,
@@ -188,7 +188,7 @@ function validateProfileEncoding(
   }
 }
 
-/** Raw byte length of one BOM (parser.rs:48-53). */
+/** Raw byte length of one BOM (parser.rs). */
 function bomLen(bom: BomKind): number {
   switch (bom) {
     case 'Utf8':
@@ -249,7 +249,7 @@ function isNameChar(code: number): boolean {
 // Parser
 // ---------------------------------------------------------------------------
 
-/** One attribute seen before start-tag finalization (parser.rs:151-159). */
+/** One attribute seen before start-tag finalization (parser.rs). */
 interface PendingAttribute {
   readonly qname: QNameFacts;
   readonly span: Span;
@@ -259,14 +259,14 @@ interface PendingAttribute {
   readonly singleQuote: boolean;
 }
 
-/** One namespace declaration seen before start-tag finalization (parser.rs:161-166). */
+/** One namespace declaration seen before start-tag finalization (parser.rs). */
 interface PendingDeclaration {
   readonly qname: QNameFacts;
   readonly uri: string;
   readonly uriSpan: Span;
 }
 
-/** One open element frame (parser.rs:168-180). */
+/** One open element frame (parser.rs). */
 class Frame {
   startRaw: number;
   span: Span;
@@ -352,7 +352,7 @@ class XmlParser {
           // A tokenizer error jumps the stream to the end of the document
           // (xmlparser Stream::jump_to_end), so the recovery region is
           // always the final decoded byte and tokenization stops
-          // (parser.rs:255-269; consema-go/go/xml/parser.go:153-161).
+          // (parser.rs; consema-go/go/xml/parser.go:153-161).
           this.#recoverErrorRegion(text.length - 1, text.length);
           stopped = true;
           break;
@@ -368,7 +368,7 @@ class XmlParser {
   // Boundaries and spans
   // -------------------------------------------------------------------------
 
-  /** Covers a leading BOM as trivia; the tokenizer skips it in decoded text (parser.rs:275-285). */
+  /** Covers a leading BOM as trivia; the tokenizer skips it in decoded text (parser.rs). */
   #coverBom(): void {
     const bom = this.#source.encodingFacts().bom();
     if (bom !== null) {
@@ -457,7 +457,7 @@ class XmlParser {
   // Diagnostics and limits
   // -------------------------------------------------------------------------
 
-  /** Records a recovery diagnostic with its exact failing span (parser.rs:1736-1749). */
+  /** Records a recovery diagnostic with its exact failing span (parser.rs). */
   #recover(code: string, span: Span, category: Diagnostic['category']): void {
     this.#recovered = true;
     if (this.#errorRegions >= this.#limits.maxRecoveryRegions) {
@@ -479,20 +479,20 @@ class XmlParser {
     );
   }
 
-  /** Fatal resource-limit check with the limit's own frozen code (parser.rs:2015-2020). */
+  /** Fatal resource-limit check with the limit's own frozen code (parser.rs). */
   #limit(code: string, observed: number, max: number): void {
     if (observed > max) {
       throw FatalFormationFailure.limit(code, observed, max);
     }
   }
 
-  /** Records an entity expansion breach (parser.rs:1751-1757). */
+  /** Records an entity expansion breach (parser.rs). */
   #entityLimit(breach: ExpansionBreach, span: Span): void {
     const code = breach === 'Amplification' ? 'xml.entity.amplification@1' : 'xml.entity.limit@1';
     this.#recover(code, span, 'Conformance');
   }
 
-  /** Tokenizer-level failure: the region is always the final decoded byte (parser.rs:1759-1786). */
+  /** Tokenizer-level failure: the region is always the final decoded byte (parser.rs). */
   #recoverErrorRegion(start: number, end: number): void {
     this.#recovered = true;
     if (this.#errorRegions >= this.#limits.maxRecoveryRegions) {
@@ -625,7 +625,7 @@ class XmlParser {
     return this.#scanProcessingInstruction(pos, name);
   }
 
-  /** Scans the fixed declaration grammar and pushes its pieces (parser.rs:334-503). */
+  /** Scans the fixed declaration grammar and pushes its pieces (parser.rs). */
   #scanDeclaration(
     pos: number,
     name: { start: number; end: number },
@@ -758,7 +758,7 @@ class XmlParser {
     };
   }
 
-  /** Scans one processing instruction and pushes its pieces (parser.rs:505-579). */
+  /** Scans one processing instruction and pushes its pieces (parser.rs). */
   #scanProcessingInstruction(
     pos: number,
     name: { start: number; end: number },
@@ -787,7 +787,7 @@ class XmlParser {
     }
     if (this.#dtdSubsetStart !== null) {
       // A PI inside the internal subset is admitted DTD markup, never a
-      // prolog/epilog or element-content occurrence (parser.rs:528-533).
+      // prolog/epilog or element-content occurrence (parser.rs).
       this.#pushPiece(pos, end, 'dtd-markup', 'Token');
       return { kind: 'Next', pos: end };
     }
@@ -820,7 +820,7 @@ class XmlParser {
   // Comment and CDATA
   // -------------------------------------------------------------------------
 
-  /** Scans one comment and pushes its pieces (parser.rs:581-644). */
+  /** Scans one comment and pushes its pieces (parser.rs). */
   #scanComment(pos: number): { kind: 'Next'; pos: number } | { kind: 'Error' } {
     const text = this.#text;
     const close = text.indexOf('-->', pos + 4);
@@ -835,7 +835,7 @@ class XmlParser {
     this.#limit('xml.limit.comment@1', this.#decodedLen(pos + 4, close), this.#limits.maxCommentLength);
     if (this.#dtdSubsetStart !== null) {
       // A comment inside the internal subset is admitted DTD markup
-      // (parser.rs:600-605).
+      // (parser.rs).
       this.#pushPiece(pos, end, 'dtd-markup', 'Trivia');
       return { kind: 'Next', pos: end };
     }
@@ -860,7 +860,7 @@ class XmlParser {
     return { kind: 'Next', pos: end };
   }
 
-  /** Scans one CDATA section and pushes its pieces (parser.rs:1371-1401). */
+  /** Scans one CDATA section and pushes its pieces (parser.rs). */
   #scanCdata(pos: number): { kind: 'Next'; pos: number } | { kind: 'Error' } {
     const text = this.#text;
     const close = text.indexOf(']]>', pos + 9);
@@ -889,7 +889,7 @@ class XmlParser {
   // DOCTYPE and the internal subset
   // -------------------------------------------------------------------------
 
-  /** Scans one DOCTYPE construct (parser.rs:646-911). */
+  /** Scans one DOCTYPE construct (parser.rs). */
   #scanDoctype(pos: number): { kind: 'Next'; pos: number } | { kind: 'Error' } {
     const text = this.#text;
     let cursor = pos + 9; // past `<!DOCTYPE`
@@ -968,7 +968,7 @@ class XmlParser {
           text.startsWith('<!NOTATION', at)
         ) {
           // xmlparser consumes these declarations silently; the raw subset
-          // scan flags them after the subset closes (parser.rs:865-911).
+          // scan flags them after the subset closes (parser.rs).
           const end = text.indexOf('>', at);
           if (end < 0) {
             return { kind: 'Error' };
@@ -1041,7 +1041,7 @@ class XmlParser {
     return null;
   }
 
-  /** Scans one `<!ENTITY …>` declaration inside the subset (parser.rs:747-849). */
+  /** Scans one `<!ENTITY …>` declaration inside the subset (parser.rs). */
   #scanEntityDeclaration(pos: number): number | null {
     const text = this.#text;
     let cursor = pos + 8; // past `<!ENTITY`
@@ -1123,7 +1123,7 @@ class XmlParser {
     }
     if (valueText.includes('%')) {
       // A `%` inside an entity value is a parameter-entity reference,
-      // which the Profile excludes (parser.rs:802-811).
+      // which the Profile excludes (parser.rs).
       this.#recover('xml.dtd.parameter-entity@1', raw, 'Conformance');
       return definitionEnd;
     }
@@ -1154,7 +1154,7 @@ class XmlParser {
     return definitionEnd;
   }
 
-  /** Completes the doctype after its internal subset closed (parser.rs:851-863, 692-711). */
+  /** Completes the doctype after its internal subset closed (parser.rs). */
   #dtdEnd(
     pos: number,
     subsetStart: number,
@@ -1171,7 +1171,7 @@ class XmlParser {
 
   /**
    * Scans the internal subset raw text for excluded declarations
-   * (parser.rs:865-911). Comments are skipped as a whole: their text is
+   * (parser.rs). Comments are skipped as a whole: their text is
    * character data, so `<!-- <!ELEMENT x> -->` must not be misread as a
    * declaration.
    */
@@ -1221,7 +1221,7 @@ class XmlParser {
     }
   }
 
-  /** Assembles the immutable DOCTYPE facts (parser.rs:692-711). */
+  /** Assembles the immutable DOCTYPE facts (parser.rs). */
   #buildDoctype(end: Span): void {
     const start = this.#doctypeSpanStartRaw;
     const name = this.#doctypeName;
@@ -1246,7 +1246,7 @@ class XmlParser {
   // Elements and attributes
   // -------------------------------------------------------------------------
 
-  /** Scans one start tag (parser.rs:913-961; xmlparser parse_attribute). */
+  /** Scans one start tag (parser.rs; xmlparser parse_attribute). */
   #scanStartTag(pos: number): { kind: 'Next'; pos: number } | { kind: 'Error' } | { kind: 'End' } {
     const text = this.#text;
     const name = this.#scanQName(pos + 1);
@@ -1267,7 +1267,7 @@ class XmlParser {
       throw FatalFormationFailure.profile('xml.limit.depth@1');
     }
     // Element-name resolution is deferred to start-tag finalization so that
-    // declarations on this very element are in scope (parser.rs:940-945).
+    // declarations on this very element are in scope (parser.rs).
     const scope =
       this.#stack.length === 0 ? NamespaceScope.empty() : this.#stack[this.#stack.length - 1].scope;
     this.#stack.push(
@@ -1314,7 +1314,7 @@ class XmlParser {
     }
   }
 
-  /** Extends the top frame's span to cover the whole start tag (parser.rs:1186-1210). */
+  /** Extends the top frame's span to cover the whole start tag (parser.rs). */
   #extendFrameSpan(endRaw: number): void {
     const frame = this.#stack[this.#stack.length - 1];
     if (frame === undefined) {
@@ -1327,7 +1327,7 @@ class XmlParser {
     }
   }
 
-  /** Scans one attribute `name = "value"` (parser.rs:963-1063; xmlparser parse_attribute). */
+  /** Scans one attribute `name = "value"` (parser.rs; xmlparser parse_attribute). */
   #scanAttribute(pos: number): number | null {
     const text = this.#text;
     const name = this.#scanQName(pos);
@@ -1347,7 +1347,7 @@ class XmlParser {
     const isDeclaration =
       qname.prefix === 'xmlns' || (qname.prefix === null && qname.local === 'xmlns');
     // The attribute name is one unit; `xmlns`/`xmlns:p` names are the
-    // NamespaceDeclaration kind (parser.rs:983-1000).
+    // NamespaceDeclaration kind (parser.rs).
     this.#pushPiece(
       name.start,
       name.end,
@@ -1409,7 +1409,7 @@ class XmlParser {
     return valueEnd + 1;
   }
 
-  /** Resolves element and attribute names once the whole start tag has been read (parser.rs:1067-1174). */
+  /** Resolves element and attribute names once the whole start tag has been read (parser.rs). */
   #finalizeStartTag(): void {
     const frame = this.#stack[this.#stack.length - 1];
     if (frame === undefined) {
@@ -1493,7 +1493,7 @@ class XmlParser {
     frame.attributes.push(...attributes);
   }
 
-  /** Scans one end tag (parser.rs:1215-1246). */
+  /** Scans one end tag (parser.rs). */
   #scanEndTag(pos: number): { kind: 'Next'; pos: number } | { kind: 'Error' } {
     const text = this.#text;
     const name = this.#scanQName(pos + 2);
@@ -1517,11 +1517,11 @@ class XmlParser {
     return { kind: 'Next', pos: end };
   }
 
-  /** Closes the top frame into an arena element (parser.rs:1250-1305). */
+  /** Closes the top frame into an arena element (parser.rs). */
   #closeFrame(endTagSpan: Span): void {
     const frame = this.#stack.pop();
     if (frame === undefined) {
-      // An extra end tag cannot close any proven element (parser.rs:1251-1261).
+      // An extra end tag cannot close any proven element (parser.rs).
       this.#recover('xml.tree.extra-end-tag@1', endTagSpan, 'Syntax');
       return;
     }
@@ -1538,7 +1538,7 @@ class XmlParser {
       children: Object.freeze([...frame.children]),
     };
     // Every child content item attached to this element now knows its
-    // parent arena index (parser.rs:1274-1280).
+    // parent arena index (parser.rs).
     for (const child of element.children) {
       this.#parentOf[child] = index;
     }
@@ -1562,7 +1562,7 @@ class XmlParser {
   // Text and references
   // -------------------------------------------------------------------------
 
-  /** Scans one text run up to the next markup start (parser.rs:1307-1369; xmlparser parse_text). */
+  /** Scans one text run up to the next markup start (parser.rs; xmlparser parse_text). */
   #scanText(pos: number): { kind: 'Next'; pos: number } | { kind: 'Error' } {
     const text = this.#text;
     let next = text.indexOf('<', pos);
@@ -1577,7 +1577,7 @@ class XmlParser {
     return { kind: 'Next', pos: next };
   }
 
-  /** Builds one text occurrence with its pieces (parser.rs:1307-1369). */
+  /** Builds one text occurrence with its pieces (parser.rs). */
   #textOccurrence(start: number, end: number): void {
     const value = this.#text.slice(start, end);
     const whitespaceOnly = isWhitespaceOnly(value);
@@ -1637,7 +1637,7 @@ class XmlParser {
     });
   }
 
-  /** Splits one whitespace-only text run into Whitespace and LineBreak pieces (parser.rs:1424-1458). */
+  /** Splits one whitespace-only text run into Whitespace and LineBreak pieces (parser.rs). */
   #pushWhitespacePieces(start: number, end: number): void {
     const text = this.#text;
     let index = start;
@@ -1665,7 +1665,7 @@ class XmlParser {
 
   /**
    * Splits one text or attribute-value occurrence into reference fragments
-   * (parser.rs:1460-1555).
+   * (parser.rs).
    */
   #textFragments(start: number, end: number, literalKind: 'text' | 'attribute-value'): ReferenceFragment[] {
     const text = this.#text;
@@ -1693,7 +1693,7 @@ class XmlParser {
       const semi = semiRelative < 0 ? -1 : start + semiRelative;
       if (semi < 0) {
         // Unterminated reference: recover and keep the rest literal
-        // (parser.rs:1504-1522).
+        // (parser.rs).
         const span = this.#rawSpan(at, end);
         this.#recover('xml.reference.malformed@1', span, 'Syntax');
         this.#pushPiece(at, end, literalKind, 'Token');
@@ -1726,7 +1726,7 @@ class XmlParser {
     return fragments;
   }
 
-  /** Resolves one `&…;` reference body into a fragment (parser.rs:1557-1645). */
+  /** Resolves one `&…;` reference body into a fragment (parser.rs). */
   #resolveReference(body: string, refSpan: Span, depth: number): ReferenceFragment | null {
     if (body.startsWith('#')) {
       const digits = body.slice(1);
@@ -1771,7 +1771,7 @@ class XmlParser {
     );
     if (breach !== null) {
       // Note: on breach the depth is intentionally not restored, exactly
-      // like the Rust (parser.rs:1618-1626).
+      // like the Rust (parser.rs).
       this.#entityLimit(breach, refSpan);
       return null;
     }
@@ -1792,7 +1792,7 @@ class XmlParser {
 
   /**
    * Resolves nested references inside one replacement text
-   * (parser.rs:1647-1692). Unknown references, cycles, or limit breaches
+   * (parser.rs). Unknown references, cycles, or limit breaches
    * inside replacement text produce no partial native text.
    */
   #resolveNested(replacement: string, sourceSpan: Span, depth: number): string | null {
@@ -1849,7 +1849,7 @@ class XmlParser {
 
   /**
    * Splits an attribute value into fragments and applies XML 1.0 CDATA
-   * normalization to the semantic value (parser.rs:1694-1729).
+   * normalization to the semantic value (parser.rs).
    */
   #valueFragments(start: number, end: number): { fragments: ReferenceFragment[]; normalized: string } {
     const fragments = this.#textFragments(start, end, 'attribute-value');
@@ -1875,13 +1875,13 @@ class XmlParser {
     return { fragments, normalized };
   }
 
-  /** Pushes one content occurrence with its mixed-content budget (parser.rs:1403-1422). */
+  /** Pushes one content occurrence with its mixed-content budget (parser.rs). */
   #pushContent(item: XmlContent): void {
     const frame = this.#stack[this.#stack.length - 1];
     if (frame !== undefined) {
       if (frame.children.length >= this.#limits.maxMixedContentItems) {
         // The item is dropped under the hard budget, never silently
-        // (parser.rs:1404-1415).
+        // (parser.rs).
         this.#recover('xml.limit.mixed-content@1', xmlContentSpanInternal(item), 'Conformance');
         this.#parentOf.push(null);
         this.#nodes.push(item);
@@ -1897,7 +1897,7 @@ class XmlParser {
   // QName helpers
   // -------------------------------------------------------------------------
 
-  /** Scans one QName; returns its decoded positions or null (parser.rs:1916-2007). */
+  /** Scans one QName; returns its decoded positions or null (parser.rs). */
   #scanQName(pos: number): { start: number; end: number } | null {
     const text = this.#text;
     const start = pos;
@@ -1917,7 +1917,7 @@ class XmlParser {
     return { start, end: at };
   }
 
-  /** Pushes the QName part pieces for one element or end-tag name (parser.rs:1944-1976). */
+  /** Pushes the QName part pieces for one element or end-tag name (parser.rs). */
   #pushQNameParts(name: { start: number; end: number }): void {
     const text = this.#text;
     const colonRelative = text.slice(name.start, name.end).indexOf(':');
@@ -1931,7 +1931,7 @@ class XmlParser {
     this.#pushPiece(colon + 1, name.end, 'local-name', 'Token');
   }
 
-  /** Source-derived QName facts for one scanned name (parser.rs:1916-2007). */
+  /** Source-derived QName facts for one scanned name (parser.rs). */
   #qnameFacts(name: { start: number; end: number }): QNameFacts {
     const text = this.#text;
     const spelling = text.slice(name.start, name.end);
@@ -1960,7 +1960,7 @@ class XmlParser {
   // Finish
   // -------------------------------------------------------------------------
 
-  /** Final assembly: recovery classification, gap filling, and the document (parser.rs:1792-1914). */
+  /** Final assembly: recovery classification, gap filling, and the document (parser.rs). */
   #finish(): XmlDocument {
     if (this.#stack.length > 0) {
       this.#recovered = true;
@@ -1985,7 +1985,7 @@ class XmlParser {
     }
     const status: FormationStatus = this.#recovered ? 'Recovered' : 'Complete';
     // Pair every piece with its kind, sort by decoded start, and fill gaps
-    // (parser.rs:1830-1891).
+    // (parser.rs).
     const sorted = [...this.#pieces].sort((left, right) => left.jsStart - right.jsStart);
     const finalPieces: { span: Span; structural: 'Token' | 'Trivia' | 'ErrorRegion' }[] = [];
     const finalKinds: XmlSyntaxKind[] = [];
@@ -2108,7 +2108,7 @@ function qnamesEqual(left: QName, right: QName): boolean {
   return left.prefix === right.prefix && left.local === right.local;
 }
 
-/** Converts source-derived QName facts into a resolvable QName (document.rs:111-120). */
+/** Converts source-derived QName facts into a resolvable QName (document.rs). */
 function qnameFactsToQName(facts: QNameFacts): QName {
   return { prefix: facts.prefix, local: facts.local };
 }

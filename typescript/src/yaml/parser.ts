@@ -75,7 +75,7 @@ import type {
 // Parse entry point
 // ---------------------------------------------------------------------------
 
-/** Parses one exact YAML stream using BOM-detected UTF-8/UTF-16 source rules (lib.rs:259-320). */
+/** Parses one exact YAML stream using BOM-detected UTF-8/UTF-16 source rules (lib.rs). */
 export function parse(
   bytes: Uint8Array,
   profile: YamlProfile,
@@ -109,7 +109,7 @@ export function parse(
   return publish(composed, tokenized.index, tokenized.kinds, source, authority, profile, limits);
 }
 
-/** validate_version_directives (lib.rs:789-831). */
+/** validate_version_directives (lib.rs). */
 export function validateVersionDirectives(text: string, profile: YamlProfile): void {
   let lineIndex = 0;
   for (const rawLine of text.split('\n')) {
@@ -267,7 +267,7 @@ class Parser {
     this.#profile = profile;
     this.#limits = limits;
     // The backend text is the BOM-stripped decoded text; the BOM remains
-    // source content and occupies scalar offset 0 (lib.rs:285-287).
+    // source content and occupies scalar offset 0 (lib.rs).
     if (this.#chars[0] === '\u{feff}') {
       this.#pos = 1;
       this.#lineStart = 1;
@@ -345,7 +345,7 @@ class Parser {
         this.#failSyntax();
       }
       if (this.#versionSeen) {
-        // Duplicate version directives fail as syntax (RFC 0007 §5:103).
+        // Duplicate version directives fail as syntax (RFC 0007 §5).
         this.#failSyntax();
       }
       this.#versionSeen = true;
@@ -394,7 +394,7 @@ class Parser {
     this.#skipBlankLines();
     if (this.#atEOF() || this.#atDocumentMarker('---') || this.#atDocumentMarker('...')) {
       // An empty document composes the profile's resolved null scalar
-      // (RFC 0007 §8:196-197).
+      // (RFC 0007 §8).
       root = this.#emptyNullNode(this.#pos);
     } else {
       const node = this.#parseBlockNode();
@@ -1965,7 +1965,7 @@ class Parser {
       return resolved;
     }
     if (style !== 'Plain') {
-      // Quoted and block scalars are always strings (RFC 0007 §5:105-107).
+      // Quoted and block scalars are always strings (RFC 0007 §5).
       return { tag: 'tag:yaml.org,2002:str', decoded, canonical: decoded, kind: 'String', style };
     }
     return resolveImplicit(decoded, 'Plain', this.#profile);

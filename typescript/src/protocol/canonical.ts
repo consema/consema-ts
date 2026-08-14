@@ -6,7 +6,7 @@
  * conformance/vectors/protocol-v1.json (protocol.json.null-vector) and the
  * RFC 0015 §4.4 normative example. Rules:
  *  - the envelope is `{"schema":"core.portable-value-json@1","value":...}`
- *    with no whitespace (value_transport.rs:12-23);
+ *    with no whitespace (value_transport.rs);
  *  - every PortableValue is a JSON object whose first member is "type",
  *    followed by the fixed member set of the kind;
  *  - canonical bytes: no whitespace, minimal string escapes (only
@@ -16,7 +16,7 @@
  *  - the decoder parses strict JSON (no comments, no trailing commas, no
  *    duplicate member names), decodes the record, then re-encodes and
  *    requires byte equality — any valid-but-non-canonical form fails with
- *    core.protocol.non-canonical-json@1 (value_transport.rs:66-73).
+ *    core.protocol.non-canonical-json@1 (value_transport.rs).
  *
  * Design (TypeScript-idiomatic): one strict recursive-descent parser
  * producing a tagged tree, one canonical emitter, and a re-encode
@@ -522,7 +522,7 @@ class JsonEncoderState {
     this.push('"');
   }
 
-  /** Emits one bigint as a quoted canonical decimal string (Rust integer(), value_transport.rs:350-355). */
+  /** Emits one bigint as a quoted canonical decimal string (Rust integer(), value_transport.rs). */
   integer(value: bigint): void {
     this.push('"');
     this.push(value.toString());
@@ -634,7 +634,7 @@ function hexOf(bytes: Uint8Array): string {
 
 /**
  * Encodes a PortableValue as canonical `core.portable-value-json@1` bytes,
- * byte-identical to the Rust encoder (value_transport.rs:12-23).
+ * byte-identical to the Rust encoder (value_transport.rs).
  */
 export function EncodeJSON(value: PortableValue, limits: ProtocolLimits): Uint8Array {
   const state = new JsonEncoderState(limits);
@@ -870,7 +870,7 @@ class DecodeState {
   }
 }
 
-/** Decodes a tagged tree node into a core value (the Rust decode_value, value_transport.rs:392-617). */
+/** Decodes a tagged tree node into a core value (the Rust decode_value, value_transport.rs). */
 export function nodeToValue(node: JsonNode, depth: number, path: string, state: DecodeState): PortableValue {
   state.node(depth, path);
   if (node.kind !== 'Object') {
@@ -884,7 +884,7 @@ export function nodeToValue(node: JsonNode, depth: number, path: string, state: 
   }
   const kind = jsonStringOf(node.fields[0].value, `${path}.type`);
   // Member values only (the 'type' member is excluded), mirroring the Rust
-  // decoder's `fields[1..]` indexing (value_transport.rs:421-448).
+  // decoder's `fields[1..]` indexing (value_transport.rs).
   const exact = (names: readonly string[]): JsonNode[] =>
     jsonObjectExact(node, ['type', ...names], path).slice(1);
   switch (kind) {
@@ -1033,7 +1033,7 @@ export function nodeToValue(node: JsonNode, depth: number, path: string, state: 
   }
 }
 
-/** The canonical decimal normalization (Decimal::new; consema-rs/consema-core/src/value.rs:277-292). */
+/** The canonical decimal normalization (Decimal::new; consema-rs/consema-core/src/value.rs). */
 function normalizeDecimal(coefficient: bigint, exponent: bigint): { kind: 'Decimal'; coefficient: bigint; exponent: bigint } {
   if (coefficient === 0n) {
     return { kind: 'Decimal', coefficient: 0n, exponent: 0n };
@@ -1088,14 +1088,14 @@ function hexBytes(hex: string): Uint8Array {
 
 /**
  * Strictly decodes canonical `core.portable-value-json@1` bytes and returns
- * the transported PortableValue (value_transport.rs:26-75). The record
+ * the transported PortableValue (value_transport.rs). The record
  * decode runs before the canonicality re-encode check, matching the Rust
  * ordering (a resource-limit or field error is reported before a
  * non-canonical form).
  *
  * Documented divergence note (Rust wins, per the language-neutral parity
  * rule): the Rust decoder re-encodes the DECODED VALUE and compares it to
- * the input bytes (value_transport.rs:66-73). The Go implementation
+ * the input bytes (value_transport.rs). The Go implementation
  * re-encodes the parse tree instead (consema-go/go/protocol/canonical.go:487-512),
  * which accepts non-canonical decimal spellings (e.g.
  * {"coefficient":"10","exponent":"0"}) that Rust rejects after decimal

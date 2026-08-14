@@ -56,7 +56,7 @@ import type {
 // Execution limits and cancellation
 // ---------------------------------------------------------------------------
 
-/** Immutable query execution limits (query.rs:2967-2981 pattern). */
+/** Immutable query execution limits (query.rs pattern). */
 export class QueryLimits {
   readonly #maxSteps: number;
   readonly #maxResults: number;
@@ -71,18 +71,18 @@ export class QueryLimits {
     return new QueryLimits(100_000, 100_000);
   }
 
-  /** Maximum operator steps (query.rs:2969). */
+  /** Maximum operator steps (query.rs). */
   maxSteps(): number {
     return this.#maxSteps;
   }
 
-  /** Maximum complete results buffered by an operator (query.rs:2971). */
+  /** Maximum complete results buffered by an operator (query.rs). */
   maxResults(): number {
     return this.#maxResults;
   }
 }
 
-/** Cooperative cancellation flag (query.rs:205-207 pattern). */
+/** Cooperative cancellation flag (query.rs pattern). */
 export class CancellationToken {
   #cancelled = false;
 
@@ -100,10 +100,10 @@ export class CancellationToken {
 // Matches
 // ---------------------------------------------------------------------------
 
-/** One XML reference occurrence kind (query.rs:20-29). */
+/** One XML reference occurrence kind (query.rs). */
 export type XmlReferenceKind = 'Character' | 'Predefined' | 'General';
 
-/** Owned snapshot-bound XML native semantic query match (query.rs:31-165). */
+/** Owned snapshot-bound XML native semantic query match (query.rs). */
 export type XmlMatch =
   | {
       readonly kind: 'Document';
@@ -204,7 +204,7 @@ export type XmlMatch =
       readonly span: Span;
     };
 
-/** Owned snapshot-bound XML lossless syntax query match (query.rs:187-220). */
+/** Owned snapshot-bound XML lossless syntax query match (query.rs). */
 export class XmlSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -218,28 +218,28 @@ export class XmlSyntaxMatch {
     this.#ordinal = ordinal;
   }
 
-  /** Process-local syntax-piece identity (query.rs:196-200). */
+  /** Process-local syntax-piece identity (query.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw source span (query.rs:202-206). */
+  /** Exact raw source span (query.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Format-specific lossless kind (query.rs:208-212). */
+  /** Format-specific lossless kind (query.rs). */
   kind(): XmlSyntaxKind {
     return this.#kind;
   }
 
-  /** Zero-based source-order position (query.rs:214-218). */
+  /** Zero-based source-order position (query.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
 }
 
-/** A complete deterministic query result (query.rs:248 pattern). */
+/** A complete deterministic query result (query.rs pattern). */
 export class XmlQueryResult<M> {
   readonly #matches: readonly M[];
   readonly #terminal: 'Completed';
@@ -290,7 +290,7 @@ function push<T>(context: ExecutionContext, output: T[], value: T): void {
 
 /**
  * Executes a validated XML native semantic query against one immutable
- * snapshot (query.rs:222-249).
+ * snapshot (query.rs).
  */
 export function executeXmlQuery(
   executable: ExecutableQuery,
@@ -315,7 +315,7 @@ export function executeXmlQuery(
 
 /**
  * Executes a validated XML lossless syntax query against every source
- * piece in raw order (query.rs:285-335).
+ * piece in raw order (query.rs).
  */
 export function executeXmlSyntaxQuery(
   executable: ExecutableQuery,
@@ -440,7 +440,7 @@ function executeSyntaxExpression(
   }
 }
 
-/** Source-order key of one native match (query.rs:556-576). */
+/** Source-order key of one native match (query.rs). */
 function sourceOrder(item: XmlMatch): number {
   switch (item.kind) {
     case 'Document':
@@ -453,7 +453,7 @@ function sourceOrder(item: XmlMatch): number {
 }
 
 // ---------------------------------------------------------------------------
-// Native operators (query.rs:578-1260)
+// Native operators (query.rs)
 // ---------------------------------------------------------------------------
 
 function applyOperator(
@@ -545,7 +545,7 @@ function applyOperator(
   return output;
 }
 
-/** `xml.document-root`: the one document element, when formation proved it (query.rs:624-638). */
+/** `xml.document-root`: the one document element, when formation proved it (query.rs). */
 function documentRoot(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   const root = context.document.root();
   if (root === null) {
@@ -558,7 +558,7 @@ function documentRoot(input: XmlMatch[], context: ExecutionContext, output: XmlM
   }
 }
 
-/** `xml.document-declaration`: the XML declaration, when present (query.rs:640-654). */
+/** `xml.document-declaration`: the XML declaration, when present (query.rs). */
 function documentDeclaration(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   const declared = context.document.declaration();
   if (declared === null) {
@@ -577,7 +577,7 @@ function documentDeclaration(input: XmlMatch[], context: ExecutionContext, outpu
   }
 }
 
-/** `xml.document-doctype`: the DOCTYPE occurrence, when present (query.rs:656-670). */
+/** `xml.document-doctype`: the DOCTYPE occurrence, when present (query.rs). */
 function documentDoctype(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   const doctype = context.document.doctype();
   if (doctype === null) {
@@ -594,7 +594,7 @@ function documentDoctype(input: XmlMatch[], context: ExecutionContext, output: X
   }
 }
 
-/** `xml.document-prolog` / `xml.document-epilog`: ordered prolog or epilog occurrences (query.rs:672-695). */
+/** `xml.document-prolog` / `xml.document-epilog`: ordered prolog or epilog occurrences (query.rs). */
 function documentPrologEpilog(
   id: string,
   input: XmlMatch[],
@@ -626,7 +626,7 @@ function documentPrologEpilog(
   }
 }
 
-/** `xml.element-children`: every child content occurrence, mixed order (query.rs:696-723). */
+/** `xml.element-children`: every child content occurrence, mixed order (query.rs). */
 function elementChildren(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -646,7 +646,7 @@ function elementChildren(input: XmlMatch[], context: ExecutionContext, output: X
   }
 }
 
-/** One child content match (query.rs:706-716). */
+/** One child content match (query.rs). */
 function contentMatch(context: ExecutionContext, index: number, parent: NodeRef): XmlMatch {
   const node = context.document.nodeAt(index);
   switch (node.kind) {
@@ -690,7 +690,7 @@ function contentMatch(context: ExecutionContext, index: number, parent: NodeRef)
   }
 }
 
-/** One element match from its arena index (query.rs:430-444). */
+/** One element match from its arena index (query.rs). */
 function elementMatch(context: ExecutionContext, index: number): XmlMatch {
   const node = context.document.nodeAt(index);
   if (node.kind !== 'Element') {
@@ -710,13 +710,13 @@ function elementMatch(context: ExecutionContext, index: number): XmlMatch {
   };
 }
 
-/** The owning element's NodeRef of one arena index (query.rs:446-450). */
+/** The owning element's NodeRef of one arena index (query.rs). */
 function parentElementRef(context: ExecutionContext, index: number): NodeRef | null {
   const parent = context.document.parentOfInternal(index);
   return parent === null ? null : context.document.nodeRefFor(parent, 'XmlElement');
 }
 
-/** `xml.element-child-elements`: child element occurrences only (query.rs:774-792). */
+/** `xml.element-child-elements`: child element occurrences only (query.rs). */
 function elementChildElements(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -738,7 +738,7 @@ function elementChildElements(input: XmlMatch[], context: ExecutionContext, outp
   }
 }
 
-/** `xml.element-child-text`: child text occurrences only (query.rs:794-812). */
+/** `xml.element-child-text`: child text occurrences only (query.rs). */
 function elementChildText(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -760,7 +760,7 @@ function elementChildText(input: XmlMatch[], context: ExecutionContext, output: 
   }
 }
 
-/** `xml.element-child-cdata`: child CDATA occurrences only (query.rs:814-832). */
+/** `xml.element-child-cdata`: child CDATA occurrences only (query.rs). */
 function elementChildCdata(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -782,7 +782,7 @@ function elementChildCdata(input: XmlMatch[], context: ExecutionContext, output:
   }
 }
 
-/** `xml.element-child-comments`: child comment occurrences only (query.rs:834-852). */
+/** `xml.element-child-comments`: child comment occurrences only (query.rs). */
 function elementChildComments(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -804,7 +804,7 @@ function elementChildComments(input: XmlMatch[], context: ExecutionContext, outp
   }
 }
 
-/** `xml.element-child-pi`: child processing-instruction occurrences only (query.rs:854-875). */
+/** `xml.element-child-pi`: child processing-instruction occurrences only (query.rs). */
 function elementChildPi(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -826,7 +826,7 @@ function elementChildPi(input: XmlMatch[], context: ExecutionContext, output: Xm
   }
 }
 
-/** `xml.element-descendants`: bounded pre-order traversal (query.rs:877-903). */
+/** `xml.element-descendants`: bounded pre-order traversal (query.rs). */
 function elementDescendants(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -855,7 +855,7 @@ function elementDescendants(input: XmlMatch[], context: ExecutionContext, output
   }
 }
 
-/** `xml.element-attributes`: ordered attributes, excluding declarations (query.rs:905-921). */
+/** `xml.element-attributes`: ordered attributes, excluding declarations (query.rs). */
 function elementAttributes(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Element') {
@@ -875,7 +875,7 @@ function elementAttributes(input: XmlMatch[], context: ExecutionContext, output:
   }
 }
 
-/** `xml.element-namespace-bindings` / `xml.element-in-scope-namespaces` (query.rs:923-959). */
+/** `xml.element-namespace-bindings` / `xml.element-in-scope-namespaces` (query.rs). */
 function namespaceBindings(
   id: string,
   input: XmlMatch[],
@@ -896,7 +896,7 @@ function namespaceBindings(
     }
     if (id === 'xml.element-in-scope-namespaces') {
       // Ancestry-derived in-scope bindings, oldest declaration first, each
-      // with its true origin (query.rs:934-949).
+      // with its true origin (query.rs).
       const chain: number[] = [];
       let current: number | null = index;
       while (current !== null) {
@@ -921,7 +921,7 @@ function namespaceBindings(
   }
 }
 
-/** One namespace binding match on one owning element (query.rs:961-976). */
+/** One namespace binding match on one owning element (query.rs). */
 function namespaceBindingMatch(
   binding: { readonly ordinal: number; readonly prefix: string | null; readonly uri: string },
   element: NodeRef,
@@ -936,7 +936,7 @@ function namespaceBindingMatch(
   };
 }
 
-/** `xml.content-parent` / `xml.attribute-element` / `xml.reference-text` (query.rs:978-1004). */
+/** `xml.content-parent` / `xml.attribute-element` / `xml.reference-text` (query.rs). */
 function contentParent(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     switch (item.kind) {
@@ -960,7 +960,7 @@ function contentParent(input: XmlMatch[], context: ExecutionContext, output: Xml
   }
 }
 
-/** `xml.text-references`: the ordered reference occurrences of one text (query.rs:1006-1053). */
+/** `xml.text-references`: the ordered reference occurrences of one text (query.rs). */
 function textReferences(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   for (const item of input) {
     if (item.kind !== 'Text') {
@@ -1011,7 +1011,7 @@ function textReferences(input: XmlMatch[], context: ExecutionContext, output: Xm
   }
 }
 
-/** `xml.name-equals`: original-spelling or expanded-name comparison (query.rs:1055-1114). */
+/** `xml.name-equals`: original-spelling or expanded-name comparison (query.rs). */
 function nameEquals(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1048,7 +1048,7 @@ function nameEquals(
   }
 }
 
-/** `xml.attribute-value-equals`: CDATA-normalized value equality (query.rs:1116-1132). */
+/** `xml.attribute-value-equals`: CDATA-normalized value equality (query.rs). */
 function attributeValueEquals(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1063,7 +1063,7 @@ function attributeValueEquals(
   }
 }
 
-/** `xml.pi-target-equals`: processing-instruction target equality (query.rs:1134-1153). */
+/** `xml.pi-target-equals`: processing-instruction target equality (query.rs). */
 function piTargetEquals(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1078,7 +1078,7 @@ function piTargetEquals(
   }
 }
 
-/** `xml.reference-kind-is`: reference kind equality (query.rs:1155-1177). */
+/** `xml.reference-kind-is`: reference kind equality (query.rs). */
 function referenceKindIs(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1101,7 +1101,7 @@ function referenceKindIs(
   }
 }
 
-/** `xml.reference-name-equals`: reference name equality (query.rs:1179-1195). */
+/** `xml.reference-name-equals`: reference name equality (query.rs). */
 function referenceNameEquals(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1116,7 +1116,7 @@ function referenceNameEquals(
   }
 }
 
-/** `xml.node-kind-is`: match-kind filter over mixed output (query.rs:1197-1228). */
+/** `xml.node-kind-is`: match-kind filter over mixed output (query.rs). */
 function nodeKindIs(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1132,7 +1132,7 @@ function nodeKindIs(
   }
 }
 
-/** Stable node-kind name of one match (query.rs:1208-1222). */
+/** Stable node-kind name of one match (query.rs). */
 function matchKindName(item: XmlMatch): string {
   switch (item.kind) {
     case 'Document':
@@ -1164,7 +1164,7 @@ function matchKindName(item: XmlMatch): string {
   }
 }
 
-/** `core.take`: the first `count` input items (query.rs:1230-1245). */
+/** `core.take`: the first `count` input items (query.rs). */
 function take(
   operator: OperatorCall,
   input: XmlMatch[],
@@ -1183,7 +1183,7 @@ function take(
   }
 }
 
-/** `core.distinct-by-identity`: first occurrence of every identity (query.rs:1247-1260). */
+/** `core.distinct-by-identity`: first occurrence of every identity (query.rs). */
 function distinctByIdentity(input: XmlMatch[], context: ExecutionContext, output: XmlMatch[]): void {
   const seen = new Set<string>();
   for (const item of input) {
@@ -1239,7 +1239,7 @@ function stringArgument(operator: OperatorCall, name: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Syntax operators (query.rs:1327-1400)
+// Syntax operators (query.rs)
 // ---------------------------------------------------------------------------
 
 function applySyntaxOperator(

@@ -18,13 +18,13 @@
  *    HclLiteralValue :1723-1786 (the typed literal projection), the
  *    `<<-` indentation stripping :1692-1712
  *  - children() :80-87 (ordered direct child expressions in source order)
- *  - the structural fingerprint serialization lives in materialization.rs:
+ *  - the structural fingerprint serialization lives in materialization.rs
  *    expression_fingerprint_value :1507-1516, write_expression_structure
  *    :1525-1667, write_directive_structure :1671-1685, write_for_intro
  *    :1689-1699, write_traversal_step :1702-1725, write_object_key_structure
  *    :1728-1762, push_text :1765-1768 (FNV-1a 64-bit, offset basis
  *    0xcbf29ce484222325, prime 0x100000001b3)
- *  - the kind family table (projection.rs:1004; RFC 0014 §8.2): variable-ref
+ *  - the kind family table (projection.rs; RFC 0014 §8.2): variable-ref
  *    and traversal are one family "variable", for-tuple and for-object are
  *    one family "for"
  *
@@ -38,18 +38,18 @@
 import type { Span } from '../document/identity.ts';
 
 // ---------------------------------------------------------------------------
-// Operators and heredoc mode (expression.rs:856-940, 1159-1177)
+// Operators and heredoc mode (expression.rs)
 // ---------------------------------------------------------------------------
 
-/** Unary operator set; exactly `-` and `!` exist (expression.rs:856-861). */
+/** Unary operator set; exactly `-` and `!` exist (expression.rs). */
 export type UnaryOp = 'Minus' | 'Not';
 
-/** Stable operator spelling (expression.rs:866-871). */
+/** Stable operator spelling (expression.rs). */
 export function unaryOpAsStr(op: UnaryOp): string {
   return op === 'Minus' ? '-' : '!';
 }
 
-/** The thirteen binary operators (expression.rs:886-916). */
+/** The thirteen binary operators (expression.rs). */
 export type BinaryOp =
   | 'Equal'
   | 'NotEqual'
@@ -65,7 +65,7 @@ export type BinaryOp =
   | 'And'
   | 'Or';
 
-/** Stable operator spelling (expression.rs:918-936). */
+/** Stable operator spelling (expression.rs). */
 export function binaryOpAsStr(op: BinaryOp): string {
   switch (op) {
     case 'Equal':
@@ -97,10 +97,10 @@ export function binaryOpAsStr(op: BinaryOp): string {
   }
 }
 
-/** Heredoc introducer mode (expression.rs:1159-1165). */
+/** Heredoc introducer mode (expression.rs). */
 export type HeredocMode = 'Plain' | 'StripIndent';
 
-/** Stable mode spelling (expression.rs:1170-1175). */
+/** Stable mode spelling (expression.rs). */
 export function heredocModeAsStr(mode: HeredocMode): string {
   return mode === 'Plain' ? '<<' : '<<-';
 }
@@ -113,38 +113,38 @@ export interface HeredocFacts {
 }
 
 // ---------------------------------------------------------------------------
-// The expression AST (expression.rs:200-313)
+// The expression AST (expression.rs)
 // ---------------------------------------------------------------------------
 
-/** One exact number literal: span, source spelling, and canonical decimal (expression.rs:644-717). */
+/** One exact number literal: span, source spelling, and canonical decimal (expression.rs). */
 export interface HclNumber {
   readonly span: Span;
   /** Exact source spelling derived from the span. */
   readonly spelling: string;
-  /** Canonical decimal spelling (expression.rs:694-702). */
+  /** Canonical decimal spelling (expression.rs). */
   readonly canonical: string;
 }
 
-/** One function-call argument with its `...` expansion marker fact (expression.rs:215-224). */
+/** One function-call argument with its `...` expansion marker fact (expression.rs). */
 export interface HclCallArg {
   readonly expression: HclExpr;
   readonly expand: boolean;
 }
 
-/** Traversal root; keyword spellings are dual-read roots (expression.rs:232-240). */
+/** Traversal root; keyword spellings are dual-read roots (expression.rs). */
 export type HclTraversalRoot =
   | { readonly kind: 'Variable'; readonly name: string }
   | { readonly kind: 'Boolean'; readonly value: boolean }
   | { readonly kind: 'Null' };
 
-/** One traversal step (expression.rs:233-239; GetAttr/Index/AttrSplat/FullSplat). */
+/** One traversal step (expression.rs; GetAttr/Index/AttrSplat/FullSplat). */
 export type HclTraversalStep =
   | { readonly kind: 'GetAttr'; readonly name: string }
   | { readonly kind: 'Index'; readonly key: HclExpr }
   | { readonly kind: 'AttrSplat'; readonly steps: readonly HclTraversalStep[] }
   | { readonly kind: 'FullSplat'; readonly steps: readonly HclTraversalStep[] };
 
-/** One `for` introduction (expression.rs:271-292; RFC 0014 §4.6). */
+/** One `for` introduction (expression.rs; RFC 0014 §4.6). */
 export interface HclForIntro {
   /** Optional key identifier. */
   readonly key: string | null;
@@ -154,20 +154,20 @@ export interface HclForIntro {
   readonly collection: HclExpr;
 }
 
-/** One object-constructor key (RFC 0014 §4.6; expression.rs:1728-1762). */
+/** One object-constructor key (RFC 0014 §4.6; expression.rs). */
 export type HclObjectKey =
   | { readonly kind: 'Identifier'; readonly name: string }
   | { readonly kind: 'Number'; readonly number: HclNumber }
   | { readonly kind: 'Template'; readonly parts: readonly HclTemplatePart[] }
   | { readonly kind: 'Paren'; readonly inner: HclExpr };
 
-/** One object-constructor entry (expression.rs:301-304). */
+/** One object-constructor entry (expression.rs). */
 export interface HclObjectEntry {
   readonly key: HclObjectKey;
   readonly value: HclExpr;
 }
 
-/** One template directive (RFC 0014 §4.4; materialization.rs:1671-1685). */
+/** One template directive (RFC 0014 §4.4; materialization.rs). */
 export type HclDirective =
   | { readonly kind: 'If'; readonly condition: HclExpr }
   | { readonly kind: 'Else' }
@@ -175,18 +175,18 @@ export type HclDirective =
   | { readonly kind: 'For'; readonly intro: HclForIntro }
   | { readonly kind: 'EndFor' };
 
-/** One ordered template part (RFC 0014 §6; expression.rs:1788-1803). */
+/** One ordered template part (RFC 0014 §6; expression.rs). */
 export type HclTemplatePart =
   | { readonly kind: 'Literal'; readonly text: string; readonly span: Span }
   | { readonly kind: 'Interpolation'; readonly expression: HclExpr; readonly span: Span }
   | { readonly kind: 'Directive'; readonly directive: HclDirective; readonly span: Span };
 
-/** Whether a template part is a literal run (expression.rs:1560-1566). */
+/** Whether a template part is a literal run (expression.rs). */
 export function templatePartIsLiteral(part: HclTemplatePart): boolean {
   return part.kind === 'Literal';
 }
 
-/** One expression AST node with its exact span (expression.rs:56-88). */
+/** One expression AST node with its exact span (expression.rs). */
 export type HclExpr =
   | { readonly kind: 'Number'; readonly number: HclNumber; readonly span: Span }
   | { readonly kind: 'Boolean'; readonly value: boolean; readonly span: Span }
@@ -240,7 +240,7 @@ export type HclExpr =
   | { readonly kind: 'Object'; readonly entries: readonly HclObjectEntry[]; readonly span: Span }
   | { readonly kind: 'Paren'; readonly inner: HclExpr; readonly span: Span };
 
-/** The closed payload-free expression kind name set (expression.rs:561-595). */
+/** The closed payload-free expression kind name set (expression.rs). */
 export type HclExpressionKindName =
   | 'Number'
   | 'Boolean'
@@ -258,7 +258,7 @@ export type HclExpressionKindName =
   | 'Object'
   | 'Parenthesized';
 
-/** The frozen 15 spellings (expression.rs:600-618). */
+/** The frozen 15 spellings (expression.rs). */
 export const HCL_EXPRESSION_KIND_SPELLINGS = [
   'number',
   'boolean',
@@ -277,7 +277,7 @@ export const HCL_EXPRESSION_KIND_SPELLINGS = [
   'parenthesized',
 ] as const;
 
-/** Stable kind spelling (expression.rs:600-618). */
+/** Stable kind spelling (expression.rs). */
 export function expressionKindNameAsStr(kind: HclExpressionKindName): string {
   switch (kind) {
     case 'Number':
@@ -313,7 +313,7 @@ export function expressionKindNameAsStr(kind: HclExpressionKindName): string {
   }
 }
 
-/** Resolves one kind spelling (expression.rs:622-641). */
+/** Resolves one kind spelling (expression.rs). */
 export function expressionKindNameFromName(name: string): HclExpressionKindName | null {
   switch (name) {
     case 'number':
@@ -359,7 +359,7 @@ export function expressionKindOf(expression: HclExpr): HclExpressionKindName {
 }
 
 /**
- * The kind family table of the `hcl.expression@1` record (projection.rs:
+ * The kind family table of the `hcl.expression@1` record (projection.rs
  * 1004; RFC 0014 §8.2): variable and traversal expressions are one family
  * `variable`, for-expressions are one family `for`.
  */
@@ -418,7 +418,7 @@ export function isKindFamilySpelling(spelling: string): boolean {
   }
 }
 
-/** Ordered direct child expressions in source order (expression.rs:80-87). */
+/** Ordered direct child expressions in source order (expression.rs). */
 export function expressionChildren(expression: HclExpr): HclExpr[] {
   switch (expression.kind) {
     case 'Number':
@@ -511,7 +511,7 @@ export function expressionChildren(expression: HclExpr): HclExpr[] {
 }
 
 // ---------------------------------------------------------------------------
-// Canonical decimal (expression.rs:737-851)
+// Canonical decimal (expression.rs)
 // ---------------------------------------------------------------------------
 
 /**
@@ -613,10 +613,10 @@ export function canonicalDecimal(spelling: string, maxDigits: number): string | 
 }
 
 // ---------------------------------------------------------------------------
-// Literal-complete boundary (RFC 0014 §8.1; expression.rs:1531-1566)
+// Literal-complete boundary (RFC 0014 §8.1; expression.rs)
 // ---------------------------------------------------------------------------
 
-/** Whether an expression is literal-complete (expression.rs:1531-1548). */
+/** Whether an expression is literal-complete (expression.rs). */
 export function isLiteralComplete(expression: HclExpr): boolean {
   switch (expression.kind) {
     case 'Number':
@@ -653,10 +653,10 @@ function literalCompleteKey(key: HclObjectKey): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Typed literal projection (expression.rs:1596-1712, 1723-1786)
+// Typed literal projection (expression.rs)
 // ---------------------------------------------------------------------------
 
-/** Typed literal projection of a literal-complete expression (expression.rs:1723-1741). */
+/** Typed literal projection of a literal-complete expression (expression.rs). */
 export type HclLiteralValue =
   | { readonly kind: 'Integer'; readonly canonical: string }
   | { readonly kind: 'Decimal'; readonly canonical: string }
@@ -666,13 +666,13 @@ export type HclLiteralValue =
   | { readonly kind: 'Tuple'; readonly elements: readonly HclLiteralValue[] }
   | { readonly kind: 'Object'; readonly entries: readonly HclLiteralObjectEntry[] };
 
-/** One ordered object literal entry (expression.rs:1744-1768). */
+/** One ordered object literal entry (expression.rs). */
 export interface HclLiteralObjectEntry {
   readonly key: HclLiteralKey;
   readonly value: HclLiteralValue;
 }
 
-/** One object-literal key (expression.rs:1777-1786). */
+/** One object-literal key (expression.rs). */
 export type HclLiteralKey =
   | { readonly kind: 'Identifier'; readonly name: string }
   | { readonly kind: 'Number'; readonly canonical: string }
@@ -681,7 +681,7 @@ export type HclLiteralKey =
 
 /**
  * Extracts the typed literal value of a literal-complete expression;
- * `null` for a derived expression (expression.rs:1596-1675; RFC 0014 §8.1).
+ * `null` for a derived expression (expression.rs; RFC 0014 §8.1).
  */
 export function literalValue(expression: HclExpr): HclLiteralValue | null {
   switch (expression.kind) {
@@ -778,8 +778,7 @@ function literalKey(key: HclObjectKey): HclLiteralKey | null {
 
 /**
  * Applies the `<<-` indentation stripping: removes the minimum number of
- * leading spaces from each line's leading literal text (expression.rs:
- * 1692-1712).
+ * leading spaces from each line's leading literal text (expression.rs).
  */
 export function stripHeredocIndentation(text: string): string {
   let minimum: number | null = null;
@@ -1041,13 +1040,13 @@ function heredocsEqual(left: HeredocFacts | null, right: HeredocFacts | null): b
 }
 
 // ---------------------------------------------------------------------------
-// Structural fingerprint (materialization.rs:1507-1768)
+// Structural fingerprint (materialization.rs)
 // ---------------------------------------------------------------------------
 
 const FNV_OFFSET = 0xcbf29ce484222325n;
 const FNV_PRIME = 0x100000001b3n;
 
-/** FNV-1a 64-bit over the canonical structural serialization (materialization.rs:1507-1516). */
+/** FNV-1a 64-bit over the canonical structural serialization (materialization.rs). */
 export function expressionFingerprint(expression: HclExpr): bigint {
   const bytes = expressionStructureBytes(expression);
   let hash = FNV_OFFSET;
@@ -1058,12 +1057,12 @@ export function expressionFingerprint(expression: HclExpr): bigint {
   return hash;
 }
 
-/** The 16-lowercase-hex-digit spelling of the fingerprint (materialization.rs:1518-1522). */
+/** The 16-lowercase-hex-digit spelling of the fingerprint (materialization.rs). */
 export function expressionFingerprintHex(expression: HclExpr): string {
   return expressionFingerprint(expression).toString(16).padStart(16, '0');
 }
 
-/** Appends one length-prefixed byte run (materialization.rs:1765-1768). */
+/** Appends one length-prefixed byte run (materialization.rs). */
 function pushText(out: number[], text: string): void {
   const bytes = new TextEncoder().encode(text);
   const length = BigInt(bytes.length);
@@ -1073,7 +1072,7 @@ function pushText(out: number[], text: string): void {
   out.push(...bytes);
 }
 
-/** The canonical structural serialization of one expression (materialization.rs:1525-1667). */
+/** The canonical structural serialization of one expression (materialization.rs). */
 function expressionStructureBytes(expression: HclExpr): number[] {
   const out: number[] = [];
   writeExpressionStructure(expression, out);

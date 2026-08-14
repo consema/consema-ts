@@ -2,12 +2,12 @@
  * Document formation: status and parse resource limits.
  *
  * authority:
- *  - FormationStatus: consema-rs/consema-document/src/lib.rs:404-411 (closed
+ *  - FormationStatus: consema-rs/consema-document/src/lib.rs (closed
  *    two-value enum Complete | Recovered); RFC 0016 §5.1 (https://github.com/consema/consema/blob/main/docs/rfcs/
- *    0016-go-api-mapping-v1.md:174 — the 0.13.0 review's F10 disposition:
+ *    0016-go-api-mapping-v1.md — the 0.13.0 review's F10 disposition:
  *    only the `formation_status` equivalent, no `status` alias)
- *  - ParseLimits fields and defaults: consema-rs/consema-document/src/lib.rs:
- *    614-639 — max_source_bytes 64 MiB, max_nesting_depth 256,
+ *  - ParseLimits fields and defaults: consema-rs/consema-document/src/lib.rs
+ *    max_source_bytes 64 MiB, max_nesting_depth 256,
  *    max_token_count 2_000_000, max_node_count 1_000_000,
  *    max_diagnostics 10_000 (cross-checked by consema-go/go/document/limits.go:5-29)
  *
@@ -19,12 +19,12 @@
 
 /**
  * Successful document formation state — the closed two-value set
- * (lib.rs:404-411). `Complete`: entire syntax was formed without recovery.
+ * (lib.rs). `Complete`: entire syntax was formed without recovery.
  * `Recovered`: a complete snapshot with explicit recovery structure.
  */
 export type FormationStatus = 'Complete' | 'Recovered';
 
-/** Parse resource limits; exceeding one is a fatal formation failure (lib.rs:614-627). */
+/** Parse resource limits; exceeding one is a fatal formation failure (lib.rs). */
 export interface ParseLimits {
   /** Maximum source bytes. */
   readonly maxSourceBytes: number;
@@ -38,7 +38,7 @@ export interface ParseLimits {
   readonly maxDiagnostics: number;
 }
 
-/** The frozen defaults (lib.rs:629-639; consema-go/go/document/limits.go:21-28). */
+/** The frozen defaults (lib.rs; consema-go/go/document/limits.go:21-28). */
 export const DEFAULT_PARSE_LIMITS: Readonly<ParseLimits> = Object.freeze({
   maxSourceBytes: 64 * 1024 * 1024,
   maxNestingDepth: 256,

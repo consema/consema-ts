@@ -26,7 +26,7 @@
  *  - operation_registry: the frozen per-profile operation descriptors
  *
  * HCL is never evaluated: parse, query, projection, materialization, and
- * edit carry syntax facts only (RFC 0014 §1, hard gate 1; SECURITY.md:36).
+ * edit carry syntax facts only (RFC 0014 §1, hard gate 1; SECURITY.md).
  */
 
 export * from './limits.ts';

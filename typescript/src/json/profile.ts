@@ -17,17 +17,17 @@
 
 import { ProfileId } from '../document/profile.ts';
 
-/** Frozen JSON language profile (lib.rs:37-45). */
+/** Frozen JSON language profile (lib.rs). */
 export type JsonProfile = 'JsonStrict' | 'JsoncBounded' | 'Json5Standard';
 
-/** `json.strict@1` — RFC-style strict JSON baseline (lib.rs:141-142). */
+/** `json.strict@1` — RFC-style strict JSON baseline (lib.rs). */
 export const PROFILE_JSON_STRICT: JsonProfile = 'JsonStrict';
-/** `jsonc.bounded@1` — strict JSON plus comments/trailing commas (lib.rs:143-144). */
+/** `jsonc.bounded@1` — strict JSON plus comments/trailing commas (lib.rs). */
 export const PROFILE_JSONC_BOUNDED: JsonProfile = 'JsoncBounded';
-/** `json5.standard@1` — Standard JSON5 1.0.0 lexical surface (lib.rs:145-146). */
+/** `json5.standard@1` — Standard JSON5 1.0.0 lexical surface (lib.rs). */
 export const PROFILE_JSON5_STANDARD: JsonProfile = 'Json5Standard';
 
-/** Immutable profile identifier (lib.rs:140-146). */
+/** Immutable profile identifier (lib.rs). */
 export function jsonProfileId(profile: JsonProfile): ProfileId {
   switch (profile) {
     case 'JsonStrict':
@@ -39,12 +39,12 @@ export function jsonProfileId(profile: JsonProfile): ProfileId {
   }
 }
 
-/** Whether bounded comments and trailing commas are accepted (lib.rs:150-152). */
+/** Whether bounded comments and trailing commas are accepted (lib.rs). */
 export function permitsJsoncExtensions(profile: JsonProfile): boolean {
   return profile === 'JsoncBounded' || profile === 'Json5Standard';
 }
 
-/** Whether the Standard JSON5 lexical surface is accepted (lib.rs:155-159). */
+/** Whether the Standard JSON5 lexical surface is accepted (lib.rs). */
 export function isJson5(profile: JsonProfile): boolean {
   return profile === 'Json5Standard';
 }

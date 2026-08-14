@@ -54,21 +54,21 @@ import { ProjectionFailure } from './errors.ts';
 import { PlistDocument } from './document.ts';
 import { PlistValueRef } from './native.ts';
 
-/** Fixed XML spelling of the plist epoch (RFC 0013 §5.5, §9; projection.rs:49-51). */
+/** Fixed XML spelling of the plist epoch (RFC 0013 §5.5, §9; projection.rs). */
 const PLIST_EPOCH_SPELLING = '2001-01-01T00:00:00Z';
 /** Versioned value-tree record name (RFC 0013 §9). */
 const VALUE_TREE_RECORD = 'plist.value-tree@1';
 
-/** Versioned plist projection target (projection.rs:55-62). */
+/** Versioned plist projection target (projection.rs). */
 export type ProjectionTarget = 'ValueTreeV1' | 'RequireObjectV1';
 
-/** UID handling for the value-tree target (projection.rs:65-71). */
+/** UID handling for the value-tree target (projection.rs). */
 export type UidPolicy = 'Exclude' | 'Include';
 
-/** Duplicate-key handling for the require-object target (projection.rs:75-82). */
+/** Duplicate-key handling for the require-object target (projection.rs). */
 export type CollisionPolicy = 'Reject' | 'First' | 'Last';
 
-/** Plist projection resource limits (projection.rs:164-173). */
+/** Plist projection resource limits (projection.rs). */
 export interface ProjectionLimits {
   /** Maximum inspected native value nodes. */
   readonly maxSourceNodes: number;
@@ -80,7 +80,7 @@ export interface ProjectionLimits {
   readonly maxProvenanceUnits: number;
 }
 
-/** The frozen defaults (projection.rs:175-184). */
+/** The frozen defaults (projection.rs). */
 export const DEFAULT_PROJECTION_LIMITS: Readonly<ProjectionLimits> = Object.freeze({
   maxSourceNodes: 2_000_000,
   maxValueNodes: 2_000_000,
@@ -88,7 +88,7 @@ export const DEFAULT_PROJECTION_LIMITS: Readonly<ProjectionLimits> = Object.free
   maxProvenanceUnits: 4_000_000,
 });
 
-/** Explicit plist projection request; every policy is mandatory (projection.rs:86-157). */
+/** Explicit plist projection request; every policy is mandatory (projection.rs). */
 export class ProjectionRequest {
   readonly #target: ProjectionTarget;
   readonly #uidPolicy: UidPolicy;
@@ -107,22 +107,22 @@ export class ProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Exact `plist.value-tree@1` record request for the complete document (projection.rs:96-103). */
+  /** Exact `plist.value-tree@1` record request for the complete document (projection.rs). */
   static valueTree(): ProjectionRequest {
     return new ProjectionRequest('ValueTreeV1', 'Exclude', 'Reject', DEFAULT_PROJECTION_LIMITS);
   }
 
-  /** Exact `plist.value-tree@1` request with an explicit UID policy (projection.rs:107-114). */
+  /** Exact `plist.value-tree@1` request with an explicit UID policy (projection.rs). */
   static valueTreeWithUid(policy: UidPolicy): ProjectionRequest {
     return new ProjectionRequest('ValueTreeV1', policy, 'Reject', DEFAULT_PROJECTION_LIMITS);
   }
 
-  /** Explicit `plist.projection.require-object@1` request with one loss policy (projection.rs:119-126). */
+  /** Explicit `plist.projection.require-object@1` request with one loss policy (projection.rs). */
   static requireObject(collision: CollisionPolicy): ProjectionRequest {
     return new ProjectionRequest('RequireObjectV1', 'Exclude', collision, DEFAULT_PROJECTION_LIMITS);
   }
 
-  /** Applies explicit resource limits to this request (projection.rs:130-132). */
+  /** Applies explicit resource limits to this request (projection.rs). */
   withLimits(limits: ProjectionLimits): ProjectionRequest {
     return new ProjectionRequest(this.#target, this.#uidPolicy, this.#collision, limits);
   }
@@ -148,18 +148,18 @@ export class ProjectionRequest {
   }
 }
 
-/** Projection fidelity classification (projection.rs:188-195). */
+/** Projection fidelity classification (projection.rs). */
 export type Fidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Projected value or association location (projection.rs:199-204). */
+/** Projected value or association location (projection.rs). */
 export type ProjectedLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** Source-to-projection relation (projection.rs:208-217). */
+/** Source-to-projection relation (projection.rs). */
 export type ProvenanceRelation = 'Direct' | 'Derived' | 'Collapsed' | 'ReferenceDerived';
 
-/** One exact source origin (projection.rs:221-230). */
+/** One exact source origin (projection.rs). */
 export class SourceOrigin {
   readonly #snapshot: ReturnType<PlistDocument['snapshotIdentity']>;
   readonly #node: NodeRef;
@@ -194,7 +194,7 @@ export class SourceOrigin {
   }
 }
 
-/** One many-valued provenance entry (projection.rs:234-239). */
+/** One many-valued provenance entry (projection.rs). */
 export class ProvenanceEntry {
   readonly #projected: ProjectedLocation;
   readonly #origins: readonly SourceOrigin[];
@@ -215,7 +215,7 @@ export class ProvenanceEntry {
   }
 }
 
-/** Immutable many-valued provenance mapping (projection.rs:243-270). */
+/** Immutable many-valued provenance mapping (projection.rs). */
 export class ProvenanceMap {
   readonly #entries: readonly ProvenanceEntry[];
   readonly #units: number;
@@ -242,7 +242,7 @@ export class ProvenanceMap {
   }
 }
 
-/** One explicit transformation event (projection.rs:282-289). */
+/** One explicit transformation event (projection.rs). */
 export class ProjectionEvent {
   readonly #kind: 'AssociationDiscarded';
   readonly #discarded: NodeRef;
@@ -270,7 +270,7 @@ export class ProjectionEvent {
   }
 }
 
-/** Complete ordered projection report (projection.rs:293-320). */
+/** Complete ordered projection report (projection.rs). */
 export class ProjectionReport {
   readonly #events: readonly ProjectionEvent[];
 
@@ -291,7 +291,7 @@ export class ProjectionReport {
   }
 }
 
-/** Complete successful projection (projection.rs:324-333). */
+/** Complete successful projection (projection.rs). */
 export class CompleteProjection {
   readonly #value: PortableValue;
   readonly #fidelity: Fidelity;
@@ -326,7 +326,7 @@ export class CompleteProjection {
   }
 }
 
-/** Failed projection attempt without a partial value (projection.rs:337-342). */
+/** Failed projection attempt without a partial value (projection.rs). */
 export class FailedProjectionAttempt {
   readonly #diagnostics: readonly Diagnostic[];
   readonly #report: ProjectionReport;
@@ -347,7 +347,7 @@ export class FailedProjectionAttempt {
   }
 }
 
-/** Projection completion algebra (projection.rs:346-351). */
+/** Projection completion algebra (projection.rs). */
 export type ProjectionResult =
   | { readonly kind: 'Complete'; readonly value: CompleteProjection }
   | { readonly kind: 'Failed'; readonly value: FailedProjectionAttempt };
@@ -439,7 +439,7 @@ class Context {
     return this.#document.nodeRefFor(arrayIndex, 'PlistArrayElement');
   }
 
-  /** Exact `plist.value-tree@1` record for the document root (projection.rs:572-586). */
+  /** Exact `plist.value-tree@1` record for the document root (projection.rs). */
   projectValueTree(uidPolicy: UidPolicy): PortableValue {
     const native = this.#document.document();
     if (native === null) {
@@ -454,7 +454,7 @@ class Context {
     ]);
   }
 
-  /** One recursive value mapping (projection.rs:590-667). */
+  /** One recursive value mapping (projection.rs). */
   valueOf(node: PlistValueRef, path: ValuePath, uidPolicy: UidPolicy): PortableValue {
     const native = this.#document.document();
     if (native === null) {
@@ -516,7 +516,7 @@ class Context {
       }
       case 'String': {
         // Unpaired-surrogate strings fail ordinary projection atomically
-        // (RFC 0013 §9; projection.rs:644).
+        // (RFC 0013 §9; projection.rs).
         if (value.status === 'UnpairedSurrogate') {
           throw new ProjectionFailure('UnpairedSurrogate');
         }
@@ -554,7 +554,7 @@ class Context {
     return projected;
   }
 
-  /** Unique-key Object over the root dictionary under one collision policy (projection.rs:671-733). */
+  /** Unique-key Object over the root dictionary under one collision policy (projection.rs). */
   projectRequireObject(collision: CollisionPolicy): { readonly value: PortableValue; readonly fidelity: Fidelity } {
     const native = this.#document.document();
     if (native === null) {
@@ -689,7 +689,7 @@ function failed(failure: ProjectionFailure): ProjectionResult {
 }
 
 
-/** One stable projection failure diagnostic (projection.rs:353-403). */
+/** One stable projection failure diagnostic (projection.rs). */
 function failureDiagnostic(failure: ProjectionFailure): Diagnostic {
   const arguments_ = new Map<string, string>();
   if (failure.kind === 'Collision' && failure.key !== undefined) {

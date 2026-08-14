@@ -14,7 +14,7 @@
 
 import { ProfileId } from '../document/profile.ts';
 
-/** Frozen YAML language profile (lib.rs:54-61). */
+/** Frozen YAML language profile (lib.rs). */
 export type YamlProfile = 'Yaml12CoreV1' | 'Yaml11CompatV1';
 
 /** `yaml.1.2-core@1` — YAML 1.2.2 presentation + Core schema (RFC 0007 §5). */
@@ -22,7 +22,7 @@ export const PROFILE_YAML12_CORE: YamlProfile = 'Yaml12CoreV1';
 /** `yaml.1.1-compat@1` — YAML 1.2-compatible presentation + frozen 1.1 scalars (RFC 0007 §6). */
 export const PROFILE_YAML11_COMPAT: YamlProfile = 'Yaml11CompatV1';
 
-/** Immutable profile identifier (lib.rs:244-249). */
+/** Immutable profile identifier (lib.rs). */
 export function yamlProfileId(profile: YamlProfile): ProfileId {
   switch (profile) {
     case 'Yaml12CoreV1':
@@ -32,7 +32,7 @@ export function yamlProfileId(profile: YamlProfile): ProfileId {
   }
 }
 
-/** Accepted `%YAML` directive version for the profile (lib.rs:251-257). */
+/** Accepted `%YAML` directive version for the profile (lib.rs). */
 export function acceptedVersion(profile: YamlProfile): string {
   switch (profile) {
     case 'Yaml12CoreV1':

@@ -21,9 +21,9 @@
  *  - flavors: Root/Dotted/Implicit/Standard (:232-240)
  *  - node limit applies to every entity, limit name "node_count"
  *    (:92-104); depth limit name "nesting_depth" (:106-116)
- *  - datetime fields truncated to nanoseconds (lib.rs:327-329)
+ *  - datetime fields truncated to nanoseconds (lib.rs)
  *  - resource-limit names: "source_bytes", "token_count", "nesting_depth",
- *    "node_count" (parser.rs:22-28, :415-419, :449-452, :95-98)
+ *    "node_count" (parser.rs, :415-419, :449-452, :95-98)
  *
  * TOML semantic rules implemented (TOML 1.0.0 §4):
  *  - duplicate keys in one table are invalid (vector case
@@ -50,17 +50,17 @@ import type { ParseLimits } from '../document/formation.ts';
 import { TomlFormationFailure } from './errors.ts';
 
 // ---------------------------------------------------------------------------
-// Native datum model (lib.rs:307-349)
+// Native datum model (lib.rs)
 // ---------------------------------------------------------------------------
 
-/** Parsed TOML date fields (lib.rs:308-316). */
+/** Parsed TOML date fields (lib.rs). */
 export interface TomlDate {
   readonly year: number;
   readonly month: number;
   readonly day: number;
 }
 
-/** Parsed TOML time fields; fraction truncated to nanoseconds (lib.rs:319-329). */
+/** Parsed TOML time fields; fraction truncated to nanoseconds (lib.rs). */
 export interface TomlTime {
   readonly hour: number;
   readonly minute: number;
@@ -68,10 +68,10 @@ export interface TomlTime {
   readonly nanosecond: number;
 }
 
-/** Parsed TOML UTC offset (lib.rs:331-338). */
+/** Parsed TOML UTC offset (lib.rs). */
 export type TomlOffset = { readonly kind: 'Z' } | { readonly kind: 'CustomMinutes'; readonly minutes: number };
 
-/** Complete native TOML date/time datum (lib.rs:340-349). */
+/** Complete native TOML date/time datum (lib.rs). */
 export interface TomlDateTime {
   readonly date: TomlDate | null;
   readonly time: TomlTime | null;
@@ -79,13 +79,13 @@ export interface TomlDateTime {
 }
 
 // ---------------------------------------------------------------------------
-// Entity model (lib.rs:132-141, 274-305)
+// Entity model (lib.rs)
 // ---------------------------------------------------------------------------
 
-/** Table flavor of a logical table item (lib.rs:232-240). */
+/** Table flavor of a logical table item (lib.rs). */
 export type TomlTableFlavor = 'Root' | 'Dotted' | 'Implicit' | 'Standard';
 
-/** Native item category (lib.rs:274-305). */
+/** Native item category (lib.rs). */
 export type TomlItemKind =
   | 'String'
   | 'Integer'
@@ -254,7 +254,7 @@ class Parser {
     this.#limits = limits;
   }
 
-  // -- entity allocation (parser.rs:92-104 node_count limit) ----------------
+  // -- entity allocation (parser.rs node_count limit) ----------------
 
   #addEntity(span: Span, kind: EntityKind): number {
     const observed = this.#entities.length + 1;
@@ -266,7 +266,7 @@ class Parser {
     return index;
   }
 
-  /** Reserves a container item; its span is fixed by #fixItemSpan after the body parses (parser.rs:182-188). */
+  /** Reserves a container item; its span is fixed by #fixItemSpan after the body parses (parser.rs). */
   #reserveItem(start: number, kind: ItemEntityKind): number {
     const index = this.#addEntity(this.#span(start, start), { role: 'Item', item: kind });
     return index;
@@ -1350,7 +1350,7 @@ function calendarDateValid(year: number, month: number, day: number): boolean {
   return day >= 1 && day <= maxDay;
 }
 
-/** Exact IEEE-754 binary64 bits of one finite or special double (projection.rs:159 uses to_bits). */
+/** Exact IEEE-754 binary64 bits of one finite or special double (projection.rs uses to_bits). */
 export function f64ToBits(value: number): bigint {
   const buffer = new ArrayBuffer(8);
   const view = new DataView(buffer);
@@ -1386,7 +1386,7 @@ const FLOAT_RE =
 
 /**
  * Parses one complete TOML 1.0 document into the native entity model
- * (parser.rs:17-63 order: limits, UTF-8, tokenize, preflight, grammar,
+ * (parser.rs order: limits, UTF-8, tokenize, preflight, grammar,
  * entity build). Throws TomlFormationFailure on any failure — never a
  * truncated success (RFC 0001 §3).
  */

@@ -24,7 +24,7 @@
  *    DomainMismatch, hard gate 1), :392-420 (plist.binary-structure-query@1
  *    — XML documents are rejected the same way)
  *  - family failure-code mapping (vector-facing spellings):
- *    consema-rs/consema-conformance/src/plist_v1.rs:1141-1153
+ *    consema-rs/consema-conformance/src/plist_v1.rs
  *  - vector-pinned behavior: conformance/vectors/plist-v1.json
  *    (plist.query.dict-entries-order, plist.query.typed-accessors with
  *    mismatch_code plist.query.type-mismatch@1, plist.query.binary-structure)
@@ -54,7 +54,7 @@ import type {
 // Execution limits and cancellation
 // ---------------------------------------------------------------------------
 
-/** Immutable query execution limits (query.rs:2967-2981). */
+/** Immutable query execution limits (query.rs). */
 export class QueryLimits {
   readonly #maxSteps: number;
   readonly #maxResults: number;
@@ -98,7 +98,7 @@ export class CancellationToken {
 // Matches
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound plist native semantic query match (query.rs:60-114). */
+/** Owned snapshot-bound plist native semantic query match (query.rs). */
 export type PlistMatch =
   | { readonly kind: 'Document'; readonly node: NodeRef }
   | {
@@ -136,7 +136,7 @@ function matchIdentity(match: PlistMatch): NodeRef {
   return match.node;
 }
 
-/** Owned snapshot-bound plist XML lossless syntax query match (query.rs:131-162). */
+/** Owned snapshot-bound plist XML lossless syntax query match (query.rs). */
 export class PlistSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -171,7 +171,7 @@ export class PlistSyntaxMatch {
   }
 }
 
-/** Owned snapshot-bound plist binary structure query match (query.rs:171-251). */
+/** Owned snapshot-bound plist binary structure query match (query.rs). */
 export type PlistBinaryMatch =
   | { readonly kind: 'Structure'; readonly node: NodeRef }
   | {
@@ -265,7 +265,7 @@ function step(context: ExecutionContext, results: number): void {
   }
 }
 
-/** Executes a validated plist native semantic query (query.rs:271-302). */
+/** Executes a validated plist native semantic query (query.rs). */
 export function executePlistNativeQuery(
   executable: ExecutableQuery,
   document: PlistDocument,
@@ -287,7 +287,7 @@ export function executePlistNativeQuery(
   return new PlistQueryResult(selected);
 }
 
-/** Executes a validated plist lossless syntax query (query.rs:325-369). */
+/** Executes a validated plist lossless syntax query (query.rs). */
 export function executePlistSyntaxQuery(
   executable: ExecutableQuery,
   document: PlistDocument,
@@ -322,7 +322,7 @@ export function executePlistSyntaxQuery(
   return new PlistQueryResult(selected);
 }
 
-/** Executes a validated plist binary structure query (query.rs:392-420). */
+/** Executes a validated plist binary structure query (query.rs). */
 export function executePlistBinaryQuery(
   executable: ExecutableQuery,
   document: PlistDocument,
@@ -379,7 +379,7 @@ function executeNativeExpression(
       for (const branch of expression.branches) {
         output = output.concat(executeNativeExpression(branch, input, context));
       }
-      // Native merge: pre-order rank of the value arena (query.rs:252-269
+      // Native merge: pre-order rank of the value arena (query.rs
       // precedent); the arena ordinals ARE the pre-order ranks here.
       output.sort((left, right) => rankOf(left) - rankOf(right));
       step(context, output.length);
@@ -487,7 +487,7 @@ function binaryRank(match: PlistBinaryMatch): number {
 }
 
 // ---------------------------------------------------------------------------
-// Native operators (query.rs:810-1163)
+// Native operators (query.rs)
 // ---------------------------------------------------------------------------
 
 function applyNativeOperator(
@@ -704,7 +704,7 @@ function applyNativeOperator(
   return output;
 }
 
-/** One dictionary association match in its owning dictionary (query.rs:1166-1184). */
+/** One dictionary association match in its owning dictionary (query.rs). */
 function entryMatch(
   context: ExecutionContext,
   dict: PlistValueRef,
@@ -725,7 +725,7 @@ function entryMatch(
   };
 }
 
-/** Value payload of one value-bearing match (query.rs:1123-1131). */
+/** Value payload of one value-bearing match (query.rs). */
 function valuePayload(item: PlistMatch): { readonly value: PlistValueRef; readonly kind: PlistValueKind } | null {
   switch (item.kind) {
     case 'Value':
@@ -763,7 +763,7 @@ function plistKindFromName(name: string): PlistValueKind | null {
   }
 }
 
-/** The typed accessor's target kind (query.rs:825-842). */
+/** The typed accessor's target kind (query.rs). */
 function typedAccessorKind(id: string): PlistValueKind {
   switch (id) {
     case 'plist.value-as-integer':
@@ -782,7 +782,7 @@ function typedAccessorKind(id: string): PlistValueKind {
 }
 
 // ---------------------------------------------------------------------------
-// Syntax operators (query.rs:1259-1298)
+// Syntax operators (query.rs)
 // ---------------------------------------------------------------------------
 
 function applySyntaxOperator(
@@ -845,7 +845,7 @@ function applySyntaxOperator(
 }
 
 // ---------------------------------------------------------------------------
-// Binary structure operators (query.rs:1334-1348)
+// Binary structure operators (query.rs)
 // ---------------------------------------------------------------------------
 
 function applyBinaryOperator(
@@ -996,7 +996,7 @@ function nodeKey(node: NodeRef): string {
   return `${node.snapshot().asBigInt().toString()}:${node.index().toString()}:${node.role()}`;
 }
 
-/** The five frozen cardinality selections (query.rs:479-496). */
+/** The five frozen cardinality selections (query.rs). */
 function applySelection<T>(values: T[], selection: QuerySelection): T[] {
   switch (selection) {
     case 'All':

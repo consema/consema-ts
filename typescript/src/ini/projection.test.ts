@@ -163,7 +163,7 @@ test('golden projection.fragmented-value-provenance: ContinuationFragment and Qu
 });
 
 test('recovered documents and each projection limit fail without values', () => {
-  // projection.rs:288-314; RFC 0009 §10:362. Recovered never projects;
+  // projection.rs; RFC 0009 §10. Recovered never projects;
   // the three limit names fail atomically with core.projection.
   // resource-limit@1 (conformance/vectors/ini-v1.json:130-134).
   const recovered = parseText(IniProfile.PORTABLE_V1, '[s]\nbare\n');

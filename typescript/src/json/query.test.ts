@@ -8,7 +8,7 @@
  *  - conformance/vectors/v1.json: query.json-duplicate-order (:77-81),
  *    query.root-result-limit (:143-147)
  *  - domain gating and the v2 extended kinds: RFC 0005 §7 (:151-173);
- *    consema-rs/consema-json/src/query.rs:96-105
+ *    consema-rs/consema-json/src/query.rs
  */
 
 import { test } from 'node:test';
@@ -167,7 +167,7 @@ test('query.root-result-limit: the root is the first standard result and may not
   );
 });
 
-test('query.cancellation fails without a completed result (query.rs:203-213)', () => {
+test('query.cancellation fails without a completed result (query.rs)', () => {
   const document = parse(bytes('[1,2,3]'), PROFILE_JSON_STRICT, DEFAULT_PARSE_LIMITS);
   const query = executable(domainJSONNativeV1(), {
     kind: 'Apply',

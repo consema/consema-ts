@@ -3,7 +3,7 @@
  *
  * authority:
  *  - RFC 0004 §15 (https://github.com/consema/consema/blob/main/docs/rfcs/0004-materialization-conversion-and-
- *    structural-edit-v1.md:358-372): an ordered cover of all old-source
+ *    structural-edit-v1.md): an ordered cover of all old-source
  *    intervals outside replacements mapped to target intervals; old regions
  *    exactly cover every non-replaced old byte once, new regions exactly
  *    cover every non-inserted new byte once, each mapped region has equal
@@ -24,7 +24,7 @@ import { ContentDigest } from './sha256.ts';
 import { SourceReplacement } from './source_patch.ts';
 import { SourceSnapshot } from './source.ts';
 
-/** One maximal unchanged raw-byte interval mapped across two source snapshots (untouched_proof.rs:7-59). */
+/** One maximal unchanged raw-byte interval mapped across two source snapshots (untouched_proof.rs). */
 export class UntouchedByteRegion {
   readonly #oldStart: number;
   readonly #oldEnd: number;
@@ -38,22 +38,22 @@ export class UntouchedByteRegion {
     this.#newEnd = newEnd;
   }
 
-  /** Inclusive start in the base snapshot (untouched_proof.rs:28-31). */
+  /** Inclusive start in the base snapshot (untouched_proof.rs). */
   oldStart(): number {
     return this.#oldStart;
   }
 
-  /** Exclusive end in the base snapshot (untouched_proof.rs:33-36). */
+  /** Exclusive end in the base snapshot (untouched_proof.rs). */
   oldEnd(): number {
     return this.#oldEnd;
   }
 
-  /** Inclusive start in the target snapshot (untouched_proof.rs:38-41). */
+  /** Inclusive start in the target snapshot (untouched_proof.rs). */
   newStart(): number {
     return this.#newStart;
   }
 
-  /** Exclusive end in the target snapshot (untouched_proof.rs:43-46). */
+  /** Exclusive end in the target snapshot (untouched_proof.rs). */
   newEnd(): number {
     return this.#newEnd;
   }
@@ -76,7 +76,7 @@ export class UntouchedByteRegion {
   }
 }
 
-/** Immutable evidence for every byte outside one exact replacement plan (untouched_proof.rs:61-67). */
+/** Immutable evidence for every byte outside one exact replacement plan (untouched_proof.rs). */
 export class UntouchedByteProof {
   readonly #baseDigest: ContentDigest;
   readonly #targetDigest: ContentDigest;
@@ -92,7 +92,7 @@ export class UntouchedByteProof {
     this.#regions = Object.freeze([...regions]);
   }
 
-  /** Creates a proof only when the replacements exactly produce the supplied target snapshot (untouched_proof.rs:69-82). */
+  /** Creates a proof only when the replacements exactly produce the supplied target snapshot (untouched_proof.rs). */
   static create(
     base: SourceSnapshot,
     target: SourceSnapshot,
@@ -102,7 +102,7 @@ export class UntouchedByteProof {
     return new UntouchedByteProof(base.digest(), target.digest(), regions);
   }
 
-  /** Constructs transferable proof facts after validating their canonical structure (untouched_proof.rs:84-96). */
+  /** Constructs transferable proof facts after validating their canonical structure (untouched_proof.rs). */
   static fromFacts(
     baseDigest: ContentDigest,
     targetDigest: ContentDigest,
@@ -112,7 +112,7 @@ export class UntouchedByteProof {
     return new UntouchedByteProof(baseDigest, targetDigest, regions);
   }
 
-  /** Rechecks digests, replacement preconditions, exact target bytes, and every region fact (untouched_proof.rs:98-113). */
+  /** Rechecks digests, replacement preconditions, exact target bytes, and every region fact (untouched_proof.rs). */
   verify(
     base: SourceSnapshot,
     target: SourceSnapshot,
@@ -132,23 +132,23 @@ export class UntouchedByteProof {
     }
   }
 
-  /** Required base digest (untouched_proof.rs:114-119). */
+  /** Required base digest (untouched_proof.rs). */
   baseDigest(): ContentDigest {
     return this.#baseDigest;
   }
 
-  /** Required target digest (untouched_proof.rs:121-126). */
+  /** Required target digest (untouched_proof.rs). */
   targetDigest(): ContentDigest {
     return this.#targetDigest;
   }
 
-  /** Canonical maximal unchanged regions (untouched_proof.rs:128-131). */
+  /** Canonical maximal unchanged regions (untouched_proof.rs). */
   regions(): readonly UntouchedByteRegion[] {
     return this.#regions;
   }
 }
 
-/** Derives the canonical maximal unchanged regions (untouched_proof.rs:182-245). */
+/** Derives the canonical maximal unchanged regions (untouched_proof.rs). */
 function expectedRegions(
   base: SourceSnapshot,
   target: SourceSnapshot,
@@ -197,7 +197,7 @@ function expectedRegions(
   return regions;
 }
 
-/** One replacement's structural and byte preconditions (untouched_proof.rs:247-281). */
+/** One replacement's structural and byte preconditions (untouched_proof.rs). */
 function validateReplacement(
   baseBytes: Uint8Array,
   previous: SourceReplacement | null,
@@ -231,7 +231,7 @@ function validateReplacement(
   }
 }
 
-/** Appends one region, merging adjacent intervals (untouched_proof.rs:283-295). */
+/** Appends one region, merging adjacent intervals (untouched_proof.rs). */
 function pushRegion(regions: UntouchedByteRegion[], region: UntouchedByteRegion): void {
   if (region.oldStart() === region.oldEnd()) {
     return;
@@ -249,7 +249,7 @@ function pushRegion(regions: UntouchedByteRegion[], region: UntouchedByteRegion)
   regions.push(region);
 }
 
-/** Canonical region facts: valid ranges, equal lengths, monotonic order (untouched_proof.rs:297-317). */
+/** Canonical region facts: valid ranges, equal lengths, monotonic order (untouched_proof.rs). */
 function validateRegions(regions: readonly UntouchedByteRegion[]): void {
   let previous: UntouchedByteRegion | null = null;
   for (let index = 0; index < regions.length; index++) {

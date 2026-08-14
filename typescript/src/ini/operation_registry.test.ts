@@ -50,7 +50,7 @@ test('golden registry.frozen-eight-operation-surface: every profile publishes th
 });
 
 test('descriptor target roles and argument schemas are exact', () => {
-  // operation_registry.rs:16-80 — the frozen target roles and argument
+  // operation_registry.rs — the frozen target roles and argument
   // schemas of the eight operations.
   const registry = iniFormatOperationRegistry(IniProfile.PORTABLE_V1);
   const byId = new Map(

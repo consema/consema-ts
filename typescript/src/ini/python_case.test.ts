@@ -14,7 +14,7 @@ import assert from 'node:assert/strict';
 import { optionxform } from './python_case.ts';
 
 test('unicode 16 full lowercase examples are exact', () => {
-  // python_case.rs:239-244.
+  // python_case.rs.
   assert.equal(optionxform('Key'), 'key');
   assert.equal(optionxform('\u{0130}'), 'i\u{0307}');
   assert.equal(optionxform('\u{212A}\u{1E9E}'), 'k\u{00DF}');
@@ -22,7 +22,7 @@ test('unicode 16 full lowercase examples are exact', () => {
 });
 
 test('unicode 17 new letters remain unassigned under the frozen profile', () => {
-  // python_case.rs:246-255 — the frozen Unicode 16.0 tables do not lower
+  // python_case.rs — the frozen Unicode 16.0 tables do not lower
   // letters added later.
   for (const code of [0xa7ce, 0xa7d2, 0xa7d4]) {
     const character = String.fromCodePoint(code);

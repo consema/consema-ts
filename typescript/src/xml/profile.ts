@@ -23,13 +23,13 @@ import type { ParseLimits } from '../document/formation.ts';
 import type { SourceEncoding } from '../document/source.ts';
 import type { EntityExpansionLimits } from './entity.ts';
 
-/** Frozen XML formation profile (lib.rs:54-59; RFC 0012 §1). */
+/** Frozen XML formation profile (lib.rs; RFC 0012 §1). */
 export type XmlProfile = 'SafeV1';
 
-/** `xml.1.0-safe@1` — the one published XML profile (lib.rs:61-66). */
+/** `xml.1.0-safe@1` — the one published XML profile (lib.rs). */
 export const PROFILE_XML_SAFE: XmlProfile = 'SafeV1';
 
-/** Immutable profile identifier (lib.rs:61-66). */
+/** Immutable profile identifier (lib.rs). */
 export function xmlProfileId(profile: XmlProfile): ProfileId {
   switch (profile) {
     case 'SafeV1':
@@ -38,7 +38,7 @@ export function xmlProfileId(profile: XmlProfile): ProfileId {
 }
 
 /**
- * Explicit document-entity encoding selection (lib.rs:69-79).
+ * Explicit document-entity encoding selection (lib.rs).
  *
  * No-BOM source defaults to UTF-8. An explicit caller choice is evidence,
  * not permission to contradict a BOM or a declaration (RFC 0012 §2 :62-63).
@@ -47,17 +47,17 @@ export type XmlEncodingSelection =
   | { readonly kind: 'ProfileDefault' }
   | { readonly kind: 'Explicit'; readonly encoding: SourceEncoding };
 
-/** Applies only the frozen profile default and BOM rules (lib.rs:74-75). */
+/** Applies only the frozen profile default and BOM rules (lib.rs). */
 export function profileDefaultSelection(): XmlEncodingSelection {
   return { kind: 'ProfileDefault' };
 }
 
-/** Uses one caller-selected document-entity encoding (lib.rs:76-78). */
+/** Uses one caller-selected document-entity encoding (lib.rs). */
 export function explicitSelection(encoding: SourceEncoding): XmlEncodingSelection {
   return { kind: 'Explicit', encoding };
 }
 
-/** XML-specific formation, entity, and recovery limits (lib.rs:81-128; RFC 0012 §12). */
+/** XML-specific formation, entity, and recovery limits (lib.rs; RFC 0012 §12). */
 export interface XmlParseLimits {
   /** Common source, node, piece, nesting, and diagnostic limits. */
   readonly common: ParseLimits;
@@ -105,7 +105,7 @@ export interface XmlParseLimits {
   readonly maxRecoveryRegions: number;
 }
 
-/** The frozen defaults (lib.rs:130-157). */
+/** The frozen defaults (lib.rs). */
 export const DEFAULT_XML_PARSE_LIMITS: Readonly<XmlParseLimits> = Object.freeze({
   common: DEFAULT_PARSE_LIMITS,
   maxDecodedUtf8Bytes: 128 * 1024 * 1024,
@@ -131,7 +131,7 @@ export const DEFAULT_XML_PARSE_LIMITS: Readonly<XmlParseLimits> = Object.freeze(
   maxRecoveryRegions: 100_000,
 });
 
-/** Entity expansion limits derived from these parse limits (lib.rs:159-172). */
+/** Entity expansion limits derived from these parse limits (lib.rs). */
 export function xmlEntityLimits(limits: XmlParseLimits): EntityExpansionLimits {
   return {
     maxDeclarations: limits.maxEntityDeclarations,

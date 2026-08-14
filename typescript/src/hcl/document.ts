@@ -3,20 +3,20 @@
  * formation surface (RFC 0014 §1, §3, §5, §6).
  *
  * authority:
- *  - profile layer: consema-rs/consema-hcl/src/document.rs:50-116 — the tfvars
+ *  - profile layer: consema-rs/consema-hcl/src/document.rs — the tfvars
  *    gate (:95-108, one `hcl.tfvars.block-not-allowed@1` per top-level block,
  *    primary = block span; the rejected block remains a native item),
  *    deterministic diagnostic merge (:109), the Document facts (:118-260:
  *    status, source, render, diagnostics, snapshot identity, format family,
  *    profile, error regions, lossless index, syntax kinds, parse limits,
  *    native handles)
- *  - encoding selection: consema-rs/consema-hcl/src/lib.rs:120-162 (the
+ *  - encoding selection: consema-rs/consema-hcl/src/lib.rs (the
  *    UTF-8-only contract; a non-UTF-8 explicit selection fails fatally
- *    with `hcl.parse.encoding@1` before any byte is read, lib.rs:290-310)
- *  - native model: consema-rs/consema-hcl/src/native.rs:28-291 (HclDocument,
+ *    with `hcl.parse.encoding@1` before any byte is read, lib.rs)
+ *  - native model: consema-rs/consema-hcl/src/native.rs (HclDocument,
  *    HclBody, HclBodyItem, HclAttribute, HclBlock, HclBlockLabel,
  *    HclErrorRegion)
- *  - roles: consema-rs/consema-document/src/lib.rs:229-250 (HclDocument,
+ *  - roles: consema-rs/consema-document/src/lib.rs (HclDocument,
  *    HclBody, HclAttribute, HclBlock, HclBlockLabel, HclExpression,
  *    HclTemplatePart, HclErrorRegion, HclSyntaxPiece — pinned in
  *    typescript/src/document/identity.ts:171-179)
@@ -25,7 +25,7 @@
  * a flat entity array; every native node (body, item, attribute, block,
  * label, expression, template part, error region) is one pre-order entity
  * with a snapshot-bound handle. The pre-order walk follows the documented
- * ordinal scheme of projection.rs:124-130: the root body first, then each
+ * ordinal scheme of projection.rs: the root body first, then each
  * item in source order; an attribute consumes one ordinal for itself and
  * then every node of its expression subtree; a block consumes one ordinal
  * for itself, one per label, and then its nested body's items. Expression
@@ -52,7 +52,7 @@ import { parseHclTokens } from './parser.ts';
 import type { ParsedBody, ParsedFormed, ParsedItem } from './parser.ts';
 
 // ---------------------------------------------------------------------------
-// Encoding selection (lib.rs:120-162)
+// Encoding selection (lib.rs)
 // ---------------------------------------------------------------------------
 
 /**
@@ -74,7 +74,7 @@ export function explicitEncoding(encoding: SourceEncoding): HclEncodingSelection
   return { kind: 'Explicit', encoding };
 }
 
-/** Validates the selection against the UTF-8-only source contract (lib.rs:145-151). */
+/** Validates the selection against the UTF-8-only source contract (lib.rs). */
 export function validateHclEncodingSelection(selection: HclEncodingSelection): boolean {
   switch (selection.kind) {
     case 'ProfileDefault':
@@ -98,7 +98,7 @@ export type HclEntity =
   | { readonly role: 'TemplatePart'; readonly span: Span; readonly part: HclTemplatePart }
   | { readonly role: 'ErrorRegion'; readonly span: Span; readonly code: string };
 
-/** One error region fact (native.rs:293-325). */
+/** One error region fact (native.rs). */
 export interface HclErrorRegionFact {
   readonly span: Span;
   readonly code: string;
@@ -137,7 +137,7 @@ export class HclErrorRegion {
 
 /**
  * Forms one `hcl.native@1` or `hcl.tfvars@1` document from raw bytes
- * (lib.rs:290-310; RFC 0014 §1, §3, §5). Throws HclFormationFailure on any
+ * (lib.rs; RFC 0014 §1, §3, §5). Throws HclFormationFailure on any
  * fatal condition; a truncated success never exists.
  */
 export function parseHcl(
@@ -190,7 +190,7 @@ export function parseHcl(
   return HclDocument.fromFormed(authority, source, profile, formed, limits);
 }
 
-/** The immutable HCL document snapshot (document.rs:57-67; RFC 0014 §6). */
+/** The immutable HCL document snapshot (document.rs; RFC 0014 §6). */
 export class HclDocument {
   readonly #authority: DocumentAuthority;
   readonly #source: SourceSnapshot;
@@ -257,57 +257,57 @@ export class HclDocument {
     return new HclDocument(authority, source, profile, formed, limits, entities, rootBody, nodeMap);
   }
 
-  /** Snapshot identity to which every handle and span belongs (document.rs:149-153). */
+  /** Snapshot identity to which every handle and span belongs (document.rs). */
   snapshotIdentity(): SnapshotIdentity {
     return this.#authority.identity();
   }
 
-  /** Exact immutable UTF-8 source (document.rs:130-134). */
+  /** Exact immutable UTF-8 source (document.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Default rendering is byte-for-byte identical to the source (document.rs:136-140). */
+  /** Default rendering is byte-for-byte identical to the source (document.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** HCL format family contract (document.rs:157-161). */
+  /** HCL format family contract (document.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('hcl', 1);
   }
 
-  /** Exact language profile (document.rs:163-167). */
+  /** Exact language profile (document.rs). */
   profile(): ProfileId {
     return this.#profile.id();
   }
 
-  /** Formation status (RFC 0014 §3; document.rs:118-128). */
+  /** Formation status (RFC 0014 §3; document.rs). */
   formationStatus(): FormationStatus {
     return this.#status;
   }
 
-  /** Alias of formationStatus (document.rs:124-128). */
+  /** Alias of formationStatus (document.rs). */
   status(): FormationStatus {
     return this.#status;
   }
 
-  /** Ordered diagnostics, deterministically sorted; the tfvars gate diagnostics are merged (document.rs:142-147). */
+  /** Ordered diagnostics, deterministically sorted; the tfvars gate diagnostics are merged (document.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Exhaustive token/trivia byte coverage (document.rs:177-181). */
+  /** Exhaustive token/trivia byte coverage (document.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex {
     return this.#structuralIndex;
   }
 
-  /** Format-specific kind for every structural piece, in the same source order (document.rs:183-187). */
+  /** Format-specific kind for every structural piece, in the same source order (document.rs). */
   losslessSyntaxKinds(): readonly HclSyntaxKind[] {
     return this.#formed.syntaxKinds;
   }
 
-  /** Resource contract used to form this snapshot and any edit successor (document.rs:189-193). */
+  /** Resource contract used to form this snapshot and any edit successor (document.rs). */
   parseLimits(): HclParseLimits {
     return this.#parseLimits;
   }
@@ -323,12 +323,12 @@ export class HclDocument {
     return regions;
   }
 
-  /** Root body handle (native.rs:54-58). */
+  /** Root body handle (native.rs). */
   root(): HclBody {
     return new HclBody(this, this.#rootBody);
   }
 
-  /** Resolves a snapshot-bound HCL body handle (document.rs:195-207). */
+  /** Resolves a snapshot-bound HCL body handle (document.rs). */
   body(node: NodeRef): HclBody {
     return new HclBody(this, this.validateRef(node, 'HclBody'));
   }
@@ -365,7 +365,7 @@ export class HclDocument {
     return this.#authority;
   }
 
-  /** @internal — the profile selector (document.rs:169-173). */
+  /** @internal — the profile selector (document.rs). */
   selector(): HclProfile {
     return this.#profile;
   }
@@ -380,7 +380,7 @@ export class HclDocument {
     return this.#authority.nodeRef(BigInt(index), role);
   }
 
-  /** @internal — mirror of document.rs:195-207. */
+  /** @internal — mirror of document.rs. */
   validateRef(node: NodeRef, role: NodeRole): number {
     this.#authority.verify(node);
     if (node.role() !== role) {
@@ -480,7 +480,7 @@ function hasTopLevelBlock(items: readonly ParsedItem[]): boolean {
   return items.some((item) => item.kind === 'block');
 }
 
-/** Builds one body entity subtree in the documented pre-order (projection.rs:124-130). */
+/** Builds one body entity subtree in the documented pre-order (projection.rs). */
 function buildEntities(body: ParsedBody, entities: HclEntity[], nodeMap: Map<object, number>): number {
   const bodyIndex = entities.length;
   entities.push({ role: 'Body', span: body.span, items: [] });
@@ -553,7 +553,7 @@ function buildExpression(expression: HclExpr, entities: HclEntity[], nodeMap: Ma
   return index;
 }
 
-/** Borrowed native HCL body bound to one document snapshot (native.rs:72-103). */
+/** Borrowed native HCL body bound to one document snapshot (native.rs). */
 export class HclBody {
   readonly #document: HclDocument;
   readonly #index: number;
@@ -603,7 +603,7 @@ export class HclBody {
   }
 }
 
-/** Borrowed native HCL attribute bound to one document snapshot (native.rs:145-193). */
+/** Borrowed native HCL attribute bound to one document snapshot (native.rs). */
 export class HclAttribute {
   readonly #document: HclDocument;
   readonly #index: number;
@@ -650,7 +650,7 @@ export class HclAttribute {
   }
 }
 
-/** Borrowed native HCL block bound to one document snapshot (native.rs:203-251). */
+/** Borrowed native HCL block bound to one document snapshot (native.rs). */
 export class HclBlock {
   readonly #document: HclDocument;
   readonly #index: number;
@@ -691,7 +691,7 @@ export class HclBlock {
   }
 }
 
-/** Borrowed native HCL block label bound to one document snapshot (native.rs:259-291). */
+/** Borrowed native HCL block label bound to one document snapshot (native.rs). */
 export class HclBlockLabel {
   readonly #document: HclDocument;
   readonly #index: number;
@@ -759,7 +759,7 @@ export class HclExpressionHandle {
     return decoded.slice(utf16Index(this.#document, span.startByte()), utf16Index(this.#document, span.endByte()));
   }
 
-  /** Ordered direct child expressions in source order (expression.rs:80-87). */
+  /** Ordered direct child expressions in source order (expression.rs). */
   children(): HclExpressionHandle[] {
     const node = this.node();
     const children: HclExpressionHandle[] = [];
@@ -811,7 +811,7 @@ function utf16Index(document: HclDocument, byte: number): number {
   return document.source().decodedPosition(byte).utf16CodeUnitOffset;
 }
 
-/** Ordered direct child expressions in source order (expression.rs:80-87). */
+/** Ordered direct child expressions in source order (expression.rs). */
 export function directChildrenOf(expression: HclExpr): HclExpr[] {
   const children: HclExpr[] = [];
   switch (expression.kind) {

@@ -51,7 +51,7 @@ function bytesOf(value: ReturnType<typeof complete>): string {
 }
 
 test('canonical document round-trips scalar, container, and temporal values', () => {
-  // materialization.rs:908-959 test shape: the materialized document
+  // materialization.rs test shape: the materialized document
   // reparses and projects to the exact input value; fidelity Exact; the
   // output ends with one final newline.
   const date = dateValue(2026n, 8, 4);
@@ -107,7 +107,7 @@ test('root keys are quoted deterministically; nested objects are inline tables',
 });
 
 test('explicit unique-string mapping conversion is reported and reversible as Object', () => {
-  // materialization.rs:961-994 test shape: EntryMapping under the explicit
+  // materialization.rs test shape: EntryMapping under the explicit
   // policy becomes an Object; fidelity Transformed; the single report event
   // is core.materialization.mapping-transformed@1; render is byte-exact.
   const mapping = entryMappingValue([
@@ -166,7 +166,7 @@ test('materialization provenance covers every emitted value and association', ()
 });
 
 test('unrepresentable values and implicit mapping conversion fail without partial bytes', () => {
-  // materialization.rs:996-1114 test shape.
+  // materialization.rs test shape.
   const tooLarge = objectValue([
     { key: 'value', value: integerValue(9223372036854775808n) },
   ]);

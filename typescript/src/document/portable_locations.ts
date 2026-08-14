@@ -5,7 +5,7 @@
  * authority: consema-rs/consema-core/src/location.rs — ValuePathSegment :4-14,
  * ValuePath :16-40, AssociationRole :42-51, AssociationLocation :53-89.
  * Consumed by materialization provenance and failure records (RFC 0004 §8,
- * materialization.rs:239-247, 327-351).
+ * materialization.rs).
  *
  * NOTE (recorded home): ValuePath/AssociationLocation are core-domain
  * concepts (they live in consema-core, not consema-document), but the TS
@@ -20,14 +20,14 @@
  * bigints (u64 on the wire).
  */
 
-/** One segment of a root-relative portable value path (location.rs:4-14). */
+/** One segment of a root-relative portable value path (location.rs). */
 export type ValuePathSegment =
   | { readonly kind: 'ObjectValue'; readonly name: string }
   | { readonly kind: 'SequenceElement'; readonly index: bigint }
   | { readonly kind: 'EntryKey'; readonly index: bigint }
   | { readonly kind: 'EntryValue'; readonly index: bigint };
 
-/** A path to a value; the empty path denotes the root (location.rs:16-40). */
+/** A path to a value; the empty path denotes the root (location.rs). */
 export class ValuePath {
   readonly #segments: readonly ValuePathSegment[];
 
@@ -35,17 +35,17 @@ export class ValuePath {
     this.#segments = segments;
   }
 
-  /** Root path (location.rs:22-25). */
+  /** Root path (location.rs). */
   static root(): ValuePath {
     return new ValuePath([]);
   }
 
-  /** Returns path segments (location.rs:27-31). */
+  /** Returns path segments (location.rs). */
   segments(): readonly ValuePathSegment[] {
     return this.#segments;
   }
 
-  /** Creates a child path without modifying this path (location.rs:33-39). */
+  /** Creates a child path without modifying this path (location.rs). */
   child(segment: ValuePathSegment): ValuePath {
     return new ValuePath([...this.#segments, segment]);
   }
@@ -75,10 +75,10 @@ export class ValuePath {
   }
 }
 
-/** Association kind independent from child values (location.rs:42-51). */
+/** Association kind independent from child values (location.rs). */
 export type AssociationRole = 'ObjectEntry' | 'ObjectKey' | 'EntryMappingEntry';
 
-/** Location of an association, not a portable value node (location.rs:53-89). */
+/** Location of an association, not a portable value node (location.rs). */
 export class AssociationLocation {
   readonly #container: ValuePath;
   readonly #ordinal: bigint;
@@ -93,17 +93,17 @@ export class AssociationLocation {
     this.#role = role;
   }
 
-  /** Path of the containing value (location.rs:72-76). */
+  /** Path of the containing value (location.rs). */
   container(): ValuePath {
     return this.#container;
   }
 
-  /** Structural association ordinal (location.rs:78-81). */
+  /** Structural association ordinal (location.rs). */
   ordinal(): bigint {
     return this.#ordinal;
   }
 
-  /** Association role (location.rs:83-87). */
+  /** Association role (location.rs). */
   role(): AssociationRole {
     return this.#role;
   }

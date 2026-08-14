@@ -66,7 +66,7 @@ test('source.utf16le-bom — UTF-16LE BOM detection (yaml-v1.json:16-19)', () =>
   assert.equal(document.source().encodingFacts().selected().kind, 'Utf16Le');
   assert.equal(document.documentCount(), 1);
   // Unmodified rendering returns the original raw bytes including the BOM
-  // (RFC 0007 §3:66-71).
+  // (RFC 0007 §3).
   assert.deepEqual([...document.render()], [...bytes]);
 });
 
@@ -192,7 +192,7 @@ test('graph.shared-cycle — self-alias composes one shared node (yaml-v1.json:4
   assert.equal(root.sequenceLen(), 2);
   assert.equal(root.sequenceItem(0)!.node().scalar()!.decoded(), 'one');
   // The alias is one edge referencing the same representation node; no
-  // expansion occurs (RFC 0007 §8:209-212).
+  // expansion occurs (RFC 0007 §8).
   assert.equal(document.aliasCount(), 1);
   assert.equal(root.sequenceItem(1)!.node().nodeRef().equals(root.nodeRef()), true);
 });
@@ -244,7 +244,7 @@ test('alias bomb — deep alias chain stays within nesting limits', () => {
   );
 });
 
-test('version directive — profile conflict is fatal (lib.rs:789-831)', () => {
+test('version directive — profile conflict is fatal (lib.rs)', () => {
   assert.throws(
     () => core('%YAML 1.1\n---\nyes\n'),
     (error: unknown) =>
@@ -260,7 +260,7 @@ test('version directive — profile conflict is fatal (lib.rs:789-831)', () => {
   assert.equal(document.documentCount(), 1);
 });
 
-test('explicit standard tags are kind and grammar checked (lib.rs:1375-1398)', () => {
+test('explicit standard tags are kind and grammar checked (lib.rs)', () => {
   assert.throws(
     () => core('!!int nope\n'),
     (error: unknown) =>
@@ -275,7 +275,7 @@ test('explicit standard tags are kind and grammar checked (lib.rs:1375-1398)', (
   );
 });
 
-test('block scalars keep exact content and chomping (lib.rs:1235-1261)', () => {
+test('block scalars keep exact content and chomping (lib.rs)', () => {
   const document = core('a: |\n  ~\nb: >\n  null\n');
   const values = [document.document(0)!.root().mappingEntry(0)!.value(), document.document(0)!.root().mappingEntry(1)!.value()];
   assert.equal(values[0].scalar()!.kind(), 'String');
@@ -284,7 +284,7 @@ test('block scalars keep exact content and chomping (lib.rs:1235-1261)', () => {
   assert.equal(values[1].scalar()!.decoded(), 'null\n');
 });
 
-test('quoted core keywords are exact strings (lib.rs:1049-1083)', () => {
+test('quoted core keywords are exact strings (lib.rs)', () => {
   const keywords = ['', '~', 'null', 'true', 'false', '.inf', '0', '0x1F', '0o17', '1e3', '1.5'];
   for (const keyword of keywords) {
     for (const quote of ['"', "'"]) {

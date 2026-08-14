@@ -8,7 +8,7 @@
  * ProtocolMessage toJSON/fromJSON and toPVCE/fromPVCE, with message equality
  * over contract + payload. The forged-fact and resource-limit cases decode
  * the record directly with tightened limits, exactly like the Rust runner
- * (protocol_v2.rs:239-297).
+ * (protocol_v2.rs).
  */
 
 import type { VectorCase } from '../helpers.ts';
@@ -77,7 +77,7 @@ function messageEqual(left: ProtocolMessage, right: ProtocolMessage): boolean {
   );
 }
 
-/** Rebuilds one field of an Object with a forged replacement (protocol_v2.rs:364-384). */
+/** Rebuilds one field of an Object with a forged replacement (protocol_v2.rs). */
 function replaceObjectField(
   value: PortableValue,
   name: string,
@@ -100,7 +100,7 @@ function replaceObjectField(
   return objectValueFrom(entries);
 }
 
-/** The forged digest wire record used by the tampering cases (protocol_v2.rs:244-247). */
+/** The forged digest wire record used by the tampering cases (protocol_v2.rs). */
 function forgedDigestValue(hexText: string): ObjectValue {
   return objectValueFrom([
     { key: 'algorithm', value: stringValue('sha256') },
@@ -125,14 +125,14 @@ function encodingOf(name: string): SourceEncoding {
   }
 }
 
-/** Builds the input snapshot exactly like the Rust runner (protocol_v2.rs:321-328). */
+/** Builds the input snapshot exactly like the Rust runner (protocol_v2.rs). */
 function snapshotFromCase(case_: VectorCase, field: string): SourceSnapshot {
   const raw = hexToBytes(caseField(case_, field) as string);
   const encoding = encodingOf(caseField(case_, 'encoding') as string);
   return SourceSnapshot.fromRaw(raw, EncodingRequest.create(encoding), DEFAULT_SOURCE_LIMITS);
 }
 
-/** Builds the input replacement set exactly like the Rust runner (protocol_v2.rs:330-344). */
+/** Builds the input replacement set exactly like the Rust runner (protocol_v2.rs). */
 function replacementsFromCase(case_: VectorCase): SourceReplacement[] {
   return (
     caseField(case_, 'replacements') as {
@@ -238,7 +238,7 @@ function protocolMessage(case_: VectorCase): void {
   );
 }
 
-/** core.source-snapshot@1 — dual transport and tampering cases (protocol_v2.rs:155-187, 239-283). */
+/** core.source-snapshot@1 — dual transport and tampering cases (protocol_v2.rs). */
 function sourceSnapshotWire(case_: VectorCase): void {
   switch (case_.id) {
     case 'protocol.v2.snapshot-dual-transport': {
@@ -323,7 +323,7 @@ function sourceSnapshotWire(case_: VectorCase): void {
   }
 }
 
-/** core.source-patch@1 — dual transport, resource limit, and the wire-transported stale base (protocol_v2.rs:189-224, 285-319). */
+/** core.source-patch@1 — dual transport, resource limit, and the wire-transported stale base (protocol_v2.rs). */
 function sourcePatchWire(case_: VectorCase): void {
   switch (case_.id) {
     case 'protocol.v2.patch-dual-transport': {
@@ -385,7 +385,7 @@ function sourcePatchWire(case_: VectorCase): void {
       );
       const value = SourcePatchMessage.fromPatch(patch).toValue();
       // The Rust runner transports the record value through PVCE and decodes
-      // it before applying to the stale base (protocol_v2.rs:305-312).
+      // it before applying to the stale base (protocol_v2.rs).
       const transported = DecodePVCE(EncodePVCE(value), defaultDecodeLimits());
       const decoded = SourcePatchMessage.fromValue(transported, DEFAULT_SOURCE_PATCH_LIMITS);
       expectRejected(

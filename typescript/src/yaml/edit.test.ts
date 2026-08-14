@@ -7,7 +7,7 @@
  *    edit.structural-insert (:116-119), edit.anchor-dependency (:121-124)
  * Edit semantics: RFC 0007 §12 (the anchor-safe rules :383-392);
  * consema-rs/consema-yaml/src/edit.rs (the e420ad7 anchor-dependency behavior:
- * only the deleted subtree is collected for validation, edit.rs:1398-1442).
+ * only the deleted subtree is collected for validation, edit.rs).
  */
 
 import { test } from 'node:test';
@@ -107,7 +107,7 @@ test('edit.anchor-dependency — removing an anchored definition with live alias
 
 test('edit.anchor-dependency — deleting an alias does not delete its target', () => {
   // Removing the alias association is fine: only the deleted subtree is
-  // collected for validation (edit.rs:1398-1418).
+  // collected for validation (edit.rs).
   const document = core('first: &x [one]\ncopy: *x\n');
   const copyEntry = document.document(0)!.root().mappingEntry(1)!;
   const builder = new EditTransactionBuilder(document);

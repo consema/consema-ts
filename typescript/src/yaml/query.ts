@@ -21,7 +21,7 @@
  *    role order, index) :340-355, syntax merge by piece ordinal :382-389)
  *  - apply_selection :690-707 (All/First/Last/ZeroOrOne/RequireOne)
  *  - QueryLimits defaults (max_steps 100_000, max_results 100_000):
- *    consema-rs/consema-core/src/query.rs:2967-2981
+ *    consema-rs/consema-core/src/query.rs
  *  - query definition/operator validation: typescript/src/protocol/query.ts
  *    (validateQuery/bindQuery; the YAML operator table rows :333-346,
  *    :380-381; the YAML syntax-kind vocabulary :1117-1148)
@@ -49,7 +49,7 @@ import type {
 // Execution limits and cancellation
 // ---------------------------------------------------------------------------
 
-/** Immutable query execution limits (query.rs:2967-2981). */
+/** Immutable query execution limits (query.rs). */
 export class QueryLimits {
   readonly #maxSteps: number;
   readonly #maxResults: number;
@@ -59,17 +59,17 @@ export class QueryLimits {
     this.#maxResults = maxResults;
   }
 
-  /** The frozen defaults: 100_000 steps and 100_000 results (query.rs:2974-2980). */
+  /** The frozen defaults: 100_000 steps and 100_000 results (query.rs). */
   static defaults(): QueryLimits {
     return new QueryLimits(100_000, 100_000);
   }
 
-  /** Maximum operator steps (query.rs:2969). */
+  /** Maximum operator steps (query.rs). */
   maxSteps(): number {
     return this.#maxSteps;
   }
 
-  /** Maximum complete results buffered by an operator (query.rs:2971). */
+  /** Maximum complete results buffered by an operator (query.rs). */
   maxResults(): number {
     return this.#maxResults;
   }
@@ -93,7 +93,7 @@ export class CancellationToken {
 // Matches
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound YAML native semantic query match (query.rs:12-99). */
+/** Owned snapshot-bound YAML native semantic query match (query.rs). */
 export type YamlMatch =
   | {
       readonly kind: 'Stream';
@@ -181,7 +181,7 @@ export type YamlMatch =
       readonly span: Span;
     };
 
-/** Primary process-local identity for one match (query.rs:102-113). */
+/** Primary process-local identity for one match (query.rs). */
 export function matchNodeRef(match: YamlMatch): NodeRef {
   switch (match.kind) {
     case 'Stream':
@@ -201,12 +201,12 @@ export function matchNodeRef(match: YamlMatch): NodeRef {
   }
 }
 
-/** Exact raw source span associated with one match (query.rs:116-128). */
+/** Exact raw source span associated with one match (query.rs). */
 export function matchSpan(match: YamlMatch): Span {
   return match.span;
 }
 
-/** Owned snapshot-bound YAML lossless syntax query match (query.rs:131-138). */
+/** Owned snapshot-bound YAML lossless syntax query match (query.rs). */
 export class YamlSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -220,22 +220,22 @@ export class YamlSyntaxMatch {
     this.#ordinal = ordinal;
   }
 
-  /** Process-local syntax-piece identity (query.rs:141-146). */
+  /** Process-local syntax-piece identity (query.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw source span (query.rs:148-151). */
+  /** Exact raw source span (query.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Format-specific lossless kind (query.rs:153-156). */
+  /** Format-specific lossless kind (query.rs). */
   kind(): YamlSyntaxKind {
     return this.#kind;
   }
 
-  /** Zero-based source-order position (query.rs:158-163). */
+  /** Zero-based source-order position (query.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
@@ -285,7 +285,7 @@ function step(context: ExecutionContext, results: number): void {
 
 /**
  * Executes a validated YAML native semantic query against one immutable
- * stream (query.rs:167-197). The stream is the first standard result and
+ * stream (query.rs). The stream is the first standard result and
  * must not bypass result limits.
  */
 export function executeYamlQuery(
@@ -316,7 +316,7 @@ export function executeYamlQuery(
 
 /**
  * Executes a validated YAML lossless syntax query against every source
- * piece in raw order (query.rs:214-255).
+ * piece in raw order (query.rs).
  */
 export function executeYamlSyntaxQuery(
   executable: ExecutableQuery,
@@ -774,7 +774,7 @@ function nodeKey(node: NodeRef): string {
   return `${node.snapshot().asBigInt().toString()}:${node.index().toString()}:${node.role()}`;
 }
 
-/** The five frozen cardinality selections (query.rs:690-707). */
+/** The five frozen cardinality selections (query.rs). */
 function applySelection<T>(values: T[], selection: QuerySelection): T[] {
   switch (selection) {
     case 'All':

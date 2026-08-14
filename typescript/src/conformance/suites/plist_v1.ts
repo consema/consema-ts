@@ -8,7 +8,7 @@
  * materialization.ts, edit.ts). Cross-representation conversion (RFC 0013
  * §7) composes the value-tree projection with a native-graph serializer
  * and the canonical materialization, mirroring
- * python/src/consema/plist/conversion.py (document.rs:224-593).
+ * python/src/consema/plist/conversion.py (document.rs).
  */
 
 import type { VectorCase } from '../helpers.ts';
@@ -1040,12 +1040,12 @@ function materializationSamples(case_: VectorCase, samples: readonly unknown[]):
 // Cross-representation conversion (RFC 0013 §7)
 // ---------------------------------------------------------------------------
 
-/** One cross-representation conversion outcome (document.rs:252-289). */
+/** One cross-representation conversion outcome (document.rs). */
 type ConversionResult =
   | { readonly kind: 'Complete'; readonly document: PlistDocument; readonly representationChanged: boolean }
   | { readonly kind: 'Failure'; readonly code: string };
 
-/** Escapes XML text content (RFC 0013 §4.9; document.rs:899-912). */
+/** Escapes XML text content (RFC 0013 §4.9; document.rs). */
 function conversionEscapeXmlText(text: string): string {
   let out = '';
   for (const character of text) {
@@ -1070,7 +1070,7 @@ function conversionEscapeXmlText(text: string): string {
   return out;
 }
 
-/** Deterministic shortest-round-trip decimal spelling of one real (document.rs:914-929). */
+/** Deterministic shortest-round-trip decimal spelling of one real (document.rs). */
 function conversionRenderReal(real: PlistReal): string {
   const value = real.asF64();
   if (Number.isNaN(value)) {
@@ -1082,7 +1082,7 @@ function conversionRenderReal(real: PlistReal): string {
   return String(value);
 }
 
-/** Whether the exact bits of one real survive the XML spelling (document.rs:931-946). */
+/** Whether the exact bits of one real survive the XML spelling (document.rs). */
 function conversionRealExpressible(real: PlistReal): boolean {
   const value = real.asF64();
   if (Number.isNaN(value)) {
@@ -1094,7 +1094,7 @@ function conversionRealExpressible(real: PlistReal): boolean {
   return bitsOfFloat64(Number(conversionRenderReal(real))) === bitsOfFloat64(value);
 }
 
-/** Whether one UTF-16 sequence is well-formed (document.rs:1038-1057). */
+/** Whether one UTF-16 sequence is well-formed (document.rs). */
 function conversionClassifySurrogates(text: string): 'WellFormedUnicode' | 'UnpairedSurrogate' {
   for (let index = 0; index < text.length; index++) {
     const unit = text.charCodeAt(index);
@@ -1123,12 +1123,12 @@ function conversionIsXmlCharCode(code: number): boolean {
   );
 }
 
-/** Whether every scalar of one UTF-16 sequence is an XML 1.0 character (document.rs:1038-1057). */
+/** Whether every scalar of one UTF-16 sequence is an XML 1.0 character (document.rs). */
 function conversionIsXmlText(text: string): boolean {
   return conversionClassifySurrogates(text) === 'WellFormedUnicode' && [...text].every((c) => conversionIsXmlCharCode(c.codePointAt(0)!));
 }
 
-/** Proleptic Gregorian calendar date of `days` since the Unix epoch (document.rs:985-1000). */
+/** Proleptic Gregorian calendar date of `days` since the Unix epoch (document.rs). */
 function conversionCivilFromDays(days: number): { year: number; month: number; day: number } {
   const z = days + 719468;
   const era = z >= 0 ? z : z - 146096;
@@ -1144,7 +1144,7 @@ function conversionCivilFromDays(days: number): { year: number; month: number; d
   return { year, month, day };
 }
 
-/** Whole-second decomposition into XML calendar fields; `null` when inexpressible (document.rs:958-983). */
+/** Whole-second decomposition into XML calendar fields; `null` when inexpressible (document.rs). */
 function conversionWholeSecondDate(seconds: number): { year: number; month: number; day: number; hour: number; minute: number; second: number } | null {
   if (seconds % 1 !== 0) {
     return null;
@@ -1177,7 +1177,7 @@ function conversionRenderDate(fields: { year: number; month: number; day: number
   return `${sign}${year}-${pad(fields.month)}-${pad(fields.day)}T${pad(fields.hour)}:${pad(fields.minute)}:${pad(fields.second)}Z`;
 }
 
-/** Unwrapped standard-alphabet base64 with exact `=` padding (document.rs:890). */
+/** Unwrapped standard-alphabet base64 with exact `=` padding (document.rs). */
 function conversionBase64(bytes: Uint8Array): string {
   const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   let out = '';
@@ -1193,13 +1193,13 @@ function conversionBase64(bytes: Uint8Array): string {
   return out;
 }
 
-/** One reachable node of the native graph with its indegree (document.rs:626-741). */
+/** One reachable node of the native graph with its indegree (document.rs). */
 interface ConversionNode {
   readonly node: PlistValue;
   readonly indegree: number;
 }
 
-/** Reachable-graph analysis plus XML expressibility validation (document.rs:619-741). */
+/** Reachable-graph analysis plus XML expressibility validation (document.rs). */
 function analyzeConversionXml(
   native: PlistNativeDocument,
 ): { readonly nodes: readonly ConversionNode[] } | { readonly failure: string } {
@@ -1271,7 +1271,7 @@ function analyzeConversionXml(
   return { nodes };
 }
 
-/** Emits one scalar value element at the given depth (document.rs:843-890). */
+/** Emits one scalar value element at the given depth (document.rs). */
 function emitConversionScalar(out: { text: string }, native: PlistNativeDocument, node: PlistValue, depth: number): void {
   out.text += '    '.repeat(depth);
   switch (node.kind) {
@@ -1307,7 +1307,7 @@ function emitConversionScalar(out: { text: string }, native: PlistNativeDocument
   }
 }
 
-/** Emits one container value with its children (document.rs:777-841). */
+/** Emits one container value with its children (document.rs). */
 function emitConversionContainer(
   out: { text: string },
   native: PlistNativeDocument,
@@ -1358,7 +1358,7 @@ function emitConversionContainer(
   }
 }
 
-/** Direct children of one container node (document.rs:626-641). */
+/** Direct children of one container node (document.rs). */
 function conversionChildrenOf(native: PlistNativeDocument, node: PlistValue): number[] {
   if (node.kind === 'Dict') {
     return node.entries.map((entry) => entry.value);
@@ -1369,7 +1369,7 @@ function conversionChildrenOf(native: PlistNativeDocument, node: PlistValue): nu
   return [];
 }
 
-/** Serializes one native value graph as a `plist.xml@1` source with the root at depth 0 (document.rs:767-890). */
+/** Serializes one native value graph as a `plist.xml@1` source with the root at depth 0 (document.rs). */
 function serializeConversionXml(native: PlistNativeDocument): Uint8Array {
   const out = {
     text: '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n',
@@ -1389,7 +1389,7 @@ function serializeConversionXml(native: PlistNativeDocument): Uint8Array {
 
 /**
  * Converts one document to the other representation (RFC 0013 §7;
- * document.rs:252-289). XML→binary composes the value-tree projection
+ * document.rs). XML→binary composes the value-tree projection
  * with the canonical binary materialization; binary→XML serializes the
  * native graph directly (the conversion serializer writes the root at
  * depth 0 and wraps data without line wrapping, unlike the
@@ -1605,7 +1605,7 @@ function reparse(document: PlistDocument): PlistDocument {
   return parse(document.render(), profile, PROFILE_DEFAULT_ENCODING, DEFAULT_PLIST_PARSE_LIMITS);
 }
 
-/** Patch construction bounds derived from the parse limits (edit.rs:2111-2121). */
+/** Patch construction bounds derived from the parse limits (edit.rs). */
 function sourcePatchLimits(document: PlistDocument): SourcePatchLimits {
   const limits = document.parseLimits();
   return {

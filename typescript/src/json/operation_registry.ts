@@ -43,7 +43,7 @@ import type { OperationArgumentKind, OperationSupport } from '../document/operat
 import { jsonProfileId } from './profile.ts';
 import type { JsonProfile } from './profile.ts';
 
-/** Returns the validated operation registry for one exact JSON-family profile (operation_registry.rs:10-14). */
+/** Returns the validated operation registry for one exact JSON-family profile (operation_registry.rs). */
 export function formatOperationRegistry(profile: JsonProfile): FormatOperationRegistry {
   return FormatOperationRegistry.create(jsonProfileId(profile), descriptors());
 }

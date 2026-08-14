@@ -18,13 +18,13 @@
  *    StructureOrderMerge :298-368), native operator behavior (:421-625),
  *    syntax operator behavior (:370-419), source order (:627-659),
  *    decoded text comparison (:661-676), selection (:693-710)
- *  - steps/results accounting: query.rs:227-271 (max_steps/max_results →
+ *  - steps/results accounting: query.rs (max_steps/max_results →
  *    core.query.resource-limit@1); defaults 100_000 steps / 100_000
- *    results (consema-core/src/query.rs:2974-2981)
+ *    results (consema-core/src/query.rs)
  *  - failure codes: consema-rs/consema-protocol/src/error_registry.rs —
  *    core.query.cancelled@1 :141, core.query.cardinality-violation@1 :147,
  *    core.query.resource-limit@1 :183
- *  - the ordered cursor: query.rs:145-157 (OrderedQueryCursor with
+ *  - the ordered cursor: query.rs (OrderedQueryCursor with
  *    cancellation; terminal states Completed | Cancelled)
  *
  * Design (TypeScript-idiomatic): validation and binding live in the
@@ -56,7 +56,7 @@ import { optionxform } from './python_case.ts';
 // Match and failure records
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound INI native semantic query match (query.rs:10-67). */
+/** Owned snapshot-bound INI native semantic query match (query.rs). */
 export type IniMatch =
   | { readonly kind: 'Document'; readonly node: NodeRef }
   | {
@@ -86,12 +86,12 @@ export type IniMatch =
       readonly logicalKind: IniLogicalLineKind;
     };
 
-/** Match identity node (query.rs:69-79). */
+/** Match identity node (query.rs). */
 export function iniMatchIdentity(match: IniMatch): NodeRef {
   return match.node;
 }
 
-/** Owned snapshot-bound INI lossless syntax query match (query.rs:81-114). */
+/** Owned snapshot-bound INI lossless syntax query match (query.rs). */
 export class IniSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -105,28 +105,28 @@ export class IniSyntaxMatch {
     this.#ordinal = ordinal;
   }
 
-  /** Process-local syntax-piece identity (query.rs:91-94). */
+  /** Process-local syntax-piece identity (query.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw source span (query.rs:95-98). */
+  /** Exact raw source span (query.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Format-specific lossless kind (query.rs:99-102). */
+  /** Format-specific lossless kind (query.rs). */
   kind(): IniSyntaxKind {
     return this.#kind;
   }
 
-  /** Zero-based source-order position (query.rs:103-106). */
+  /** Zero-based source-order position (query.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
 }
 
-/** Immutable query execution limits (consema-core query.rs:2965-2981). */
+/** Immutable query execution limits (consema-core query.rs). */
 export interface IniQueryLimits {
   /** Maximum operator steps. */
   readonly maxSteps: number;
@@ -134,13 +134,13 @@ export interface IniQueryLimits {
   readonly maxResults: number;
 }
 
-/** The frozen defaults (query.rs:2974-2981): 100_000 steps, 100_000 results. */
+/** The frozen defaults (query.rs): 100_000 steps, 100_000 results. */
 export const DEFAULT_INI_QUERY_LIMITS: Readonly<IniQueryLimits> = Object.freeze({
   maxSteps: 100_000,
   maxResults: 100_000,
 });
 
-/** Cooperative cancellation signal (consema-core query.rs:2983). */
+/** Cooperative cancellation signal (consema-core query.rs). */
 export class IniCancellationToken {
   #cancelled = false;
 
@@ -155,13 +155,13 @@ export class IniCancellationToken {
   }
 }
 
-/** Complete deterministic query execution (query.rs:117). */
+/** Complete deterministic query execution (query.rs). */
 export interface IniQueryExecution<M> {
   readonly matches: readonly M[];
 }
 
 /**
- * Execution-time query failure (error_registry.rs:141,147,183); the
+ * Execution-time query failure (error_registry.rs); the
  * domain-mismatch failure is the protocol QueryFailure.
  */
 export type IniQueryExecutionFailureKind =
@@ -171,7 +171,7 @@ export type IniQueryExecutionFailureKind =
 
 export class IniQueryExecutionFailure extends Error {
   readonly kind: IniQueryExecutionFailureKind;
-  /** Frozen registered code (error_registry.rs:141/147/183). */
+  /** Frozen registered code (error_registry.rs). */
   readonly code: string;
   /** CardinalityViolation: the requested selection and the actual match count. */
   readonly selection?: QuerySelection;
@@ -190,7 +190,7 @@ export class IniQueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (consema-core/src/query.rs:1515-1527). */
+/** Kind→code mapping (consema-core/src/query.rs). */
 export function queryExecutionFailureCode(kind: IniQueryExecutionFailureKind): string {
   switch (kind) {
     case 'Cancelled':
@@ -266,7 +266,7 @@ class Context {
 
 /**
  * Executes a validated INI native semantic query against one immutable
- * snapshot (query.rs:117-143). The input is the root `IniDocument`;
+ * snapshot (query.rs). The input is the root `IniDocument`;
  * domain mismatch is a protocol QueryFailure.
  */
 export function executeIniQuery(
@@ -291,7 +291,7 @@ export function executeIniQuery(
   return { matches: selected };
 }
 
-/** Executes a native query and exposes the complete result through a cancellable ordered cursor (query.rs:146-157). */
+/** Executes a native query and exposes the complete result through a cancellable ordered cursor (query.rs). */
 export function executeIniQueryCursor(
   executable: ExecutableQuery,
   document: IniDocument,
@@ -343,7 +343,7 @@ function executeNativeExpression(
   }
 }
 
-/** Source-order key of one native match (query.rs:627-659). */
+/** Source-order key of one native match (query.rs). */
 function sourceOrderOf(match: IniMatch, document: IniDocument): [number, number] {
   switch (match.kind) {
     case 'Document':
@@ -543,7 +543,7 @@ function applyNativeOperator(
 
 /**
  * Executes a validated INI lossless syntax query against every source
- * piece in raw order (query.rs:160-204).
+ * piece in raw order (query.rs).
  */
 export function executeIniSyntaxQuery(
   executable: ExecutableQuery,
@@ -577,7 +577,7 @@ export function executeIniSyntaxQuery(
   return { matches: selected };
 }
 
-/** Executes a syntax query and exposes its complete result as a cancellable cursor (query.rs:207-218). */
+/** Executes a syntax query and exposes its complete result as a cancellable cursor (query.rs). */
 export function executeIniSyntaxQueryCursor(
   executable: ExecutableQuery,
   document: IniDocument,
@@ -674,10 +674,10 @@ function applySyntaxOperator(
 }
 
 /**
- * Decoded Unicode scalar text of one exact piece span (query.rs:661-676):
+ * Decoded Unicode scalar text of one exact piece span (query.rs):
  * raw spans are mapped through the source's decoded boundary index so
  * UTF-8, UTF-16LE, and explicit Windows-code-page queries are semantically
- * identical while their raw spans remain distinct (RFC 0009 §9:339-341).
+ * identical while their raw spans remain distinct (RFC 0009 §9).
  */
 function decodedSpanText(document: IniDocument, span: Span): string {
   const source = document.source();
@@ -690,13 +690,13 @@ function decodedSpanText(document: IniDocument, span: Span): string {
 }
 
 // ---------------------------------------------------------------------------
-// Ordered cursor (query.rs:145-157)
+// Ordered cursor (query.rs)
 // ---------------------------------------------------------------------------
 
 /** Terminal state of an ordered query cursor. */
 export type IniQueryTerminalState = 'Completed' | 'Cancelled' | 'Failed';
 
-/** Complete in-memory result iterated with cooperative cancellation (query.rs:146-157). */
+/** Complete in-memory result iterated with cooperative cancellation (query.rs). */
 export class IniOrderedQueryCursor<M> {
   readonly #matches: readonly M[];
   readonly #cancellation: IniCancellationToken;
@@ -708,7 +708,7 @@ export class IniOrderedQueryCursor<M> {
     this.#cancellation = cancellation;
   }
 
-  /** Creates a cancellable cursor over one complete result (query.rs:152-156). */
+  /** Creates a cancellable cursor over one complete result (query.rs). */
   static withCancellation<M>(
     matches: readonly M[],
     cancellation: IniCancellationToken,
@@ -782,7 +782,7 @@ function applySelection<T>(values: readonly T[], selection: QuerySelection): T[]
   }
 }
 
-/** Profile-specific section comparison of one caller name (query.rs:678-683). */
+/** Profile-specific section comparison of one caller name (query.rs). */
 function sectionComparison(profileId: string, name: string): string {
   if (profileId === 'ini.windows@1') {
     return name.toLowerCase();
@@ -790,7 +790,7 @@ function sectionComparison(profileId: string, name: string): string {
   return name;
 }
 
-/** Profile-specific key comparison of one caller name (query.rs:685-691). */
+/** Profile-specific key comparison of one caller name (query.rs). */
 function keyComparison(profileId: string, key: string): string {
   if (profileId === 'ini.windows@1') {
     return key.toLowerCase();

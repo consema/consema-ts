@@ -16,7 +16,7 @@
  *    syntax merge sorts by piece ordinal :295-303)
  *  - apply_selection :479-496 (All/First/Last/ZeroOrOne/RequireOne)
  *  - QueryLimits defaults (max_steps 100_000, max_results 100_000):
- *    consema-rs/consema-core/src/query.rs:2967-2981
+ *    consema-rs/consema-core/src/query.rs
  *  - query definition/operator validation: typescript/src/protocol/query.ts
  *    (validateQuery/bindQuery; the JSON operator table rows :318-322,
  *    :371-372; the JSON syntax-kind vocabulary :1066-1088)
@@ -44,7 +44,7 @@ import type {
 // Execution limits and cancellation
 // ---------------------------------------------------------------------------
 
-/** Immutable query execution limits (query.rs:2967-2981). */
+/** Immutable query execution limits (query.rs). */
 export class QueryLimits {
   readonly #maxSteps: number;
   readonly #maxResults: number;
@@ -54,23 +54,23 @@ export class QueryLimits {
     this.#maxResults = maxResults;
   }
 
-  /** The frozen defaults: 100_000 steps and 100_000 results (query.rs:2974-2980). */
+  /** The frozen defaults: 100_000 steps and 100_000 results (query.rs). */
   static defaults(): QueryLimits {
     return new QueryLimits(100_000, 100_000);
   }
 
-  /** Maximum operator steps (query.rs:2969). */
+  /** Maximum operator steps (query.rs). */
   maxSteps(): number {
     return this.#maxSteps;
   }
 
-  /** Maximum complete results buffered by an operator (query.rs:2971). */
+  /** Maximum complete results buffered by an operator (query.rs). */
   maxResults(): number {
     return this.#maxResults;
   }
 }
 
-/** Cooperative cancellation flag (query.rs:205-207; consema-core CancellationToken). */
+/** Cooperative cancellation flag (query.rs; consema-core CancellationToken). */
 export class CancellationToken {
   #cancelled = false;
 
@@ -88,7 +88,7 @@ export class CancellationToken {
 // Matches
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound JSON native semantic query match (query.rs:12-43). */
+/** Owned snapshot-bound JSON native semantic query match (query.rs). */
 export type JsonMatch =
   | {
       readonly kind: 'Value';
@@ -117,7 +117,7 @@ export type JsonMatch =
       readonly value: NodeRef;
     };
 
-/** Owned snapshot-bound JSON lossless syntax query match (query.rs:55-88). */
+/** Owned snapshot-bound JSON lossless syntax query match (query.rs). */
 export class JsonSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -131,28 +131,28 @@ export class JsonSyntaxMatch {
     this.#ordinal = ordinal;
   }
 
-  /** Process-local syntax-piece identity (query.rs:67-70). */
+  /** Process-local syntax-piece identity (query.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw source span (query.rs:72-75). */
+  /** Exact raw source span (query.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Format-specific lossless kind (query.rs:77-80). */
+  /** Format-specific lossless kind (query.rs). */
   kind(): JsonSyntaxKind {
     return this.#kind;
   }
 
-  /** Zero-based source-order position (query.rs:82-86). */
+  /** Zero-based source-order position (query.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
 }
 
-/** A complete deterministic query result (query.rs:122, 182). */
+/** A complete deterministic query result (query.rs). */
 export class JsonQueryResult<M> {
   readonly #matches: readonly M[];
   readonly #terminal: 'Completed';
@@ -167,7 +167,7 @@ export class JsonQueryResult<M> {
     return this.#matches;
   }
 
-  /** Eager execution always completes; failures throw instead (query.rs:122). */
+  /** Eager execution always completes; failures throw instead (query.rs). */
   terminal(): 'Completed' {
     return this.#terminal;
   }
@@ -196,7 +196,7 @@ function step(context: ExecutionContext, results: number): void {
 
 /**
  * Executes a validated JSON native semantic query against one immutable
- * snapshot (query.rs:91-125).
+ * snapshot (query.rs).
  */
 export function executeJsonQuery(
   executable: ExecutableQuery,
@@ -216,7 +216,7 @@ export function executeJsonQuery(
   }
   const context: ExecutionContext = { document, limits, cancellation, steps: 0 };
   // The root is the first standard result; it must not bypass result limits
-  // (query.rs:113-116).
+  // (query.rs).
   step(context, 1);
   const root = document.root();
   const input: JsonMatch[] = [
@@ -233,7 +233,7 @@ export function executeJsonQuery(
 
 /**
  * Executes a validated JSON lossless syntax query against every source
- * piece in raw order (query.rs:141-183).
+ * piece in raw order (query.rs).
  */
 export function executeJsonSyntaxQuery(
   executable: ExecutableQuery,
@@ -558,7 +558,7 @@ function nodeKey(node: NodeRef): string {
   return `${node.snapshot().asBigInt().toString()}:${node.index().toString()}:${node.role()}`;
 }
 
-/** The five frozen cardinality selections (query.rs:479-496). */
+/** The five frozen cardinality selections (query.rs). */
 function applySelection<T>(values: T[], selection: QuerySelection): T[] {
   switch (selection) {
     case 'All':

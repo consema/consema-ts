@@ -24,7 +24,7 @@
  * handles (`YamlNode`/`YamlSequenceItem`/`YamlMappingEntry`/`YamlAlias`)
  * borrow one document and an entity index. NodeRef ordinals ARE entity
  * indexes (u64), exactly like the Rust `node_ref(index as u64)` mapping
- * (lib.rs:513-515). The `@internal` accessors are consumed only by this
+ * (lib.rs). The `@internal` accessors are consumed only by this
  * family's parser/query/projection/edit modules.
  */
 
@@ -105,7 +105,7 @@ export interface InternalDocument {
 // YamlDocument
 // ---------------------------------------------------------------------------
 
-/** Opaque immutable YAML stream snapshot (lib.rs:322-333). */
+/** Opaque immutable YAML stream snapshot (lib.rs). */
 export class YamlDocument {
   readonly #authority: DocumentAuthority;
   readonly #source: SourceSnapshot;
@@ -147,62 +147,62 @@ export class YamlDocument {
     this.#parseLimits = parseLimits;
   }
 
-  /** Snapshot-bound identity of the complete serialization stream (lib.rs:337-341). */
+  /** Snapshot-bound identity of the complete serialization stream (lib.rs). */
   streamNodeRef(): NodeRef {
     return this.#authority.nodeRef(0n, 'YamlStream');
   }
 
-  /** Exact raw span of the complete serialization stream (lib.rs:343-349). */
+  /** Exact raw span of the complete serialization stream (lib.rs). */
   streamSpan(): Span {
     return this.#authority.span(0, this.#source.len());
   }
 
-  /** Snapshot identity to which future native handles and spans are bound (lib.rs:351-355). */
+  /** Snapshot identity to which future native handles and spans are bound (lib.rs). */
   snapshotIdentity() {
     return this.#authority.identity();
   }
 
-  /** Exact immutable source and decoded-location facts (lib.rs:357-361). */
+  /** Exact immutable source and decoded-location facts (lib.rs). */
   source(): SourceSnapshot {
     return this.#source;
   }
 
-  /** Default rendering is byte-for-byte identical to the input (lib.rs:363-367). */
+  /** Default rendering is byte-for-byte identical to the input (lib.rs). */
   render(): Uint8Array {
     return this.#source.bytes();
   }
 
-  /** YAML format-family contract (lib.rs:369-373). */
+  /** YAML format-family contract (lib.rs). */
   formatFamily(): FormatFamilyId {
     return new FormatFamilyId('yaml', 1);
   }
 
-  /** Exact selected YAML profile (lib.rs:375-379). */
+  /** Exact selected YAML profile (lib.rs). */
   profile(): ProfileId {
     return yamlProfileId(this.#profile);
   }
 
-  /** Complete valid streams require no recovered semantic claims (lib.rs:381-385). */
+  /** Complete valid streams require no recovered semantic claims (lib.rs). */
   formationStatus(): FormationStatus {
     return 'Complete';
   }
 
-  /** Complete YAML formation publishes no recovery diagnostics (lib.rs:387-391). */
+  /** Complete YAML formation publishes no recovery diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return [];
   }
 
-  /** Exhaustive token/trivia byte coverage (lib.rs:393-397). */
+  /** Exhaustive token/trivia byte coverage (lib.rs). */
   losslessStructuralIndex(): LosslessStructuralIndex {
     return this.#structuralIndex;
   }
 
-  /** Format-specific kind for each structural piece in source order (lib.rs:399-403). */
+  /** Format-specific kind for each structural piece in source order (lib.rs). */
   losslessSyntaxKinds(): readonly YamlSyntaxKind[] {
     return this.#syntaxKinds;
   }
 
-  /** Returns one independent YAML document by stream ordinal (lib.rs:405-415). */
+  /** Returns one independent YAML document by stream ordinal (lib.rs). */
   document(ordinal: number): YamlDocumentView | null {
     const internal = this.#documents[ordinal];
     if (internal === undefined) {
@@ -211,12 +211,12 @@ export class YamlDocument {
     return new YamlDocumentView(this, ordinal, internal);
   }
 
-  /** Number of alias serialization occurrences; aliases are never expanded (lib.rs:418-421). */
+  /** Number of alias serialization occurrences; aliases are never expanded (lib.rs). */
   aliasCount(): number {
     return this.#aliases.length;
   }
 
-  /** Returns one alias occurrence in serialization order (lib.rs:423-431). */
+  /** Returns one alias occurrence in serialization order (lib.rs). */
   alias(ordinal: number): YamlAlias | null {
     const alias = this.#aliases[ordinal];
     if (alias === undefined) {
@@ -225,12 +225,12 @@ export class YamlDocument {
     return new YamlAlias(this, alias);
   }
 
-  /** Number of independent YAML documents in this stream (lib.rs:450-454). */
+  /** Number of independent YAML documents in this stream (lib.rs). */
   documentCount(): number {
     return this.#streamDocuments;
   }
 
-  /** Resource contract used to form this stream (lib.rs:456-460). */
+  /** Resource contract used to form this stream (lib.rs). */
   parseLimits(): ParseLimits {
     return this.#parseLimits;
   }
@@ -272,7 +272,7 @@ export class YamlDocument {
 // Typed native handles
 // ---------------------------------------------------------------------------
 
-/** One independent document in a YAML stream (lib.rs:463-469). */
+/** One independent document in a YAML stream (lib.rs). */
 export class YamlDocumentView {
   readonly #owner: YamlDocument;
   readonly #ordinal: number;
@@ -284,22 +284,22 @@ export class YamlDocumentView {
     this.#document = document;
   }
 
-  /** Zero-based stream ordinal (lib.rs:472-475). */
+  /** Zero-based stream ordinal (lib.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
 
-  /** Snapshot-bound document identity (lib.rs:477-485). */
+  /** Snapshot-bound document identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#owner.nodeRefFor(this.#ordinal, 'YamlDocument');
   }
 
-  /** Backend-validated raw document presentation span (lib.rs:487-490). */
+  /** Backend-validated raw document presentation span (lib.rs). */
   span(): Span {
     return this.#document.span;
   }
 
-  /** Representation root; alias occurrences already share target identity (lib.rs:493-501). */
+  /** Representation root; alias occurrences already share target identity (lib.rs). */
   root(): YamlNode {
     return new YamlNode(this.#owner, this.#document.root);
   }
@@ -309,7 +309,7 @@ export class YamlDocumentView {
   }
 }
 
-/** Snapshot-bound YAML representation node (lib.rs:503-509). */
+/** Snapshot-bound YAML representation node (lib.rs). */
 export class YamlNode {
   readonly #owner: YamlDocument;
   readonly #index: number;
@@ -319,27 +319,27 @@ export class YamlNode {
     this.#index = index;
   }
 
-  /** Process-local stable identity within this snapshot (lib.rs:511-515). */
+  /** Process-local stable identity within this snapshot (lib.rs). */
   nodeRef(): NodeRef {
     return this.#owner.nodeRefFor(this.#index, 'YamlNode');
   }
 
-  /** Exact raw representation occurrence span (lib.rs:517-521). */
+  /** Exact raw representation occurrence span (lib.rs). */
   span(): Span {
     return this.#owner.nodeAt(this.#index).span;
   }
 
-  /** Resolved tag identifier (lib.rs:523-527). */
+  /** Resolved tag identifier (lib.rs). */
   tag(): string {
     return this.#owner.nodeAt(this.#index).tag;
   }
 
-  /** Exact anchor name on the defining occurrence, if present (lib.rs:529-533). */
+  /** Exact anchor name on the defining occurrence, if present (lib.rs). */
   anchor(): string | null {
     return this.#owner.nodeAt(this.#index).anchor;
   }
 
-  /** Snapshot-bound anchor-definition identity, when this node defines one (lib.rs:535-547). */
+  /** Snapshot-bound anchor-definition identity, when this node defines one (lib.rs). */
   anchorNodeRef(): NodeRef | null {
     const node = this.#owner.nodeAt(this.#index);
     return node.anchor === null
@@ -347,12 +347,12 @@ export class YamlNode {
       : this.#owner.nodeRefFor(this.#index, 'YamlAnchorDefinition');
   }
 
-  /** Exact raw `&name` span, when this node defines an anchor (lib.rs:549-553). */
+  /** Exact raw `&name` span, when this node defines an anchor (lib.rs). */
   anchorSpan(): Span | null {
     return this.#owner.nodeAt(this.#index).anchorSpan;
   }
 
-  /** Native node kind (lib.rs:555-563). */
+  /** Native node kind (lib.rs). */
   kind(): YamlNodeKind {
     switch (this.#owner.nodeAt(this.#index).content.kind) {
       case 'Scalar':
@@ -364,19 +364,19 @@ export class YamlNode {
     }
   }
 
-  /** Scalar facts, when this is a scalar node (lib.rs:565-572). */
+  /** Scalar facts, when this is a scalar node (lib.rs). */
   scalar(): YamlScalar | null {
     const content = this.#owner.nodeAt(this.#index).content;
     return content.kind === 'Scalar' ? new YamlScalar(content.scalar) : null;
   }
 
-  /** Ordered sequence association count (lib.rs:574-582). */
+  /** Ordered sequence association count (lib.rs). */
   sequenceLen(): number | null {
     const content = this.#owner.nodeAt(this.#index).content;
     return content.kind === 'Sequence' ? content.items.length : null;
   }
 
-  /** One exact sequence association (lib.rs:583-593). */
+  /** One exact sequence association (lib.rs). */
   sequenceItem(ordinal: number): YamlSequenceItem | null {
     const content = this.#owner.nodeAt(this.#index).content;
     if (content.kind !== 'Sequence') {
@@ -386,13 +386,13 @@ export class YamlNode {
     return item === undefined ? null : new YamlSequenceItem(this.#owner, item);
   }
 
-  /** Ordered mapping association count (lib.rs:595-603). */
+  /** Ordered mapping association count (lib.rs). */
   mappingLen(): number | null {
     const content = this.#owner.nodeAt(this.#index).content;
     return content.kind === 'Mapping' ? content.entries.length : null;
   }
 
-  /** One exact arbitrary key/value association (lib.rs:604-615). */
+  /** One exact arbitrary key/value association (lib.rs). */
   mappingEntry(ordinal: number): YamlMappingEntry | null {
     const content = this.#owner.nodeAt(this.#index).content;
     if (content.kind !== 'Mapping') {
@@ -411,7 +411,7 @@ export class YamlNode {
   }
 }
 
-/** Native scalar facts with exact decoded and canonical content (lib.rs:617-621). */
+/** Native scalar facts with exact decoded and canonical content (lib.rs). */
 export class YamlScalar {
   readonly #scalar: InternalScalar;
 
@@ -419,28 +419,28 @@ export class YamlScalar {
     this.#scalar = scalar;
   }
 
-  /** Decoded YAML scalar content before schema canonicalization (lib.rs:624-627). */
+  /** Decoded YAML scalar content before schema canonicalization (lib.rs). */
   decoded(): string {
     return this.#scalar.decoded;
   }
 
-  /** Profile-defined canonical scalar content (lib.rs:630-633). */
+  /** Profile-defined canonical scalar content (lib.rs). */
   canonical(): string {
     return this.#scalar.canonical;
   }
 
-  /** Resolved scalar category (lib.rs:635-640). */
+  /** Resolved scalar category (lib.rs). */
   kind(): YamlScalarKind {
     return this.#scalar.kind;
   }
 
-  /** Source presentation style (lib.rs:642-647). */
+  /** Source presentation style (lib.rs). */
   style(): YamlScalarStyle {
     return this.#scalar.style;
   }
 }
 
-/** One ordered sequence association (lib.rs:649-655). */
+/** One ordered sequence association (lib.rs). */
 export class YamlSequenceItem {
   readonly #owner: YamlDocument;
   readonly #item: InternalSequenceItem;
@@ -450,22 +450,22 @@ export class YamlSequenceItem {
     this.#item = item;
   }
 
-  /** Snapshot-bound association identity (lib.rs:657-664). */
+  /** Snapshot-bound association identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#owner.nodeRefFor(Number(this.#item.identity), 'YamlSequenceElement');
   }
 
-  /** Exact raw element occurrence span, including an alias spelling when used (lib.rs:666-670). */
+  /** Exact raw element occurrence span, including an alias spelling when used (lib.rs). */
   span(): Span {
     return this.#item.span;
   }
 
-  /** Referenced representation node (lib.rs:672-679). */
+  /** Referenced representation node (lib.rs). */
   node(): YamlNode {
     return new YamlNode(this.#owner, this.#item.node);
   }
 
-  /** Alias occurrence that supplied this element edge, when present (lib.rs:681-689). */
+  /** Alias occurrence that supplied this element edge, when present (lib.rs). */
   alias(): YamlAlias | null {
     if (this.#item.alias === null) {
       return null;
@@ -479,7 +479,7 @@ export class YamlSequenceItem {
   }
 }
 
-/** One ordered YAML mapping association with an arbitrary key node (lib.rs:691-697). */
+/** One ordered YAML mapping association with an arbitrary key node (lib.rs). */
 export class YamlMappingEntry {
   readonly #owner: YamlDocument;
   readonly #entry: InternalMappingEntry;
@@ -489,32 +489,32 @@ export class YamlMappingEntry {
     this.#entry = entry;
   }
 
-  /** Snapshot-bound association identity (lib.rs:699-706). */
+  /** Snapshot-bound association identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#owner.nodeRefFor(Number(this.#entry.identity), 'YamlMappingEntry');
   }
 
-  /** Raw span from the key occurrence through the value occurrence (lib.rs:708-712). */
+  /** Raw span from the key occurrence through the value occurrence (lib.rs). */
   span(): Span {
     return this.#entry.span;
   }
 
-  /** Arbitrary key node (lib.rs:714-721). */
+  /** Arbitrary key node (lib.rs). */
   key(): YamlNode {
     return new YamlNode(this.#owner, this.#entry.key);
   }
 
-  /** Value node (lib.rs:723-730). */
+  /** Value node (lib.rs). */
   value(): YamlNode {
     return new YamlNode(this.#owner, this.#entry.value);
   }
 
-  /** Alias occurrence that supplied the key edge, when present (lib.rs:732-739). */
+  /** Alias occurrence that supplied the key edge, when present (lib.rs). */
   keyAlias(): YamlAlias | null {
     return this.#aliasAt(this.#entry.keyAlias);
   }
 
-  /** Alias occurrence that supplied the value edge, when present (lib.rs:741-748). */
+  /** Alias occurrence that supplied the value edge, when present (lib.rs). */
   valueAlias(): YamlAlias | null {
     return this.#aliasAt(this.#entry.valueAlias);
   }
@@ -536,7 +536,7 @@ export class YamlMappingEntry {
   }
 }
 
-/** One alias serialization occurrence pointing at an existing representation node (lib.rs:751-757). */
+/** One alias serialization occurrence pointing at an existing representation node (lib.rs). */
 export class YamlAlias {
   readonly #owner: YamlDocument;
   readonly #alias: InternalAlias;
@@ -546,22 +546,22 @@ export class YamlAlias {
     this.#alias = alias;
   }
 
-  /** Snapshot-bound occurrence identity (lib.rs:759-765). */
+  /** Snapshot-bound occurrence identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#owner.nodeRefFor(Number(this.#alias.identity), 'YamlAlias');
   }
 
-  /** Exact raw `*name` occurrence span (lib.rs:767-771). */
+  /** Exact raw `*name` occurrence span (lib.rs). */
   span(): Span {
     return this.#alias.span;
   }
 
-  /** Exact alias name without `*` (lib.rs:773-777). */
+  /** Exact alias name without `*` (lib.rs). */
   name(): string {
     return this.#alias.name;
   }
 
-  /** Shared target representation node; no expansion occurs (lib.rs:779-787). */
+  /** Shared target representation node; no expansion occurs (lib.rs). */
   target(): YamlNode {
     return new YamlNode(this.#owner, this.#alias.target);
   }
@@ -571,7 +571,7 @@ export class YamlAlias {
   }
 }
 
-/** Resolves one NodeRef to its entity index with role checking (lib.rs:268-285 analog). */
+/** Resolves one NodeRef to its entity index with role checking (lib.rs analog). */
 export function resolveNodeIndex(
   document: YamlDocument,
   node: NodeRef,

@@ -1,13 +1,13 @@
 /**
  * QueryDefinition validation and binding.
  *
- * authority: the operator table of consema-rs/consema-core/src/query.rs:899-1897
+ * authority: the operator table of consema-rs/consema-core/src/query.rs
  * (transcribed into consema-go/go/protocol/query_validate.go, cross-reference); the
- * domain input roles (query.rs:502-523); the syntax-kind and value-kind
- * vocabularies (query.rs:1900-2209). The vectors pin the failure names in
+ * domain input roles (query.rs); the syntax-kind and value-kind
+ * vocabularies (query.rs). The vectors pin the failure names in
  * conformance/vectors/v1.json (query.reject-role-mismatch) and the
  * protocol-v1.json query round trips. The required capability set of a
- * validated query is always [core.query.ordered-results@1] (query.rs:278-293).
+ * validated query is always [core.query.ordered-results@1] (query.rs).
  *
  * Design (TypeScript-idiomatic): the domain/operator table is data (a
  * Map keyed by "domain/operator"); validation is a pure function returning
@@ -18,7 +18,7 @@ import type { PortableValue } from '../core/value.ts';
 import { CapabilitySet } from './registry_descriptor.ts';
 import type { CapabilityId } from './registry_descriptor.ts';
 
-/** The closed match-role vocabulary (consema-core query.rs:169-316). */
+/** The closed match-role vocabulary (consema-core query.rs). */
 export type MatchRole =
   | 'Value'
   | 'ObjectEntry'
@@ -92,7 +92,7 @@ export type MatchRole =
   | 'HclErrorRegion'
   | 'HclSyntaxPiece';
 
-/** A versioned query domain (consema-core/src/query.rs:12-166). */
+/** A versioned query domain (consema-core/src/query.rs). */
 export interface QueryDomain {
   readonly id: string;
   readonly version: number;
@@ -149,7 +149,7 @@ export type QueryExpression =
   | { readonly kind: 'Apply'; readonly input: QueryExpression; readonly operator: OperatorCall }
   | { readonly kind: 'Concat' | 'StructureOrderMerge'; readonly branches: readonly QueryExpression[] };
 
-/** The five frozen cardinality selections (query.rs:434-447). */
+/** The five frozen cardinality selections (query.rs). */
 export type QuerySelection = 'All' | 'First' | 'Last' | 'ZeroOrOne' | 'RequireOne';
 
 /** A transferable, not-yet-validated query definition. */
@@ -299,7 +299,7 @@ const KIND_INTEGER = 'Integer';
 const KIND_BYTES = 'Bytes';
 
 /**
- * The domain/operator validation table (query.rs:899-1897; transcribed into
+ * The domain/operator validation table (query.rs; transcribed into
  * consema-go/go/protocol/query_validate.go:169-361). The generic rows (core.take,
  * core.distinct-by-identity) are domain-agnostic and resolved separately.
  */
@@ -489,7 +489,7 @@ const OPERATOR_TABLE = new Map<string, OperatorSpec>([
   ['hcl.lossless-syntax-query/hcl.syntax-text-equals', { expected: 'HclSyntaxPiece', output: 'HclSyntaxPiece', arguments: [{ name: 'text', kind: KIND_STRING }] }],
 ]);
 
-/** Maps a domain to its root match role (query.rs:502-523). */
+/** Maps a domain to its root match role (query.rs). */
 export function domainInputRole(id: string, version: number): MatchRole | undefined {
   switch (true) {
     case id === 'core.portable-value-query' && version === 1:
@@ -542,7 +542,7 @@ export interface ValidatedQuery {
   readonly requiredCapabilities: readonly CapabilityId[];
 }
 
-/** Validates the domain, argument schemas, composition, and role typing (query.rs:500-530). */
+/** Validates the domain, argument schemas, composition, and role typing (query.rs). */
 export function validateQuery(definition: QueryDefinition): { query: ValidatedQuery } | { failure: QueryFailure } {
   const inputRole = domainInputRole(definition.domain.id, definition.domain.version);
   if (inputRole === undefined) {
@@ -562,7 +562,7 @@ export function validateQuery(definition: QueryDefinition): { query: ValidatedQu
   };
 }
 
-/** Checks the whole operator tree and returns its output role (query.rs:867-897). */
+/** Checks the whole operator tree and returns its output role (query.rs). */
 function validateExpression(
   domain: QueryDomain,
   expression: QueryExpression,
@@ -612,7 +612,7 @@ function validateExpression(
   }
 }
 
-/** Validates one operator call against its domain and input role (query.rs:899-1897). */
+/** Validates one operator call against its domain and input role (query.rs). */
 function validateOperator(
   domain: QueryDomain,
   operator: OperatorCall,
@@ -682,7 +682,7 @@ function validateOperator(
   return { outputRole: fixed.outputRole };
 }
 
-/** Applies the role-union rows; each handled row also fixes the output role (query.rs:1056-1524). */
+/** Applies the role-union rows; each handled row also fixes the output role (query.rs). */
 function checkInputDependentRoles(
   domainId: string,
   operatorId: string,
@@ -892,7 +892,7 @@ function hclErrorRegionInputRoles(input: MatchRole): boolean {
   }
 }
 
-/** The semantic argument-value checks of the Rust validator (query.rs:1634-1897). */
+/** The semantic argument-value checks of the Rust validator (query.rs). */
 function checkOperatorArguments(domain: QueryDomain, operator: OperatorCall): QueryFailure | undefined {
   const stringArg = (name: string): string | undefined => {
     const value = operator.arguments.get(name);
@@ -1045,7 +1045,7 @@ function checkOperatorArguments(domain: QueryDomain, operator: OperatorCall): Qu
   }
 }
 
-/** The frozen fifteen-kind vocabulary of the value-kind arguments (query.rs:2187-2209). */
+/** The frozen fifteen-kind vocabulary of the value-kind arguments (query.rs). */
 function isValueKindName(kind: string | undefined): boolean {
   switch (kind) {
     case 'Null':
@@ -1069,7 +1069,7 @@ function isValueKindName(kind: string | undefined): boolean {
   }
 }
 
-/** The frozen syntax-kind vocabularies (query.rs:1900-2185); spellings are byte-exact. */
+/** The frozen syntax-kind vocabularies (query.rs); spellings are byte-exact. */
 function isJSONSyntaxKind(domainVersion: number, kind: string | undefined): boolean {
   switch (kind) {
     case 'Bom':

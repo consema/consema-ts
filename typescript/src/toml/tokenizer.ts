@@ -2,23 +2,23 @@
  * Lossless TOML source tokenization: exhaustive token/trivia pieces and
  * the closed syntax-kind vocabulary, plus the delimiter-nesting preflight.
  *
- * authority: consema-rs/consema-toml/src/parser.rs:360-478 (tokenize) —
+ * authority: consema-rs/consema-toml/src/parser.rs (tokenize) —
  *  - piece classes: Whitespace/Newline/Comment are Trivia; String/
  *    Equals/LeftBracket/RightBracket/LeftBrace/RightBrace/Comma/Dot/Bare
- *    are Token (parser.rs:370-411)
+ *    are Token (parser.rs)
  *  - CRLF is one Newline piece; a bare CR is retained as a Newline piece
- *    for formation diagnostics (lib.rs:46)
+ *    for formation diagnostics (lib.rs)
  *  - the String piece consumes a whole string including escapes and
- *    multiline forms (string_end, parser.rs:480-499)
+ *    multiline forms (string_end, parser.rs)
  *  - the token limit applies to every piece: observed = len+1, limit name
- *    "token_count" (parser.rs:413-420)
+ *    "token_count" (parser.rs)
  *  - the nesting preflight counts `[`/`{` tokens only, limit name
- *    "nesting_depth" (parser.rs:433-461)
- *  - syntax-kind stable names: consema-rs/consema-toml/src/lib.rs:73-88
+ *    "nesting_depth" (parser.rs)
+ *  - syntax-kind stable names: consema-rs/consema-toml/src/lib.rs
  *    ("Whitespace", "Newline", "Comment", "String", "Bare", "Equals",
  *    "LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "Comma",
  *    "Dot")
- *  - structural piece kinds: consema-rs/consema-document/src/lib.rs:413-422
+ *  - structural piece kinds: consema-rs/consema-document/src/lib.rs
  *    (Token | Trivia | ErrorRegion)
  *
  * Design (TypeScript-idiomatic): a pure function over the decoded text
@@ -31,7 +31,7 @@ import { DocumentAuthority } from '../document/identity.ts';
 import { StructuralPiece } from '../document/structural.ts';
 import { TomlFormationFailure } from './errors.ts';
 
-/** Closed TOML v1 lossless syntax-piece classification (lib.rs:43-68). */
+/** Closed TOML v1 lossless syntax-piece classification (lib.rs). */
 export type TomlSyntaxKind =
   | 'Whitespace'
   | 'Newline'
@@ -46,7 +46,7 @@ export type TomlSyntaxKind =
   | 'Comma'
   | 'Dot';
 
-/** Resolves one exact stable kind name (lib.rs:92-108). */
+/** Resolves one exact stable kind name (lib.rs). */
 export function tomlSyntaxKindFromName(name: string): TomlSyntaxKind | null {
   switch (name) {
     case 'Whitespace':
@@ -83,7 +83,7 @@ function isPunctuation(byte: number): boolean {
 
 /**
  * Tokenizes every source byte into ordered structural pieces and their
- * syntax kinds (parser.rs:360-431). Throws TomlFormationFailure with the
+ * syntax kinds (parser.rs). Throws TomlFormationFailure with the
  * frozen "token_count" limit when max_token_count is exceeded.
  */
 export function tokenizeTomlSource(
@@ -109,7 +109,7 @@ export function tokenizeTomlSource(
       kind = 'Trivia';
       syntaxKind = 'Whitespace';
     } else if (byte === 0x0d || byte === 0x0a) {
-      // CRLF is one Newline piece; a bare CR is retained as Newline (lib.rs:46).
+      // CRLF is one Newline piece; a bare CR is retained as Newline (lib.rs).
       end = byte === 0x0d && bytes[cursor + 1] === 0x0a ? cursor + 2 : cursor + 1;
       kind = 'Trivia';
       syntaxKind = 'Newline';
@@ -122,7 +122,7 @@ export function tokenizeTomlSource(
       kind = 'Trivia';
       syntaxKind = 'Comment';
     } else if (byte === 0x27 || byte === 0x22) {
-      // ' or " — a whole string token, including multiline forms (parser.rs:389-394, 480-499)
+      // ' or " — a whole string token, including multiline forms (parser.rs)
       end = stringEnd(bytes, cursor);
       kind = 'Token';
       syntaxKind = 'String';
@@ -131,7 +131,7 @@ export function tokenizeTomlSource(
       kind = 'Token';
       syntaxKind = PUNCTUATION[byte];
     } else {
-      // Bare token run: stops at whitespace, '#', punctuation, and quotes (parser.rs:401-411).
+      // Bare token run: stops at whitespace, '#', punctuation, and quotes (parser.rs).
       end = cursor + 1;
       while (
         end < bytes.length &&
@@ -162,7 +162,7 @@ export function tokenizeTomlSource(
 }
 
 /**
- * Preflights delimiter nesting over token pieces only (parser.rs:433-461).
+ * Preflights delimiter nesting over token pieces only (parser.rs).
  * Throws TomlFormationFailure with the frozen "nesting_depth" limit.
  */
 export function preflightDelimiterNesting(
@@ -193,7 +193,7 @@ export function preflightDelimiterNesting(
 }
 
 /**
- * End of one string token (parser.rs:480-499): basic strings skip escaped
+ * End of one string token (parser.rs): basic strings skip escaped
  * characters; an unterminated string consumes to the end (the grammar pass
  * then reports the syntax failure).
  */

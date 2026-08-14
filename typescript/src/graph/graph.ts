@@ -1,5 +1,5 @@
 /**
- * The PortableGraph model (RFC 0006; RFC 0016 §4.1:144-146).
+ * The PortableGraph model (RFC 0006; RFC 0016 §4.1).
  *
  * authority: RFC 0006 §2 (immutable rooted, directed, ordered, tagged graphs
  * with graph-local node identity, sharing and cycles); the Rust reference
@@ -36,7 +36,7 @@ export interface MappingEntry {
   readonly value: NodeID;
 }
 
-/** One immutable tagged graph node (the Rust GraphNode, lib.rs:94-157). */
+/** One immutable tagged graph node (the Rust GraphNode, lib.rs). */
 export type Node =
   | {
       readonly kind: 'Scalar';
@@ -66,7 +66,7 @@ export interface Limits {
   readonly maxTraversalDepth: number;
 }
 
-/** The frozen defaults (consema-rs/consema-graph/src/lib.rs:178-190). */
+/** The frozen defaults (consema-rs/consema-graph/src/lib.rs). */
 export function defaultLimits(): Limits {
   return {
     maxRoots: 1_000_000,
@@ -79,7 +79,7 @@ export function defaultLimits(): Limits {
   };
 }
 
-/** Per-process builder identity; identities start at 1 (lib.rs:22). */
+/** Per-process builder identity; identities start at 1 (lib.rs). */
 let nextGraphIdentity = 1n;
 
 /** One immutable rooted, directed, ordered, tagged graph value (PortableGraph; RFC 0006 §2). */
@@ -125,7 +125,7 @@ export class Builder {
     this.limits = limits;
   }
 
-  /** Reserves one graph-local identity for later exact definition (lib.rs:270-283). */
+  /** Reserves one graph-local identity for later exact definition (lib.rs). */
   reserveNode(): NodeID {
     const observed = this.nodes.length + 1;
     this.checkLimit('graph-nodes', observed, this.limits.maxNodes);
@@ -134,7 +134,7 @@ export class Builder {
     return id;
   }
 
-  /** Appends one ordered graph root (lib.rs:286-297). */
+  /** Appends one ordered graph root (lib.rs). */
   pushRoot(id: NodeID): void {
     this.requireReserved(id);
     const observed = this.roots.length + 1;
@@ -176,7 +176,7 @@ export class Builder {
 
   /**
    * Validates definitions, reachability, and traversal depth, then freezes
-   * the graph (lib.rs:413-445). Throws on undefined or unreachable nodes;
+   * the graph (lib.rs). Throws on undefined or unreachable nodes;
    * no partial graph is returned.
    */
   build(): Graph {
@@ -246,7 +246,7 @@ export class Builder {
   }
 }
 
-/** Reports one ASCII control or whitespace character (lib.rs:447-456). */
+/** Reports one ASCII control or whitespace character (lib.rs). */
 export function hasInvalidTagChar(tag: string): boolean {
   for (const ch of tag) {
     const code = ch.codePointAt(0)!;
@@ -265,7 +265,7 @@ export function hasInvalidTagChar(tag: string): boolean {
  * surrogates). TextEncoder silently replaces lone surrogates with U+FFFD,
  * so validity must be checked structurally; a valid scalar sequence encodes
  * to valid UTF-8 exactly (RFC 0016 §4.1: String is a Unicode scalar
- * sequence; the Arc<str> invariant of the Rust graph, lib.rs:94-157).
+ * sequence; the Arc<str> invariant of the Rust graph, lib.rs).
  */
 export function isValidUtf8(text: string): boolean {
   for (let i = 0; i < text.length; i++) {
@@ -295,7 +295,7 @@ export function utf8Length(text: string): number {
  * §4): visit roots in root order; when a node is first encountered assign
  * the next ID; for a sequence visit items in order; for a mapping visit each
  * association in order, key before value; an already assigned node is a
- * reference and is not traversed again (lib.rs:542-578). `maxDepth` is the
+ * reference and is not traversed again (lib.rs). `maxDepth` is the
  * first-visit depth limit; a negative value disables it.
  */
 export function canonicalOrder(
@@ -307,7 +307,7 @@ export function canonicalOrder(
   const canonicalIDs = new Array<number>(nodes.length).fill(0);
   const visited = new Array<boolean>(nodes.length).fill(false);
   const stack: { index: number; depth: number }[] = [];
-  // Push in reverse so the first root pops first (lib.rs:550-553).
+  // Push in reverse so the first root pops first (lib.rs).
   for (let i = roots.length - 1; i >= 0; i--) {
     stack.push({ index: roots[i].index, depth: 0 });
   }
@@ -332,7 +332,7 @@ export function canonicalOrder(
     const childDepth = top.depth + 1;
     switch (node.kind) {
       case 'Sequence':
-        // Push reversed so items pop in stored order (lib.rs:145-156).
+        // Push reversed so items pop in stored order (lib.rs).
         for (let i = node.items.length - 1; i >= 0; i--) {
           stack.push({ index: node.items[i].index, depth: childDepth });
         }

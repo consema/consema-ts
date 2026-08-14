@@ -73,10 +73,10 @@ import type { HclBodyRecordInput } from './hcl/materialization.ts';
 // Conversion records
 // ---------------------------------------------------------------------------
 
-/** Whole-conversion semantic fidelity (conversion.rs:42-51). */
+/** Whole-conversion semantic fidelity (conversion.rs). */
 export type ConversionFidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Complete ordered report for both conversion stages (conversion.rs:95-149). */
+/** Complete ordered report for both conversion stages (conversion.rs). */
 export class ConversionReport {
   readonly #projectionFidelity: ConversionFidelity;
   readonly #materializationFidelity: MaterializationFidelity;
@@ -142,7 +142,7 @@ export class ConversionReport {
   }
 }
 
-/** Complete conversion result with both stages retained (conversion.rs:151-278). */
+/** Complete conversion result with both stages retained (conversion.rs). */
 export class CompleteConversion {
   readonly #document: Document;
   readonly #projectedValue: PortableValue;
@@ -170,10 +170,10 @@ export class CompleteConversion {
   }
 }
 
-/** Conversion failure without a partial target document (conversion.rs:280-308). */
+/** Conversion failure without a partial target document (conversion.rs). */
 export class ConversionFailure extends Error {
   readonly kind: 'ProjectionFailed' | 'MaterializationFailed' | 'UnauthorizedLoss' | 'YamlProjectionFailed';
-  /** Frozen registered code (conversion.rs:324-332). */
+  /** Frozen registered code (conversion.rs). */
   readonly code: string;
   /** Materialization failure details when kind === MaterializationFailed. */
   readonly materialization?: MaterializationFailure;
@@ -227,7 +227,7 @@ export class ConversionFailure extends Error {
   }
 }
 
-/** Complete or explicitly failed conversion (conversion.rs:335-342). */
+/** Complete or explicitly failed conversion (conversion.rs). */
 export type ConversionResult =
   | { readonly kind: 'Complete'; readonly value: CompleteConversion }
   | { readonly kind: 'Failed'; readonly value: ConversionFailure };
@@ -236,7 +236,7 @@ export type ConversionResult =
 // Record-consumption gate
 // ---------------------------------------------------------------------------
 
-/** Published record envelope ids (conversion.rs:590-595). */
+/** Published record envelope ids (conversion.rs). */
 const XML_ELEMENT_TREE_RECORD = 'xml.element-tree@1';
 const PLIST_VALUE_TREE_RECORD = 'plist.value-tree@1';
 const HCL_BODY_RECORD = 'hcl.body@1';
@@ -301,7 +301,7 @@ function formatFamily(profileId: string): string | undefined {
   }
 }
 
-/** Record-consumption gate of the composition (module docs; conversion.rs:657-689). */
+/** Record-consumption gate of the composition (module docs; conversion.rs). */
 function validateRecordConsumption(
   sourceProfile: ProfileId,
   value: PortableValue,
@@ -335,7 +335,7 @@ function maxFidelity(left: ConversionFidelity, right: ConversionFidelity): Conve
   return order[left] >= order[right] ? left : right;
 }
 
-/** Materializes one portable value under the target request (conversion.rs:740-901). */
+/** Materializes one portable value under the target request (conversion.rs). */
 function materializeTarget(value: PortableValue, request: MaterializationRequest): { document: Document; fidelity: MaterializationFidelity; report: MaterializationReport } | ConversionFailure {
   const profileId = request.targetProfile().id();
   let result: MaterializationResult<unknown>;
@@ -457,7 +457,7 @@ interface ProjectionFacts {
   events: readonly unknown[];
 }
 
-/** Composes one projection and the target materializer (conversion.rs:691-731). */
+/** Composes one projection and the target materializer (conversion.rs). */
 function completeConversion(
   sourceProfile: ProfileId,
   projected: ProjectionFacts,
@@ -623,7 +623,7 @@ function hclFidelity(fidelity: HclProjectionFidelity): ConversionFidelity {
 }
 
 // ---------------------------------------------------------------------------
-// Per-family conversion entry points (conversion.rs:344-588)
+// Per-family conversion entry points (conversion.rs)
 // ---------------------------------------------------------------------------
 
 /** Converts one JSON document by composing its published projection and a target materializer. */

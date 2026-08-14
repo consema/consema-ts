@@ -152,7 +152,7 @@ test('edit.dry-run-patch-proof-conflict-atomicity: patch replays, proof verifies
   assert.equal(render(document), 'a=one\nb=two\n');
 });
 
-test('semantic replacement preserves direct style and falls back canonically (edit.rs:1186-1213)', () => {
+test('semantic replacement preserves direct style and falls back canonically (edit.rs)', () => {
   const direct = parse('a=one\n');
   const directCommit = commitEdits(
     direct,
@@ -177,7 +177,7 @@ test('semantic replacement preserves direct style and falls back canonically (ed
   );
 });
 
-test('semantic replacement preserves exact unpaired Java units via escapes (edit.rs:1215-1224)', () => {
+test('semantic replacement preserves exact unpaired Java units via escapes (edit.rs)', () => {
   const document = parse('a=x\n');
   const exact = JavaString.fromCodeUnits([0xd800]);
   const commit = commitEdits(
@@ -190,7 +190,7 @@ test('semantic replacement preserves exact unpaired Java units via escapes (edit
   assert.ok(commit.document().properties()[0].value().equals(exact));
 });
 
-test('literal replacement requires one exact value ownership interval (edit.rs:1226-1256)', () => {
+test('literal replacement requires one exact value ownership interval (edit.rs)', () => {
   const document = parse('a=one\nb=two\n');
   for (const invalid of [' leading', 'line\nbreak', 'tail\\']) {
     const transaction = new EditTransactionBuilder(document)
@@ -209,7 +209,7 @@ test('literal replacement requires one exact value ownership interval (edit.rs:1
   }
 });
 
-test('removal owns continuation lines but not adjacent comments (edit.rs:1320-1329)', () => {
+test('removal owns continuation lines but not adjacent comments (edit.rs)', () => {
   const document = parse('# before\nkey=first\\\n  second\n# after\nnext=v\n');
   const commit = commitEdits(
     document,
@@ -222,7 +222,7 @@ test('removal owns continuation lines but not adjacent comments (edit.rs:1320-13
   assert.equal(commit.document().properties().length, 1);
 });
 
-test('rename replaces the complete continued key ownership (edit.rs:1331-1345)', () => {
+test('rename replaces the complete continued key ownership (edit.rs)', () => {
   const document = parse('old\\\n key=value\n');
   const commit = commitEdits(
     document,
@@ -234,7 +234,7 @@ test('rename replaces the complete continued key ownership (edit.rs:1331-1345)',
   assert.equal(commit.document().properties()[0].key().toUnicode(), 'new key');
 });
 
-test('snapshot, role, recovery, and encoding contracts are enforced (edit.rs:1394-1485)', () => {
+test('snapshot, role, recovery, and encoding contracts are enforced (edit.rs)', () => {
   const document = parse('a=1\n');
   const other = parse('a=1\n');
 
@@ -277,7 +277,7 @@ test('snapshot, role, recovery, and encoding contracts are enforced (edit.rs:139
   );
 });
 
-test('insertions honor all property-relative placements and duplicates (edit.rs:1258-1318)', () => {
+test('insertions honor all property-relative placements and duplicates (edit.rs)', () => {
   const source = '# head\na=1\n# middle\nb=2';
   const cases: readonly { placement: 'Start' | 'End' | 'BeforeSecond' | 'AfterFirst'; expected: string }[] = [
     { placement: 'Start', expected: '# head\nx=0\na=1\n# middle\nb=2' },

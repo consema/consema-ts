@@ -1,7 +1,7 @@
 /**
  * Lossless plist XML syntax kinds (RFC 0013 §8.2).
  *
- * authority: consema-rs/consema-plist/src/parser_xml.rs:71-280
+ * authority: consema-rs/consema-plist/src/parser_xml.rs
  *  - the closed kind set :77-171 and its stable protocol names :174-225
  *    (as_str) — do not guess spellings
  *  - RFC 0013 §8.2 (:561-582) freezes the vocabulary; the root open tag
@@ -15,7 +15,7 @@
  * kind is compiler-checked.
  */
 
-/** One closed plist XML lossless syntax kind (parser_xml.rs:77-171). */
+/** One closed plist XML lossless syntax kind (parser_xml.rs). */
 export type PlistSyntaxKind =
   | 'bom'
   | 'whitespace'
@@ -64,7 +64,7 @@ export type PlistSyntaxKind =
   | 'processing-instruction-close'
   | 'error-region';
 
-/** Resolves one stable kind name; `null` for unknown names (parser_xml.rs:229-279). */
+/** Resolves one stable kind name; `null` for unknown names (parser_xml.rs). */
 export function plistSyntaxKindFromName(name: string): PlistSyntaxKind | null {
   switch (name) {
     case 'bom':
@@ -120,7 +120,7 @@ export function plistSyntaxKindFromName(name: string): PlistSyntaxKind | null {
 }
 
 /**
- * Open-tag kind of one value element (parser_xml.rs:534-548). `true` and
+ * Open-tag kind of one value element (parser_xml.rs). `true` and
  * `false` share one kind for open, close, and self-closing spellings.
  */
 export function plistOpenKind(element: PlistElementKind): PlistSyntaxKind {
@@ -150,7 +150,7 @@ export function plistOpenKind(element: PlistElementKind): PlistSyntaxKind {
   }
 }
 
-/** Close-tag kind of one value element (parser_xml.rs:550-564). */
+/** Close-tag kind of one value element (parser_xml.rs). */
 export function plistCloseKind(element: PlistElementKind): PlistSyntaxKind {
   switch (element) {
     case 'Plist':
@@ -178,7 +178,7 @@ export function plistCloseKind(element: PlistElementKind): PlistSyntaxKind {
   }
 }
 
-/** The plist element vocabulary (parser_xml.rs:503-517). */
+/** The plist element vocabulary (parser_xml.rs). */
 export type PlistElementKind =
   | 'Plist'
   | 'Dict'
@@ -192,7 +192,7 @@ export type PlistElementKind =
   | 'Data'
   | 'Date';
 
-/** Classifies an unqualified element name; `null` is unknown or prefixed (parser_xml.rs:568-586). */
+/** Classifies an unqualified element name; `null` is unknown or prefixed (parser_xml.rs). */
 export function classifyPlistElement(prefix: string, local: string): PlistElementKind | null {
   if (prefix.length > 0) {
     return null;
@@ -225,7 +225,7 @@ export function classifyPlistElement(prefix: string, local: string): PlistElemen
   }
 }
 
-/** Whether the element is a scalar value element (parser_xml.rs:519-532). */
+/** Whether the element is a scalar value element (parser_xml.rs). */
 export function plistElementIsScalar(element: PlistElementKind): boolean {
   switch (element) {
     case 'String':

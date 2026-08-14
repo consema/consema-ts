@@ -21,10 +21,10 @@
  * Design (TypeScript-idiomatic): SourceEncoding is a closed discriminated
  * union with constructor functions; requests are immutable builder
  * classes; the decoded boundary index mirrors the Rust checkpoint scheme
- * (stride 256, consema-rs/consema-document/src/source.rs:13,1053) so memory
+ * (stride 256, consema-rs/consema-document/src/source.rs) so memory
  * stays O(source/256) while lookups are O(stride). The decoded text is
  * validated exactly once at construction and retained (the O(n²)
- * formation root cause documented in source.rs:598-607 / task #53).
+ * formation root cause documented in source.rs / task #53).
  */
 
 import { ContentDigest } from './sha256.ts';
@@ -32,7 +32,7 @@ import { LocationError, SourceError } from './errors.ts';
 import { MALFORMED_BYTE_SENTINEL, singleByteTableFor } from './cp_tables.ts';
 import { cp932Lookup } from './cp932_table.ts';
 
-/** One deterministic Windows code page admitted by source contract v2 (source.rs:56-119). */
+/** One deterministic Windows code page admitted by source contract v2 (source.rs). */
 export class WindowsCodePage {
   readonly #number: number;
 
@@ -40,7 +40,7 @@ export class WindowsCodePage {
     this.#number = number;
   }
 
-  /** Resolves one numeric code page only when source v2 publishes it (source.rs:62-68). */
+  /** Resolves one numeric code page only when source v2 publishes it (source.rs). */
   static fromNumber(number: number): WindowsCodePage | null {
     switch (number) {
       case 874:
@@ -64,12 +64,12 @@ export class WindowsCodePage {
     }
   }
 
-  /** Canonical numeric code-page identity (source.rs:71-74). */
+  /** Canonical numeric code-page identity (source.rs). */
   number(): number {
     return this.#number;
   }
 
-  /** Stable wire identifier ("windows-1252") (source.rs:76-96). */
+  /** Stable wire identifier ("windows-1252") (source.rs). */
   name(): string {
     return `windows-${this.#number}`;
   }
@@ -81,7 +81,7 @@ export class WindowsCodePage {
 
 /**
  * Closed source encoding set supported by source contracts v1 and v2
- * (source.rs:121-155). The v1 IDs are exactly Binary, Utf8, Utf16Le,
+ * (source.rs). The v1 IDs are exactly Binary, Utf8, Utf16Le,
  * Utf16Be, Latin1 (RFC 0003 §4.1); WindowsCodePage is the source-v2
  * extension.
  */
@@ -112,7 +112,7 @@ export function windowsCodePageEncoding(page: WindowsCodePage): SourceEncoding {
   return { kind: 'WindowsCodePage', codePage: page };
 }
 
-/** Stable wire identifier ("binary", "utf-8", "utf-16le", "utf-16be", "latin-1", "windows-1252") (source.rs:138-150). */
+/** Stable wire identifier ("binary", "utf-8", "utf-16le", "utf-16be", "latin-1", "windows-1252") (source.rs). */
 export function encodingAsStr(encoding: SourceEncoding): string {
   switch (encoding.kind) {
     case 'Binary':
@@ -130,7 +130,7 @@ export function encodingAsStr(encoding: SourceEncoding): string {
   }
 }
 
-/** Whether the encoding has a decoded-text view (source.rs:152-154). */
+/** Whether the encoding has a decoded-text view (source.rs). */
 export function encodingIsText(encoding: SourceEncoding): boolean {
   return encoding.kind !== 'Binary';
 }
@@ -145,13 +145,13 @@ function encodingEquals(left: SourceEncoding, right: SourceEncoding): boolean {
   return true;
 }
 
-/** Whether marker-shaped leading bytes participate in Unicode BOM resolution (source.rs:157-165). */
+/** Whether marker-shaped leading bytes participate in Unicode BOM resolution (source.rs). */
 export type BomPolicy = 'DetectUnicode' | 'TreatAsContent';
 
-/** Recognized Unicode byte-order mark (source.rs:166-187). */
+/** Recognized Unicode byte-order mark (source.rs). */
 export type BomKind = 'Utf8' | 'Utf16Le' | 'Utf16Be';
 
-/** Encoding asserted by one marker (source.rs:177-187). */
+/** Encoding asserted by one marker (source.rs). */
 export function bomKindEncoding(kind: BomKind): SourceEncoding {
   switch (kind) {
     case 'Utf8':
@@ -163,7 +163,7 @@ export function bomKindEncoding(kind: BomKind): SourceEncoding {
   }
 }
 
-/** Caller inputs to deterministic encoding resolution (source.rs:189-260). */
+/** Caller inputs to deterministic encoding resolution (source.rs). */
 export class EncodingRequest {
   readonly #profileDefault: SourceEncoding;
   readonly #bomPolicy: BomPolicy;
@@ -182,22 +182,22 @@ export class EncodingRequest {
     this.#callerOverride = callerOverride;
   }
 
-  /** Starts with the required profile default and no higher-priority facts (source.rs:198-207). */
+  /** Starts with the required profile default and no higher-priority facts (source.rs). */
   static create(profileDefault: SourceEncoding): EncodingRequest {
     return new EncodingRequest(profileDefault, 'DetectUnicode', null, null);
   }
 
-  /** Opaque-binary request (source.rs:209-214). */
+  /** Opaque-binary request (source.rs). */
   static binary(): EncodingRequest {
     return EncodingRequest.create(binaryEncoding());
   }
 
-  /** Adds a normalized declaration supplied by the format layer (source.rs:216-221). */
+  /** Adds a normalized declaration supplied by the format layer (source.rs). */
   withDeclaration(declaration: SourceEncoding): EncodingRequest {
     return new EncodingRequest(this.#profileDefault, this.#bomPolicy, declaration, this.#callerOverride);
   }
 
-  /** Adds an explicit caller override (source.rs:223-228). */
+  /** Adds an explicit caller override (source.rs). */
   withCallerOverride(callerOverride: SourceEncoding): EncodingRequest {
     return new EncodingRequest(this.#profileDefault, this.#bomPolicy, this.#declaration, callerOverride);
   }
@@ -218,33 +218,33 @@ export class EncodingRequest {
     return new EncodingRequest(this.#profileDefault, this.#bomPolicy, this.#declaration, callerOverride);
   }
 
-  /** Selects whether leading marker-shaped bytes are BOM evidence or content (source.rs:230-235). */
+  /** Selects whether leading marker-shaped bytes are BOM evidence or content (source.rs). */
   withBomPolicy(bomPolicy: BomPolicy): EncodingRequest {
     return new EncodingRequest(this.#profileDefault, bomPolicy, this.#declaration, this.#callerOverride);
   }
 
-  /** Profile fallback (source.rs:237-241). */
+  /** Profile fallback (source.rs). */
   profileDefault(): SourceEncoding {
     return this.#profileDefault;
   }
 
-  /** BOM interpretation policy (source.rs:243-247). */
+  /** BOM interpretation policy (source.rs). */
   bomPolicy(): BomPolicy {
     return this.#bomPolicy;
   }
 
-  /** Normalized in-source declaration, when one exists (source.rs:249-253). */
+  /** Normalized in-source declaration, when one exists (source.rs). */
   declaration(): SourceEncoding | null {
     return this.#declaration;
   }
 
-  /** Explicit caller choice, when one exists (source.rs:255-259). */
+  /** Explicit caller choice, when one exists (source.rs). */
   callerOverride(): SourceEncoding | null {
     return this.#callerOverride;
   }
 }
 
-/** Complete, auditable result of encoding resolution (source.rs:262-379). */
+/** Complete, auditable result of encoding resolution (source.rs). */
 export class EncodingFacts {
   readonly #profileDefault: SourceEncoding;
   readonly #bomPolicy: BomPolicy;
@@ -275,7 +275,7 @@ export class EncodingFacts {
   }
 
   /**
-   * Validates a structurally complete encoding-facts claim (source.rs:274-300).
+   * Validates a structurally complete encoding-facts claim (source.rs).
    * Proves resolution consistency only; a source decoder must still verify
    * that the claimed BOM is present in the supplied raw bytes.
    */
@@ -296,7 +296,7 @@ export class EncodingFacts {
     );
   }
 
-  /** Validates a source-v2 claim including explicit BOM interpretation (source.rs:302-333). */
+  /** Validates a source-v2 claim including explicit BOM interpretation (source.rs). */
   static fromClaimWithBomPolicy(
     profileDefault: SourceEncoding,
     bomPolicy: BomPolicy,
@@ -318,37 +318,37 @@ export class EncodingFacts {
     return resolved;
   }
 
-  /** Profile fallback that participated in resolution (source.rs:336-339). */
+  /** Profile fallback that participated in resolution (source.rs). */
   profileDefault(): SourceEncoding {
     return this.#profileDefault;
   }
 
-  /** BOM interpretation policy used for this source (source.rs:341-344). */
+  /** BOM interpretation policy used for this source (source.rs). */
   bomPolicy(): BomPolicy {
     return this.#bomPolicy;
   }
 
-  /** Recognized byte-order mark (source.rs:346-351). */
+  /** Recognized byte-order mark (source.rs). */
   bom(): BomKind | null {
     return this.#bom;
   }
 
-  /** Normalized in-source declaration (source.rs:353-357). */
+  /** Normalized in-source declaration (source.rs). */
   declaration(): SourceEncoding | null {
     return this.#declaration;
   }
 
-  /** Explicit caller override (source.rs:359-363). */
+  /** Explicit caller override (source.rs). */
   callerOverride(): SourceEncoding | null {
     return this.#callerOverride;
   }
 
-  /** Encoding selected by the frozen priority rule (source.rs:365-369). */
+  /** Encoding selected by the frozen priority rule (source.rs). */
   selected(): SourceEncoding {
     return this.#selected;
   }
 
-  /** The request that produced these facts (source.rs:371-378). */
+  /** The request that produced these facts (source.rs). */
   resolutionRequest(): EncodingRequest {
     return EncodingRequest.create(this.#profileDefault)
       .withBomPolicy(this.#bomPolicy)
@@ -378,7 +378,7 @@ function encodingEqualsNullable(
   return encodingEquals(left, right);
 }
 
-/** Resource bounds applied while a source snapshot is constructed (source.rs:381-409). */
+/** Resource bounds applied while a source snapshot is constructed (source.rs). */
 export interface SourceLimits {
   /** Maximum retained raw bytes. */
   readonly maxRawBytes: number;
@@ -388,7 +388,7 @@ export interface SourceLimits {
   readonly maxDecodedScalars: number;
 }
 
-/** The frozen defaults (source.rs:401-409): 64 MiB raw, 128 MiB decoded UTF-8, 64 MiB scalars. */
+/** The frozen defaults (source.rs): 64 MiB raw, 128 MiB decoded UTF-8, 64 MiB scalars. */
 export const DEFAULT_SOURCE_LIMITS: Readonly<SourceLimits> = Object.freeze({
   maxRawBytes: 64 * 1024 * 1024,
   maxDecodedUtf8Bytes: 128 * 1024 * 1024,
@@ -396,7 +396,7 @@ export const DEFAULT_SOURCE_LIMITS: Readonly<SourceLimits> = Object.freeze({
 });
 
 /**
- * Compatibility limits for already-bounded format parsers (source.rs:392-399).
+ * Compatibility limits for already-bounded format parsers (source.rs).
  * The Rust value is usize::MAX, which a JS number cannot represent; the
  * largest safe integer is the closest faithful equivalent.
  */
@@ -406,7 +406,7 @@ export const UNBOUNDED_SOURCE_LIMITS: Readonly<SourceLimits> = Object.freeze({
   maxDecodedScalars: Number.MAX_SAFE_INTEGER,
 });
 
-/** One exact boundary expressed in every supported coordinate system (source.rs:411-422). */
+/** One exact boundary expressed in every supported coordinate system (source.rs). */
 export interface DecodedPosition {
   /** Offset in retained raw source bytes. */
   readonly rawByte: number;
@@ -427,7 +427,7 @@ export function decodedPositionEquals(left: DecodedPosition, right: DecodedPosit
   );
 }
 
-/** A decoded coordinate to resolve back to an exact raw-byte boundary (source.rs:424-433). */
+/** A decoded coordinate to resolve back to an exact raw-byte boundary (source.rs). */
 export type DecodedOffset =
   | { readonly kind: 'Utf8Byte'; readonly value: number }
   | { readonly kind: 'UnicodeScalar'; readonly value: number }
@@ -443,10 +443,10 @@ export function utf16CodeUnitOffset(value: number): DecodedOffset {
   return { kind: 'Utf16CodeUnit', value };
 }
 
-/** Checkpoint stride of the decoded boundary index (source.rs:13). */
+/** Checkpoint stride of the decoded boundary index (source.rs). */
 const CHECKPOINT_STRIDE = 256;
 
-/** One boundary checkpoint plus the terminal position (source.rs:458-463). */
+/** One boundary checkpoint plus the terminal position (source.rs). */
 interface DecodedIndex {
   readonly checkpoints: readonly DecodedPosition[];
   readonly terminal: DecodedPosition;
@@ -455,7 +455,7 @@ interface DecodedIndex {
 /** Per-scalar raw byte width for variable-width code-page decoding. */
 type Widths = readonly number[] | null;
 
-/** Immutable ownership of exact raw bytes plus explicitly derived text facts (source.rs:476-484). */
+/** Immutable ownership of exact raw bytes plus explicitly derived text facts (source.rs). */
 export class SourceSnapshot {
   readonly #bytes: Uint8Array;
   readonly #digest: ContentDigest;
@@ -477,7 +477,7 @@ export class SourceSnapshot {
     this.#index = index;
   }
 
-  /** Constructs a source from raw bytes using explicit resolution inputs and limits (source.rs:486-550). */
+  /** Constructs a source from raw bytes using explicit resolution inputs and limits (source.rs). */
   static fromRaw(
     bytes: Uint8Array,
     request: EncodingRequest,
@@ -493,7 +493,7 @@ export class SourceSnapshot {
     // V8 forbids Object.freeze on non-empty typed arrays (TypeError: Cannot
     // freeze array buffer views with elements); immutability is enforced
     // logically — the snapshot owns its private copy and accessors are
-    // read-only by contract (source.rs:578-582).
+    // read-only by contract (source.rs).
     const owned = Uint8Array.from(bytes);
     const encoding = resolveEncoding(owned, request);
     const digest = ContentDigest.of(owned);
@@ -536,7 +536,7 @@ export class SourceSnapshot {
     return new SourceSnapshot(owned, digest, encoding, decodedText, index);
   }
 
-  /** Compatibility constructor for exact UTF-8 sources (source.rs:551-568). */
+  /** Compatibility constructor for exact UTF-8 sources (source.rs). */
   static fromUtf8(bytes: Uint8Array): SourceSnapshot {
     try {
       return SourceSnapshot.fromRaw(
@@ -556,28 +556,28 @@ export class SourceSnapshot {
     }
   }
 
-  /** Constructs an opaque binary source without decoding or BOM interpretation (source.rs:569-576). */
+  /** Constructs an opaque binary source without decoding or BOM interpretation (source.rs). */
   static fromBinary(bytes: Uint8Array, limits: SourceLimits): SourceSnapshot {
     return SourceSnapshot.fromRaw(bytes, EncodingRequest.binary(), limits);
   }
 
-  /** Exact retained source bytes; returns a defensive copy each call so callers can never mutate the snapshot's internal buffer (source.rs:578-582; Kotlin `raw.copyOf()` precedent). */
+  /** Exact retained source bytes; returns a defensive copy each call so callers can never mutate the snapshot's internal buffer (source.rs; Kotlin `raw.copyOf()` precedent). */
   bytes(): Uint8Array {
     return this.#bytes.slice();
   }
 
-  /** Stable SHA-256 identity of exact retained bytes (source.rs:584-588). */
+  /** Stable SHA-256 identity of exact retained bytes (source.rs). */
   digest(): ContentDigest {
     return this.#digest;
   }
 
-  /** Complete encoding-resolution facts (source.rs:590-594). */
+  /** Complete encoding-resolution facts (source.rs). */
   encodingFacts(): EncodingFacts {
     return this.#encoding;
   }
 
   /**
-   * Decoded text, or null for an opaque binary source (source.rs:596-608).
+   * Decoded text, or null for an opaque binary source (source.rs).
    * Fully validated exactly once at construction; each call returns the
    * stored view in O(1).
    */
@@ -585,17 +585,17 @@ export class SourceSnapshot {
     return this.#decodedText;
   }
 
-  /** Source byte length (source.rs:610-614). */
+  /** Source byte length (source.rs). */
   len(): number {
     return this.#bytes.length;
   }
 
-  /** Whether the source is empty (source.rs:616-620). */
+  /** Whether the source is empty (source.rs). */
   isEmpty(): boolean {
     return this.#bytes.length === 0;
   }
 
-  /** Resolves one raw byte offset only when it is a decoded scalar boundary (source.rs:622-641). */
+  /** Resolves one raw byte offset only when it is a decoded scalar boundary (source.rs). */
   decodedPosition(rawByte: number): DecodedPosition {
     if (rawByte > this.#bytes.length) {
       throw new LocationError('OutOfBounds');
@@ -608,7 +608,7 @@ export class SourceSnapshot {
     return scanToRaw(this.#decodedText!, this.#encoding.selected(), checkpoint, rawByte);
   }
 
-  /** Resolves one decoded offset only when it denotes a scalar boundary (source.rs:642-665). */
+  /** Resolves one decoded offset only when it denotes a scalar boundary (source.rs). */
   rawByteAt(offset: DecodedOffset): number {
     const index = this.#index;
     if (index === null) {
@@ -628,7 +628,7 @@ export class SourceSnapshot {
 }
 
 // ---------------------------------------------------------------------------
-// Encoding resolution (source.rs:727-804; RFC 0003 §4.2)
+// Encoding resolution (source.rs; RFC 0003 §4.2)
 // ---------------------------------------------------------------------------
 
 interface ResolutionInputs {
@@ -659,7 +659,7 @@ function resolveEncoding(bytes: Uint8Array, request: EncodingRequest): EncodingF
   );
 }
 
-/** Frozen priority rule: caller_override -> declaration -> bom -> profile_default (RFC 0003 §4.2; source.rs:740-782). */
+/** Frozen priority rule: caller_override -> declaration -> bom -> profile_default (RFC 0003 §4.2; source.rs). */
 function resolveAssertions(inputs: ResolutionInputs, bom: BomKind | null): EncodingFacts {
   const bomEncoding = bom === null ? null : bomKindEncoding(bom);
   if (
@@ -707,7 +707,7 @@ function encodingConflict(
   });
 }
 
-/** Recognizes the frozen BOM set and rejects UTF-32 markers (source.rs:784-804). */
+/** Recognizes the frozen BOM set and rejects UTF-32 markers (source.rs). */
 function detectBom(bytes: Uint8Array): BomKind | null {
   if (
     bytes.length >= 4 &&
@@ -740,7 +740,7 @@ function detectBom(bytes: Uint8Array): BomKind | null {
 }
 
 // ---------------------------------------------------------------------------
-// Decoders (source.rs:806-1014)
+// Decoders (source.rs)
 // ---------------------------------------------------------------------------
 
 /** Strict UTF-8 decode with per-scalar raw widths; throws InvalidSequence at the first bad byte. */
@@ -843,7 +843,7 @@ function checkScalarLimits(decodedUtf8Bytes: number, scalars: number, character:
   }
 }
 
-/** Strict UTF-16 decode (source.rs:806-869): odd length, isolated or reversed surrogates are rejected. */
+/** Strict UTF-16 decode (source.rs): odd length, isolated or reversed surrogates are rejected. */
 function decodeUtf16(bytes: Uint8Array, littleEndian: boolean, limits: SourceLimits): string {
   const encoding = littleEndian ? 'utf-16le' : 'utf-16be';
   if (bytes.length % 2 !== 0) {
@@ -889,7 +889,7 @@ function readU16(bytes: Uint8Array, offset: number, littleEndian: boolean): numb
   return (high << 8) | low;
 }
 
-/** ISO-8859-1 byte-to-scalar decode (source.rs:880-894). */
+/** ISO-8859-1 byte-to-scalar decode (source.rs). */
 function decodeLatin1(bytes: Uint8Array, limits: SourceLimits): string {
   const output: string[] = [];
   let decodedUtf8Bytes = 0;
@@ -903,7 +903,7 @@ function decodeLatin1(bytes: Uint8Array, limits: SourceLimits): string {
 }
 
 /**
- * Decodes one frozen Windows code page strictly (source.rs:901-1014;
+ * Decodes one frozen Windows code page strictly (source.rs;
  * consema-go/go/document/source.go:571-712).
  *
  * cp65001 decodes as strict UTF-8; the ten single-byte pages (874,
@@ -1017,10 +1017,10 @@ function decodeCP932(
 }
 
 // ---------------------------------------------------------------------------
-// Decoded boundary index (source.rs:1016-1216)
+// Decoded boundary index (source.rs)
 // ---------------------------------------------------------------------------
 
-/** Builds checkpoints every 256 scalars plus the terminal position (source.rs:1016-1067). */
+/** Builds checkpoints every 256 scalars plus the terminal position (source.rs). */
 function buildIndex(
   text: string,
   encoding: SourceEncoding,
@@ -1045,7 +1045,7 @@ function buildIndex(
   }
   // The widths array has one entry per decoded scalar (code point), while
   // text.length counts UTF-16 code units; compare against the code-point
-  // count (source.rs:1035-1039 compares against `text.chars().count()`).
+  // count (source.rs compares against `text.chars().count()`).
   if (widths !== null && widths.length !== codePoints) {
     throw new SourceError('OffsetOverflow');
   }
@@ -1095,7 +1095,7 @@ function advancePosition(
 ): DecodedPosition {
   // character.length is the UTF-16 code-unit count (1 for BMP, 2 for
   // astral) and drives the utf16CodeUnitOffset increment exactly
-  // (source.rs:1069-1080). decodedUtf8Byte must instead advance by the
+  // (source.rs). decodedUtf8Byte must instead advance by the
   // scalar's UTF-8 byte width: the two coordinate systems differ for every
   // non-ASCII scalar ('é' is 1 unit but 2 bytes), and decodedUtf8Byte is a
   // byte offset into the UTF-8 representation of the decoded text — counting
@@ -1109,7 +1109,7 @@ function advancePosition(
 }
 
 /**
- * Raw byte width of one scalar in a fixed-width encoding (source.rs:1159-1181).
+ * Raw byte width of one scalar in a fixed-width encoding (source.rs).
  * Code pages decode to fixed raw widths: the single-byte pages (874,
  * 1250-1258) are width 1, cp65001 is the UTF-8 width, and cp932 is width 1
  * for ASCII and half-width katakana (0xA1-0xDF → 0xFF61-0xFF9F) and width 2
@@ -1182,7 +1182,7 @@ function lastCheckpoint(
   return checkpoints[Math.max(0, low - 1)];
 }
 
-/** Scans forward from one checkpoint to a raw byte boundary (source.rs:1090-1116). */
+/** Scans forward from one checkpoint to a raw byte boundary (source.rs). */
 function scanToRaw(
   text: string,
   encoding: SourceEncoding,
@@ -1209,7 +1209,7 @@ function scanToRaw(
   throw new LocationError('OutOfBounds');
 }
 
-/** Scans forward from one checkpoint to a decoded-coordinate boundary (source.rs:1118-1150). */
+/** Scans forward from one checkpoint to a decoded-coordinate boundary (source.rs). */
 function scanToDecoded(
   text: string,
   encoding: SourceEncoding,

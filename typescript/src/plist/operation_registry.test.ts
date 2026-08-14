@@ -2,7 +2,7 @@
  * Intent documents for the frozen plist operation registry (L3).
  *
  * Golden transcription from the authoritative descriptor list:
- *  - consema-rs/consema-plist/src/operation_registry.rs:20-83 (the six
+ *  - consema-rs/consema-plist/src/operation_registry.rs (the six
  *    descriptors) and :108-132 (both profiles publish the same six
  *    operations, all Supported); RFC 0013 §11 (:683-695)
  */
@@ -13,7 +13,7 @@ import assert from 'node:assert/strict';
 import { formatOperationRegistry, PROFILE_PLIST_XML, PROFILE_PLIST_BINARY } from './index.ts';
 import { FormatOperationId } from '../document/operation.ts';
 
-test('every plist profile publishes the frozen six-operation surface (operation_registry.rs:108-132)', () => {
+test('every plist profile publishes the frozen six-operation surface (operation_registry.rs)', () => {
   const expected = [
     'plist.edit.insert-array-element@1',
     'plist.edit.insert-dict-entry@1',
@@ -33,7 +33,7 @@ test('every plist profile publishes the frozen six-operation surface (operation_
   }
 });
 
-test('operation ids, target roles, and argument schemas are frozen (operation_registry.rs:20-83)', () => {
+test('operation ids, target roles, and argument schemas are frozen (operation_registry.rs)', () => {
   const registry = formatOperationRegistry(PROFILE_PLIST_XML);
   const lookup = (id: string) => registry.descriptor(new FormatOperationId(id, 1))!;
 
@@ -104,7 +104,7 @@ test('operation ids, target roles, and argument schemas are frozen (operation_re
   );
 });
 
-test('both profiles bind the same ids and exact-version lookup (operation_registry.rs:15-18)', () => {
+test('both profiles bind the same ids and exact-version lookup (operation_registry.rs)', () => {
   const xml = formatOperationRegistry(PROFILE_PLIST_XML);
   const binary = formatOperationRegistry(PROFILE_PLIST_BINARY);
   assert.deepEqual(

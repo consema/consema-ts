@@ -55,7 +55,7 @@ test('xml.edit.set-attribute-value: replaces the semantic value in place (xml-1-
   assert.equal(committed.changeSet().nodeMappings().length, 1);
   // Attribute associations are not content nodes; find_node_by_span scans
   // the content arena only, so the mapping is Unmapped exactly like the
-  // Rust (edit.rs:1310-1336).
+  // Rust (edit.rs).
   assert.equal(committed.changeSet().nodeMappings()[0].status(), 'Unmapped');
 });
 
@@ -140,7 +140,7 @@ test('edit: new literal content is XML-escaped, never interpolated as markup', (
   assert.equal(render(committed.document()), '<root><a>a &lt; b &amp; c</a></root>');
 });
 
-test('edit: the document root cannot be removed (edit.rs:1009-1030)', () => {
+test('edit: the document root cannot be removed (edit.rs)', () => {
   const document = parseXml('<root/>');
   const transaction = new EditTransactionBuilder(document)
     .removeElement(document.root()!.nodeRef())
@@ -156,7 +156,7 @@ test('edit: the document root cannot be removed (edit.rs:1009-1030)', () => {
   );
 });
 
-test('edit: a duplicate expanded attribute is rejected before commit (edit.rs:1290-1306)', () => {
+test('edit: a duplicate expanded attribute is rejected before commit (edit.rs)', () => {
   const document = parseXml('<p:root xmlns:p="urn:p" p:a="1"/>');
   const transaction = new EditTransactionBuilder(document)
     .insertAttribute(document.root()!.nodeRef(), new NameFacts('p', 'a', 'urn:p'), '2', { kind: 'End' })
@@ -172,7 +172,7 @@ test('edit: a duplicate expanded attribute is rejected before commit (edit.rs:12
   );
 });
 
-test('edit: an unprefixed duplicate without a namespace fails the reparse closure, like the Rust (edit.rs:1294-1296)', () => {
+test('edit: an unprefixed duplicate without a namespace fails the reparse closure, like the Rust (edit.rs)', () => {
   // reject_duplicate_attribute can only prove duplicates for resolvable
   // expanded names; an unprefixed duplicate fails at the reparse closure
   // with NewDocumentFormationFailed exactly like the Rust crate.
@@ -191,7 +191,7 @@ test('edit: an unprefixed duplicate without a namespace fails the reparse closur
   );
 });
 
-test('edit: a stale transaction is rejected with core.edit.wrong-snapshot@1 (edit.rs:414-416)', () => {
+test('edit: a stale transaction is rejected with core.edit.wrong-snapshot@1 (edit.rs)', () => {
   const document = parseXml('<root a="1"/>');
   const transaction = new EditTransactionBuilder(document)
     .setAttributeValue(document.occurrenceNodeRef(document.root()!.attributes()[0].ordinal, 'XmlAttribute'), '2')
@@ -211,7 +211,7 @@ test('edit: a stale transaction is rejected with core.edit.wrong-snapshot@1 (edi
   );
 });
 
-test('edit: conflicting edits on one target fail before commit (edit.rs:597-641)', () => {
+test('edit: conflicting edits on one target fail before commit (edit.rs)', () => {
   const document = parseXml('<root a="1"/>');
   const attribute = document.root()!.attributes()[0];
   const attributeRef = document.occurrenceNodeRef(attribute.ordinal, 'XmlAttribute');
@@ -262,7 +262,7 @@ test('edit: the untouched-byte proof verifies for the committed transition (RFC 
   );
 });
 
-test('edit: a Recovered document cannot be edited (edit.rs:417-419)', () => {
+test('edit: a Recovered document cannot be edited (edit.rs)', () => {
   const document = parseXml('<root>&unknown;</root>');
   const transaction = new EditTransactionBuilder(document).build();
   assert.throws(
@@ -276,7 +276,7 @@ test('edit: a Recovered document cannot be edited (edit.rs:417-419)', () => {
   );
 });
 
-test('edit: an unbound prefix in name facts is rejected (edit.rs:1189-1255)', () => {
+test('edit: an unbound prefix in name facts is rejected (edit.rs)', () => {
   const document = parseXml('<root/>');
   const transaction = new EditTransactionBuilder(document)
     .insertAttribute(document.root()!.nodeRef(), new NameFacts('p', 'a', 'urn:unbound'), '1', { kind: 'End' })

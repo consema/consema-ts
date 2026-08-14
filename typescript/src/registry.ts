@@ -113,7 +113,7 @@ import { hclFormatOperationRegistry } from './hcl/operation_registry.ts';
 // Registry
 // ---------------------------------------------------------------------------
 
-/** One profile together with the format family that publishes it (lib.rs:51-69). */
+/** One profile together with the format family that publishes it (lib.rs). */
 export class FormatProfile {
   readonly #family: FormatFamilyId;
   readonly #profile: ProfileId;
@@ -305,7 +305,7 @@ export function formatOperationRegistry(profile: ProfileId): FormatOperationRegi
 // Document union
 // ---------------------------------------------------------------------------
 
-/** Typed adapter failure on the common opaque facade (lib.rs:492-510). */
+/** Typed adapter failure on the common opaque facade (lib.rs). */
 export const FormatMismatch = {
   Ini: 'Ini',
   Properties: 'Properties',
@@ -331,7 +331,7 @@ type DocumentInner =
 
 /**
  * Common opaque document snapshot over the supported format documents
- * (lib.rs:512-531). The concrete representation is private; format access is
+ * (lib.rs). The concrete representation is private; format access is
  * only possible through the typed adapters. All returned facts are immutable
  * snapshot facts.
  */

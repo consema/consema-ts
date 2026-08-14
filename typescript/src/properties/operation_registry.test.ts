@@ -5,7 +5,7 @@
  * case id:
  *  - conformance/vectors/java-properties-v1.json:
  *    registry.frozen-five-operation-surface (:147-150)
- *  - consema-rs/consema-properties/src/operation_registry.rs:16-48 (the exact
+ *  - consema-rs/consema-properties/src/operation_registry.rs (the exact
  *    descriptors), :72-95 (both profiles publish the same surface)
  *  - RFC 0010 §13 (:385-393) freezes the five operation ids
  */
@@ -42,7 +42,7 @@ test('registry.frozen-five-operation-surface: both profiles publish the same fiv
   }
 });
 
-test('the five descriptors carry the exact target roles and argument schemas (operation_registry.rs:16-48)', () => {
+test('the five descriptors carry the exact target roles and argument schemas (operation_registry.rs)', () => {
   const registry = formatOperationRegistry(PROFILE_READER_V1);
   const byId = new Map(registry.operations().map((descriptor) => [descriptor.id().id(), descriptor]));
   const insert = byId.get('java-properties.edit.insert-property')!;

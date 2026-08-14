@@ -16,7 +16,7 @@
  *   documents, anchor-heavy with five aliases).
  *
  * Facts (counts) mirror consema-rs/consema-conformance/tests/
- * line_format_fixtures.rs:48-179 and yaml_fixtures.rs:22-51. G68
+ * line_format_fixtures.rs and yaml_fixtures.rs. G68
  * (2026-08-14): a missing fixture is a FAILURE, never a silent skip — the
  * inventory test below asserts the full expected fixture set, and the
  * per-fixture tests throw when their file is absent (a partially

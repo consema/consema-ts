@@ -16,17 +16,17 @@
  *    java-properties.query.invalid-code-unit-filter@1      :1159 (Query, 0.8.0)
  *    java-properties.source.profile-encoding@1             :1165 (Encoding, 0.8.0)
  *  - kind→code mapping authority: consema-rs/consema-properties/src/
- *    projection.rs:741-752 (ProjectionFailure), edit.rs:237-252
- *    (EditFailure::diagnostic_code), parser.rs:83-91 (profile failure),
- *    parser.rs:645 (malformed Unicode escape)
- *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761
+ *    projection.rs (ProjectionFailure), edit.rs
+ *    (EditFailure::diagnostic_code), parser.rs (profile failure),
+ *    parser.rs (malformed Unicode escape)
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs
  *    (from_diagnostic :649-654, invalid_utf8 :657-672, source_error
- *    :675-761); common codes in consema-rs/consema-protocol/src/error_registry.rs:
+ *    (exact-wire 定义); common codes in consema-rs/consema-protocol/src/error_registry.rs
  *    39 (core.parse.resource-limit@1), 207/366/372/399/405 (core.source.*@1)
- *  - QueryExecutionFailure: consema-rs/consema-core/src/query.rs:3114-3219
+ *  - QueryExecutionFailure: consema-rs/consema-core/src/query.rs
  *    (ResourceLimitExceeded :3166, Cancelled :3168, CardinalityViolation
  *    :3159-3164; codes :3206-3219) and the Properties executor domain gate
- *    consema-rs/consema-properties/src/query.rs:130-136, 173-179
+ *    consema-rs/consema-properties/src/query.rs
  *    (DomainMismatch)
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
@@ -44,7 +44,7 @@ import { SourceError } from '../document/errors.ts';
 // PropertiesAccessError — typed access failure on one immutable snapshot
 // ---------------------------------------------------------------------------
 
-/** Stable typed Properties access failure (lib.rs:719-774); no registered codes. */
+/** Stable typed Properties access failure (lib.rs); no registered codes. */
 export type PropertiesAccessErrorKind = 'WrongSnapshot' | 'WrongRole' | 'UnknownNode';
 
 export class PropertiesAccessError extends Error {
@@ -63,7 +63,7 @@ export class PropertiesAccessError extends Error {
 // FatalFormationFailure — parse aborted before a document exists
 // ---------------------------------------------------------------------------
 
-/** Fatal parse failure: no Document exists (lib.rs:643-645). */
+/** Fatal parse failure: no Document exists (lib.rs). */
 export class FatalFormationFailure extends Error {
   readonly #diagnostics: readonly Diagnostic[];
 
@@ -73,12 +73,12 @@ export class FatalFormationFailure extends Error {
     this.#diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs:649-654). */
+  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs). */
   static fromDiagnostic(diagnostic: Diagnostic): FatalFormationFailure {
     return new FatalFormationFailure([diagnostic]);
   }
 
-  /** Invalid UTF-8 source (lib.rs:657-672; code at error_registry.rs:207). */
+  /** Invalid UTF-8 source (lib.rs; code at error_registry.rs). */
   static invalidUtf8(validUpTo: number): FatalFormationFailure {
     return new FatalFormationFailure([
       {
@@ -98,7 +98,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs:675-761). */
+  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs). */
   static sourceError(error: SourceError): FatalFormationFailure {
     if (error.kind === 'InvalidUtf8') {
       return FatalFormationFailure.invalidUtf8(error.validUpTo ?? 0);
@@ -151,7 +151,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Creates a fatal resource-limit failure (parser.rs:830-845). */
+  /** Creates a fatal resource-limit failure (parser.rs). */
   static resourceLimit(name: string, observed: number, limit: number): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
       code: 'core.parse.resource-limit@1',
@@ -169,7 +169,7 @@ export class FatalFormationFailure extends Error {
     });
   }
 
-  /** Ordered fatal diagnostics (lib.rs:644-645). */
+  /** Ordered fatal diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
@@ -179,7 +179,7 @@ export class FatalFormationFailure extends Error {
 // QueryExecutionFailure — stable query execution failure
 // ---------------------------------------------------------------------------
 
-/** Stable query execution failure class (query.rs:3114-3219; query.rs:130-136). */
+/** Stable query execution failure class (query.rs; query.rs). */
 export type QueryExecutionFailureKind =
   | 'DomainMismatch'
   | 'ResourceLimitExceeded'
@@ -189,7 +189,7 @@ export type QueryExecutionFailureKind =
 
 export class QueryExecutionFailure extends Error {
   readonly kind: QueryExecutionFailureKind;
-  /** Frozen registered code (query.rs:3206-3219). */
+  /** Frozen registered code (query.rs). */
   readonly code: string;
   /** DomainMismatch: the rejected domain. */
   readonly domain?: { readonly id: string; readonly version: number };
@@ -215,7 +215,7 @@ export class QueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (query.rs:3206-3219; the Properties executor's DomainMismatch maps the same code). */
+/** Kind→code mapping (query.rs; the Properties executor's DomainMismatch maps the same code). */
 export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): string {
   switch (kind) {
     case 'DomainMismatch':
@@ -235,7 +235,7 @@ export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): stri
 // ProjectionFailure — stable projection failure category
 // ---------------------------------------------------------------------------
 
-/** Stable projection failure category (projection.rs:249-262); codes at projection.rs:741-752. */
+/** Stable projection failure category (projection.rs); codes at projection.rs. */
 export type ProjectionFailureKind =
   | 'RecoveredDocument'
   | 'UnpairedSurrogate'
@@ -245,7 +245,7 @@ export type ProjectionFailureKind =
 
 export class ProjectionFailure extends Error {
   readonly kind: ProjectionFailureKind;
-  /** Frozen registered code (projection.rs:741-752). */
+  /** Frozen registered code (projection.rs). */
   readonly code: string;
   /** UnpairedSurrogate / DuplicateKey: the involved property identity. */
   readonly property?: NodeRef;
@@ -255,7 +255,7 @@ export class ProjectionFailure extends Error {
   readonly retained?: NodeRef;
   /** DuplicateKey: the duplicate property identity. */
   readonly duplicate?: NodeRef;
-  /** ResourceLimit: the stable limit name (projection.rs:260). */
+  /** ResourceLimit: the stable limit name (projection.rs). */
   readonly limitName?: string;
 
   constructor(
@@ -280,7 +280,7 @@ export class ProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:741-752). */
+/** Kind→code mapping (projection.rs). */
 export function projectionFailureCode(kind: ProjectionFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':
@@ -299,7 +299,7 @@ export function projectionFailureCode(kind: ProjectionFailureKind): string {
 // EditFailure — stable edit validation or commit failure
 // ---------------------------------------------------------------------------
 
-/** Stable edit validation or commit failure (edit.rs:178-205); codes at edit.rs:237-252. */
+/** Stable edit validation or commit failure (edit.rs); codes at edit.rs. */
 export type EditFailureKind =
   | 'RecoveredDocument'
   | 'WrongSnapshot'
@@ -316,9 +316,9 @@ export type EditFailureKind =
 
 export class EditFailure extends Error {
   readonly kind: EditFailureKind;
-  /** Frozen registered code (edit.rs:237-252). */
+  /** Frozen registered code (edit.rs). */
   readonly code: string;
-  /** ResourceLimit: the stable limit name (edit.rs:202). */
+  /** ResourceLimit: the stable limit name (edit.rs). */
   readonly limitName?: string;
 
   constructor(kind: EditFailureKind, options: { limitName?: string } = {}) {
@@ -330,7 +330,7 @@ export class EditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:237-252). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: EditFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':

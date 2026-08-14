@@ -27,8 +27,7 @@
  *    Complete): every offset-table entry must lie in [8, offsetTableOffset)
  *    and every reference must be < numObjects; the offset-table validation
  *    and the marker/extent reads are locally bounds-checked so no chain of
- *    prior checks can be bypassed (parser_binary.rs:935-949, 1014-1030,
- *    1278-1292)
+ *    prior checks can be bypassed (parser_binary.rs 的检查顺序)
  *
  * Design (TypeScript-idiomatic): one deterministic forward pass — header,
  * trailer, offset table, object table — with prefix-based recovery: the
@@ -331,7 +330,7 @@ class Parser {
     const trailerOk = this.validateTrailer(raw);
     if (!trailerOk) {
       // The object table cannot be located; the middle bytes are one error
-      // region and no native document exists (parser_binary.rs:569-588).
+      // region and no native document exists (parser_binary.rs).
       const regions = [
         this.region(0, headerOk ? 'header' : 'error-region', 0, 8),
         this.region(1, 'error-region', 8, trailerStart),
@@ -362,7 +361,7 @@ class Parser {
     cut = scan.cut;
     cut = this.verifyDictKeys(shapes, cut);
 
-    // Native document eligibility (parser_binary.rs:614-671).
+    // Native document eligibility (parser_binary.rs).
     const topObject = Number(raw.topObject);
     let nativeUnproven = false;
     if (topObject >= cut) {
@@ -436,7 +435,7 @@ class Parser {
     }
     const facts = new BinaryFacts(objects, offsetFacts, refs, trailerFacts);
 
-    // Exhaustive region coverage (parser_binary.rs:703-727).
+    // Exhaustive region coverage (parser_binary.rs).
     const regions: BinaryRegion[] = [];
     regions.push(this.region(0, headerOk ? 'header' : 'error-region', 0, 8));
     if (cut > 0) {
@@ -592,7 +591,7 @@ class Parser {
       const end = start + offsetIntSize;
       if (end > bytes.length) {
         // Defensive: the entry window must stay inside the source
-        // (parser_binary.rs:935-949); cuts the proven prefix exactly like a
+        // (parser_binary.rs); cuts the proven prefix exactly like a
         // malformed entry value.
         this.recover('plist.binary.offset-table@1', Math.min(start, bytes.length - 1), bytes.length, [
           ['index', String(index)],
@@ -607,7 +606,7 @@ class Parser {
       }
       const valueNum = Number(value);
       // The stricter v1 range: every entry must lie in [8, offsetTableOffset)
-      // (RFC 0013 §5.11; parser_binary.rs:951-962).
+      // (RFC 0013 §5.11; parser_binary.rs).
       if (valueNum < 8 || valueNum >= offsetTableOffset) {
         this.recover('plist.binary.offset-table@1', start, end, [
           ['index', String(index)],
@@ -655,7 +654,7 @@ class Parser {
     const bytes = this.#bytes;
     if (offset >= bytes.length) {
       // Defensive: the marker byte must exist inside the source
-      // (parser_binary.rs:1014-1030).
+      // (parser_binary.rs).
       this.recover('plist.binary.offset-table@1', bytes.length - 1, bytes.length, [
         ['index', String(index)],
         ['value', `0x${offset.toString(16)}`],
@@ -741,7 +740,7 @@ class Parser {
     } else {
       // Excluded markers (RFC 0013 §5.2): null, URL, UUID, fill, 16-byte
       // integer, unused real widths, UTF-8 string, sets, and the
-      // unassigned ranges (parser_binary.rs:1108-1118).
+      // unassigned ranges (parser_binary.rs).
       this.recover('plist.binary.marker@1', markerStart, markerEnd, [
         ['marker', `0x${marker.toString(16).padStart(2, '0')}`],
         ['object', String(index)],
@@ -844,7 +843,7 @@ class Parser {
         const targetNum = Number(target);
         // Object-reference range check: every reference must index a valid
         // object (< numObjects) — the Go fuzz finding ① fix, no false
-        // Complete (RFC 0013 §5.9; parser_binary.rs:1216-1223).
+        // Complete (RFC 0013 §5.9; parser_binary.rs).
         if (targetNum >= numObjects) {
           this.recover('plist.binary.reference@1', refStart, refEnd, [
             ['owner', String(index)],

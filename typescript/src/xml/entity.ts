@@ -20,7 +20,7 @@
  * (RFC 0012 §3 :129-131).
  */
 
-/** One predefined XML entity (entity.rs:9-16). */
+/** One predefined XML entity (entity.rs). */
 export interface PredefinedEntity {
   /** Entity name without the `&` and `;`. */
   readonly name: string;
@@ -28,7 +28,7 @@ export interface PredefinedEntity {
   readonly value: string;
 }
 
-/** The five predefined entities, always available with their XML meanings (entity.rs:18-40). */
+/** The five predefined entities, always available with their XML meanings (entity.rs). */
 export const PREDEFINED_ENTITIES: readonly PredefinedEntity[] = Object.freeze([
   { name: 'lt', value: '<' },
   { name: 'gt', value: '>' },
@@ -37,7 +37,7 @@ export const PREDEFINED_ENTITIES: readonly PredefinedEntity[] = Object.freeze([
   { name: 'quot', value: '"' },
 ]);
 
-/** Returns the replacement value of a predefined entity by exact name (entity.rs:42-49). */
+/** Returns the replacement value of a predefined entity by exact name (entity.rs). */
 export function predefinedValue(name: string): string | null {
   for (const entity of PREDEFINED_ENTITIES) {
     if (entity.name === name) {
@@ -47,7 +47,7 @@ export function predefinedValue(name: string): string | null {
   return null;
 }
 
-/** Returns whether `c` is a legal XML 1.0 character (entity.rs:51-59). */
+/** Returns whether `c` is a legal XML 1.0 character (entity.rs). */
 export function isXmlChar(character: string): boolean {
   const code = character.codePointAt(0)!;
   return (
@@ -60,13 +60,13 @@ export function isXmlChar(character: string): boolean {
   );
 }
 
-/** Replacement-text validation failure (entity.rs:61-72). */
+/** Replacement-text validation failure (entity.rs). */
 export type ReplacementError =
   | { readonly kind: 'ContainsMarkup' }
   | { readonly kind: 'IllegalCharacter'; readonly scalar: number };
 
 /**
- * Validates one internal general entity value (entity.rs:74-89).
+ * Validates one internal general entity value (entity.rs).
  *
  * An admitted value may contain character data, character references,
  * predefined entity references, or references to another admitted internal
@@ -84,7 +84,7 @@ export function validateReplacementText(text: string): ReplacementError | null {
   return null;
 }
 
-/** Entity expansion breach category (entity.rs:91-106). */
+/** Entity expansion breach category (entity.rs). */
 export type ExpansionBreach =
   | 'DeclarationLimit'
   | 'ReferenceLimit'
@@ -93,7 +93,7 @@ export type ExpansionBreach =
   | 'ExpandedScalars'
   | 'Amplification';
 
-/** Entity expansion limits derived from the parse limits (entity.rs:108-123). */
+/** Entity expansion limits derived from the parse limits (entity.rs). */
 export interface EntityExpansionLimits {
   /** Maximum entity declarations. */
   readonly maxDeclarations: number;
@@ -110,7 +110,7 @@ export interface EntityExpansionLimits {
 }
 
 /**
- * Document-wide entity expansion accounting (entity.rs:125-145).
+ * Document-wide entity expansion accounting (entity.rs).
  *
  * Counters apply across the whole document, not independently per
  * reference, so an attack cannot split its budget across references.
@@ -124,12 +124,12 @@ export class EntityExpansionState {
   #expandedScalars = 0;
   #expansionDepth = 0;
 
-  /** Creates an empty accounting state (entity.rs:147-153). */
+  /** Creates an empty accounting state (entity.rs). */
   static new(): EntityExpansionState {
     return new EntityExpansionState();
   }
 
-  /** Records one collected declaration with its replacement text size (entity.rs:155-168). */
+  /** Records one collected declaration with its replacement text size (entity.rs). */
   recordDeclaration(
     replacementBytes: number,
     replacementScalars: number,
@@ -144,7 +144,7 @@ export class EntityExpansionState {
     return null;
   }
 
-  /** Enters one reference expansion and accounts its resolved size (entity.rs:171-197). */
+  /** Enters one reference expansion and accounts its resolved size (entity.rs). */
   enterReference(
     expandedBytes: number,
     expandedScalars: number,
@@ -172,7 +172,7 @@ export class EntityExpansionState {
     return null;
   }
 
-  /** Leaves one completed reference expansion (entity.rs:199-202). */
+  /** Leaves one completed reference expansion (entity.rs). */
   leaveReference(): void {
     this.#expansionDepth = Math.max(0, this.#expansionDepth - 1);
   }

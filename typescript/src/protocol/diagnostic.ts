@@ -2,7 +2,7 @@
  * The transferable `core.diagnostic@1` record.
  *
  * authority: consema-rs/consema-protocol/src/diagnostic.rs (record shape and the
- * registry-bound code/category validation, diagnostic.rs:336-351);
+ * registry-bound code/category validation, diagnostic.rs);
  * conformance/vectors/protocol-v1.json (protocol.diagnostic.reject-category-
  * registry-mismatch). Construction validates the code against the frozen
  * error registry and the category against the registry record (RFC 0011;
@@ -133,7 +133,7 @@ export function newDiagnostic(
   };
 }
 
-/** Encodes `core.diagnostic@1` (diagnostic.rs:187-250). */
+/** Encodes `core.diagnostic@1` (diagnostic.rs). */
 export function diagnosticToValue(diagnostic: Diagnostic): ObjectValue {
   const related = diagnostic.related.map((item) =>
     objectValue([
@@ -166,7 +166,7 @@ export function diagnosticToValue(diagnostic: Diagnostic): ObjectValue {
   ]);
 }
 
-/** Strictly decodes `core.diagnostic@1` under one explicit error registry (diagnostic.rs:252-333). */
+/** Strictly decodes `core.diagnostic@1` under one explicit error registry (diagnostic.rs). */
 export function diagnosticFromValue(value: PortableValue, registry: ErrorCodeRegistry): Diagnostic {
   const fields = schemaFields(
     value,
@@ -208,7 +208,7 @@ export function diagnosticFromValue(value: PortableValue, registry: ErrorCodeReg
   );
 }
 
-/** Requires the code to be registered and its category to match the registry record (diagnostic.rs:336-351). */
+/** Requires the code to be registered and its category to match the registry record (diagnostic.rs). */
 export function validateDiagnosticCode(
   code: string,
   category: DiagnosticCategory,
@@ -232,7 +232,7 @@ function locationValue(location: SourceLocation): ObjectValue {
   ]);
 }
 
-/** Strictly decodes one source location (diagnostic.rs:386-393). */
+/** Strictly decodes one source location (diagnostic.rs). */
 function parseLocation(value: PortableValue, path: string): SourceLocation {
   const fields = exactFields(value, ['source_id', 'start_byte', 'end_byte'], path);
   const sourceId = stringOf(fields[0], `${path}.source_id`);
@@ -241,7 +241,7 @@ function parseLocation(value: PortableValue, path: string): SourceLocation {
   return newSourceLocation(sourceId, startByte, endByte);
 }
 
-/** Strictly decodes one fix proposal (diagnostic.rs:395-431). */
+/** Strictly decodes one fix proposal (diagnostic.rs). */
 function decodeFix(value: PortableValue, path: string): FixProposal {
   const fields = exactFields(value, ['id', 'applicability', 'location', 'replacement'], path);
   const id = stringOf(fields[0], `${path}.id`);
@@ -284,7 +284,7 @@ export function isSeverity(value: string): value is Severity {
 
 /**
  * The frozen process-local-handle rejection at the externalization boundary
- * (protocol_records.py:43-49; diagnostic.rs:353-365 bind_location). A
+ * (protocol_records.py:43-49; diagnostic.rs bind_location). A
  * process-local identity that cannot be replaced by a stable caller
  * locator/source binding is rejected with this fixed code.
  */
@@ -296,7 +296,7 @@ export function processLocalError(path: string): ProtocolError {
   );
 }
 
-// The core.diagnostic@1 payload dispatch (payload.rs:52-55): the envelope
+// The core.diagnostic@1 payload dispatch (payload.rs): the envelope
 // validates every diagnostic payload through the strict decoder under the
 // envelope registry at module load.
 registerPayloadValidator('core.diagnostic', 1, (payload, registry) => {

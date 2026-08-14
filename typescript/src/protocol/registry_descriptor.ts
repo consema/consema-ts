@@ -3,7 +3,7 @@
  *
  * authority: consema-rs/consema-protocol/src/registry.rs (profile-descriptor@1,
  * capability-declaration@1, registry-manifest@1); the namespace rule at
- * registry.rs:475-498; consema-core capability.rs:7-96 (CapabilityId,
+ * registry.rs; consema-core capability.rs (CapabilityId,
  * ImplementationSupport, VerificationStatus). The vectors pin the records in
  * conformance/vectors/protocol-v1.json (protocol.profile.roundtrip,
  * protocol.capability.conditional-roundtrip,
@@ -44,7 +44,7 @@ export function newProfileReference(id: string, version: number): ProfileReferen
   return { id, version };
 }
 
-/** An immutable language profile registry descriptor (registry.rs:48-250). */
+/** An immutable language profile registry descriptor (registry.rs). */
 export interface ProfileDescriptor {
   readonly formatFamilyId: string;
   readonly formatFamilyVersion: number;
@@ -57,7 +57,7 @@ export interface ProfileDescriptor {
   readonly requiredCapabilities: readonly CapabilityId[];
 }
 
-/** Creates a normalized descriptor and rejects malformed or duplicate facts (registry.rs:60-114). */
+/** Creates a normalized descriptor and rejects malformed or duplicate facts (registry.rs). */
 export function newProfileDescriptor(
   formatFamilyId: string,
   formatFamilyVersion: number,
@@ -101,7 +101,7 @@ export function newProfileDescriptor(
   };
 }
 
-/** Encodes `core.profile-descriptor@1` (registry.rs:158-201). */
+/** Encodes `core.profile-descriptor@1` (registry.rs). */
 export function profileDescriptorToValue(descriptor: ProfileDescriptor): ObjectValue {
   const baseProfile = descriptor.baseProfile !== undefined
     ? referenceValue(descriptor.baseProfile.id, descriptor.baseProfile.version)
@@ -127,7 +127,7 @@ export function profileDescriptorToValue(descriptor: ProfileDescriptor): ObjectV
   ]);
 }
 
-/** Strictly decodes `core.profile-descriptor@1` (registry.rs:203-249). */
+/** Strictly decodes `core.profile-descriptor@1` (registry.rs). */
 export function profileDescriptorFromValue(value: PortableValue): ProfileDescriptor {
   const fields = schemaFields(
     value,
@@ -168,7 +168,7 @@ function parseProfileReference(value: PortableValue, path: string): ProfileRefer
   return newProfileReference(id, version);
 }
 
-/** A stable namespaced capability contract (consema-core capability.rs:7-28). */
+/** A stable namespaced capability contract (consema-core capability.rs). */
 export interface CapabilityId {
   readonly namespace: string;
   readonly version: number;
@@ -192,7 +192,7 @@ export function compareCapabilityIds(a: CapabilityId, b: CapabilityId): number {
   return 0;
 }
 
-/** A deterministic set of capabilities available to an operation (capability.rs:59-96). */
+/** A deterministic set of capabilities available to an operation (capability.rs). */
 export class CapabilitySet {
   private readonly capabilities = new Map<string, CapabilityId>();
 
@@ -220,7 +220,7 @@ export class CapabilitySet {
   }
 }
 
-/** The closed support kind of one capability (capability.rs:30-43). */
+/** The closed support kind of one capability (capability.rs). */
 export type SupportKind = 'Conformant' | 'Conditional' | 'Unsupported';
 
 /** One machine-readable conditional-support precondition. */
@@ -236,7 +236,7 @@ export interface ImplementationSupport {
   readonly preconditions: readonly Precondition[];
 }
 
-/** How capability support was verified (capability.rs:45-56). */
+/** How capability support was verified (capability.rs). */
 export type VerificationStatus = 'Verified' | 'SelfDeclared' | 'Unverified';
 
 /** Parses one canonical verification spelling. */
@@ -251,7 +251,7 @@ export function parseVerificationStatus(name: string): VerificationStatus {
   }
 }
 
-/** One implementation's support and verification claim for a capability (registry.rs:252-439). */
+/** One implementation's support and verification claim for a capability (registry.rs). */
 export interface CapabilityDeclaration {
   readonly capability: CapabilityId;
   readonly support: ImplementationSupport;
@@ -259,7 +259,7 @@ export interface CapabilityDeclaration {
   readonly suiteId?: string;
 }
 
-/** Validates the cross-field support and verification invariants (registry.rs:262-315). */
+/** Validates the cross-field support and verification invariants (registry.rs). */
 export function newCapabilityDeclaration(
   capability: CapabilityId,
   support: ImplementationSupport,
@@ -296,7 +296,7 @@ export function newCapabilityDeclaration(
   };
 }
 
-/** Encodes `core.capability-declaration@1` (registry.rs:341-379). */
+/** Encodes `core.capability-declaration@1` (registry.rs). */
 export function capabilityDeclarationToValue(declaration: CapabilityDeclaration): ObjectValue {
   const preconditions = new Map<string, string>();
   if (declaration.support.kind === 'Conditional') {
@@ -320,7 +320,7 @@ export function capabilityDeclarationToValue(declaration: CapabilityDeclaration)
   ]);
 }
 
-/** Strictly decodes `core.capability-declaration@1` (registry.rs:381-438). */
+/** Strictly decodes `core.capability-declaration@1` (registry.rs). */
 export function capabilityDeclarationFromValue(value: PortableValue): CapabilityDeclaration {
   const fields = schemaFields(
     value,

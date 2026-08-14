@@ -58,7 +58,7 @@ export class PortableGraphMessage {
     this.#pgce = pgce;
   }
 
-  /** Canonically encodes one complete graph under explicit PGCE limits (portable_graph.rs:24-27). */
+  /** Canonically encodes one complete graph under explicit PGCE limits (portable_graph.rs). */
   static fromGraph(graph: Graph, limits: PgceLimits): PortableGraphMessage {
     let pgce: Uint8Array;
     try {
@@ -79,7 +79,7 @@ export class PortableGraphMessage {
     return this.#graph;
   }
 
-  /** Encodes the fixed readable graph plus PGCE schema (portable_graph.rs:43-104). */
+  /** Encodes the fixed readable graph plus PGCE schema (portable_graph.rs). */
   toValue(): ObjectValue {
     const layout = canonicalLayoutOf(this.#graph);
     const ids = layout.canonicalIDs;
@@ -136,7 +136,7 @@ export class PortableGraphMessage {
     ]);
   }
 
-  /** Strictly decodes and cross-validates the readable graph and PGCE/1 forms (portable_graph.rs:107-173). */
+  /** Strictly decodes and cross-validates the readable graph and PGCE/1 forms (portable_graph.rs). */
   static fromValue(value: PortableValue, limits: PgceLimits): PortableGraphMessage {
     const fields = schemaFields(
       value,
@@ -181,7 +181,7 @@ export class PortableGraphMessage {
       throw buildError(error as GraphError);
     }
     // Node records must already be in canonical first-discovery order
-    // (portable_graph.rs:152-157).
+    // (portable_graph.rs).
     const order = canonicalLayoutOf(graph).order;
     if (!order.every((original, index) => original === index)) {
       throw invalid('$.nodes', 'node records are not in canonical first-discovery order');
@@ -224,7 +224,7 @@ function resolveCanonical(layout: { readonly order: readonly number[] }, value: 
   return layout.order[index];
 }
 
-/** The graph-construction limits implied by PGCE limits (pgce.rs:56-68). */
+/** The graph-construction limits implied by PGCE limits (pgce.rs). */
 function graphLimitsOf(limits: PgceLimits): Limits {
   return {
     maxRoots: limits.maxRoots,
@@ -237,7 +237,7 @@ function graphLimitsOf(limits: PgceLimits): Limits {
   };
 }
 
-/** Defines one wire node record exactly as portable_graph.rs:240-331. */
+/** Defines one wire node record exactly as portable_graph.rs. */
 function defineRecord(
   builder: Builder,
   ids: readonly NodeID[],
@@ -302,7 +302,7 @@ function defineRecord(
   }
 }
 
-/** Reads the kind of one node record (the second String field, portable_graph.rs:247-255). */
+/** Reads the kind of one node record (the second String field, portable_graph.rs). */
 function kindOf(value: PortableValue, path: string): 'Scalar' | 'Sequence' | 'Mapping' {
   if (value.kind !== 'Object') {
     throw protocolError('WrongType', path, 'expected graph node Object');
@@ -321,7 +321,7 @@ function kindOf(value: PortableValue, path: string): 'Scalar' | 'Sequence' | 'Ma
   }
 }
 
-/** Requires the record id to equal its canonical array index (portable_graph.rs:333-348). */
+/** Requires the record id to equal its canonical array index (portable_graph.rs). */
 function validateRecordId(value: PortableValue, index: number, path: string): void {
   const observed = unsigned64(value, `${path}.id`);
   if (observed !== BigInt(index)) {
@@ -329,7 +329,7 @@ function validateRecordId(value: PortableValue, index: number, path: string): vo
   }
 }
 
-/** Resolves one canonical node ID to a graph-local identity (portable_graph.rs:350-355). */
+/** Resolves one canonical node ID to a graph-local identity (portable_graph.rs). */
 function resolveId(ids: readonly NodeID[], value: bigint, path: string): NodeID {
   const index = Number(value);
   const id = ids[index];
@@ -379,7 +379,7 @@ function byteArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
 // core.graph-query-result@1
 // ---------------------------------------------------------------------------
 
-/** One graph match expressed only with canonical wire node IDs (graph_query.rs:16-43). */
+/** One graph match expressed only with canonical wire node IDs (graph_query.rs). */
 export class GraphQueryMatchMessage {
   readonly kind: 'Node' | 'SequenceElement' | 'MappingEntry';
   readonly node: bigint;
@@ -431,7 +431,7 @@ export class GraphQueryMatchMessage {
     }
   }
 
-  /** Encodes one match (graph_query.rs:342-371). */
+  /** Encodes one match (graph_query.rs). */
   toValue(): ObjectValue {
     switch (this.kind) {
       case 'Node':
@@ -457,7 +457,7 @@ export class GraphQueryMatchMessage {
     }
   }
 
-  /** Strictly decodes one graph match (graph_query.rs:373-408). */
+  /** Strictly decodes one graph match (graph_query.rs). */
   static fromValue(value: PortableValue, path: string): GraphQueryMatchMessage {
     const kind = firstKindOf(value, path);
     switch (kind) {
@@ -513,7 +513,7 @@ export class GraphQueryResultMessage {
     this.#diagnostics = diagnostics;
   }
 
-  /** Validates graph binding, uniform match roles, associations, and counts (graph_query.rs:68-99). */
+  /** Validates graph binding, uniform match roles, associations, and counts (graph_query.rs). */
   static new(
     domain: QueryDomain,
     role: 'GraphNode' | 'GraphSequenceElement' | 'GraphMappingEntry',
@@ -564,7 +564,7 @@ export class GraphQueryResultMessage {
     return this.#diagnostics;
   }
 
-  /** Encodes `core.graph-query-result@1` (graph_query.rs:191-213). */
+  /** Encodes `core.graph-query-result@1` (graph_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.graph-query-result@1' } },
@@ -587,7 +587,7 @@ export class GraphQueryResultMessage {
     ]);
   }
 
-  /** Strictly decodes with explicit graph limits and semantic-model registry (graph_query.rs:229-269). */
+  /** Strictly decodes with explicit graph limits and semantic-model registry (graph_query.rs). */
   static fromValue(
     value: PortableValue,
     limits: PgceLimits,
@@ -613,7 +613,7 @@ export class GraphQueryResultMessage {
   }
 }
 
-/** Validates every match against the exact graph (graph_query.rs:272-329). */
+/** Validates every match against the exact graph (graph_query.rs). */
 function validateGraphMatches(
   message: PortableGraphMessage,
   matches: readonly GraphQueryMatchMessage[],
@@ -685,7 +685,7 @@ function parseGraphRole(value: string): 'GraphNode' | 'GraphSequenceElement' | '
 // core.graph-provenance-map@1
 // ---------------------------------------------------------------------------
 
-/** One projected PortableGraph location expressed with canonical node IDs (graph_projection.rs:17-43). */
+/** One projected PortableGraph location expressed with canonical node IDs (graph_projection.rs). */
 export class GraphProjectedLocationMessage {
   readonly kind: 'Root' | 'Node' | 'SequenceElement' | 'MappingKey' | 'MappingValue';
   readonly ordinal: bigint;
@@ -749,7 +749,7 @@ export class GraphProjectedLocationMessage {
     }
   }
 
-  /** Encodes one projected location (graph_projection.rs:411-437). */
+  /** Encodes one projected location (graph_projection.rs). */
   toValue(): ObjectValue {
     switch (this.kind) {
       case 'Root':
@@ -773,7 +773,7 @@ export class GraphProjectedLocationMessage {
     }
   }
 
-  /** Strictly decodes one projected location (graph_projection.rs:439-480). */
+  /** Strictly decodes one projected location (graph_projection.rs). */
   static fromValue(value: PortableValue, path: string): GraphProjectedLocationMessage {
     const kind = firstKindOf(value, path);
     switch (kind) {
@@ -824,7 +824,7 @@ function locationRank(kind: string): number {
   }
 }
 
-/** Transferable graph origin with caller-assigned identities (graph_projection.rs:56-67). */
+/** Transferable graph origin with caller-assigned identities (graph_projection.rs). */
 export class GraphSourceOriginMessage {
   readonly sourceId: string;
   readonly nodeLocator: string | null;
@@ -846,7 +846,7 @@ export class GraphSourceOriginMessage {
     this.relation = relation;
   }
 
-  /** Validates one externalized graph origin (graph_projection.rs:71-98). */
+  /** Validates one externalized graph origin (graph_projection.rs). */
   static new(
     sourceId: string,
     nodeLocator: string | null,
@@ -868,7 +868,7 @@ export class GraphSourceOriginMessage {
     return new GraphSourceOriginMessage(sourceId, nodeLocator, startByte, endByte, relation);
   }
 
-  /** Encodes one graph origin (graph_projection.rs:482-502). */
+  /** Encodes one graph origin (graph_projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'source_id', value: { kind: 'String', value: this.sourceId } },
@@ -882,7 +882,7 @@ export class GraphSourceOriginMessage {
     ]);
   }
 
-  /** Strictly decodes one graph origin (graph_projection.rs:504-530). */
+  /** Strictly decodes one graph origin (graph_projection.rs). */
   static fromValue(value: PortableValue, path: string): GraphSourceOriginMessage {
     const fields = exactFields(
       value,
@@ -907,13 +907,13 @@ export class GraphSourceOriginMessage {
   }
 }
 
-/** One graph location and all ordered source origins (graph_projection.rs:111-117). */
+/** One graph location and all ordered source origins (graph_projection.rs). */
 export interface GraphProvenanceEntryMessage {
   readonly projected: GraphProjectedLocationMessage;
   readonly origins: readonly GraphSourceOriginMessage[];
 }
 
-/** The sorted unique `core.graph-provenance-map@1` record (graph_projection.rs:120-123). */
+/** The sorted unique `core.graph-provenance-map@1` record (graph_projection.rs). */
 export class GraphProvenanceMapMessage {
   readonly #entries: readonly GraphProvenanceEntryMessage[];
 
@@ -921,7 +921,7 @@ export class GraphProvenanceMapMessage {
     this.#entries = entries;
   }
 
-  /** Validates canonical location order, uniqueness, and non-empty origins (graph_projection.rs:127-139). */
+  /** Validates canonical location order, uniqueness, and non-empty origins (graph_projection.rs). */
   static new(entries: readonly GraphProvenanceEntryMessage[]): GraphProvenanceMapMessage {
     for (const entry of entries) {
       if (entry.origins.length === 0) {
@@ -941,7 +941,7 @@ export class GraphProvenanceMapMessage {
     return this.#entries;
   }
 
-  /** Encodes `core.graph-provenance-map@1` (graph_projection.rs:163-182). */
+  /** Encodes `core.graph-provenance-map@1` (graph_projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.graph-provenance-map@1' } },
@@ -963,7 +963,7 @@ export class GraphProvenanceMapMessage {
     ]);
   }
 
-  /** Strictly decodes one graph provenance map (graph_projection.rs:185-211). */
+  /** Strictly decodes one graph provenance map (graph_projection.rs). */
   static fromValue(value: PortableValue): GraphProvenanceMapMessage {
     const fields = schemaFields(value, 'core.graph-provenance-map@1', ['entries'], '$');
     const entries = sequenceOf(fields[0], '$.entries').map((entry, index) => {
@@ -981,7 +981,7 @@ export class GraphProvenanceMapMessage {
   }
 }
 
-/** Validates every projected location against one exact graph message (graph_projection.rs:351-398). */
+/** Validates every projected location against one exact graph message (graph_projection.rs). */
 function validateGraphLocations(
   message: PortableGraphMessage,
   entries: readonly GraphProvenanceEntryMessage[],
@@ -1025,7 +1025,7 @@ function validateGraphLocations(
 // core.graph-projection-result@1
 // ---------------------------------------------------------------------------
 
-/** The atomic exact `core.graph-projection-result@1` record (graph_projection.rs:215-221). */
+/** The atomic exact `core.graph-projection-result@1` record (graph_projection.rs). */
 export class GraphProjectionResultMessage {
   readonly #completion: Completion;
   readonly #graph: PortableGraphMessage | null;
@@ -1044,7 +1044,7 @@ export class GraphProjectionResultMessage {
     this.#diagnostics = diagnostics;
   }
 
-  /** Validates atomic success, produced count, and complete graph provenance (graph_projection.rs:225-255). */
+  /** Validates atomic success, produced count, and complete graph provenance (graph_projection.rs). */
   static new(
     completion: Completion,
     graph: Graph | null,
@@ -1088,7 +1088,7 @@ export class GraphProjectionResultMessage {
     return this.#diagnostics;
   }
 
-  /** Encodes `core.graph-projection-result@1` (graph_projection.rs:283-305). */
+  /** Encodes `core.graph-projection-result@1` (graph_projection.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.graph-projection-result@1' } },
@@ -1111,7 +1111,7 @@ export class GraphProjectionResultMessage {
     ]);
   }
 
-  /** Strictly decodes with explicit graph limits and semantic-model registry (graph_projection.rs:321-348). */
+  /** Strictly decodes with explicit graph limits and semantic-model registry (graph_projection.rs). */
   static fromValue(
     value: PortableValue,
     limits: PgceLimits,
@@ -1146,7 +1146,7 @@ export class GraphProjectionResultMessage {
 // core.yaml-query-result@1
 // ---------------------------------------------------------------------------
 
-/** One YAML match after caller externalization of its process-local handle (yaml_query.rs:11-17). */
+/** One YAML match after caller externalization of its process-local handle (yaml_query.rs). */
 export class YamlMatchLocator {
   readonly sourceId: string;
   readonly nodeLocator: string;
@@ -1160,7 +1160,7 @@ export class YamlMatchLocator {
     this.ordinal = ordinal;
   }
 
-  /** Validates stable identities, a YAML role, and its result ordinal (yaml_query.rs:21-46). */
+  /** Validates stable identities, a YAML role, and its result ordinal (yaml_query.rs). */
   static new(sourceId: string, nodeLocator: string, role: string, ordinal: bigint): YamlMatchLocator {
     if (
       sourceId === '' ||
@@ -1174,7 +1174,7 @@ export class YamlMatchLocator {
     return new YamlMatchLocator(sourceId, nodeLocator, role, ordinal);
   }
 
-  /** Explicitly refuses a raw process-local YAML node handle (yaml_query.rs:49-55). */
+  /** Explicitly refuses a raw process-local YAML node handle (yaml_query.rs). */
   static fromProcessLocal(_node: NodeRef): never {
     throw protocolError(
       'ProcessLocalHandle',
@@ -1183,7 +1183,7 @@ export class YamlMatchLocator {
     );
   }
 
-  /** Encodes one YAML match locator (yaml_query.rs:163-173). */
+  /** Encodes one YAML match locator (yaml_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'source_id', value: { kind: 'String', value: this.sourceId } },
@@ -1227,7 +1227,7 @@ export class YamlQueryResultMessage {
     this.#diagnostics = diagnostics;
   }
 
-  /** Validates domain/role binding, match ordering, and produced count (yaml_query.rs:94-127). */
+  /** Validates domain/role binding, match ordering, and produced count (yaml_query.rs). */
   static new(
     domain: QueryDomain,
     role: string,
@@ -1274,7 +1274,7 @@ export class YamlQueryResultMessage {
     return this.#diagnostics;
   }
 
-  /** Encodes `core.yaml-query-result@1` (yaml_query.rs:161-190). */
+  /** Encodes `core.yaml-query-result@1` (yaml_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.yaml-query-result@1' } },
@@ -1296,7 +1296,7 @@ export class YamlQueryResultMessage {
     ]);
   }
 
-  /** Strictly decodes one externalized YAML query result (yaml_query.rs:198-248). */
+  /** Strictly decodes one externalized YAML query result (yaml_query.rs). */
   static fromValue(value: PortableValue, registry: ErrorCodeRegistry): YamlQueryResultMessage {
     const fields = schemaFields(
       value,
@@ -1352,7 +1352,7 @@ function parseYamlRole(value: string): string {
 // core.ini-query-result@1 and core.java-properties-query-result@1
 // ---------------------------------------------------------------------------
 
-/** One INI match after caller externalization of its process-local handle (line_query.rs:17-27). */
+/** One INI match after caller externalization of its process-local handle (line_query.rs). */
 export class IniMatchLocator {
   readonly sourceId: string;
   readonly nodeLocator: string;
@@ -1366,7 +1366,7 @@ export class IniMatchLocator {
     this.ordinal = ordinal;
   }
 
-  /** Validates stable identities, an exact INI role, and its result ordinal (line_query.rs:28-38). */
+  /** Validates stable identities, an exact INI role, and its result ordinal (line_query.rs). */
   static new(sourceId: string, nodeLocator: string, role: string, ordinal: bigint): IniMatchLocator {
     if (
       sourceId === '' ||
@@ -1380,7 +1380,7 @@ export class IniMatchLocator {
     return new IniMatchLocator(sourceId, nodeLocator, role, ordinal);
   }
 
-  /** Explicitly refuses a raw process-local INI node handle (line_query.rs:39-43). */
+  /** Explicitly refuses a raw process-local INI node handle (line_query.rs). */
   static fromProcessLocal(_node: NodeRef): never {
     throw protocolError(
       'ProcessLocalHandle',
@@ -1389,7 +1389,7 @@ export class IniMatchLocator {
     );
   }
 
-  /** Encodes one INI match locator (line_query.rs:447-456). */
+  /** Encodes one INI match locator (line_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'source_id', value: { kind: 'String', value: this.sourceId } },
@@ -1433,7 +1433,7 @@ export class IniQueryResultMessage {
     this.#diagnostics = diagnostics;
   }
 
-  /** Validates the exact INI domain/role matrix, ordering, and produced count (line_query.rs:73-94). */
+  /** Validates the exact INI domain/role matrix, ordering, and produced count (line_query.rs). */
   static new(
     domain: QueryDomain,
     role: string,
@@ -1480,7 +1480,7 @@ export class IniQueryResultMessage {
     return this.#diagnostics;
   }
 
-  /** Encodes `core.ini-query-result@1` (line_query.rs:462-474). */
+  /** Encodes `core.ini-query-result@1` (line_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.ini-query-result@1' } },
@@ -1502,7 +1502,7 @@ export class IniQueryResultMessage {
     ]);
   }
 
-  /** Strictly decodes one externalized INI query result (line_query.rs:157-177). */
+  /** Strictly decodes one externalized INI query result (line_query.rs). */
   static fromValue(value: PortableValue, registry: ErrorCodeRegistry): IniQueryResultMessage {
     const fields = schemaFields(
       value,
@@ -1554,7 +1554,7 @@ function parseIniRole(value: string): string {
   throw invalid('$.role', 'unknown INI query match role');
 }
 
-/** One Java Properties match after externalization of its process-local handle (line_query.rs:181-191). */
+/** One Java Properties match after externalization of its process-local handle (line_query.rs). */
 export class JavaPropertiesMatchLocator {
   readonly sourceId: string;
   readonly nodeLocator: string;
@@ -1568,7 +1568,7 @@ export class JavaPropertiesMatchLocator {
     this.ordinal = ordinal;
   }
 
-  /** Validates stable identities, an exact Properties role, and its result ordinal (line_query.rs:192-202). */
+  /** Validates stable identities, an exact Properties role, and its result ordinal (line_query.rs). */
   static new(
     sourceId: string,
     nodeLocator: string,
@@ -1587,7 +1587,7 @@ export class JavaPropertiesMatchLocator {
     return new JavaPropertiesMatchLocator(sourceId, nodeLocator, role, ordinal);
   }
 
-  /** Explicitly refuses a raw process-local Properties node handle (line_query.rs:203-207). */
+  /** Explicitly refuses a raw process-local Properties node handle (line_query.rs). */
   static fromProcessLocal(_node: NodeRef): never {
     throw protocolError(
       'ProcessLocalHandle',
@@ -1596,7 +1596,7 @@ export class JavaPropertiesMatchLocator {
     );
   }
 
-  /** Encodes one Java Properties match locator (line_query.rs:447-456). */
+  /** Encodes one Java Properties match locator (line_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'source_id', value: { kind: 'String', value: this.sourceId } },
@@ -1640,7 +1640,7 @@ export class JavaPropertiesQueryResultMessage {
     this.#diagnostics = diagnostics;
   }
 
-  /** Validates the exact Properties domain/role matrix, ordering, and produced count (line_query.rs:238-259). */
+  /** Validates the exact Properties domain/role matrix, ordering, and produced count (line_query.rs). */
   static new(
     domain: QueryDomain,
     role: string,
@@ -1687,7 +1687,7 @@ export class JavaPropertiesQueryResultMessage {
     return this.#diagnostics;
   }
 
-  /** Encodes `core.java-properties-query-result@1` (line_query.rs:462-474). */
+  /** Encodes `core.java-properties-query-result@1` (line_query.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.java-properties-query-result@1' } },
@@ -1709,7 +1709,7 @@ export class JavaPropertiesQueryResultMessage {
     ]);
   }
 
-  /** Strictly decodes one externalized Java Properties query result (line_query.rs:322-346). */
+  /** Strictly decodes one externalized Java Properties query result (line_query.rs). */
   static fromValue(
     value: PortableValue,
     registry: ErrorCodeRegistry,

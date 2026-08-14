@@ -4,7 +4,7 @@
  * These are blind-written intent documents (https://github.com/consema/consema/blob/main/docs/multi-language-implementation
  * -plan.md §3): they pin the language-neutral facts from
  * conformance/vectors/v1.json and the Rust kind registry
- * (consema-rs/consema-core/src/value.rs:620-653) and run once the toolchain is
+ * (consema-rs/consema-core/src/value.rs) and run once the toolchain is
  * ready. No gate is claimed before that (§7 START GATE).
  */
 
@@ -37,7 +37,7 @@ import { encode } from './pvce.ts';
 import { PVCEError } from './errors.ts';
 
 test('the kind registry is closed at fifteen kinds in the RFC order', () => {
-  // consema-rs/consema-core/src/value.rs:620-653 (PortableValueKind order).
+  // consema-rs/consema-core/src/value.rs (PortableValueKind order).
   assert.deepEqual(KINDS, [
     'Null',
     'Boolean',
@@ -65,7 +65,7 @@ test('vector value.decimal-normalization: 1.00 == 10e-1, strict equal and hash e
 });
 
 test('decimal normalization strips trailing zeros into the exponent', () => {
-  // consema-rs/consema-core/src/value.rs:277-292.
+  // consema-rs/consema-core/src/value.rs.
   assert.deepEqual(decimalValue(10n, 0n), { kind: 'Decimal', coefficient: 1n, exponent: 1n });
   assert.deepEqual(decimalValue(0n, 5n), { kind: 'Decimal', coefficient: 0n, exponent: 0n });
   assert.deepEqual(decimalValue(-100n, 2n), { kind: 'Decimal', coefficient: -1n, exponent: 4n });
@@ -88,7 +88,7 @@ test('integer arbitrary precision is exact', () => {
 });
 
 test('object construction rejects duplicate keys with the typed error', () => {
-  // RFC 0002 object contract; consema-rs/consema-core/src/value.rs:959-984.
+  // RFC 0002 object contract; consema-rs/consema-core/src/value.rs.
   assert.throws(
     () =>
       objectValue([
@@ -110,7 +110,7 @@ test('object construction rejects duplicate keys with the typed error', () => {
 });
 
 test('entry mapping allows duplicate arbitrary keys', () => {
-  // consema-rs/consema-core/src/value.rs:973-978.
+  // consema-rs/consema-core/src/value.rs.
   const mapping = entryMappingValue([
     { key: booleanValue(true), value: nullValue() },
     { key: booleanValue(true), value: nullValue() },
@@ -119,7 +119,7 @@ test('entry mapping allows duplicate arbitrary keys', () => {
 });
 
 test('date validation follows the proleptic Gregorian calendar on |year|', () => {
-  // consema-rs/consema-core/src/value.rs:429-445; year -400 is a leap year, -100 is not.
+  // consema-rs/consema-core/src/value.rs; year -400 is a leap year, -100 is not.
   assert.equal(dateValue(-400n, 2, 29).kind, 'Date');
   assert.throws(() => dateValue(-100n, 2, 29), PVCEError);
   assert.throws(() => dateValue(2023n, 2, 29), PVCEError);
@@ -128,7 +128,7 @@ test('date validation follows the proleptic Gregorian calendar on |year|', () =>
 });
 
 test('time fraction must be an exact finite decimal in [0, 1)', () => {
-  // consema-rs/consema-core/src/value.rs:337-352, 475-517.
+  // consema-rs/consema-core/src/value.rs.
   assert.equal(timeValue(23, 59, 58, decimalValue(125n, -3n)).kind, 'Time');
   assert.throws(() => timeValue(24, 0, 0, decimalValue(0n, 0n)), PVCEError);
   assert.throws(() => timeValue(0, 0, 0, decimalValue(1n, 0n)), PVCEError); // 1 >= 1
@@ -136,7 +136,7 @@ test('time fraction must be an exact finite decimal in [0, 1)', () => {
 });
 
 test('offset magnitude must be less than 24 hours', () => {
-  // consema-rs/consema-core/src/value.rs:553-563.
+  // consema-rs/consema-core/src/value.rs.
   const local = localDateTimeValue(dateValue(2024n, 1, 1), timeValue(0, 0, 0, decimalValue(0n, 0n)));
   assert.equal(offsetDateTimeValue(local, -23 * 60 * 60).kind, 'OffsetDateTime');
   assert.throws(() => offsetDateTimeValue(local, 24 * 60 * 60), PVCEError);

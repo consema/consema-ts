@@ -6,7 +6,7 @@
  *  - target contract: RFC 0001 §5 (:78-100) — `toml.best-exact-core@1` and
  *    the exact category mapping (:82-94); tables meet PortableValue Object
  *    only here — the native table model stays distinct (https://github.com/consema/consema/blob/main/docs/
- *    IMPLEMENTATION.md:102); unrepresentable date-times fail the whole
+ *    IMPLEMENTATION.md); unrepresentable date-times fail the whole
  *    projection with toml.projection.unrepresentable-datetime@1 (:98);
  *    provenance maps every value and object association back to a
  *    snapshot-bound source origin (:96)
@@ -52,13 +52,13 @@ import { TomlDocument } from './document.ts';
 import type { TomlDateTime } from './parser.ts';
 import { TomlProjectionFailure } from './errors.ts';
 
-/** Versioned TOML projection target contract (projection.rs:9-14). */
+/** Versioned TOML projection target contract (projection.rs). */
 export type TomlProjectionTarget = 'BestExactCoreV1';
 
-/** Frozen exact-first TOML-to-core mapping (projection.rs:11-13). */
+/** Frozen exact-first TOML-to-core mapping (projection.rs). */
 export const TOML_PROJECTION_TARGET_BEST_EXACT_CORE_V1: TomlProjectionTarget = 'BestExactCoreV1';
 
-/** Projection resource limits (projection.rs:53-75). */
+/** Projection resource limits (projection.rs). */
 export interface TomlProjectionLimits {
   /** Maximum produced PortableValue nodes. */
   readonly maxValueNodes: number;
@@ -70,7 +70,7 @@ export interface TomlProjectionLimits {
   readonly maxDepth: number;
 }
 
-/** The frozen defaults (projection.rs:66-75): 1M value nodes, 100k report entries, 2M provenance units, depth 256. */
+/** The frozen defaults (projection.rs): 1M value nodes, 100k report entries, 2M provenance units, depth 256. */
 export const DEFAULT_TOML_PROJECTION_LIMITS: Readonly<TomlProjectionLimits> = Object.freeze({
   maxValueNodes: 1_000_000,
   maxReportEntries: 100_000,
@@ -78,7 +78,7 @@ export const DEFAULT_TOML_PROJECTION_LIMITS: Readonly<TomlProjectionLimits> = Ob
   maxDepth: 256,
 });
 
-/** Immutable explicit projection request (projection.rs:16-51). */
+/** Immutable explicit projection request (projection.rs). */
 export class TomlProjectionRequest {
   readonly #target: TomlProjectionTarget;
   readonly #limits: TomlProjectionLimits;
@@ -88,29 +88,29 @@ export class TomlProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Frozen target contract (projection.rs:40-43). */
+  /** Frozen target contract (projection.rs). */
   target(): TomlProjectionTarget {
     return this.#target;
   }
 
-  /** Projection resource limits (projection.rs:46-50). */
+  /** Projection resource limits (projection.rs). */
   limits(): TomlProjectionLimits {
     return this.#limits;
   }
 }
 
-/** Projection fidelity classification (projection.rs:77-86). */
+/** Projection fidelity classification (projection.rs). */
 export type TomlProjectionFidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Projected value or association location (projection.rs:88-95). */
+/** Projected value or association location (projection.rs). */
 export type TomlProjectedLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** Source-to-projection relation (projection.rs:96-104). */
+/** Source-to-projection relation (projection.rs). */
 export type TomlProvenanceRelation = 'Direct' | 'Derived';
 
-/** One exact source origin (projection.rs:106-117). */
+/** One exact source origin (projection.rs). */
 export class TomlSourceOrigin {
   readonly #snapshot: SnapshotIdentity;
   readonly #node: NodeRef;
@@ -124,28 +124,28 @@ export class TomlSourceOrigin {
     this.#relation = relation;
   }
 
-  /** Source document snapshot (projection.rs:110-113). */
+  /** Source document snapshot (projection.rs). */
   snapshot(): SnapshotIdentity {
     return this.#snapshot;
   }
 
-  /** Exact structural identity (projection.rs:114-117). */
+  /** Exact structural identity (projection.rs). */
   node(): NodeRef {
     return this.#node;
   }
 
-  /** Exact source range (projection.rs:118-121). */
+  /** Exact source range (projection.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Source relation (projection.rs:122-125). */
+  /** Source relation (projection.rs). */
   relation(): TomlProvenanceRelation {
     return this.#relation;
   }
 }
 
-/** One many-valued provenance mapping entry (projection.rs:119-126). */
+/** One many-valued provenance mapping entry (projection.rs). */
 export class TomlProvenanceEntry {
   readonly #projected: TomlProjectedLocation;
   readonly #origins: readonly TomlSourceOrigin[];
@@ -155,18 +155,18 @@ export class TomlProvenanceEntry {
     this.#origins = Object.freeze([...origins]);
   }
 
-  /** Projected value or association (projection.rs:128-130). */
+  /** Projected value or association (projection.rs). */
   projected(): TomlProjectedLocation {
     return this.#projected;
   }
 
-  /** One or more exact source origins (projection.rs:131-133). */
+  /** One or more exact source origins (projection.rs). */
   origins(): readonly TomlSourceOrigin[] {
     return this.#origins;
   }
 }
 
-/** Immutable multi-map from projected locations to source origins (projection.rs:128-140). */
+/** Immutable multi-map from projected locations to source origins (projection.rs). */
 export class TomlProvenanceMap {
   readonly #entries: readonly TomlProvenanceEntry[];
 
@@ -178,13 +178,13 @@ export class TomlProvenanceMap {
     return new TomlProvenanceMap(entries);
   }
 
-  /** Deterministically generated entries (projection.rs:134-139). */
+  /** Deterministically generated entries (projection.rs). */
   entries(): readonly TomlProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Complete ordered projection report; exact TOML projections emit no events (projection.rs:142-156). */
+/** Complete ordered projection report; exact TOML projections emit no events (projection.rs). */
 export class TomlProjectionReport {
   readonly #events: readonly Diagnostic[];
 
@@ -195,13 +195,13 @@ export class TomlProjectionReport {
     this.#events = Object.freeze([...events]);
   }
 
-  /** Ordered structured transformation/loss diagnostics (projection.rs:151-155). */
+  /** Ordered structured transformation/loss diagnostics (projection.rs). */
   events(): readonly Diagnostic[] {
     return this.#events;
   }
 }
 
-/** Complete successful projection; its value is never partial (projection.rs:158-169). */
+/** Complete successful projection; its value is never partial (projection.rs). */
 export class TomlCompleteProjection {
   readonly #value: PortableValue;
   readonly #fidelity: TomlProjectionFidelity;
@@ -220,28 +220,28 @@ export class TomlCompleteProjection {
     this.#provenance = provenance;
   }
 
-  /** Complete immutable public value (projection.rs:162-165). */
+  /** Complete immutable public value (projection.rs). */
   value(): PortableValue {
     return this.#value;
   }
 
-  /** Worst fidelity of the whole operation (projection.rs:166-169). */
+  /** Worst fidelity of the whole operation (projection.rs). */
   fidelity(): TomlProjectionFidelity {
     return this.#fidelity;
   }
 
-  /** Machine-readable transformation/loss report (projection.rs:170-173). */
+  /** Machine-readable transformation/loss report (projection.rs). */
   report(): TomlProjectionReport {
     return this.#report;
   }
 
-  /** Value and object-association provenance (projection.rs:174-177). */
+  /** Value and object-association provenance (projection.rs). */
   provenance(): TomlProvenanceMap {
     return this.#provenance;
   }
 }
 
-/** Failed attempt without a partial PortableValue (projection.rs:171-180). */
+/** Failed attempt without a partial PortableValue (projection.rs). */
 export class TomlFailedProjectionAttempt {
   readonly #diagnostics: readonly Diagnostic[];
   readonly #report: TomlProjectionReport;
@@ -257,23 +257,23 @@ export class TomlFailedProjectionAttempt {
     this.#partialAnalysis = Object.freeze([...partialAnalysis]);
   }
 
-  /** Ordered diagnostics explaining the failure (projection.rs:182-185). */
+  /** Ordered diagnostics explaining the failure (projection.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
 
-  /** Events discovered before the failed completion check (projection.rs:186-189). */
+  /** Events discovered before the failed completion check (projection.rs). */
   report(): TomlProjectionReport {
     return this.#report;
   }
 
-  /** Stable paths locally analyzed before failure (projection.rs:190-193). */
+  /** Stable paths locally analyzed before failure (projection.rs). */
   partialAnalysis(): readonly string[] {
     return this.#partialAnalysis;
   }
 }
 
-/** Projection completion algebra (projection.rs:182-189; RFC 0004 §7 shape). */
+/** Projection completion algebra (projection.rs; RFC 0004 §7 shape). */
 export type TomlProjectionResult =
   | { readonly kind: 'Complete'; readonly value: TomlCompleteProjection }
   | { readonly kind: 'Failed'; readonly value: TomlFailedProjectionAttempt };
@@ -299,7 +299,7 @@ class ProjectionContext {
     return this.#document;
   }
 
-  /** Mirrors projection.rs:237-250 value-node and depth accounting. */
+  /** Mirrors projection.rs value-node and depth accounting. */
   enter(depth: number): void {
     if (depth > this.#limits.maxDepth) {
       throw new TomlProjectionFailure('ResourceLimit', 'max_depth');
@@ -310,7 +310,7 @@ class ProjectionContext {
     }
   }
 
-  /** Mirrors projection.rs:333-364 provenance-unit accounting. */
+  /** Mirrors projection.rs provenance-unit accounting. */
   addOrigin(
     projected: TomlProjectedLocation,
     index: number,
@@ -359,7 +359,7 @@ function projectedLocationEquals(
 }
 
 /**
- * Applies an immutable explicit projection request (projection.rs:202-227).
+ * Applies an immutable explicit projection request (projection.rs).
  * Exact TOML projections always report fidelity Exact with an empty report.
  */
 export function projectToml(
@@ -482,7 +482,7 @@ function projectItem(
   return value;
 }
 
-/** TOML date/time → PortableValue v1 (projection.rs:367-408). */
+/** TOML date/time → PortableValue v1 (projection.rs). */
 function projectDateTime(datetime: TomlDateTime): PortableValue {
   const { date, time, offset } = datetime;
   try {

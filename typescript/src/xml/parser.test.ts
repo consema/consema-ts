@@ -350,7 +350,7 @@ test('namespace: declarations apply to the whole element regardless of attribute
 // Byte-exact span closure
 // ---------------------------------------------------------------------------
 
-test('byte-exact spans: exhaustive ordered piece coverage with no holes (Rust probe, parser.rs:2412-2435)', () => {
+test('byte-exact spans: exhaustive ordered piece coverage with no holes (Rust probe, parser.rs)', () => {
   const source = '<?xml version="1.0" standalone="yes"?>\n<!DOCTYPE p:root [<!ENTITY e "x"><!-- <!ELEMENT nope> --><?pi dtd?>]>\n<p:root xmlns:p="urn:p" p:a="v &amp; w">t &lt; u &#65;<b/>\n  <![CDATA[c]]><!--h--><?tail after?></p:root>';
   const document = parseXml(source);
   assert.equal(document.formationStatus(), 'Complete');
@@ -442,7 +442,7 @@ test('byte-exact spans: the fine-grained kind sequence matches the Rust crate (p
   assert.deepEqual(kinds, expected);
 });
 
-test('byte-exact spans: a tokenizer-level failure recovers at the final byte and stops (parser.rs:255-269)', () => {
+test('byte-exact spans: a tokenizer-level failure recovers at the final byte and stops (parser.rs)', () => {
   const source = '<root/></root>';
   const document = parseXml(source);
   assert.equal(document.formationStatus(), 'Recovered');

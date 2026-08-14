@@ -80,11 +80,11 @@ export class MaterializationReportMessage {
     return new MaterializationReportMessage([]);
   }
 
-  /** Validates all events against one explicit semantic-model registry (materialization.rs:201-209). */
+  /** Validates all events against one explicit semantic-model registry (materialization.rs). */
   static new(events: readonly Diagnostic[], registry: ErrorCodeRegistry): MaterializationReportMessage {
     for (const event of events) {
       // Full revalidation through the diagnostic decoder, exactly like the
-      // Rust new_with_registry (materialization.rs:205-208).
+      // Rust new_with_registry (materialization.rs).
       diagnosticFromValue(diagnosticToValue(event), registry);
     }
     return new MaterializationReportMessage(events);
@@ -95,7 +95,7 @@ export class MaterializationReportMessage {
     return this.#events;
   }
 
-  /** Encodes the fixed report schema (materialization.rs:243-255). */
+  /** Encodes the fixed report schema (materialization.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.materialization-report@1' } },
@@ -106,7 +106,7 @@ export class MaterializationReportMessage {
     ]);
   }
 
-  /** Strictly decodes events under one explicit semantic-model registry (materialization.rs:263-278). */
+  /** Strictly decodes events under one explicit semantic-model registry (materialization.rs). */
   static fromValue(value: PortableValue, registry: ErrorCodeRegistry): MaterializationReportMessage {
     const fields = schemaFields(value, 'core.materialization-report@1', ['events'], '$');
     const events = sequenceOf(fields[0], '$.events').map((event) =>
@@ -120,10 +120,10 @@ export class MaterializationReportMessage {
 // core.materialization-provenance-map@1
 // ---------------------------------------------------------------------------
 
-/** Relationship from portable input to target syntax (materialization.rs:291-299). */
+/** Relationship from portable input to target syntax (materialization.rs). */
 export type MaterializationRelation = 'Direct' | 'Reencoded' | 'Generated';
 
-/** One transferable target origin with caller-stable identities (materialization.rs:302-314). */
+/** One transferable target origin with caller-stable identities (materialization.rs). */
 export interface MaterializedOrigin {
   readonly targetSourceId: string;
   readonly targetNodeLocator: string;
@@ -132,7 +132,7 @@ export interface MaterializedOrigin {
   readonly relation: MaterializationRelation;
 }
 
-/** One portable input location and all exact target origins (materialization.rs:317-323). */
+/** One portable input location and all exact target origins (materialization.rs). */
 export interface MaterializationProvenanceEntry {
   readonly input:
     | { readonly kind: 'ValuePath'; readonly value: ValuePath }
@@ -153,7 +153,7 @@ export class MaterializationProvenanceMapMessage {
     return new MaterializationProvenanceMapMessage([]);
   }
 
-  /** Validates stable identities, non-empty outputs, range order, and locator uniqueness (materialization.rs:333-373). */
+  /** Validates stable identities, non-empty outputs, range order, and locator uniqueness (materialization.rs). */
   static new(entries: readonly MaterializationProvenanceEntry[]): MaterializationProvenanceMapMessage {
     let sourceId: string | null = null;
     const locatorRanges = new Map<string, { start: bigint; end: bigint }>();
@@ -194,7 +194,7 @@ export class MaterializationProvenanceMapMessage {
     return this.#entries;
   }
 
-  /** Encodes the fixed provenance schema (materialization.rs:470-504). */
+  /** Encodes the fixed provenance schema (materialization.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.materialization-provenance-map@1' } },
@@ -230,7 +230,7 @@ export class MaterializationProvenanceMapMessage {
     ]);
   }
 
-  /** Strictly decodes external identities and complete ordered mappings (materialization.rs:507-534). */
+  /** Strictly decodes external identities and complete ordered mappings (materialization.rs). */
   static fromValue(value: PortableValue): MaterializationProvenanceMapMessage {
     const fields = schemaFields(value, 'core.materialization-provenance-map@1', ['entries'], '$');
     const entries = sequenceOf(fields[0], '$.entries').map((entry, entryIndex) => {
@@ -248,7 +248,7 @@ export class MaterializationProvenanceMapMessage {
   }
 }
 
-/** Encodes one portable input location (materialization.rs:1487-1498). */
+/** Encodes one portable input location (materialization.rs). */
 function inputLocationValue(input: MaterializationProvenanceEntry['input']): ObjectValue {
   switch (input.kind) {
     case 'ValuePath':
@@ -264,7 +264,7 @@ function inputLocationValue(input: MaterializationProvenanceEntry['input']): Obj
   }
 }
 
-/** Strictly decodes one portable input location (materialization.rs:1500-1512). */
+/** Strictly decodes one portable input location (materialization.rs). */
 function parseInputLocation(value: PortableValue, path: string): MaterializationProvenanceEntry['input'] {
   const fields = exactFields(value, ['kind', 'value'], path);
   switch (stringOf(fields[0], `${path}.kind`)) {
@@ -277,7 +277,7 @@ function parseInputLocation(value: PortableValue, path: string): Materialization
   }
 }
 
-/** Strictly decodes one target origin (materialization.rs:1537-1559). */
+/** Strictly decodes one target origin (materialization.rs). */
 function parseMaterializedOrigin(value: PortableValue, path: string): MaterializedOrigin {
   const fields = exactFields(
     value,
@@ -378,7 +378,7 @@ export class MaterializationFailureMessage {
     return new MaterializationFailureMessage('FormationFailed', null, null, null);
   }
 
-  /** Exact public error code registered by semantic-model v3 (materialization.rs:588-599). */
+  /** Exact public error code registered by semantic-model v3 (materialization.rs). */
   code(): string {
     switch (this.kind) {
       case 'InvalidRequest':
@@ -400,7 +400,7 @@ export class MaterializationFailureMessage {
     }
   }
 
-  /** Encodes the closed variant record (materialization.rs:1118-1159). */
+  /** Encodes the closed variant record (materialization.rs). */
   toValue(): ObjectValue {
     switch (this.kind) {
       case 'InvalidRequest':
@@ -430,7 +430,7 @@ export class MaterializationFailureMessage {
     }
   }
 
-  /** Strictly decodes one failure (materialization.rs:1161-1242). */
+  /** Strictly decodes one failure (materialization.rs). */
   static fromValue(value: PortableValue, path: string): MaterializationFailureMessage {
     const kind = kindEntryOf(value, path);
     let failure: MaterializationFailureMessage;
@@ -486,7 +486,7 @@ export class MaterializationFailureMessage {
         throw invalid(path, 'unknown materialization failure');
     }
     // The wire code must be registered and must match the kind
-    // (materialization.rs:1229-1240).
+    // (materialization.rs).
     const code = codeEntryOf(value, path);
     const codePath = `${path}.code`;
     const descriptor = new ErrorCodeRegistry(3).descriptor(code);
@@ -500,7 +500,7 @@ export class MaterializationFailureMessage {
   }
 }
 
-/** Reads the `kind` field of a variant record at any position (materialization.rs:1166-1172). */
+/** Reads the `kind` field of a variant record at any position (materialization.rs). */
 function kindEntryOf(value: PortableValue, path: string): string {
   const entry = (value as { entries?: { key: string; value: PortableValue }[] }).entries?.find(
     (candidate) => candidate.key === 'kind',
@@ -511,7 +511,7 @@ function kindEntryOf(value: PortableValue, path: string): string {
   return stringOf(entry.value, `${path}.kind`);
 }
 
-/** Reads the `code` field of a variant record at any position (materialization.rs:1229-1232). */
+/** Reads the `code` field of a variant record at any position (materialization.rs). */
 function codeEntryOf(value: PortableValue, path: string): string {
   const entry = (value as { entries?: { key: string; value: PortableValue }[] }).entries?.find(
     (candidate) => candidate.key === 'code',
@@ -522,7 +522,7 @@ function codeEntryOf(value: PortableValue, path: string): string {
   return stringOf(entry.value, `${path}.code`);
 }
 
-/** The closed portable value kind vocabulary (materialization.rs:1322-1341). */
+/** The closed portable value kind vocabulary (materialization.rs). */
 function parseValueKind(value: string, path: string): string {
   switch (value) {
     case 'Null':
@@ -568,7 +568,7 @@ export class MaterializationRequestMessage {
     return this.#request;
   }
 
-  /** Encodes the fixed-field request schema (materialization.rs:44-57). */
+  /** Encodes the fixed-field request schema (materialization.rs). */
   toValue(): ObjectValue {
     if (this.#request.encoding().kind === 'WindowsCodePage') {
       throw invalid('$.encoding', 'core.materialization-request@1 does not support Windows code pages');
@@ -580,7 +580,7 @@ export class MaterializationRequestMessage {
     );
   }
 
-  /** Strictly decodes every request policy and bound (materialization.rs:59-67). */
+  /** Strictly decodes every request policy and bound (materialization.rs). */
   static fromValue(value: PortableValue): MaterializationRequestMessage {
     return new MaterializationRequestMessage(
       materializationRequestFromValue(value, 'core.materialization-request@1', (field, path) =>
@@ -608,7 +608,7 @@ export class MaterializationRequestMessageV2 {
     return this.#request;
   }
 
-  /** Encodes the exact materialization-request v2 schema (materialization.rs:91-98). */
+  /** Encodes the exact materialization-request v2 schema (materialization.rs). */
   toValue(): ObjectValue {
     return materializationRequestValue(
       this.#request,
@@ -617,7 +617,7 @@ export class MaterializationRequestMessageV2 {
     );
   }
 
-  /** Strictly decodes every v2 request policy and bound (materialization.rs:100-107). */
+  /** Strictly decodes every v2 request policy and bound (materialization.rs). */
   static fromValue(value: PortableValue): MaterializationRequestMessageV2 {
     return new MaterializationRequestMessageV2(
       materializationRequestFromValue(value, 'core.materialization-request@2', (field, path) =>
@@ -627,7 +627,7 @@ export class MaterializationRequestMessageV2 {
   }
 }
 
-/** Encodes the shared request field set (materialization.rs:110-137). */
+/** Encodes the shared request field set (materialization.rs). */
 function materializationRequestValue(
   request: MaterializationRequest,
   schema: string,
@@ -655,7 +655,7 @@ function materializationRequestValue(
   ]);
 }
 
-/** Strictly decodes the shared request field set (materialization.rs:139-179). */
+/** Strictly decodes the shared request field set (materialization.rs). */
 function materializationRequestFromValue(
   value: PortableValue,
   schema: string,
@@ -682,7 +682,7 @@ function materializationRequestFromValue(
     .withLimits(parseMaterializationLimits(fields[6], '$.limits'));
 }
 
-/** The v1 encoding IDs (materialization.rs:1476-1485). */
+/** The v1 encoding IDs (materialization.rs). */
 function parseV1Encoding(value: string, path: string): SourceEncoding {
   switch (value) {
     case 'binary':
@@ -700,7 +700,7 @@ function parseV1Encoding(value: string, path: string): SourceEncoding {
   }
 }
 
-/** The closed newline policy spellings (materialization.rs:1446-1453). */
+/** The closed newline policy spellings (materialization.rs). */
 function parseNewline(value: string): NewlinePolicy {
   switch (value) {
     case 'None':
@@ -712,7 +712,7 @@ function parseNewline(value: string): NewlinePolicy {
   }
 }
 
-/** The closed mapping policy spellings (materialization.rs:1462-1468). */
+/** The closed mapping policy spellings (materialization.rs). */
 function parseMappingPolicy(value: string): MappingPolicy {
   switch (value) {
     case 'RequireObject':
@@ -723,7 +723,7 @@ function parseMappingPolicy(value: string): MappingPolicy {
   }
 }
 
-/** Strictly decodes the five fixed materialization limits (materialization.rs:1412-1431). */
+/** Strictly decodes the five fixed materialization limits (materialization.rs). */
 function parseMaterializationLimits(value: PortableValue, path: string): MaterializationLimits {
   const fields = exactFields(
     value,
@@ -739,7 +739,7 @@ function parseMaterializationLimits(value: PortableValue, path: string): Materia
   };
 }
 
-/** Requires a u64 that fits the host number range (materialization.rs:1433-1436). */
+/** Requires a u64 that fits the host number range (materialization.rs). */
 function usizeValue(value: PortableValue, path: string): number {
   const n = unsigned64(value, path);
   if (n > BigInt(Number.MAX_SAFE_INTEGER)) {
@@ -785,7 +785,7 @@ export class MaterializationResultMessage {
     this.#outcome = outcome;
   }
 
-  /** Validates a complete result and binds every target fact to one stable source ID (materialization.rs:638-656). */
+  /** Validates a complete result and binds every target fact to one stable source ID (materialization.rs). */
   static complete(
     targetProfile: ProfileId,
     targetSourceId: string,
@@ -800,7 +800,7 @@ export class MaterializationResultMessage {
     );
   }
 
-  /** Validates a failed result which cannot carry target bytes or provenance (materialization.rs:659-673). */
+  /** Validates a failed result which cannot carry target bytes or provenance (materialization.rs). */
   static failed(
     targetProfile: ProfileId,
     failure: MaterializationFailureMessage,
@@ -820,7 +820,7 @@ export class MaterializationResultMessage {
     return this.#outcome;
   }
 
-  /** Encodes the fixed, explicitly tagged completion schema (materialization.rs:719-728). */
+  /** Encodes the fixed, explicitly tagged completion schema (materialization.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.materialization-result@1' } },
@@ -829,7 +829,7 @@ export class MaterializationResultMessage {
     ]);
   }
 
-  /** Strictly decodes and revalidates snapshot, report, provenance, and failure facts (materialization.rs:736-802). */
+  /** Strictly decodes and revalidates snapshot, report, provenance, and failure facts (materialization.rs). */
   static fromValue(value: PortableValue, registry: ErrorCodeRegistry): MaterializationResultMessage {
     const fields = schemaFields(value, 'core.materialization-result@1', ['target_profile', 'outcome'], '$');
     const targetProfile = parseProfile(fields[0], '$.target_profile');
@@ -848,7 +848,7 @@ export class MaterializationResultMessageV2 {
     this.#outcome = outcome;
   }
 
-  /** Validates a complete source-v2 result and every target binding (materialization.rs:841-859). */
+  /** Validates a complete source-v2 result and every target binding (materialization.rs). */
   static complete(
     targetProfile: ProfileId,
     targetSourceId: string,
@@ -863,7 +863,7 @@ export class MaterializationResultMessageV2 {
     );
   }
 
-  /** Validates a failed result which cannot carry target bytes or provenance (materialization.rs:861-876). */
+  /** Validates a failed result which cannot carry target bytes or provenance (materialization.rs). */
   static failed(
     targetProfile: ProfileId,
     failure: MaterializationFailureMessage,
@@ -883,7 +883,7 @@ export class MaterializationResultMessageV2 {
     return this.#outcome;
   }
 
-  /** Encodes the fixed, explicitly tagged result-v2 schema (materialization.rs:920-929). */
+  /** Encodes the fixed, explicitly tagged result-v2 schema (materialization.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.materialization-result@2' } },
@@ -892,7 +892,7 @@ export class MaterializationResultMessageV2 {
     ]);
   }
 
-  /** Strictly decodes reports under one explicit semantic-model registry (materialization.rs:932-998). */
+  /** Strictly decodes reports under one explicit semantic-model registry (materialization.rs). */
   static fromValueWithRegistry(value: PortableValue, registry: ErrorCodeRegistry): MaterializationResultMessageV2 {
     const fields = schemaFields(value, 'core.materialization-result@2', ['target_profile', 'outcome'], '$');
     const targetProfile = parseProfile(fields[0], '$.target_profile');
@@ -901,7 +901,7 @@ export class MaterializationResultMessageV2 {
   }
 }
 
-/** Validates and builds the complete-outcome invariants (materialization.rs:1001-1034). */
+/** Validates and builds the complete-outcome invariants (materialization.rs). */
 function completeOutcome(
   targetSourceId: string,
   snapshot: SourceSnapshotLike,
@@ -936,19 +936,19 @@ function completeOutcome(
   return { kind: 'Complete', targetSourceId, snapshot, fidelity, report, provenance };
 }
 
-/** Validates and builds the failed-outcome invariants (materialization.rs:1036-1040). */
+/** Validates and builds the failed-outcome invariants (materialization.rs). */
 function failedOutcome(
   failure: MaterializationFailureMessage,
   report: MaterializationReportMessage,
   analyzedInputPaths: readonly ValuePath[],
 ): MaterializationOutcome {
   // A failed result cannot claim target bytes, so its report events must
-  // carry no source locations at all (materialization.rs:1251-1282).
+  // carry no source locations at all (materialization.rs).
   validateReportSource(report, null);
   return { kind: 'Failed', failure, report, analyzedInputPaths };
 }
 
-/** Requires every report location to bind the expected source (or none for failed outcomes) (materialization.rs:1251-1282). */
+/** Requires every report location to bind the expected source (or none for failed outcomes) (materialization.rs). */
 function validateReportSource(report: MaterializationReportMessage, expected: string | null): void {
   for (let index = 0; index < report.events().length; index++) {
     const event = report.events()[index];
@@ -973,7 +973,7 @@ function validateReportSource(report: MaterializationReportMessage, expected: st
   }
 }
 
-/** Encodes one outcome (materialization.rs:1042-1077). */
+/** Encodes one outcome (materialization.rs). */
 function outcomeValue(outcome: MaterializationOutcome): ObjectValue {
   switch (outcome.kind) {
     case 'Complete':
@@ -1001,7 +1001,7 @@ function outcomeValue(outcome: MaterializationOutcome): ObjectValue {
   }
 }
 
-/** Strictly decodes one outcome branch (materialization.rs:742-802 / 943-998). */
+/** Strictly decodes one outcome branch (materialization.rs / 943-998). */
 function parseOutcome(
   value: PortableValue,
   path: string,
@@ -1039,7 +1039,7 @@ function parseOutcome(
   }
 }
 
-/** The closed materialization fidelity spellings (materialization.rs:1291-1300). */
+/** The closed materialization fidelity spellings (materialization.rs). */
 function parseMaterializationFidelity(value: string): MaterializationFidelity {
   switch (value) {
     case 'Exact':
@@ -1054,7 +1054,7 @@ function parseMaterializationFidelity(value: string): MaterializationFidelity {
 // core.conversion-report@1
 // ---------------------------------------------------------------------------
 
-/** Whole-conversion semantic fidelity (conversion.rs:11-20). */
+/** Whole-conversion semantic fidelity (conversion.rs). */
 export type ConversionFidelity = 'Exact' | 'Transformed' | 'Lossy';
 
 /** The worst of two stage fidelities (Exact < Transformed < Lossy). */
@@ -1092,7 +1092,7 @@ export class ConversionReportMessage {
     this.#overallFidelity = overallFidelity;
   }
 
-  /** Validates stage fidelity against complete reports and recomputes the overall result (conversion.rs:36-98). */
+  /** Validates stage fidelity against complete reports and recomputes the overall result (conversion.rs). */
   static new(
     sourceProfile: ProfileId,
     targetProfile: ProfileId,
@@ -1171,7 +1171,7 @@ export class ConversionReportMessage {
     return this.#overallFidelity;
   }
 
-  /** Encodes the fixed two-stage report schema (conversion.rs:144-167). */
+  /** Encodes the fixed two-stage report schema (conversion.rs). */
   toValue(): ObjectValue {
     return objectValueFrom([
       { key: 'schema', value: { kind: 'String', value: 'core.conversion-report@1' } },
@@ -1185,7 +1185,7 @@ export class ConversionReportMessage {
     ]);
   }
 
-  /** Strictly decodes both stage reports under one semantic-model registry (conversion.rs:175-209). */
+  /** Strictly decodes both stage reports under one semantic-model registry (conversion.rs). */
   static fromValue(value: PortableValue, registry: ErrorCodeRegistry): ConversionReportMessage {
     const fields = schemaFields(
       value,
@@ -1213,7 +1213,7 @@ export class ConversionReportMessage {
   }
 }
 
-/** The closed conversion fidelity spellings (conversion.rs:238-245). */
+/** The closed conversion fidelity spellings (conversion.rs). */
 function parseConversionFidelity(value: string, path: string): ConversionFidelity {
   switch (value) {
     case 'Exact':
@@ -1229,13 +1229,13 @@ function parseConversionFidelity(value: string, path: string): ConversionFidelit
 // core.edit-plan@1
 // ---------------------------------------------------------------------------
 
-/** One transferable content-free edit operation summary (operation.rs:102-109). */
+/** One transferable content-free edit operation summary (operation.rs). */
 export interface EditOperationSummary {
   readonly operation: FormatOperationId;
   readonly summary: ReadonlyMap<string, string>;
 }
 
-/** The transferable `core.edit-plan@1` dry-run facts (operation.rs:111-121). */
+/** The transferable `core.edit-plan@1` dry-run facts (operation.rs). */
 export class EditPlanMessage {
   readonly #sourceId: string;
   readonly #baseDigest: ContentDigest;
@@ -1263,7 +1263,7 @@ export class EditPlanMessage {
     this.#report = report;
   }
 
-  /** Validates all external dry-run fields and replacement preconditions (operation.rs:187-246). */
+  /** Validates all external dry-run fields and replacement preconditions (operation.rs). */
   static new(
     sourceId: string,
     baseDigest: ContentDigest,
@@ -1280,7 +1280,7 @@ export class EditPlanMessage {
     for (let index = 0; index < operations.length; index++) {
       const operation = operations[index];
       // The exact operation ID must be a registered contract identifier
-      // (operation.rs:201-203).
+      // (operation.rs).
       newContractId(operation.operation.id(), operation.operation.version());
       if (
         operation.summary.size > 64 ||
@@ -1359,7 +1359,7 @@ export class EditPlanMessage {
     return this.#report;
   }
 
-  /** Encodes the fixed dry-run plan schema (operation.rs:291-326). */
+  /** Encodes the fixed dry-run plan schema (operation.rs). */
   toValue(): ObjectValue {
     const operations = this.#operations.map((operation) =>
       objectValueFrom([
@@ -1389,7 +1389,7 @@ export class EditPlanMessage {
     ]);
   }
 
-  /** Strictly decodes and revalidates a dry-run plan (operation.rs:334-381). */
+  /** Strictly decodes and revalidates a dry-run plan (operation.rs). */
   static fromValue(value: PortableValue, registry: ErrorCodeRegistry): EditPlanMessage {
     const fields = schemaFields(
       value,
@@ -1417,12 +1417,12 @@ export class EditPlanMessage {
   }
 }
 
-/** The safe summary-name rule (edit_plan.rs:221-227). */
+/** The safe summary-name rule (edit_plan.rs). */
 function validSummaryName(name: string): boolean {
   return name !== '' && name.length <= 64 && /^[a-z0-9_]+$/.test(name);
 }
 
-/** Validates ordered non-overlapping replacement facts (operation.rs:505-534). */
+/** Validates ordered non-overlapping replacement facts (operation.rs). */
 function validateReplacements(replacements: readonly SourceReplacement[]): void {
   let previous: SourceReplacement | null = null;
   for (let index = 0; index < replacements.length; index++) {
@@ -1449,7 +1449,7 @@ function validateReplacements(replacements: readonly SourceReplacement[]): void 
   }
 }
 
-/** Encodes one replacement (operation.rs:449-475). */
+/** Encodes one replacement (operation.rs). */
 function replacementValue(replacement: SourceReplacement): ObjectValue {
   return objectValueFrom([
     { key: 'old_start', value: wireInteger(BigInt(replacement.oldStart())) },
@@ -1461,7 +1461,7 @@ function replacementValue(replacement: SourceReplacement): ObjectValue {
   ]);
 }
 
-/** Strictly decodes one replacement (operation.rs:477-503). */
+/** Strictly decodes one replacement (operation.rs). */
 function parseReplacement(value: PortableValue, path: string): SourceReplacement {
   const fields = exactFields(
     value,
@@ -1483,7 +1483,7 @@ function parseReplacement(value: PortableValue, path: string): SourceReplacement
     .withReplacementRedacted(booleanOf(fields[5], `${path}.redact_replacement`));
 }
 
-/** Strictly decodes one operation summary (operation.rs:421-447). */
+/** Strictly decodes one operation summary (operation.rs). */
 function parseOperationSummary(value: PortableValue, path: string): EditOperationSummary {
   const fields = exactFields(value, ['operation', 'summary'], path);
   const reference = parseReference(fields[0], `${path}.operation`);
@@ -1511,7 +1511,7 @@ function summaryObject(summary: ReadonlyMap<string, string>): ObjectValue {
   };
 }
 
-/** Encodes one content digest (operation.rs:568-573). */
+/** Encodes one content digest (operation.rs). */
 function digestValue(digest: ContentDigest): ObjectValue {
   return objectValueFrom([
     { key: 'algorithm', value: { kind: 'String', value: digest.algorithm() } },
@@ -1519,7 +1519,7 @@ function digestValue(digest: ContentDigest): ObjectValue {
   ]);
 }
 
-/** Strictly decodes one sha256 digest (operation.rs:575-594). */
+/** Strictly decodes one sha256 digest (operation.rs). */
 function parseDigest(value: PortableValue, path: string): ContentDigest {
   const fields = exactFields(value, ['algorithm', 'hex'], path);
   if (stringOf(fields[0], `${path}.algorithm`) !== 'sha256') {
@@ -1558,7 +1558,7 @@ export class FormatOperationRegistryMessage {
     return this.#registry;
   }
 
-  /** Encodes the fixed discovery schema (operation.rs:39-80). */
+  /** Encodes the fixed discovery schema (operation.rs). */
   toValue(): ObjectValue {
     const operations = this.#registry.operations().map((operation) =>
       objectValueFrom([
@@ -1593,7 +1593,7 @@ export class FormatOperationRegistryMessage {
     ]);
   }
 
-  /** Strictly decodes and revalidates IDs, schemas, order, and uniqueness (operation.rs:83-99). */
+  /** Strictly decodes and revalidates IDs, schemas, order, and uniqueness (operation.rs). */
   static fromValue(value: PortableValue): FormatOperationRegistryMessage {
     const fields = schemaFields(value, 'core.format-operation-registry@1', ['profile', 'operations'], '$');
     const profile = parseProfile(fields[0], '$.profile');
@@ -1610,7 +1610,7 @@ export class FormatOperationRegistryMessage {
   }
 }
 
-/** Strictly decodes one operation descriptor (operation.rs:384-407). */
+/** Strictly decodes one operation descriptor (operation.rs). */
 function parseOperationDescriptor(value: PortableValue, path: string): FormatOperationDescriptor {
   const fields = exactFields(value, ['operation', 'target_role', 'arguments', 'support'], path);
   const operation = parseReference(fields[0], `${path}.operation`);
@@ -1626,7 +1626,7 @@ function parseOperationDescriptor(value: PortableValue, path: string): FormatOpe
   );
 }
 
-/** Strictly decodes one argument descriptor (operation.rs:409-419). */
+/** Strictly decodes one argument descriptor (operation.rs). */
 function parseArgumentDescriptor(value: PortableValue, path: string): OperationArgumentDescriptor {
   const fields = exactFields(value, ['name', 'kind', 'required'], path);
   return new OperationArgumentDescriptor(
@@ -1636,7 +1636,7 @@ function parseArgumentDescriptor(value: PortableValue, path: string): OperationA
   );
 }
 
-/** The closed argument-kind vocabulary (operation.rs:614-627). */
+/** The closed argument-kind vocabulary (operation.rs). */
 function parseArgumentKind(value: string, path: string): OperationArgumentKind {
   switch (value) {
     case 'NodeRef':
@@ -1651,7 +1651,7 @@ function parseArgumentKind(value: string, path: string): OperationArgumentKind {
   }
 }
 
-/** The closed support vocabulary (operation.rs:637-644). */
+/** The closed support vocabulary (operation.rs). */
 function parseOperationSupport(value: string, path: string): OperationSupport {
   switch (value) {
     case 'Supported':
@@ -1680,7 +1680,7 @@ function profileValue(profile: ProfileId): ObjectValue {
   return referenceValue(profile.id(), profile.version());
 }
 
-/** Strictly decodes one `{id, version}` reference (materialization.rs:1357-1364). */
+/** Strictly decodes one `{id, version}` reference (materialization.rs). */
 function parseReference(value: PortableValue, path: string): { id: string; version: number } {
   const fields = exactFields(value, ['id', 'version'], path);
   const id = stringOf(fields[0], `${path}.id`);

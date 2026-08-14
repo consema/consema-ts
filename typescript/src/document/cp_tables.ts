@@ -8,8 +8,8 @@
  * decode_to_string_without_replacement, one byte per call; C1 control
  * positions map to their U+00xx scalars; the sentinel 0xFFFF marks a byte
  * whose decode is Malformed in encoding_rs). The Rust crate decodes these
- * pages through encoding_rs directly (consema-rs/consema-document/src/source.rs:
- * 4-8, 901-992); the Go transcription is the only in-repo tabular form.
+ * pages through encoding_rs directly (consema-rs/consema-document/src/source.rs
+ * (cp 表区间); the Go transcription is the only in-repo tabular form.
  * Go cross-reference for the sentinel semantics and decode loop:
  * consema-go/go/document/source.go:654-712.
  *

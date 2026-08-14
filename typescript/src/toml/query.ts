@@ -5,20 +5,20 @@
  *  - domains: RFC 0001 §4 (:66-76) freezes `toml.native-semantic-query@1`
  *    and the operator registry (try-table-entries, entry-name-equals,
  *    entry-item, try-array-elements, array-element-item); the syntax domain
- *    is `toml.lossless-syntax-query@1` (consema-rs/consema-toml/src/query.rs:
- *    136-137) with toml.syntax-kind-is / toml.syntax-text-equals
+ *    is `toml.lossless-syntax-query@1` (consema-rs/consema-toml/src/query.rs
+ *    (lossless-syntax-query 定义) with toml.syntax-kind-is / toml.syntax-text-equals
  *  - operator semantics and match shapes: consema-rs/consema-toml/src/query.rs
  *    — TomlMatch (:10-41), TomlSyntaxMatch (:53-86), domain checks
  *    (:95-101, :136-141), expression evaluation (Input/Apply/Concat/
  *    StructureOrderMerge :213-288), operator behavior (:290-469),
  *    selection (:471-488)
- *  - steps/results accounting: query.rs:189-199 (max_steps/max_results →
+ *  - steps/results accounting: query.rs (max_steps/max_results →
  *    core.query.resource-limit@1); defaults max_steps 100_000 /
- *    max_results 100_000 (consema-core/src/query.rs:2974-2981)
+ *    max_results 100_000 (consema-core/src/query.rs)
  *  - failure codes: consema-rs/consema-protocol/src/error_registry.rs —
  *    core.query.cancelled@1 :141, core.query.cardinality-violation@1 :147,
  *    core.query.resource-limit@1 :183; the kind→code mapping :1515-1527
- *  - syntax kind names: consema-rs/consema-toml/src/lib.rs:73-88
+ *  - syntax kind names: consema-rs/consema-toml/src/lib.rs
  *  - argument decoding: PortableValue arguments (consema-core query.rs
  *    operator table; the protocol validator pins the kinds at
  *    typescript/src/protocol/query.ts:324-329, 374-376)
@@ -52,7 +52,7 @@ import { TomlArrayElement, TomlEntry, TomlItem } from './document.ts';
 // Match and failure records
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound TOML native semantic query match (query.rs:10-41). */
+/** Owned snapshot-bound TOML native semantic query match (query.rs). */
 export type TomlMatch =
   | { readonly kind: 'Item'; readonly node: NodeRef; readonly itemKind: TomlItemKind }
   | {
@@ -70,7 +70,7 @@ export type TomlMatch =
       readonly item: NodeRef;
     };
 
-/** Match identity node (query.rs:43-51). */
+/** Match identity node (query.rs). */
 export function tomlMatchIdentity(match: TomlMatch): NodeRef {
   switch (match.kind) {
     case 'Item':
@@ -82,7 +82,7 @@ export function tomlMatchIdentity(match: TomlMatch): NodeRef {
   }
 }
 
-/** Owned snapshot-bound TOML lossless syntax query match (query.rs:53-86). */
+/** Owned snapshot-bound TOML lossless syntax query match (query.rs). */
 export class TomlSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -96,28 +96,28 @@ export class TomlSyntaxMatch {
     this.#ordinal = ordinal;
   }
 
-  /** Process-local syntax-piece identity (query.rs:62-65). */
+  /** Process-local syntax-piece identity (query.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw source span (query.rs:66-69). */
+  /** Exact raw source span (query.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Format-specific lossless kind (query.rs:70-73). */
+  /** Format-specific lossless kind (query.rs). */
   kind(): TomlSyntaxKind {
     return this.#kind;
   }
 
-  /** Zero-based source-order position (query.rs:74-77). */
+  /** Zero-based source-order position (query.rs). */
   ordinal(): number {
     return this.#ordinal;
   }
 }
 
-/** Immutable query execution limits (consema-core query.rs:2965-2981). */
+/** Immutable query execution limits (consema-core query.rs). */
 export interface TomlQueryLimits {
   /** Maximum operator steps. */
   readonly maxSteps: number;
@@ -125,13 +125,13 @@ export interface TomlQueryLimits {
   readonly maxResults: number;
 }
 
-/** The frozen defaults (query.rs:2974-2981): 100_000 steps, 100_000 results. */
+/** The frozen defaults (query.rs): 100_000 steps, 100_000 results. */
 export const DEFAULT_TOML_QUERY_LIMITS: Readonly<TomlQueryLimits> = Object.freeze({
   maxSteps: 100_000,
   maxResults: 100_000,
 });
 
-/** Cooperative cancellation signal (consema-core query.rs:2983). */
+/** Cooperative cancellation signal (consema-core query.rs). */
 export class TomlCancellationToken {
   #cancelled = false;
 
@@ -146,13 +146,13 @@ export class TomlCancellationToken {
   }
 }
 
-/** Complete deterministic query execution (query.rs:112). */
+/** Complete deterministic query execution (query.rs). */
 export interface TomlQueryExecution<M> {
   readonly matches: readonly M[];
 }
 
 /**
- * Execution-time query failure (error_registry.rs:141,147,183; the
+ * Execution-time query failure (error_registry.rs; the
  * domain-mismatch failure is the protocol QueryFailure).
  */
 export type TomlQueryExecutionFailureKind =
@@ -162,7 +162,7 @@ export type TomlQueryExecutionFailureKind =
 
 export class TomlQueryExecutionFailure extends Error {
   readonly kind: TomlQueryExecutionFailureKind;
-  /** Frozen registered code (error_registry.rs:141/147/183; query.rs:1515-1527). */
+  /** Frozen registered code (error_registry.rs; query.rs). */
   readonly code: string;
   /** CardinalityViolation: the requested selection and the actual match count. */
   readonly selection?: QuerySelection;
@@ -181,7 +181,7 @@ export class TomlQueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (consema-core/src/query.rs:1515-1527). */
+/** Kind→code mapping (consema-core/src/query.rs). */
 export function queryExecutionFailureCode(kind: TomlQueryExecutionFailureKind): string {
   switch (kind) {
     case 'Cancelled':
@@ -235,7 +235,7 @@ class Context {
 
 /**
  * Executes a validated TOML native semantic query against one immutable
- * snapshot (query.rs:89-113). The input is the root `TomlItem`; domain
+ * snapshot (query.rs). The input is the root `TomlItem`; domain
  * mismatch is a protocol QueryFailure.
  */
 export function executeTomlQuery(
@@ -306,7 +306,7 @@ function executeNativeExpression(
   }
 }
 
-/** Entity index of one match's identity node (query.rs:240-247). */
+/** Entity index of one match's identity node (query.rs). */
 function entityIndexFor(match: TomlMatch, context: Context): number {
   return context.document().resolveIndex(tomlMatchIdentity(match));
 }
@@ -417,7 +417,7 @@ function elementMatch(element: TomlArrayElement): TomlMatch {
 
 /**
  * Executes a validated TOML lossless syntax query against every source
- * piece in raw order (query.rs:130-169).
+ * piece in raw order (query.rs).
  */
 export function executeTomlSyntaxQuery(
   executable: ExecutableQuery,

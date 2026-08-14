@@ -2,7 +2,7 @@
  * ProtocolLimits: the resource limits shared by the canonical JSON and
  * PVCE/1 protocol transports.
  *
- * authority: consema-rs/consema-protocol/src/limits.rs:5-31 (defaults 64 MiB
+ * authority: consema-rs/consema-protocol/src/limits.rs (defaults 64 MiB
  * transport bytes, depth 256, 1,000,000 nodes, 1,000,000 container entries,
  * 64 MiB blob, 1024 integer magnitude bytes).
  */
@@ -17,7 +17,7 @@ export interface ProtocolLimits {
   readonly maxIntegerBytes: number;
 }
 
-/** The frozen defaults (consema-rs/consema-protocol/src/limits.rs:20-31). */
+/** The frozen defaults (consema-rs/consema-protocol/src/limits.rs). */
 export function defaultProtocolLimits(): ProtocolLimits {
   return {
     maxBytes: 64 << 20,

@@ -101,12 +101,12 @@ const TRUNCATE_POLICY = 'TruncateWithReport';
 const PLIST_EPOCH_SPELLING = '2001-01-01T00:00:00Z';
 /** Stable truncation report/failure code (RFC 0013 §10.1, §12). */
 const FRACTIONAL_DATE_CODE = 'plist.materialization.fractional-date@1';
-/** Exact bits of `-0.0` (materialization.rs:152). */
+/** Exact bits of `-0.0` (materialization.rs). */
 const NEGATIVE_ZERO_BITS = 0x8000_0000_0000_0000n;
 /** `2^53`: the largest magnitude at which every integral double is exactly representable. */
 const EXACT_UNIX_SECONDS_BOUND = 9_007_199_254_740_992.0;
 
-/** The two canonical materialization styles (materialization.rs:157-166). */
+/** The two canonical materialization styles (materialization.rs). */
 type Style = 'Xml' | 'Binary';
 
 /** One validated `plist.value-tree@1` record. */
@@ -128,7 +128,7 @@ interface DictEntry {
   readonly value: ValueNode;
 }
 
-/** Closed validated value kinds (materialization.rs:333-362). */
+/** Closed validated value kinds (materialization.rs). */
 type ValueKind =
   | { readonly kind: 'Dict'; readonly entries: readonly DictEntry[] }
   | { readonly kind: 'Array'; readonly elements: readonly ValueNode[] }
@@ -173,7 +173,7 @@ export function materialize(
   }
 }
 
-/** Maps one plist-family materialization failure to its stable code (materialization.rs:78-94). */
+/** Maps one plist-family materialization failure to its stable code (materialization.rs). */
 export function plistMaterializationFailureCode(failure: MaterializationFailure): string {
   switch (failure.kind) {
     case 'Unrepresentable':
@@ -217,7 +217,7 @@ function materializeComplete(
   return new CompleteMaterialization(document, fidelity, report, provenance);
 }
 
-/** Validates the request against the frozen style contracts (materialization.rs:236-266). */
+/** Validates the request against the frozen style contracts (materialization.rs). */
 function validateRequest(request: MaterializationRequest): Style {
   const profile = request.targetProfile();
   const style = request.style();
@@ -249,7 +249,7 @@ function validateRequest(request: MaterializationRequest): Style {
   return selected;
 }
 
-/** Parse limits for the closure reparse, derived from the request (materialization.rs:274-304). */
+/** Parse limits for the closure reparse, derived from the request (materialization.rs). */
 function parseLimitsFor(limits: MaterializationLimits): PlistParseLimits {
   return {
     ...DEFAULT_PLIST_PARSE_LIMITS,
@@ -284,7 +284,7 @@ function parseLimitsFor(limits: MaterializationLimits): PlistParseLimits {
 }
 
 // ---------------------------------------------------------------------------
-// Record validation (materialization.rs:306-655)
+// Record validation (materialization.rs)
 // ---------------------------------------------------------------------------
 
 function validateRecord(value: PortableValue, request: MaterializationRequest, analyzed: ValuePath[]): Record {
@@ -331,7 +331,7 @@ class Validator {
   }
 }
 
-/** Validates one value of the record and its descendants (materialization.rs:438-655). */
+/** Validates one value of the record and its descendants (materialization.rs). */
 function validateValueNode(
   value: PortableValue,
   path: ValuePath,
@@ -500,7 +500,7 @@ function objectField(value: PortableValue, name: string): PortableValue | undefi
   return value.entries.find((entry) => entry.key === name)?.value;
 }
 
-/** Converts one exact decimal to its double value (materialization.rs:665-679). */
+/** Converts one exact decimal to its double value (materialization.rs). */
 function decimalToF64(coefficient: bigint, exponent: bigint): number | null {
   if (coefficient > BigInt(Number.MAX_SAFE_INTEGER) || coefficient < -BigInt(Number.MAX_SAFE_INTEGER)) {
     return null;
@@ -517,7 +517,7 @@ function decimalToF64(coefficient: bigint, exponent: bigint): number | null {
   return value;
 }
 
-/** Strictly decodes one even-length hex string (materialization.rs:682-700). */
+/** Strictly decodes one even-length hex string (materialization.rs). */
 function decodeHex(text: string): Uint8Array | null {
   if (text.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(text)) {
     return null;
@@ -536,7 +536,7 @@ function hexDigit(code: number): number {
 }
 
 // ---------------------------------------------------------------------------
-// Native document building (materialization.rs:712-868)
+// Native document building (materialization.rs)
 // ---------------------------------------------------------------------------
 
 /** Builds the promised native document, applying the XML expressibility boundary. */
@@ -660,7 +660,7 @@ function buildValue(
   }
 }
 
-/** Stable path rendering for diagnostic arguments (materialization.rs:891-917). */
+/** Stable path rendering for diagnostic arguments (materialization.rs). */
 function renderPath(path: ValuePath): string {
   let out = '';
   for (const segment of path.segments()) {
@@ -682,7 +682,7 @@ function renderPath(path: ValuePath): string {
   return out;
 }
 
-/** Whether the exact bits of one real survive the XML spelling (materialization.rs:1253-1265). */
+/** Whether the exact bits of one real survive the XML spelling (materialization.rs). */
 function realExpressible(real: PlistReal): boolean {
   const value = real.asF64();
   if (Number.isNaN(value)) {
@@ -694,7 +694,7 @@ function realExpressible(real: PlistReal): boolean {
   return bitsOfFloat64(Number(value.toString())) === bitsOfFloat64(value);
 }
 
-/** XML 1.0 `Char` production (materialization.rs:1372-1379). */
+/** XML 1.0 `Char` production (materialization.rs). */
 function isXmlCharCode(code: number): boolean {
   return (
     code === 0x09 ||
@@ -706,7 +706,7 @@ function isXmlCharCode(code: number): boolean {
   );
 }
 
-/** Whether every scalar of one UTF-16 sequence is an XML 1.0 character (materialization.rs:1383-1407). */
+/** Whether every scalar of one UTF-16 sequence is an XML 1.0 character (materialization.rs). */
 function isXmlText(text: string): boolean {
   return classifySurrogates(text) === 'WellFormedUnicode' && [...text].every((c) => isXmlCharCode(c.codePointAt(0)!));
 }
@@ -736,7 +736,7 @@ class DateRangeError extends Error {
   }
 }
 
-/** Decomposes exact plist-epoch seconds into XML calendar fields (materialization.rs:1292-1313). */
+/** Decomposes exact plist-epoch seconds into XML calendar fields (materialization.rs). */
 function wholeSecondDate(seconds: number): { year: number; month: number; day: number; hour: number; minute: number; second: number } {
   if (seconds % 1 !== 0) {
     throw new DateRangeError('FractionalSeconds');
@@ -772,7 +772,7 @@ function wholeSecondDateSafe(
   };
 }
 
-/** Proleptic Gregorian calendar date of `days` since the Unix epoch (materialization.rs:1317-1330). */
+/** Proleptic Gregorian calendar date of `days` since the Unix epoch (materialization.rs). */
 function civilFromDays(days: number): { year: number; month: number; day: number } {
   const z = days + 719468;
   const era = z >= 0 ? z : z - 146096;
@@ -792,7 +792,7 @@ function civilFromDays(days: number): { year: number; month: number; day: number
 // Serialization
 // ---------------------------------------------------------------------------
 
-/** Serializes one record under the requested style (materialization.rs:1098-1118, 1414-1452). */
+/** Serializes one record under the requested style (materialization.rs). */
 function serialize(record: Record, style: Style, limits: MaterializationLimits): { readonly bytes: Uint8Array; readonly items: InputItem[] } {
   if (style === 'Xml') {
     return serializeXml(record, limits);
@@ -813,7 +813,7 @@ function serializeXml(record: Record, limits: MaterializationLimits): { readonly
   return { bytes: new TextEncoder().encode(out.text), items };
 }
 
-/** Emits one value element at the given depth (materialization.rs:1123-1209). */
+/** Emits one value element at the given depth (materialization.rs). */
 function emitValue(
   out: { text: string },
   node: ValueNode,
@@ -899,7 +899,7 @@ function writeIndent(depth: number): string {
   return '    '.repeat(depth);
 }
 
-/** Escapes XML text content (RFC 0013 §4.9, §10.1; materialization.rs:1221-1231). */
+/** Escapes XML text content (RFC 0013 §4.9, §10.1; materialization.rs). */
 function escapeXmlText(text: string): string {
   let out = '';
   for (const character of text) {
@@ -924,7 +924,7 @@ function escapeXmlText(text: string): string {
   return out;
 }
 
-/** Deterministic shortest-round-trip decimal spelling of one real (materialization.rs:1235-1248). */
+/** Deterministic shortest-round-trip decimal spelling of one real (materialization.rs). */
 function renderReal(real: PlistReal): string {
   const value = real.asF64();
   if (Number.isNaN(value)) {
@@ -936,7 +936,7 @@ function renderReal(real: PlistReal): string {
   return String(value);
 }
 
-/** Whole-second XML date spelling (materialization.rs:1269-1275). */
+/** Whole-second XML date spelling (materialization.rs). */
 function renderDate(fields: { year: number; month: number; day: number; hour: number; minute: number; second: number }): string {
   const sign = fields.year < 0 ? '-' : '';
   const year = Math.abs(fields.year).toString().padStart(4, '0');
@@ -944,7 +944,7 @@ function renderDate(fields: { year: number; month: number; day: number; hour: nu
   return `${sign}${year}-${pad(fields.month)}-${pad(fields.day)}T${pad(fields.hour)}:${pad(fields.minute)}:${pad(fields.second)}Z`;
 }
 
-/** Canonical standard-alphabet base64 wrapped at `76 - 8 * depth` per line (materialization.rs:1338-1369). */
+/** Canonical standard-alphabet base64 wrapped at `76 - 8 * depth` per line (materialization.rs). */
 function encodeBase64Wrapped(bytes: Uint8Array, depth: number): string {
   const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   const budget = Math.max(76 - 8 * depth, 1);
@@ -970,7 +970,7 @@ function encodeBase64Wrapped(bytes: Uint8Array, depth: number): string {
 
 // -- Binary -------------------------------------------------------------------
 
-/** Content key of one scalar object (materialization.rs:946-992). */
+/** Content key of one scalar object (materialization.rs). */
 type ScalarKey =
   | { readonly kind: 'String'; readonly text: string }
   | { readonly kind: 'Integer'; readonly value: bigint }
@@ -1002,7 +1002,7 @@ function scalarKeyOf(node: ValueNode): ScalarKey {
   }
 }
 
-/** Whether this scalar participates in first-occurrence deduplication (materialization.rs:984-992). */
+/** Whether this scalar participates in first-occurrence deduplication (materialization.rs). */
 function deduplicates(key: ScalarKey): boolean {
   return key.kind === 'String' || key.kind === 'Integer' || key.kind === 'Real' || key.kind === 'Date' || key.kind === 'Data';
 }
@@ -1012,7 +1012,7 @@ type PlannedObject =
   | { readonly kind: 'Array'; elements: number[] }
   | { readonly kind: 'Scalar'; readonly key: ScalarKey };
 
-/** Plans the document-ordered binary object table (materialization.rs:1011-1096). */
+/** Plans the document-ordered binary object table (materialization.rs). */
 function planBinary(root: ValueNode): { readonly objects: PlannedObject[]; readonly items: InputItem[] } {
   const objects: PlannedObject[] = [];
   const items: InputItem[] = [];
@@ -1133,7 +1133,7 @@ function serializeBinary(record: Record, limits: MaterializationLimits): { reado
   return { bytes, items: plan.items };
 }
 
-/** Writes one planned object: marker, size, payload, and references (materialization.rs:1456-1520). */
+/** Writes one planned object: marker, size, payload, and references (materialization.rs). */
 function writePlannedObject(object: PlannedObject, refSize: number): Uint8Array {
   switch (object.kind) {
     case 'Dict': {
@@ -1214,7 +1214,7 @@ function writeScalarObject(key: ScalarKey): Uint8Array {
   }
 }
 
-/** One sized marker; counts of 15 or more use the extended-size sentinel (materialization.rs:1549-1559). */
+/** One sized marker; counts of 15 or more use the extended-size sentinel (materialization.rs). */
 function sizedMarker(marker: number, count: number): Uint8Array {
   if (count < 0x0f) {
     return new Uint8Array([marker | count]);
@@ -1225,7 +1225,7 @@ function sizedMarker(marker: number, count: number): Uint8Array {
   return concat(parts);
 }
 
-/** Smallest width whose capacity exceeds `max_index` (materialization.rs:1574-1582). */
+/** Smallest width whose capacity exceeds `max_index` (materialization.rs). */
 function refSizeFor(maxIndex: number): number {
   let size = 1;
   let capacity = 256;
@@ -1236,7 +1236,7 @@ function refSizeFor(maxIndex: number): number {
   return size;
 }
 
-/** Minimal marker width for one signed 64-bit integer (materialization.rs:1586-1591). */
+/** Minimal marker width for one signed 64-bit integer (materialization.rs). */
 function integerWidth(value: bigint): number {
   if (value >= 0n) {
     return unsignedWidth(value);
@@ -1251,7 +1251,7 @@ function unsignedWidth(value: bigint): number {
   return 8;
 }
 
-/** Minimal byte width of one unsigned 32-bit UID value (materialization.rs:1607-1617). */
+/** Minimal byte width of one unsigned 32-bit UID value (materialization.rs). */
 function uidWidth(value: number): number {
   if (value <= 0xff) return 1;
   if (value <= 0xffff) return 2;
@@ -1298,7 +1298,7 @@ function concat(parts: readonly Uint8Array[]): Uint8Array {
 }
 
 // ---------------------------------------------------------------------------
-// Provenance (materialization.rs:1619-1764)
+// Provenance (materialization.rs)
 // ---------------------------------------------------------------------------
 
 function buildProvenance(

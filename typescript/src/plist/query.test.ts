@@ -8,10 +8,10 @@
  *    plist.query.type-mismatch@1),
  *    plist.query.binary-structure (:1044-1089)
  *  - operator vocabulary: RFC 0013 §8.1/§8.2/§8.3; the native domain
- *    operators at consema-rs/consema-plist/src/query.rs:810-1163, the binary
+ *    operators at consema-rs/consema-plist/src/query.rs, the binary
  *    structure operators :1334-1465
  *  - family failure-code mapping: consema-rs/consema-conformance/src/
- *    plist_v1.rs:1141-1153
+ *    plist_v1.rs
  */
 
 import { test } from 'node:test';
@@ -169,7 +169,7 @@ test('plist.query.binary-structure: object/offset/trailer/top facts (plist-v1.js
   assert.deepEqual(top.refs.map((reference) => reference.target), [1, 2]);
 });
 
-test('domain gate: the native domain rejects another domain (query.rs:271-302)', () => {
+test('domain gate: the native domain rejects another domain (query.rs)', () => {
   const document = parseDefault(bytes('<plist version="1.0"><string>x</string></plist>'), 'XmlV1');
   const executable = boundQuery(domainPlistNativeV1(), [['plist.document-root']]);
   assert.throws(() => {

@@ -21,11 +21,11 @@
  *    project_entry_mapping :1097-1126, entry_ordinal :1144-1200,
  *    commit_entry :1202-1236, map_children :1238-1402, leaf_value
  *    :1404-1457
- *  - frozen codes: consema-rs/consema-xml/src/projection.rs:459-468
+ *  - frozen codes: consema-rs/consema-xml/src/projection.rs
  *    (xml.projection.recovered-document@1, subtree@1, admission@1,
  *    collision@1, resource-limit@1, core-invariant@1)
- *  - the exact `xml.element-tree@1` record: projection.rs:600-644,
- *    669-797, 799-973 — declaration facts, admitted internal entity
+ *  - the exact `xml.element-tree@1` record: projection.rs,
+ *    (record 定义区间) — declaration facts, admitted internal entity
  *    declarations, one namespace-aware root, ordered namespace
  *    declarations, ordered attributes, ordered mixed content, exact
  *    text/reference fragments, CDATA, comments, and PI
@@ -60,31 +60,31 @@ import type { ReferenceFragment, XmlContent, XmlElementData, XmlTextData } from 
 // Targets and policies
 // ---------------------------------------------------------------------------
 
-/** Versioned XML projection target (projection.rs:20-29). */
+/** Versioned XML projection target (projection.rs). */
 export type ProjectionTarget =
   | 'ElementTreeV1'
   | 'TextContentV1'
   | 'SimpleEntryMappingV1';
 
-/** Descendant text inclusion for `TextContentV1` (projection.rs:31-38). */
+/** Descendant text inclusion for `TextContentV1` (projection.rs). */
 export type TextContentInclude = 'TextAndCdata' | 'TextOnly';
 
-/** Attribute handling for `SimpleEntryMappingV1` (projection.rs:40-49). */
+/** Attribute handling for `SimpleEntryMappingV1` (projection.rs). */
 export type AttributePolicy = 'RejectAttributes' | 'IgnoreAttributes' | 'PrefixAttributeKeys';
 
-/** Text child handling for `SimpleEntryMappingV1` (projection.rs:51-58). */
+/** Text child handling for `SimpleEntryMappingV1` (projection.rs). */
 export type TextKeyPolicy = 'RejectText' | 'IgnoreText';
 
-/** Repeated expanded-child-name handling for `SimpleEntryMappingV1` (projection.rs:60-69). */
+/** Repeated expanded-child-name handling for `SimpleEntryMappingV1` (projection.rs). */
 export type RepeatedChildPolicy = 'Reject' | 'First' | 'Last';
 
-/** Entry-key spelling for `SimpleEntryMappingV1` (projection.rs:71-81). */
+/** Entry-key spelling for `SimpleEntryMappingV1` (projection.rs). */
 export type ExpandedNameKeyPolicy = 'LocalOnly' | 'PrefixedSpelling' | 'UriBracketed';
 
-/** Explicit mapping behavior for `SimpleEntryMappingV1` (projection.rs:115-124). */
+/** Explicit mapping behavior for `SimpleEntryMappingV1` (projection.rs). */
 export type CollisionPolicy = 'Reject' | 'First' | 'Last';
 
-/** XML projection resource limits (projection.rs:215-226). */
+/** XML projection resource limits (projection.rs). */
 export interface ProjectionLimits {
   /** Maximum inspected source nodes. */
   readonly maxSourceNodes: number;
@@ -96,7 +96,7 @@ export interface ProjectionLimits {
   readonly maxProvenanceUnits: number;
 }
 
-/** The frozen defaults (projection.rs:228-237). */
+/** The frozen defaults (projection.rs). */
 export const DEFAULT_PROJECTION_LIMITS: Readonly<ProjectionLimits> = Object.freeze({
   maxSourceNodes: 2_000_000,
   maxValueNodes: 2_000_000,
@@ -104,7 +104,7 @@ export const DEFAULT_PROJECTION_LIMITS: Readonly<ProjectionLimits> = Object.free
   maxProvenanceUnits: 4_000_000,
 });
 
-/** Immutable explicit XML projection request; every policy is mandatory (projection.rs:126-138). */
+/** Immutable explicit XML projection request; every policy is mandatory (projection.rs). */
 export class ProjectionRequest {
   readonly #target: ProjectionTarget;
   readonly #subtree: number | null;
@@ -139,7 +139,7 @@ export class ProjectionRequest {
     this.#limits = limits;
   }
 
-  /** Exact `xml.element-tree@1` record request for the document root (projection.rs:141-155). */
+  /** Exact `xml.element-tree@1` record request for the document root (projection.rs). */
   static elementTree(): ProjectionRequest {
     return new ProjectionRequest(
       'ElementTreeV1',
@@ -154,7 +154,7 @@ export class ProjectionRequest {
     );
   }
 
-  /** Explicit `TextContentV1` request over one subtree (projection.rs:180-194). */
+  /** Explicit `TextContentV1` request over one subtree (projection.rs). */
   static textContent(subtree: NodeRef, include: TextContentInclude): ProjectionRequest {
     return new ProjectionRequest(
       'TextContentV1',
@@ -169,7 +169,7 @@ export class ProjectionRequest {
     );
   }
 
-  /** Explicit `SimpleEntryMappingV1` request over one subtree (projection.rs:157-178). */
+  /** Explicit `SimpleEntryMappingV1` request over one subtree (projection.rs). */
   static simpleEntryMapping(
     subtree: NodeRef,
     attributes: AttributePolicy,
@@ -191,17 +191,17 @@ export class ProjectionRequest {
     );
   }
 
-  /** Projection target (projection.rs:196-200). */
+  /** Projection target (projection.rs). */
   target(): ProjectionTarget {
     return this.#target;
   }
 
-  /** Selected subtree identity, when the request targets a subtree (projection.rs:202-206). */
+  /** Selected subtree identity, when the request targets a subtree (projection.rs). */
   subtree(): number | null {
     return this.#subtree;
   }
 
-  /** Resource limits (projection.rs:208-212). */
+  /** Resource limits (projection.rs). */
   limits(): ProjectionLimits {
     return this.#limits;
   }
@@ -235,18 +235,18 @@ export class ProjectionRequest {
 // Fidelity, provenance, and reports
 // ---------------------------------------------------------------------------
 
-/** Projection fidelity classification (projection.rs:239-248). */
+/** Projection fidelity classification (projection.rs). */
 export type Fidelity = 'Exact' | 'Transformed' | 'Lossy';
 
-/** Projected value or association location (projection.rs:250-257). */
+/** Projected value or association location (projection.rs). */
 export type ProjectedLocation =
   | { readonly kind: 'Value'; readonly path: ValuePath }
   | { readonly kind: 'Association'; readonly location: AssociationLocation };
 
-/** Source-to-projection relation (projection.rs:259-270). */
+/** Source-to-projection relation (projection.rs). */
 export type ProvenanceRelation = 'Direct' | 'Derived' | 'Collapsed' | 'ReferenceDerived';
 
-/** One exact source origin (projection.rs:272-283). */
+/** One exact source origin (projection.rs). */
 export class SourceOrigin {
   readonly #snapshot: bigint;
   readonly #node: NodeRef;
@@ -281,7 +281,7 @@ export class SourceOrigin {
   }
 }
 
-/** One many-valued provenance entry (projection.rs:285-292). */
+/** One many-valued provenance entry (projection.rs). */
 export class ProvenanceEntry {
   readonly #projected: ProjectedLocation;
   readonly #origins: readonly SourceOrigin[];
@@ -302,7 +302,7 @@ export class ProvenanceEntry {
   }
 }
 
-/** Immutable many-valued provenance mapping (projection.rs:294-299). */
+/** Immutable many-valued provenance mapping (projection.rs). */
 export class ProvenanceMap {
   readonly #entries: readonly ProvenanceEntry[];
 
@@ -316,7 +316,7 @@ export class ProvenanceMap {
     return new ProvenanceMap([]);
   }
 
-  /** @internal — appends one entry under the configured limit (projection.rs:307-322). */
+  /** @internal — appends one entry under the configured limit (projection.rs). */
   static append(
     entries: readonly ProvenanceEntry[],
     entry: ProvenanceEntry,
@@ -328,13 +328,13 @@ export class ProvenanceMap {
     return entries.concat([entry]);
   }
 
-  /** Deterministically ordered projected locations and origins (projection.rs:300-306). */
+  /** Deterministically ordered projected locations and origins (projection.rs). */
   entries(): readonly ProvenanceEntry[] {
     return this.#entries;
   }
 }
 
-/** Projection report category (projection.rs:325-346). */
+/** Projection report category (projection.rs). */
 export type ProjectionEventKind =
   | 'ElementDiscarded'
   | 'AttributeDiscarded'
@@ -346,7 +346,7 @@ export type ProjectionEventKind =
   | 'ChildCollapsed'
   | 'NamespaceCollapsed';
 
-/** One explicit transformation event (projection.rs:348-357). */
+/** One explicit transformation event (projection.rs). */
 export class ProjectionEvent {
   readonly #kind: ProjectionEventKind;
   readonly #discarded: NodeRef;
@@ -374,7 +374,7 @@ export class ProjectionEvent {
   }
 }
 
-/** Complete ordered projection report (projection.rs:359-364). */
+/** Complete ordered projection report (projection.rs). */
 export class ProjectionReport {
   readonly #events: readonly ProjectionEvent[];
 
@@ -388,7 +388,7 @@ export class ProjectionReport {
     return new ProjectionReport([]);
   }
 
-  /** @internal — appends one event under the configured limit (projection.rs:372-387). */
+  /** @internal — appends one event under the configured limit (projection.rs). */
   static append(
     events: readonly ProjectionEvent[],
     event: ProjectionEvent,
@@ -400,13 +400,13 @@ export class ProjectionReport {
     return events.concat([event]);
   }
 
-  /** Events in deterministic document order (projection.rs:365-371). */
+  /** Events in deterministic document order (projection.rs). */
   events(): readonly ProjectionEvent[] {
     return this.#events;
   }
 }
 
-/** Complete successful projection (projection.rs:390-401). */
+/** Complete successful projection (projection.rs). */
 export class CompleteProjection {
   readonly #value: PortableValue;
   readonly #fidelity: Fidelity;
@@ -446,7 +446,7 @@ export class CompleteProjection {
   }
 }
 
-/** Failed projection attempt without a partial value (projection.rs:403-410). */
+/** Failed projection attempt without a partial value (projection.rs). */
 export class FailedProjectionAttempt {
   readonly #failure: ProjectionFailure;
   readonly #report: ProjectionReport;
@@ -467,7 +467,7 @@ export class FailedProjectionAttempt {
   }
 }
 
-/** Projection completion algebra (projection.rs:412-419). */
+/** Projection completion algebra (projection.rs). */
 export type ProjectionResult =
   | { readonly kind: 'Complete'; readonly projection: CompleteProjection }
   | { readonly kind: 'Failed'; readonly attempt: FailedProjectionAttempt };
@@ -476,10 +476,10 @@ export type ProjectionResult =
 // Entry mapping internals
 // ---------------------------------------------------------------------------
 
-/** Collision resolution direction shared by both entry policies (projection.rs:83-89). */
+/** Collision resolution direction shared by both entry policies (projection.rs). */
 type KeepPolicy = 'Reject' | 'First' | 'Last';
 
-/** Ordered mapping entries with their expanded-name identities (projection.rs:91-113). */
+/** Ordered mapping entries with their expanded-name identities (projection.rs). */
 class EntrySet {
   readonly ordered: { key: string; value: PortableValue }[] = [];
   readonly seen = new Map<string, { ordinal: number; expanded: ExpandedNameFact | null }>();
@@ -499,7 +499,7 @@ interface ExpandedNameFact {
 // Projection
 // ---------------------------------------------------------------------------
 
-/** Projects one immutable snapshot under one explicit target and policy contract (projection.rs:471-503). */
+/** Projects one immutable snapshot under one explicit target and policy contract (projection.rs). */
 export function project(document: XmlDocument, request: ProjectionRequest): ProjectionResult {
   if (document.formationStatus() !== 'Complete') {
     return failed(new ProjectionFailure('RecoveredDocument'));
@@ -536,7 +536,7 @@ export function project(document: XmlDocument, request: ProjectionRequest): Proj
   }
 }
 
-/** Builds a failed attempt with its stable diagnostic (projection.rs:1460-1475). */
+/** Builds a failed attempt with its stable diagnostic (projection.rs). */
 function failed(failure: ProjectionFailure): ProjectionResult {
   return {
     kind: 'Failed',
@@ -602,7 +602,7 @@ class ProjectionContext {
     );
   }
 
-  /** Exact `xml.element-tree@1` record for the document root (projection.rs:600-644). */
+  /** Exact `xml.element-tree@1` record for the document root (projection.rs). */
   projectElementTree(): { value: PortableValue; fidelity: Fidelity } {
     const root = this.#document.root();
     if (root === null) {
@@ -643,7 +643,7 @@ class ProjectionContext {
     return { value: objectValue(entries), fidelity: 'Exact' };
   }
 
-  /** Recursive element record; `path` is the location of this element record (projection.rs:669-797). */
+  /** Recursive element record; `path` is the location of this element record (projection.rs). */
   #elementValue(index: number, path: ValuePath): { value: PortableValue; index: number } {
     this.#step();
     const data = this.#elementData(index);
@@ -726,7 +726,7 @@ class ProjectionContext {
     return { value: objectValue(entries), index };
   }
 
-  /** One ordered content item record (projection.rs:799-973). */
+  /** One ordered content item record (projection.rs). */
   #contentValue(index: number, path: ValuePath): { value: PortableValue; index: number } {
     this.#step();
     const node = this.#document.nodeAt(index);
@@ -818,7 +818,7 @@ class ProjectionContext {
     }
   }
 
-  /** Always-transformed descendant text content (projection.rs:975-1007). */
+  /** Always-transformed descendant text content (projection.rs). */
   projectTextContent(request: ProjectionRequest): { value: PortableValue; fidelity: Fidelity } {
     const root = this.#document.root();
     if (root === null) {
@@ -840,7 +840,7 @@ class ProjectionContext {
     return { value: stringValue(out), fidelity: 'Transformed' };
   }
 
-  /** Descendant text collection with discard events (projection.rs:1009-1095). */
+  /** Descendant text collection with discard events (projection.rs). */
   #collectText(index: number, include: TextContentInclude): string {
     const data = this.#elementData(index);
     let out = '';
@@ -904,7 +904,7 @@ class ProjectionContext {
     return out;
   }
 
-  /** Explicit-policy entry mapping of one selected subtree (projection.rs:1097-1126). */
+  /** Explicit-policy entry mapping of one selected subtree (projection.rs). */
   projectEntryMapping(request: ProjectionRequest): { value: PortableValue; fidelity: Fidelity } {
     const root = this.#document.root();
     if (root === null) {
@@ -926,7 +926,7 @@ class ProjectionContext {
     return { value: mapping, fidelity: 'Transformed' };
   }
 
-  /** Maps one element's children into the ordered entry set (projection.rs:1238-1402). */
+  /** Maps one element's children into the ordered entry set (projection.rs). */
   #mapChildren(
     element: number,
     container: ValuePath,
@@ -1043,7 +1043,7 @@ class ProjectionContext {
     }
   }
 
-  /** The leaf value of one element without element children (projection.rs:1404-1457). */
+  /** The leaf value of one element without element children (projection.rs). */
   #leafValue(element: number, request: ProjectionRequest): PortableValue {
     const data = this.#elementData(element);
     let text = '';
@@ -1087,7 +1087,7 @@ class ProjectionContext {
     return stringValue(text);
   }
 
-  /** Resolves the entry ordinal under the explicit request policies (projection.rs:1144-1200). */
+  /** Resolves the entry ordinal under the explicit request policies (projection.rs). */
   #entryOrdinal(
     entries: EntrySet,
     key: string,
@@ -1107,7 +1107,7 @@ class ProjectionContext {
     // A repeated *expanded name* is governed by `repeated_child`; a key
     // collision after key spelling (distinct expanded names folding to one
     // key, or an attribute key meeting an existing key) is governed by
-    // `collision` (projection.rs:1144-1200).
+    // `collision` (projection.rs).
     const repeated =
       existing.expanded !== null &&
       candidate !== null &&
@@ -1126,7 +1126,7 @@ class ProjectionContext {
     }
   }
 
-  /** Records one committed entry and its value/association provenance (projection.rs:1202-1236). */
+  /** Records one committed entry and its value/association provenance (projection.rs). */
   #commitEntry(
     entries: EntrySet,
     key: string,
@@ -1174,14 +1174,14 @@ class ProjectionContext {
 // Free helpers
 // ---------------------------------------------------------------------------
 
-/** Value path of one item inside an ordered record array (projection.rs:593-598). */
+/** Value path of one item inside an ordered record array (projection.rs). */
 function itemPath(container: ValuePath, field: string, index: number): ValuePath {
   return container
     .child({ kind: 'ObjectValue', name: field })
     .child({ kind: 'SequenceElement', index: BigInt(index) });
 }
 
-/** Expanded name parts of one element or attribute (projection.rs:683-689, 735-741). */
+/** Expanded name parts of one element or attribute (projection.rs). */
 function expandedNameParts(data: {
   readonly expanded: { readonly namespace: string | null; readonly local: string } | null;
   readonly qname: { readonly local: string };
@@ -1191,7 +1191,7 @@ function expandedNameParts(data: {
     : [data.expanded.namespace, data.expanded.local];
 }
 
-/** One fragment record (projection.rs:814-877). */
+/** One fragment record (projection.rs). */
 function fragmentRecord(fragment: ReferenceFragment): PortableValue {
   switch (fragment.kind) {
     case 'Literal':
@@ -1238,7 +1238,7 @@ function childRole(
   }
 }
 
-/** Entry-key spelling under the explicit key policy (projection.rs:1301-1307). */
+/** Entry-key spelling under the explicit key policy (projection.rs). */
 function entryKeyFor(
   data: XmlElementData,
   policy: ExpandedNameKeyPolicy,

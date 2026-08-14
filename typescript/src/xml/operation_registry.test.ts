@@ -2,9 +2,9 @@
  * Intent documents for the frozen XML format-operation registry.
  *
  * The eight records and their exact ids/roles/arguments/support are
- * transcribed from consema-rs/consema-xml/src/operation_registry.rs:16-89;
+ * transcribed from consema-rs/consema-xml/src/operation_registry.rs;
  * the frozen eight-operation surface is pinned by RFC 0012 §11 (:375-387)
- * and by operation_registry.rs:99-124 (all Supported).
+ * and by operation_registry.rs (all Supported).
  */
 
 import { test } from 'node:test';
@@ -14,7 +14,7 @@ import { formatOperationRegistry } from '../xml/index.ts';
 import { PROFILE_XML_SAFE } from '../xml/index.ts';
 import { FormatOperationId } from '../document/operation.ts';
 
-test('the frozen surface is exactly the eight Supported XML operations (operation_registry.rs:99-124)', () => {
+test('the frozen surface is exactly the eight Supported XML operations (operation_registry.rs)', () => {
   const registry = formatOperationRegistry(PROFILE_XML_SAFE);
   const ids = registry.operations().map((descriptor) => descriptor.id().toString());
   assert.deepEqual(ids, [
@@ -32,7 +32,7 @@ test('the frozen surface is exactly the eight Supported XML operations (operatio
   }
 });
 
-test('every descriptor id, target role, and argument schema is exact (operation_registry.rs:16-89)', () => {
+test('every descriptor id, target role, and argument schema is exact (operation_registry.rs)', () => {
   const registry = formatOperationRegistry(PROFILE_XML_SAFE);
   const byId = new Map(
     registry.operations().map((descriptor) => [descriptor.id().toString(), descriptor]),

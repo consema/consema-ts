@@ -3,7 +3,7 @@
  *
  * authority:
  *  - RFC 0004 §14 (https://github.com/consema/consema/blob/main/docs/rfcs/0004-materialization-conversion-and-
- *    structural-edit-v1.md:338-356): dry-run performs every deterministic
+ *    structural-edit-v1.md): dry-run performs every deterministic
  *    validation and byte-planning step except publishing a new Document;
  *    the transferable plan carries schema, caller-stable source_id, base
  *    digest, profile, ordered operations with safe summaries, exact
@@ -29,11 +29,11 @@ import { ProfileId } from './profile.ts';
 import { FormatOperationId } from './operation.ts';
 import type { Diagnostic } from './diagnostic.ts';
 
-/** Caller-stable source identity used by a transferable edit plan (edit_plan.rs:12-31). */
+/** Caller-stable source identity used by a transferable edit plan (edit_plan.rs). */
 export class EditPlanSourceId {
   readonly #value: string;
 
-  /** Validates one non-empty bounded external source identity (edit_plan.rs:17-24). */
+  /** Validates one non-empty bounded external source identity (edit_plan.rs). */
   constructor(value: string) {
     if (value.length === 0 || value.length > 1024) {
       throw new EditPlanError('InvalidSourceId');
@@ -41,18 +41,18 @@ export class EditPlanSourceId {
     this.#value = value;
   }
 
-  /** Exact caller-stable source identity (edit_plan.rs:26-30). */
+  /** Exact caller-stable source identity (edit_plan.rs). */
   asString(): string {
     return this.#value;
   }
 }
 
-/** One safe, content-free summary of a declared edit operation (edit_plan.rs:33-70). */
+/** One safe, content-free summary of a declared edit operation (edit_plan.rs). */
 export class EditOperationSummary {
   readonly #operation: FormatOperationId;
   readonly #arguments: ReadonlyMap<string, string>;
 
-  /** Validates a bounded summary that must not contain raw edited values (edit_plan.rs:41-57). */
+  /** Validates a bounded summary that must not contain raw edited values (edit_plan.rs). */
   constructor(operation: FormatOperationId, arguments_: ReadonlyMap<string, string>) {
     if (
       arguments_.size > 64 ||
@@ -68,12 +68,12 @@ export class EditOperationSummary {
     );
   }
 
-  /** Exact immutable operation ID/version (edit_plan.rs:59-63). */
+  /** Exact immutable operation ID/version (edit_plan.rs). */
   operation(): FormatOperationId {
     return this.#operation;
   }
 
-  /** Stable sorted safe summary fields (edit_plan.rs:65-69). */
+  /** Stable sorted safe summary fields (edit_plan.rs). */
   arguments(): ReadonlyMap<string, string> {
     return this.#arguments;
   }
@@ -81,7 +81,7 @@ export class EditOperationSummary {
 
 /**
  * Fully validated dry-run plan; possessing it does not authorize a write
- * (edit_plan.rs:72-197; RFC 0004 §14).
+ * (edit_plan.rs; RFC 0004 §14).
  */
 export class EditPlan {
   readonly #sourceId: EditPlanSourceId;
@@ -90,7 +90,7 @@ export class EditPlan {
   readonly #patch: SourcePatch;
   readonly #report: readonly Diagnostic[];
 
-  /** Closes a plan only when its ordered operation metadata matches its exact patch (edit_plan.rs:82-121). */
+  /** Closes a plan only when its ordered operation metadata matches its exact patch (edit_plan.rs). */
   constructor(
     sourceId: EditPlanSourceId,
     profile: ProfileId,
@@ -115,47 +115,47 @@ export class EditPlan {
     this.#report = Object.freeze([...report]);
   }
 
-  /** Caller-stable source identity (edit_plan.rs:122-127). */
+  /** Caller-stable source identity (edit_plan.rs). */
   sourceId(): EditPlanSourceId {
     return this.#sourceId;
   }
 
-  /** Required base content identity (edit_plan.rs:129-133). */
+  /** Required base content identity (edit_plan.rs). */
   baseDigest(): ContentDigest {
     return this.#patch.baseDigest();
   }
 
-  /** Exact profile under which the target was validated (edit_plan.rs:135-139). */
+  /** Exact profile under which the target was validated (edit_plan.rs). */
   profile(): ProfileId {
     return this.#profile;
   }
 
-  /** Ordered declared operations with content-free summaries (edit_plan.rs:141-145). */
+  /** Ordered declared operations with content-free summaries (edit_plan.rs). */
   operations(): readonly EditOperationSummary[] {
     return this.#operations;
   }
 
-  /** Exact replacement facts, including review redaction flags (edit_plan.rs:147-151). */
+  /** Exact replacement facts, including review redaction flags (edit_plan.rs). */
   replacements(): readonly SourceReplacement[] {
     return this.#patch.replacements();
   }
 
-  /** Precomputed exact target content identity (edit_plan.rs:153-157). */
+  /** Precomputed exact target content identity (edit_plan.rs). */
   targetDigest(): ContentDigest {
     return this.#patch.targetDigest();
   }
 
-  /** Complete ordered edit report (edit_plan.rs:159-163). */
+  /** Complete ordered edit report (edit_plan.rs). */
   report(): readonly Diagnostic[] {
     return this.#report;
   }
 
-  /** Underlying patch whose application rechecks digest and every original-byte precondition (edit_plan.rs:165-169). */
+  /** Underlying patch whose application rechecks digest and every original-byte precondition (edit_plan.rs). */
   sourcePatch(): SourcePatch {
     return this.#patch;
   }
 
-  /** Redacts every original/replacement payload from review/debug presentation (edit_plan.rs:171-183). */
+  /** Redacts every original/replacement payload from review/debug presentation (edit_plan.rs). */
   withAllReplacementsRedacted(redactOriginal: boolean, redactReplacement: boolean): EditPlan {
     return new EditPlan(
       this.#sourceId,
@@ -166,7 +166,7 @@ export class EditPlan {
     );
   }
 
-  /** Redacts one exact replacement from review/debug presentation (edit_plan.rs:185-196). */
+  /** Redacts one exact replacement from review/debug presentation (edit_plan.rs). */
   withReplacementRedacted(
     index: number,
     redactOriginal: boolean,
@@ -182,7 +182,7 @@ export class EditPlan {
   }
 }
 
-/** Summary argument-name rule: lowercase/digit/underscore, ≤ 64 bytes (edit_plan.rs:221-227). */
+/** Summary argument-name rule: lowercase/digit/underscore, ≤ 64 bytes (edit_plan.rs). */
 function validSummaryName(name: string): boolean {
   if (name.length === 0 || name.length > 64) {
     return false;

@@ -34,7 +34,7 @@ export function registerPayloadValidator(
 
 /**
  * Runs the registered full decoder of one payload contract, or rejects an
- * unregistered contract exactly like the Rust catch-all (payload.rs:177-181).
+ * unregistered contract exactly like the Rust catch-all (payload.rs).
  */
 export function validateRegisteredPayload(
   contract: ContractId,

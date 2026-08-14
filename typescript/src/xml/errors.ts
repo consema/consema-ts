@@ -60,18 +60,18 @@
  *      xml.tree.root@1                 :1815     (Conformance)
  *      xml.doctype.root-mismatch@1     :1819     (Syntax)
  *      xml.source.coverage@1           :1893     (Conformance)
- *  - xml.projection.* codes: consema-rs/consema-xml/src/projection.rs:459-468
+ *  - xml.projection.* codes: consema-rs/consema-xml/src/projection.rs
  *    (recovered-document@1, subtree@1, admission@1, collision@1,
  *    resource-limit@1, core-invariant@1)
- *  - xml.edit.* codes: consema-rs/consema-xml/src/edit.rs:388-408 (the XML
+ *  - xml.edit.* codes: consema-rs/consema-xml/src/edit.rs (the XML
  *    edit family's StableFailure mapping; the core.edit.* codes not present
  *    in ErrorCodeRegistry v7 — invalid-qname@1, unbound-prefix@1,
  *    reserved-prefix@1, duplicate-expanded-attribute@1, cannot-remove-root@1,
  *    ancestor-placement@1 — are pinned by this file, per RFC 0012 §12 the
  *    family's own format section handles them)
- *  - core.query.* codes: consema-rs/consema-protocol/src/error_registry.rs:
- *    141-201 (query section), QueryFailure kind mapping :1517-1527
- *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761
+ *  - core.query.* codes: consema-rs/consema-protocol/src/error_registry.rs
+ *    (query section), QueryFailure kind mapping
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance so the
@@ -88,7 +88,7 @@ import { SourceError } from '../document/errors.ts';
 // XmlAccessError — typed access failure on one immutable snapshot
 // ---------------------------------------------------------------------------
 
-/** Stable typed XML access failure (document.rs:268-285 pattern); no registered codes. */
+/** Stable typed XML access failure (document.rs pattern); no registered codes. */
 export type XmlAccessErrorKind = 'WrongSnapshot' | 'WrongRole' | 'UnknownNode';
 
 export class XmlAccessError extends Error {
@@ -107,7 +107,7 @@ export class XmlAccessError extends Error {
 // FatalFormationFailure — parse aborted before a document exists
 // ---------------------------------------------------------------------------
 
-/** Fatal parse failure: no Document exists (lib.rs:643-645 pattern). */
+/** Fatal parse failure: no Document exists (lib.rs pattern). */
 export class FatalFormationFailure extends Error {
   readonly #diagnostics: readonly Diagnostic[];
 
@@ -117,12 +117,12 @@ export class FatalFormationFailure extends Error {
     this.#diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs:649-654 pattern). */
+  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs pattern). */
   static fromDiagnostic(diagnostic: Diagnostic): FatalFormationFailure {
     return new FatalFormationFailure([diagnostic]);
   }
 
-  /** Invalid UTF-8 source (lib.rs:657-672 pattern; code at error_registry.rs:207). */
+  /** Invalid UTF-8 source (lib.rs pattern; code at error_registry.rs). */
   static invalidUtf8(validUpTo: number): FatalFormationFailure {
     return new FatalFormationFailure([
       {
@@ -142,7 +142,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs:675-761 pattern). */
+  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs pattern). */
   static sourceError(error: SourceError): FatalFormationFailure {
     if (error.kind === 'InvalidUtf8') {
       return FatalFormationFailure.invalidUtf8(error.validUpTo ?? 0);
@@ -197,7 +197,7 @@ export class FatalFormationFailure extends Error {
 
   /**
    * Fatal profile boundary violation with a frozen code
-   * (profile_failure pattern, parser.rs:120-128).
+   * (profile_failure pattern, parser.rs).
    */
   static profile(code: string): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
@@ -212,7 +212,7 @@ export class FatalFormationFailure extends Error {
     });
   }
 
-  /** Fatal source/decoding failure with a frozen code (source_failure pattern, parser.rs:110-118). */
+  /** Fatal source/decoding failure with a frozen code (source_failure pattern, parser.rs). */
   static source(code: string, startByte: number): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
       code,
@@ -231,7 +231,7 @@ export class FatalFormationFailure extends Error {
 
   /**
    * Fatal resource-limit failure with the limit's own frozen code
-   * (the `Self::limit` profile-failure pattern, parser.rs:2015-2020).
+   * (the `Self::limit` profile-failure pattern, parser.rs).
    */
   static limit(code: string, observed: number, limit: number): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
@@ -250,7 +250,7 @@ export class FatalFormationFailure extends Error {
     });
   }
 
-  /** Ordered fatal diagnostics (lib.rs:644-645 pattern). */
+  /** Ordered fatal diagnostics (lib.rs pattern). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
@@ -260,7 +260,7 @@ export class FatalFormationFailure extends Error {
 // QueryExecutionFailure — stable query execution failure
 // ---------------------------------------------------------------------------
 
-/** Stable query execution failure class (query.rs:3114-3219; query.rs:96-105 pattern). */
+/** Stable query execution failure class (query.rs; query.rs pattern). */
 export type QueryExecutionFailureKind =
   | 'DomainMismatch'
   | 'ResourceLimitExceeded'
@@ -270,7 +270,7 @@ export type QueryExecutionFailureKind =
 
 export class QueryExecutionFailure extends Error {
   readonly kind: QueryExecutionFailureKind;
-  /** Frozen registered code (error_registry.rs:1517-1527). */
+  /** Frozen registered code (error_registry.rs). */
   readonly code: string;
   /** DomainMismatch: the rejected domain. */
   readonly domain?: { readonly id: string; readonly version: number };
@@ -296,7 +296,7 @@ export class QueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (error_registry.rs:1517-1527). */
+/** Kind→code mapping (error_registry.rs). */
 export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): string {
   switch (kind) {
     case 'DomainMismatch':
@@ -316,7 +316,7 @@ export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): stri
 // ProjectionFailure — stable projection failure category
 // ---------------------------------------------------------------------------
 
-/** Stable projection failure category (projection.rs:421-441); codes at projection.rs:459-468. */
+/** Stable projection failure category (projection.rs); codes at projection.rs. */
 export type ProjectionFailureKind =
   | 'RecoveredDocument'
   | 'SubtreeNotElement'
@@ -327,7 +327,7 @@ export type ProjectionFailureKind =
 
 export class ProjectionFailure extends Error {
   readonly kind: ProjectionFailureKind;
-  /** Frozen registered code (projection.rs:459-468). */
+  /** Frozen registered code (projection.rs). */
   readonly code: string;
   /** MappingAdmission: the stable admission reason. */
   readonly reason?: string;
@@ -353,7 +353,7 @@ export class ProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:459-468). */
+/** Kind→code mapping (projection.rs). */
 export function projectionFailureCode(kind: ProjectionFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':
@@ -375,7 +375,7 @@ export function projectionFailureCode(kind: ProjectionFailureKind): string {
 // EditFailure — stable edit validation or commit failure
 // ---------------------------------------------------------------------------
 
-/** Stable edit validation or commit failure (edit.rs:319-360); codes at edit.rs:388-408. */
+/** Stable edit validation or commit failure (edit.rs); codes at edit.rs. */
 export type EditFailureKind =
   | 'WrongSnapshot'
   | 'WrongRole'
@@ -396,7 +396,7 @@ export type EditFailureKind =
 
 export class EditFailure extends Error {
   readonly kind: EditFailureKind;
-  /** Frozen registered code (edit.rs:388-408). */
+  /** Frozen registered code (edit.rs). */
   readonly code: string;
   /** UnboundPrefix / ReservedPrefix: the prefix spelling. */
   readonly prefix?: string;
@@ -416,7 +416,7 @@ export class EditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:388-408). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: EditFailureKind): string {
   switch (kind) {
     case 'WrongSnapshot':

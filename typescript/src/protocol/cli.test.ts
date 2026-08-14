@@ -187,7 +187,7 @@ test('the envelope validates command closure, payload schema, and version shape'
   const message = newCliOutputMessage('plan', 'success', '1.0.0-rc.1', payload, [], redaction, V7);
   assert.equal(message.command, 'plan');
   // A mismatched payload schema is rejected with SchemaMismatch (the Rust
-  // validate_payload_schema choice, cli.rs:860-869; the shared vector
+  // validate_payload_schema choice, cli.rs; the shared vector
   // cli.envelope.reject-command-payload-mismatch pins
   // core.protocol.schema-mismatch@1 at $.payload.schema).
   const wrongPayload = {

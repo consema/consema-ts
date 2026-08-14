@@ -47,7 +47,7 @@ interface Filter {
   readonly argument?: string;
 }
 
-/** The frozen argument name of one operator (hcl_v1.rs:586-606). */
+/** The frozen argument name of one operator (hcl_v1.rs). */
 function argumentNameFor(id: string): string {
   switch (id) {
     case 'hcl.attribute-name-equals':

@@ -149,7 +149,7 @@ function snakeToCamel(name: string): string {
 // Query (hcl.query@1)
 // ---------------------------------------------------------------------------
 
-/** The frozen argument name of one operator (hcl_v1.rs:586-606). */
+/** The frozen argument name of one operator (hcl_v1.rs). */
 function argumentNameFor(id: string): string {
   switch (id) {
     case 'hcl.attribute-name-equals':
@@ -210,7 +210,7 @@ function bindQueryExecutable(calls: readonly OperatorCall[], domain: QueryDomain
   return bound.query;
 }
 
-/** Stable vector spelling of one query failure (hcl_v1.rs:656-670). */
+/** Stable vector spelling of one query failure (hcl_v1.rs). */
 function queryFailureCode(error: unknown): string {
   if (error instanceof HclQueryExecutionFailure) {
     return error.code;
@@ -393,7 +393,7 @@ function nativeQuerySamples(case_: VectorCase, samples: readonly Record<string, 
   }
 }
 
-/** The `argument` of the last filter of one sample (hcl_v1.rs:904-916). */
+/** The `argument` of the last filter of one sample (hcl_v1.rs). */
 function sampleAccessor(sample: Record<string, unknown>): string {
   const filters = sample.filters as Record<string, unknown>[] | undefined;
   if (filters === undefined || filters.length === 0) {
@@ -953,7 +953,7 @@ function assertProjectedElement(actual: PortableValue, expected: unknown): void 
   fail('unsupported expected element');
 }
 
-/** Exact double of one PortableValue, or null (valueToF64, hcl_v1.rs:167-177). */
+/** Exact double of one PortableValue, or null (valueToF64, hcl_v1.rs). */
 function valueToF64(value: PortableValue): number | null {
   switch (value.kind) {
     case 'BinaryFloat64': {
@@ -975,7 +975,7 @@ function valueToF64(value: PortableValue): number | null {
   }
 }
 
-/** Exact bit equality of two doubles (hcl_v1.rs:196-198). */
+/** Exact bit equality of two doubles (hcl_v1.rs). */
 function bitsEqual(left: number, right: number): boolean {
   const view = new DataView(new ArrayBuffer(8));
   view.setFloat64(0, left);
@@ -996,7 +996,7 @@ function materializationRequest(style: string, profileName: string): Materializa
   return new MaterializationRequest(profile.id(), hclCanonicalDocumentStyle());
 }
 
-/** Stable vector spelling of one MaterializationFailure (hcl_v1.rs:1614-1625). */
+/** Stable vector spelling of one MaterializationFailure (hcl_v1.rs). */
 function materializationFailureCode(failure: MaterializationFailure): string {
   switch (failure.kind) {
     case 'InvalidRequest':
@@ -1178,7 +1178,7 @@ function assertFingerprintMatch(complete: CompleteMaterialization<HclDocument>, 
 // Edit (hcl.edit@1)
 // ---------------------------------------------------------------------------
 
-/** One typed edit value from a vector descriptor (hcl_v1.rs:1858-1934). */
+/** One typed edit value from a vector descriptor (hcl_v1.rs). */
 function editValue(value: Record<string, unknown>): HclEditValue {
   const kind = value.kind as string | undefined;
   if (kind === undefined) {
@@ -1253,7 +1253,7 @@ function editValue(value: Record<string, unknown>): HclEditValue {
   }
 }
 
-/** One edit key: an identifier, or a number when the text parses as one (hcl_v1.rs:1904-1912). */
+/** One edit key: an identifier, or a number when the text parses as one (hcl_v1.rs). */
 function editKey(key: unknown): HclEditKey {
   if (typeof key === 'string') {
     if (/^-?\d+$/.test(key)) {
@@ -1288,7 +1288,7 @@ function placement(operation: Record<string, unknown>): HclBodyPlacement {
   }
 }
 
-/** Builds the transaction of one vector operation list (hcl_v1.rs:1961-2057). */
+/** Builds the transaction of one vector operation list (hcl_v1.rs). */
 function buildTransaction(document: HclDocument, operations: readonly Record<string, unknown>[]): HclEditTransaction {
   const builder = new HclEditTransactionBuilder(document);
   for (const operation of operations) {

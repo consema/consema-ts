@@ -10,9 +10,9 @@
  *    non-empty stable format-owned kind; RFC 0003 §7)
  *  - BinaryStructuralIndex :530-579 (exact raw-byte coverage, unique
  *    identities; empty source has an empty valid index)
- *  - LocationError kinds: lib.rs:581-604; frozen names used by the
+ *  - LocationError kinds: lib.rs; frozen names used by the
  *    vectors: conformance/vectors/source-v1.json:117 ("IncompleteStructuralCoverage")
- *    and consema-rs/consema-conformance/src/source_v1.rs:423-436
+ *    and consema-rs/consema-conformance/src/source_v1.rs
  *
  * Design (TypeScript-idiomatic): plain immutable records for pieces and
  * regions; the indexes validate the exact-coverage invariant at
@@ -22,10 +22,10 @@
 import { LocationError } from './errors.ts';
 import { NodeRef, Span, SnapshotIdentity } from './identity.ts';
 
-/** One exhaustive source-byte classification (lib.rs:413-422). */
+/** One exhaustive source-byte classification (lib.rs). */
 export type StructuralPieceKind = 'Token' | 'Trivia' | 'ErrorRegion';
 
-/** One source byte interval and its lossless class (lib.rs:424-449). */
+/** One source byte interval and its lossless class (lib.rs). */
 export class StructuralPiece {
   readonly #span: Span;
   readonly #kind: StructuralPieceKind;
@@ -35,18 +35,18 @@ export class StructuralPiece {
     this.#kind = kind;
   }
 
-  /** Exact source range (lib.rs:438-441). */
+  /** Exact source range (lib.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Classification (lib.rs:443-446). */
+  /** Classification (lib.rs). */
   kind(): StructuralPieceKind {
     return this.#kind;
   }
 }
 
-/** Exhaustive ordered token/trivia/error-region coverage (lib.rs:451-490). */
+/** Exhaustive ordered token/trivia/error-region coverage (lib.rs). */
 export class LosslessStructuralIndex {
   readonly #pieces: readonly StructuralPiece[];
 
@@ -54,7 +54,7 @@ export class LosslessStructuralIndex {
     this.#pieces = pieces;
   }
 
-  /** Validates exact source coverage and stores pieces in structural order (lib.rs:457-490). */
+  /** Validates exact source coverage and stores pieces in structural order (lib.rs). */
   static create(identity: SnapshotIdentity, sourceLen: number, pieces: readonly StructuralPiece[]): LosslessStructuralIndex {
     let next = 0;
     for (const piece of pieces) {
@@ -77,13 +77,13 @@ export class LosslessStructuralIndex {
     return new LosslessStructuralIndex(Object.freeze([...pieces]));
   }
 
-  /** Ordered exhaustive pieces (lib.rs:485-489). */
+  /** Ordered exhaustive pieces (lib.rs). */
   pieces(): readonly StructuralPiece[] {
     return this.#pieces;
   }
 }
 
-/** One format-owned region in an opaque binary source (lib.rs:492-528). */
+/** One format-owned region in an opaque binary source (lib.rs). */
 export class BinaryRegion {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -95,23 +95,23 @@ export class BinaryRegion {
     this.#kind = kind;
   }
 
-  /** Process-local structural identity (lib.rs:511-514). */
+  /** Process-local structural identity (lib.rs). */
   nodeRef(): NodeRef {
     return this.#node;
   }
 
-  /** Exact raw byte range (lib.rs:516-519). */
+  /** Exact raw byte range (lib.rs). */
   span(): Span {
     return this.#span;
   }
 
-  /** Non-empty stable format-owned kind (lib.rs:522-527). */
+  /** Non-empty stable format-owned kind (lib.rs). */
   kind(): string {
     return this.#kind;
   }
 }
 
-/** Exhaustive ordered format-owned region coverage for one opaque binary source (lib.rs:530-579). */
+/** Exhaustive ordered format-owned region coverage for one opaque binary source (lib.rs). */
 export class BinaryStructuralIndex {
   readonly #regions: readonly BinaryRegion[];
 
@@ -121,7 +121,7 @@ export class BinaryStructuralIndex {
 
   /**
    * Validates exact raw-byte coverage, snapshot binding, roles, kinds, and
-   * unique identities (lib.rs:536-572). Empty source has an empty valid
+   * unique identities (lib.rs). Empty source has an empty valid
    * index; non-empty source requires at least one non-empty region
    * (RFC 0003 §7).
    */
@@ -165,7 +165,7 @@ export class BinaryStructuralIndex {
     return new BinaryStructuralIndex(Object.freeze([...regions]));
   }
 
-  /** Ordered exhaustive regions (lib.rs:574-578). */
+  /** Ordered exhaustive regions (lib.rs). */
   regions(): readonly BinaryRegion[] {
     return this.#regions;
   }

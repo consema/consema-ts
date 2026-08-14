@@ -3,13 +3,13 @@
  * identity contracts.
  *
  * authority:
- *  - IniProfile: consema-rs/consema-ini/src/lib.rs:35-56 — the three frozen
+ *  - IniProfile: consema-rs/consema-ini/src/lib.rs — the three frozen
  *    profiles and their ProfileId mappings (:49-55): "ini.portable"@1,
  *    "ini.windows"@1, "ini.python-configparser"@1; RFC 0009 §1
- *    (https://github.com/consema/consema/blob/main/docs/rfcs/0009-ini-family-profiles-v1.md:20-26) freezes the spellings
+ *    (https://github.com/consema/consema/blob/main/docs/rfcs/0009-ini-family-profiles-v1.md) freezes the spellings
  *    ini.portable@1 / ini.windows@1 / ini.python-configparser@1
- *  - IniEncodingSelection: lib.rs:58-65 (ProfileDefault | Explicit)
- *  - IniParseLimits: lib.rs:67-119 — the field set and the frozen defaults
+ *  - IniEncodingSelection: lib.rs (ProfileDefault | Explicit)
+ *  - IniParseLimits: lib.rs — the field set and the frozen defaults
  *    (:100-118): common ParseLimits defaults, max_decoded_utf8_bytes
  *    128 MiB, max_decoded_scalars 64 MiB, max_physical_lines 2M,
  *    max_physical_line_bytes 4 MiB, max_physical_line_scalars 2 MiB,
@@ -17,11 +17,11 @@
  *    max_logical_line_scalars 8 MiB, max_continuation_lines 100k,
  *    max_sections 1M, max_entries 1M, max_duplicate_group_members 100k,
  *    max_recovery_regions 100k
- *  - IniSyntaxKind: lib.rs:121-195 — the closed kind set and the stable
+ *  - IniSyntaxKind: lib.rs — the closed kind set and the stable
  *    query names ("Bom" ... "ErrorRegion", :154-195)
- *  - IniValueState: lib.rs:197-206 (Missing | Empty | Present)
- *  - IniQuoteStyle: lib.rs:208-217 (None | Single | Double)
- *  - IniLogicalLineKind: lib.rs:219-228 (Section | Entry | Error)
+ *  - IniValueState: lib.rs (Missing | Empty | Present)
+ *  - IniQuoteStyle: lib.rs (None | Single | Double)
+ *  - IniLogicalLineKind: lib.rs (Section | Entry | Error)
  *  - capability ids: the vector suite capability field
  *    (conformance/vectors/ini-v1.json:6,40,44,59,74,88,102,130,136) —
  *    ini.document@1, ini.formation@1, ini.query@1, ini.projection@1,
@@ -46,10 +46,10 @@ import { newCapabilityId, type CapabilityId } from '../protocol/registry_descrip
 import { newQueryDomain, type QueryDomain } from '../protocol/query.ts';
 import type { SourceEncoding } from '../document/source.ts';
 
-/** The three frozen INI formation profiles (lib.rs:35-44; RFC 0009 §1). */
+/** The three frozen INI formation profiles (lib.rs; RFC 0009 §1). */
 export type IniProfileId = 'PortableV1' | 'WindowsV1' | 'PythonConfigParserV1';
 
-/** One frozen INI formation profile (lib.rs:35-44). */
+/** One frozen INI formation profile (lib.rs). */
 export class IniProfile {
   readonly #id: IniProfileId;
 
@@ -64,7 +64,7 @@ export class IniProfile {
   /** Python 3.14 ConfigParser default formation surface without evaluation (RFC 0009 §7). */
   static readonly PYTHON_CONFIGPARSER_V1: IniProfile = new IniProfile('PythonConfigParserV1');
 
-  /** Stable profile identifier (lib.rs:46-56). */
+  /** Stable profile identifier (lib.rs). */
   id(): ProfileId {
     switch (this.#id) {
       case 'PortableV1':
@@ -87,7 +87,7 @@ export class IniProfile {
   }
 }
 
-/** Explicit source-encoding selection; no host locale is consulted (lib.rs:58-65). */
+/** Explicit source-encoding selection; no host locale is consulted (lib.rs). */
 export type IniEncodingSelection =
   | { readonly kind: 'ProfileDefault' }
   | { readonly kind: 'Explicit'; readonly encoding: SourceEncoding };
@@ -99,7 +99,7 @@ export function explicitSelection(encoding: SourceEncoding): IniEncodingSelectio
   return { kind: 'Explicit', encoding };
 }
 
-/** INI-specific parse and recovery limits (lib.rs:67-98). */
+/** INI-specific parse and recovery limits (lib.rs). */
 export interface IniParseLimits {
   /** Common source, node, piece, nesting, and diagnostic limits. */
   readonly common: ParseLimits;
@@ -131,7 +131,7 @@ export interface IniParseLimits {
   readonly maxRecoveryRegions: number;
 }
 
-/** The frozen defaults (lib.rs:100-118). */
+/** The frozen defaults (lib.rs). */
 export const DEFAULT_INI_PARSE_LIMITS: Readonly<IniParseLimits> = Object.freeze({
   common: DEFAULT_PARSE_LIMITS,
   maxDecodedUtf8Bytes: 128 * 1024 * 1024,
@@ -149,7 +149,7 @@ export const DEFAULT_INI_PARSE_LIMITS: Readonly<IniParseLimits> = Object.freeze(
   maxRecoveryRegions: 100_000,
 });
 
-/** One lossless INI syntax category (lib.rs:121-152). */
+/** One lossless INI syntax category (lib.rs). */
 export type IniSyntaxKind =
   | 'Bom'
   | 'Whitespace'
@@ -166,12 +166,12 @@ export type IniSyntaxKind =
   | 'ContinuationMarker'
   | 'ErrorRegion';
 
-/** Stable query/protocol name of one kind (lib.rs:154-174). */
+/** Stable query/protocol name of one kind (lib.rs). */
 export function iniSyntaxKindAsStr(kind: IniSyntaxKind): string {
   return kind;
 }
 
-/** Resolves one frozen kind name, or null for an unknown name (lib.rs:176-194). */
+/** Resolves one frozen kind name, or null for an unknown name (lib.rs). */
 export function iniSyntaxKindFromName(name: string): IniSyntaxKind | null {
   switch (name) {
     case 'Bom':
@@ -194,13 +194,13 @@ export function iniSyntaxKindFromName(name: string): IniSyntaxKind | null {
   }
 }
 
-/** Native value-presence fact (lib.rs:197-206). */
+/** Native value-presence fact (lib.rs). */
 export type IniValueState = 'Missing' | 'Empty' | 'Present';
 
-/** Profile-recognized outer quote style (lib.rs:208-217). */
+/** Profile-recognized outer quote style (lib.rs). */
 export type IniQuoteStyle = 'None' | 'Single' | 'Double';
 
-/** Kind of one logical INI record (lib.rs:219-228). */
+/** Kind of one logical INI record (lib.rs). */
 export type IniLogicalLineKind = 'Section' | 'Entry' | 'Error';
 
 // ---------------------------------------------------------------------------
@@ -251,17 +251,17 @@ export function iniLosslessSyntaxQueryDomain(): QueryDomain {
   return newQueryDomain('ini.lossless-syntax-query', 1);
 }
 
-/** `ini.portable-canonical@1` (RFC 0009 §11:395). */
+/** `ini.portable-canonical@1` (RFC 0009 §11). */
 export function iniPortableCanonicalStyle(): MaterializationStyleId {
   return new MaterializationStyleId('ini.portable-canonical', 1);
 }
 
-/** `ini.windows-canonical@1` (RFC 0009 §11:396). */
+/** `ini.windows-canonical@1` (RFC 0009 §11). */
 export function iniWindowsCanonicalStyle(): MaterializationStyleId {
   return new MaterializationStyleId('ini.windows-canonical', 1);
 }
 
-/** `ini.python-configparser-canonical@1` (RFC 0009 §11:397). */
+/** `ini.python-configparser-canonical@1` (RFC 0009 §11). */
 export function iniPythonConfigParserCanonicalStyle(): MaterializationStyleId {
   return new MaterializationStyleId('ini.python-configparser-canonical', 1);
 }

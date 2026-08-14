@@ -17,12 +17,12 @@
  *    '.'/'e'), date/time/offset canonical forms (:409-486), arrays
  *    "[a, b]" (:488-508), nested objects as inline tables "{ k = v, ... }"
  *    (:510-536), limit names "input-nodes"/"input-depth"/"output-bytes"
- *  - provenance: RFC 0004 §8 (:193-218); materialization.rs:613-864
+ *  - provenance: RFC 0004 §8 (:193-218); materialization.rs
  *    (Value/Association input locations; Direct/Reencoded/Generated
  *    relations; EntryMapping → Reencoded)
- *  - the mapping-transformed event: materialization.rs:159-174
+ *  - the mapping-transformed event: materialization.rs
  *    (core.materialization.mapping-transformed@1, arguments from/to/policy)
- *  - completion: materialization.rs:53-79 (parse output under original
+ *  - completion: materialization.rs (parse output under original
  *    limits; failure → core.materialization.formation-failed@1)
  *
  * Design (TypeScript-idiomatic): a bounded byte writer mirrors the Rust
@@ -57,7 +57,7 @@ import { TomlArrayElement, TomlDocument, TomlEntry, TomlItem, parseToml } from '
 import { TomlProfile } from './profile.ts';
 import { floatFromBits } from './parser.ts';
 
-/** Renders one canonical TOML value fragment for structural editing (materialization.rs:36-45). */
+/** Renders one canonical TOML value fragment for structural editing (materialization.rs). */
 export function canonicalTomlFragment(
   value: PortableValue,
   limits: MaterializationLimits,
@@ -69,7 +69,7 @@ export function canonicalTomlFragment(
 
 /**
  * Materializes one complete PortableValue into a new immutable TOML
- * document (materialization.rs:19-34). Returns the sealed RFC 0004 §7
+ * document (materialization.rs). Returns the sealed RFC 0004 §7
  * union; a failed attempt contains no Document and no partial bytes.
  */
 export function materializeToml(
@@ -203,7 +203,7 @@ function prepareRoot(
       ],
     },
   );
-  // The report is replaced by the single ordered event (materialization.rs:159-174).
+  // The report is replaced by the single ordered event (materialization.rs).
   return {
     root: { kind: 'Mapping', entries: value.entries },
     fidelity: 'Transformed',
@@ -211,7 +211,7 @@ function prepareRoot(
   };
 }
 
-/** Parse limits derived from the materialization limits (materialization.rs:178-186). */
+/** Parse limits derived from the materialization limits (materialization.rs). */
 function parseLimitsFor(limits: MaterializationLimits): ParseLimits {
   return {
     maxSourceBytes: limits.maxOutputBytes,
@@ -222,7 +222,7 @@ function parseLimitsFor(limits: MaterializationLimits): ParseLimits {
   };
 }
 
-/** Bounded raw output buffer (materialization.rs:569-605). */
+/** Bounded raw output buffer (materialization.rs). */
 class BoundedOutput {
   readonly #chunks: Uint8Array[] = [];
   #length = 0;
@@ -260,7 +260,7 @@ class BoundedOutput {
   }
 }
 
-/** Canonical TOML 1.0 writer (materialization.rs:188-547). */
+/** Canonical TOML 1.0 writer (materialization.rs). */
 class TomlWriter {
   readonly #newline: 'Lf' | 'CrLf';
   readonly #limits: MaterializationLimits;
@@ -383,7 +383,7 @@ class TomlWriter {
     this.writeString(key);
   }
 
-  /** Deterministic string escaping (materialization.rs:357-380). */
+  /** Deterministic string escaping (materialization.rs). */
   writeString(value: string): void {
     this.#output.pushByte(0x22); // "
     for (const character of value) {
@@ -421,7 +421,7 @@ class TomlWriter {
     this.#output.pushByte(0x22); // "
   }
 
-  /** Canonical float spelling (materialization.rs:382-407). */
+  /** Canonical float spelling (materialization.rs). */
   writeFloat(bits: bigint, path: ValuePath): void {
     const float = floatFromBits(bits);
     if (Number.isNaN(float)) {
@@ -548,7 +548,7 @@ class TomlWriter {
   }
 }
 
-/** Exact nanosecond fraction in [0, 1) (materialization.rs:549-567). */
+/** Exact nanosecond fraction in [0, 1) (materialization.rs). */
 function exactNanoseconds(fraction: DecimalValue, path: ValuePath): number {
   if (fraction.coefficient === 0n) {
     return 0;
@@ -569,7 +569,7 @@ function exactNanoseconds(fraction: DecimalValue, path: ValuePath): number {
 }
 
 // ---------------------------------------------------------------------------
-// Provenance (materialization.rs:613-864)
+// Provenance (materialization.rs)
 // ---------------------------------------------------------------------------
 
 function collectProvenance(
@@ -728,7 +728,7 @@ function inputLocationEquals(left: MaterializationInputLocation, right: Material
   return false;
 }
 
-/** Kind match between a portable scalar and its generated item (materialization.rs:866-884). */
+/** Kind match between a portable scalar and its generated item (materialization.rs). */
 function scalarKindMatches(input: string, output: string): boolean {
   switch (input) {
     case 'String':

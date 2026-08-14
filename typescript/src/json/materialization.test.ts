@@ -12,7 +12,7 @@
  *  - materialization closure (RFC 0004 §7): output reparses under the
  *    exact requested profile and reprojects to the identical value
  *  - styles/profile bindings: RFC 0004 §4 (:98-127), RFC 0005 §9
- *    (:197-212); consema-rs/consema-json/src/materialization.rs:113-152
+ *    (:197-212); consema-rs/consema-json/src/materialization.rs
  */
 
 import { test } from 'node:test';
@@ -132,7 +132,7 @@ test('materialization closure: output reparses Complete and reprojects to the id
   assert.equal(reprojected.value.length, 4);
 });
 
-test('canonical string escaping matches the deterministic surface (materialization.rs:270-297)', () => {
+test('canonical string escaping matches the deterministic surface (materialization.rs)', () => {
   const input = stringValue('a\n\u0001"\\\t');
   const result = complete(materialize(input, strictRequest('json.canonical-compact')));
   assert.equal(render(result.document()), '"a\\n\\u0001\\"\\\\\\t"');

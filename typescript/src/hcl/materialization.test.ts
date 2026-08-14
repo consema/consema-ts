@@ -95,7 +95,7 @@ test('golden hcl.materialization.reparse-closure: expressions emit their canonic
   assert.equal(document.formationStatus(), 'Complete', 'closure');
   assert.equal(render(result), 'derived = 1 + 2\nbig = 1000\nsmall = 1.5\n');
   // fingerprint_match: the re-projection reproduces the expression record
-  // (hcl_v1.rs:1688-1765).
+  // (hcl_v1.rs).
   const projection = projectHcl(document, HclProjectionRequest.bodyWithExpressionPolicy('ProjectExpression'));
   assert.equal(projection.kind, 'Complete');
   if (projection.kind === 'Complete') {

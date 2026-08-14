@@ -154,7 +154,7 @@ test('golden query.native-order-and-profile-equivalence: entries and groups in s
 });
 
 test('duplicate-group expansion includes every same-role occurrence', () => {
-  // RFC 0009 §9:326-335 — ini.duplicate-group@1 expands each input
+  // RFC 0009 §9 — ini.duplicate-group@1 expands each input
   // occurrence to every same-role occurrence with the same group identity.
   const document = parseText(
     IniProfile.WINDOWS_V1,
@@ -195,7 +195,7 @@ test('duplicate-group expansion includes every same-role occurrence', () => {
 });
 
 test('entry-section and value-state operators resolve ownership', () => {
-  // query.rs:457-469, 526-542 — entries resolve their owning section and
+  // query.rs — entries resolve their owning section and
   // Empty values filter by state.
   const document = parseText(
     IniProfile.PORTABLE_V1,

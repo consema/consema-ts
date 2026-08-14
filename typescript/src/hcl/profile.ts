@@ -3,7 +3,7 @@
  * style identifiers.
  *
  * authority:
- *  - HclProfile: consema-rs/consema-hcl/src/lib.rs:100-118 — NativeV1 /
+ *  - HclProfile: consema-rs/consema-hcl/src/lib.rs — NativeV1 /
  *    TfvarsV1 and the profile id mapping (:112-117): ProfileId("hcl.native",
  *    1), ProfileId("hcl.tfvars", 1); the profile spellings are frozen by
  *    RFC 0014 §1 (:27-30) and pinned by the vector suite
@@ -16,7 +16,7 @@
  *    and hcl.lossless-syntax-query@1; the TS protocol agent pins the same
  *    spellings (typescript/src/protocol/query.ts:124-125)
  *  - materialization style: RFC 0014 §9 (:580-585) —
- *    hcl.canonical-document@1; consema-rs/consema-hcl/src/materialization.rs:185
+ *    hcl.canonical-document@1; consema-rs/consema-hcl/src/materialization.rs
  *
  * Design (TypeScript-idiomatic): HclProfile is a closed two-instance class
  * with value semantics; capability/style/domain ids are built on the
@@ -31,7 +31,7 @@ import type { CapabilityId } from '../protocol/registry_descriptor.ts';
 import { newQueryDomain } from '../protocol/query.ts';
 import type { QueryDomain } from '../protocol/query.ts';
 
-/** The two frozen HCL language profiles (lib.rs:100-107; RFC 0014 §1). */
+/** The two frozen HCL language profiles (lib.rs; RFC 0014 §1). */
 export class HclProfile {
   #id: string;
 
@@ -44,7 +44,7 @@ export class HclProfile {
   /** `hcl.native@1` under the tfvars structural restriction (RFC 0014 §5). */
   static readonly TFVARS_V1: HclProfile = new HclProfile('hcl.tfvars');
 
-  /** Stable profile identity for registry and wire use (lib.rs:112-117). */
+  /** Stable profile identity for registry and wire use (lib.rs). */
   id(): ProfileId {
     return new ProfileId(this.#id, 1);
   }
@@ -117,7 +117,7 @@ export function hclLosslessSyntaxQueryDomain(): QueryDomain {
   return newQueryDomain('hcl.lossless-syntax-query', 1);
 }
 
-/** `hcl.canonical-document@1` — the frozen canonical materialization style (RFC 0014 §9; materialization.rs:185). */
+/** `hcl.canonical-document@1` — the frozen canonical materialization style (RFC 0014 §9; materialization.rs). */
 export function hclCanonicalDocumentStyle(): MaterializationStyleId {
   return new MaterializationStyleId('hcl.canonical-document', 1);
 }

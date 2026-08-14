@@ -2,7 +2,7 @@
  * Contract registry intent tests.
  *
  * These pin the frozen semantic-model v1-v7 contract sets (16/18/25/25/30/38/41
- * records) transcribed from consema-rs/consema-protocol/src/contract.rs:71-273
+ * records) transcribed from consema-rs/consema-protocol/src/contract.rs
  * (consema-go/go/protocol/contract.go:289-473, cross-reference). They run once the
  * toolchain is ready; no gate is claimed before that (§7 START GATE).
  */

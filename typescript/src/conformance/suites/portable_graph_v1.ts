@@ -174,7 +174,7 @@ function strictEquality(case_: VectorCase): void {
   }
 }
 
-/** The `core.portable-graph-query@1` handler (portable_graph_v1.rs:184-219;
+/** The `core.portable-graph-query@1` handler (portable_graph_v1.rs;
  * the Rust graph executor, consema-rs/consema-graph/src/query.rs). */
 function graphQuery(case_: VectorCase): void {
   switch (case_.id) {

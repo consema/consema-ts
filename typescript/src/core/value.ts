@@ -2,16 +2,16 @@
  * The closed fifteen-kind PortableValue model.
  *
  * authority (language-neutral data sources):
- *  - kind registry: consema-rs/consema-core/src/value.rs:620-653 (PortableValueKind
+ *  - kind registry: consema-rs/consema-core/src/value.rs (PortableValueKind
  *    order: Null, Boolean, Integer, Decimal, BinaryFloat32, BinaryFloat64,
  *    String, Bytes, Date, Time, LocalDateTime, OffsetDateTime, Sequence,
  *    Object, EntryMapping); the kind spellings double as the canonical JSON
  *    transport tags (conformance/vectors/protocol-v1.json, RFC 0016 §4.1)
- *  - decimal normalization: consema-rs/consema-core/src/value.rs:277-292
- *  - temporal validation: consema-rs/consema-core/src/value.rs:429-445 (date),
- *    475-517 (time), 547-576 (offset), is_fraction at 337-352
+ *  - decimal normalization: consema-rs/consema-core/src/value.rs
+ *  - temporal validation: consema-rs/consema-core/src/value.rs (date),
+ *    (time), (offset), is_fraction
  *  - object uniqueness / entry-mapping duplicates:
- *    consema-rs/consema-core/src/value.rs:959-984; RFC 0002 object contract
+ *    consema-rs/consema-core/src/value.rs; RFC 0002 object contract
  *
  * Design (TypeScript-idiomatic): the model is a closed discriminated union
  * over the `kind` discriminant. Exhaustive switches on `kind` are checked by
@@ -118,7 +118,7 @@ export interface EntryMappingValue {
 
 /**
  * The closed fifteen-kind PortableValue (RFC 0016 §4.1; the Rust
- * PortableValueKind registry, consema-rs/consema-core/src/value.rs:620-653).
+ * PortableValueKind registry, consema-rs/consema-core/src/value.rs).
  * The `kind` discriminant spells the canonical kind name, which is also the
  * canonical JSON transport tag.
  */
@@ -189,7 +189,7 @@ export function integerValue(value: bigint): IntegerValue {
  * Builds the canonical decimal. A zero coefficient is normalized to
  * exponent zero, and trailing decimal zeros of the coefficient are stripped
  * into the exponent (10 × 10^0 → 1 × 10^1); the Rust Decimal::new
- * normalization, consema-rs/consema-core/src/value.rs:277-292.
+ * normalization, consema-rs/consema-core/src/value.rs.
  */
 export function decimalValue(coefficient: bigint, exponent: bigint): DecimalValue {
   if (coefficient === 0n) {
@@ -217,7 +217,7 @@ export function binaryFloat64Value(bits: bigint): BinaryFloat64Value {
 /**
  * Constructs and validates a date. The leap rule operates on the absolute
  * magnitude of the year (so year -400 is a leap year and year -100 is not);
- * the Rust Date::new checks, consema-rs/consema-core/src/value.rs:429-445.
+ * the Rust Date::new checks, consema-rs/consema-core/src/value.rs.
  * Throws the typed invalid-temporal PVCE error on invalid fields.
  */
 export function dateValue(year: bigint, month: number, day: number): DateValue {
@@ -230,7 +230,7 @@ export function dateValue(year: bigint, month: number, day: number): DateValue {
 /**
  * Constructs and validates a time. The fractional second must be an exact
  * finite decimal in [0, 1) (the Rust is_fraction rule,
- * consema-rs/consema-core/src/value.rs:337-352). Throws the typed invalid-
+ * consema-rs/consema-core/src/value.rs). Throws the typed invalid-
  * temporal PVCE error on invalid fields.
  */
 export function timeValue(
@@ -251,7 +251,7 @@ export function localDateTimeValue(date: DateValue, time: TimeValue): LocalDateT
 
 /**
  * Constructs and validates an offset date-time; the offset magnitude must be
- * less than 24 * 60 * 60 seconds (value.rs:553-563). Throws the typed
+ * less than 24 * 60 * 60 seconds (value.rs). Throws the typed
  * invalid-temporal PVCE error otherwise.
  */
 export function offsetDateTimeValue(
@@ -271,7 +271,7 @@ export function sequenceValue(items: readonly PortableValue[]): SequenceValue {
 /**
  * Constructs an ordered unique-key object, rejecting duplicate keys at
  * construction time (the RFC 0002 object contract; the Rust ObjectBuilder
- * uniqueness invariant, value.rs:959-984). Throws the typed duplicate-key
+ * uniqueness invariant, value.rs). Throws the typed duplicate-key
  * error on a repeated key.
  */
 export function objectValue(entries: readonly ObjectEntry[]): ObjectValue {
@@ -288,7 +288,7 @@ export function objectValue(entries: readonly ObjectEntry[]): ObjectValue {
 /**
  * Constructs an ordered arbitrary-key mapping; keys may be any value and
  * may repeat (the Rust EntryMappingBuilder::push semantics,
- * value.rs:973-978).
+ * value.rs).
  */
 export function entryMappingValue(entries: readonly EntryMappingEntry[]): EntryMappingValue {
   return { kind: 'EntryMapping', entries: [...entries] };
@@ -340,7 +340,7 @@ function invalidTemporal(): PVCEError {
 /**
  * Duplicate object key at construction time (the RFC 0002 object contract;
  * RFC 0016 §4.1 maps it to a constructor error). Carries the frozen
- * `core.pvce.duplicate-object-key@1` code (lib.rs:1082).
+ * `core.pvce.duplicate-object-key@1` code (lib.rs).
  */
 export class DuplicateKeyError extends Error {
   readonly key: string;

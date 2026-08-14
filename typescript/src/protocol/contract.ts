@@ -2,11 +2,11 @@
  * The frozen contract registry and the common protocol envelope.
  *
  * authority: the Rust CONTRACTS_V1..V7 registries
- * (consema-rs/consema-protocol/src/contract.rs:71-273), transcribed verbatim in
+ * (consema-rs/consema-protocol/src/contract.rs), transcribed verbatim in
  * consema-go/go/protocol/contract.go:289-473 (cross-reference). The registry pins the
  * semantic-model v1-v7 sets of 16/18/25/25/30/38/41 contracts; the test
  * battery re-pins the counts and sortedness. The envelope
- * `core.protocol-message@1` follows contract.rs:417-521.
+ * `core.protocol-message@1` follows contract.rs.
  */
 
 import type { PortableValue, ObjectValue } from '../core/value.ts';
@@ -45,7 +45,7 @@ export interface ContractId {
 /**
  * Validates and creates an identifier: the version must be non-zero and the
  * id must be a dotted lowercase identifier of at most 255 bytes whose
- * segments start with a lowercase letter (contract.rs:18-30, 559-578).
+ * segments start with a lowercase letter (contract.rs).
  */
 export function newContractId(id: string, version: number): ContractId {
   if (version === 0) {
@@ -74,7 +74,7 @@ export function compareContractIds(a: ContractId, b: ContractId): number {
   return 0;
 }
 
-/** The strict dotted identifier rule (contract.rs:559-578). */
+/** The strict dotted identifier rule (contract.rs). */
 export function validateIdentifier(identifier: string, path: string): void {
   if (identifier.length > 255 || !identifier.includes('.')) {
     throw invalid(path, 'identifier must contain multiple segments and be at most 255 bytes');
@@ -93,7 +93,7 @@ export function validateIdentifier(identifier: string, path: string): void {
 }
 
 /**
- * The profile/capability namespace rule (registry.rs:475-498): at most 255
+ * The profile/capability namespace rule (registry.rs): at most 255
  * bytes, and when requireDot is set at least two segments; every segment
  * starts with a lowercase letter (or a digit when not the first segment)
  * and continues with lowercase letters, digits, or dashes.
@@ -386,7 +386,7 @@ function contractsFor(version: ContractRegistryVersion): readonly ContractDescri
 export const ProtocolMessageSchema = 'core.protocol-message@1';
 
 /**
- * One validated protocol payload in the common envelope (contract.rs:417-521).
+ * One validated protocol payload in the common envelope (contract.rs).
  * Construction validates a recognized contract, rejects transport envelopes
  * as nested payload contracts, and checks the payload schema discriminator.
  */
@@ -452,7 +452,7 @@ export class ProtocolMessage {
   }
 }
 
-/** Requires the payload to be an Object whose first field is the exact contract schema (contract.rs:523-557). */
+/** Requires the payload to be an Object whose first field is the exact contract schema (contract.rs). */
 export function validateContractPayloadSchema(payload: PortableValue, contract: ContractId): void {
   if (payload.kind !== 'Object') {
     throw protocolError('WrongType', '$.payload', 'payload must be an Object');

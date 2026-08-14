@@ -7,8 +7,8 @@
  *  - conformance/vectors/xml-1-0-safe-v1.json: xml.projection.element-
  *    tree-record (:311-325), xml.projection.namespace-record (:327-339),
  *    xml.projection.recovered-never-projects (:341-350)
- *  - the record shape: consema-rs/consema-xml/src/projection.rs:600-644,
- *    669-797, 799-973 (declaration facts, entities, ordered namespaces,
+ *  - the record shape: consema-rs/consema-xml/src/projection.rs,
+ *    (record 定义区间) (declaration facts, entities, ordered namespaces,
  *    ordered attributes, ordered mixed content, exact fragments)
  */
 
@@ -183,7 +183,7 @@ test('projection: simple entry mapping honors its explicit policies', () => {
   assert.equal(value.entries.length, 2);
   assert.equal(stringOf(value.entries[0].key), 'a');
   // The retained ordinal keeps the LAST occurrence's value, exactly like
-  // the Rust commit_entry replacement (projection.rs:1202-1236).
+  // the Rust commit_entry replacement (projection.rs).
   assert.equal(stringOf(value.entries[0].value), '3');
   assert.equal(stringOf(value.entries[1].key), 'b');
   assert.equal(stringOf(value.entries[1].value), '2');

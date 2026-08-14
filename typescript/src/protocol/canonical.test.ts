@@ -132,7 +132,7 @@ test('invalid JSON, duplicate members, and schema mismatches are rejected', () =
 });
 
 test('documented divergence (Rust wins): non-canonical decimals are rejected via normalization', () => {
-  // The Rust decoder re-encodes the decoded VALUE (value_transport.rs:66-73),
+  // The Rust decoder re-encodes the decoded VALUE (value_transport.rs),
   // so {"coefficient":"10","exponent":"0"} normalizes to 1e1 and the
   // re-encode differs from the input. The Go implementation re-encodes the
   // parse tree and would accept this input (consema-go/go/protocol/canonical.go:487-512);
@@ -185,7 +185,7 @@ test('transport limits apply on both directions', () => {
 test('surrogate pair escapes decode and re-encode canonically', () => {
   // U+1F600 must combine into one scalar, but the escaped surrogate spelling
   // is non-canonical: the canonical form carries the raw scalar, so the
-  // re-encode check rejects the escaped input (value_transport.rs:66-73;
+  // re-encode check rejects the escaped input (value_transport.rs;
   // the same rule as vector protocol.json.reject-alternate-escape).
   const escaped =
     '{"schema":"core.portable-value-json@1","value":{"type":"String","value":"\\uD83D\\uDE00"}}';

@@ -142,7 +142,7 @@ export interface IniParseOutput {
   readonly recovered: boolean;
 }
 
-/** One scanned physical line in decoded (JS string index) coordinates (parser.rs:106-113). */
+/** One scanned physical line in decoded (JS string index) coordinates (parser.rs). */
 interface ScannedLine {
   readonly decodedStart: number;
   readonly decodedContentEnd: number;
@@ -151,7 +151,7 @@ interface ScannedLine {
   readonly physicalIndex: number;
 }
 
-/** Active Python entry continuation state (parser.rs:115-124). */
+/** Active Python entry continuation state (parser.rs). */
 interface PythonEntryState {
   readonly entryIndex: number;
   readonly logicalIndex: number;
@@ -168,7 +168,7 @@ interface PythonEntryState {
 
 /**
  * Parses one immutable INI snapshot under exactly one selected profile
- * (lib.rs:663-671; parser.rs:16-35). Throws IniFormationFailure on any
+ * (lib.rs; parser.rs). Throws IniFormationFailure on any
  * fatal failure; a truncated success never exists (RFC 0009 §4).
  */
 export function parseIni(
@@ -199,7 +199,7 @@ export function parseIni(
   return new IniParser(source, profile, limits).parse();
 }
 
-/** Builds the frozen source encoding request (parser.rs:37-59). */
+/** Builds the frozen source encoding request (parser.rs). */
 function encodingRequest(
   profile: IniProfile,
   selection: IniEncodingSelection,
@@ -222,7 +222,7 @@ function encodingRequest(
   return request;
 }
 
-/** Enforces the frozen per-profile encoding contract (parser.rs:61-94). */
+/** Enforces the frozen per-profile encoding contract (parser.rs). */
 function validateProfileEncoding(
   source: SourceSnapshot,
   profile: IniProfile,
@@ -401,12 +401,12 @@ class IniParser {
     return index;
   }
 
-  /** Raw byte span of one decoded (JS string index) range (parser.rs:1109-1125). */
+  /** Raw byte span of one decoded (JS string index) range (parser.rs). */
   #rawSpan(start: number, end: number): Span {
     return this.#authority.span(this.#rawAt[this.#scalarOf(start)], this.#rawAt[this.#scalarOf(end)]);
   }
 
-  // -- physical line scan (parser.rs:228-301) ----------------------------------
+  // -- physical line scan (parser.rs) ----------------------------------
 
   #scanPhysicalLines(): void {
     const bom = this.#source.encodingFacts().bom();
@@ -449,7 +449,7 @@ class IniParser {
     }
   }
 
-  // -- line classification (parser.rs:303-346) ---------------------------------
+  // -- line classification (parser.rs) ---------------------------------
 
   #parseLine(lineIndex: number): void {
     const line = this.#lines[lineIndex];
@@ -771,7 +771,7 @@ class IniParser {
     this.#pythonEntry = state;
   }
 
-  // -- record construction (parser.rs:749-867) ---------------------------------
+  // -- record construction (parser.rs) ---------------------------------
 
   #addSection(
     lineIndex: number,
@@ -878,7 +878,7 @@ class IniParser {
     return logicalIndex;
   }
 
-  // -- recovery (parser.rs:869-905) ----------------------------------------------
+  // -- recovery (parser.rs) ----------------------------------------------
 
   #recoverLine(lineIndex: number, code: string): void {
     this.#checkLimit('recovery-regions', this.#errorLines.length + 1, this.#limits.maxRecoveryRegions);
@@ -907,7 +907,7 @@ class IniParser {
     this.#diagnostic(code, 'Syntax', physical.kind.contentSpan.startByte(), physical.kind.contentSpan.endByte(), true);
   }
 
-  // -- syntax pieces (parser.rs:907-1072) -------------------------------------------
+  // -- syntax pieces (parser.rs) -------------------------------------------
 
   #pushBom(): void {
     const bom = this.#source.encodingFacts().bom();
@@ -1025,7 +1025,7 @@ class IniParser {
     this.#syntaxKinds.push(syntax);
   }
 
-  // -- nodes, limits, diagnostics (parser.rs:1132-1195) -----------------------------
+  // -- nodes, limits, diagnostics (parser.rs) -----------------------------
 
   #issueNode(role: NodeRole): void {
     // The entity index equals the issued node index: every issueNode call is
@@ -1067,7 +1067,7 @@ class IniParser {
     this.#recovered = this.#recovered || recovered;
   }
 
-  // -- comparison names (parser.rs:1197-1210) ----------------------------------------
+  // -- comparison names (parser.rs) ----------------------------------------
 
   #sectionComparison(name: string): string {
     switch (this.#profile.tag()) {
@@ -1090,7 +1090,7 @@ class IniParser {
     }
   }
 
-  // -- duplicate groups (parser.rs:1212-1304) ------------------------------------------
+  // -- duplicate groups (parser.rs) ------------------------------------------
 
   #assignDuplicateGroups(): void {
     let nextGroup = 1;
@@ -1186,7 +1186,7 @@ class IniParser {
 }
 
 // ---------------------------------------------------------------------------
-// Character classes (parser.rs:1307-1362)
+// Character classes (parser.rs)
 // ---------------------------------------------------------------------------
 
 function leadingHorizontal(value: string): number {
@@ -1201,7 +1201,7 @@ function leadingHorizontal(value: string): number {
   return count;
 }
 
-/** Trims leading/trailing horizontal whitespace; returns [start, end) code-unit offsets (parser.rs:1314-1321). */
+/** Trims leading/trailing horizontal whitespace; returns [start, end) code-unit offsets (parser.rs). */
 function trimHorizontalBounds(value: string): [number, number] {
   const start = leadingHorizontal(value);
   let end = value.length;
@@ -1251,7 +1251,7 @@ function isWindowsName(byte: number): boolean {
   ) && !(byte === 0x5b || byte === 0x5d || byte === 0x3d);
 }
 
-/** Exact single- or double-quoted Windows value (parser.rs:1341-1358). */
+/** Exact single- or double-quoted Windows value (parser.rs). */
 function quotedWindowsValue(
   value: string,
   absoluteStart: number,
@@ -1269,7 +1269,7 @@ function quotedWindowsValue(
   return [{ start: absoluteStart, end: absoluteStart + value.length }, 'None'];
 }
 
-/** First '=' or ':' delimiter (parser.rs:1360-1362). */
+/** First '=' or ':' delimiter (parser.rs). */
 function firstPythonDelimiter(value: string): number | null {
   for (let i = 0; i < value.length; i++) {
     const code = value.charCodeAt(i);

@@ -43,7 +43,7 @@ function commit(
   return result.document();
 }
 
-/** Expects one frozen edit failure code (edit.rs:599-611). */
+/** Expects one frozen edit failure code (edit.rs). */
 function expectEditFailure(
   document: HclDocument,
   build: (builder: HclEditTransactionBuilder) => void,

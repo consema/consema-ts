@@ -332,7 +332,7 @@ function formationCase(case_: VectorCase): void {
   }
 }
 
-/** resource.formation-limit-matrix (properties_v1.rs:955-983). */
+/** resource.formation-limit-matrix (properties_v1.rs). */
 function formationLimitMatrix(
   case_: VectorCase,
   limits: { name: string; source: string; value: number }[],
@@ -365,7 +365,7 @@ function snakeToCamel(name: string): string {
   return parts[0] + parts.slice(1).map((part) => part[0].toUpperCase() + part.slice(1)).join('');
 }
 
-/** The common parse limits live in the `common` record; the family-owned bounds at the top level (lib.rs:61-98). */
+/** The common parse limits live in the `common` record; the family-owned bounds at the top level (lib.rs). */
 const PROPERTIES_COMMON_LIMIT_NAMES = new Set([
   'max_source_bytes',
   'max_nesting_depth',
@@ -437,7 +437,7 @@ function queryCase(case_: VectorCase): void {
   }
 }
 
-/** query.native-duplicates-and-escape-ownership (properties_v1.rs:409-469). */
+/** query.native-duplicates-and-escape-ownership (properties_v1.rs). */
 function nativeQuery(case_: VectorCase): void {
   const document = parseCase(case_);
   const keyBytes = hexToBytes(caseField(case_, 'key_utf16be_hex') as string);
@@ -504,7 +504,7 @@ function nativeQuery(case_: VectorCase): void {
   }
 }
 
-/** query.logical-and-syntax-order (properties_v1.rs:471-544). */
+/** query.logical-and-syntax-order (properties_v1.rs). */
 function logicalSyntaxQuery(case_: VectorCase): void {
   const logicalSource = caseField(case_, 'logical_source') as string;
   const syntaxSource = caseField(case_, 'syntax_source') as string;
@@ -588,7 +588,7 @@ function logicalSyntaxQuery(case_: VectorCase): void {
   }
 }
 
-/** query.validation-limit-cancellation (properties_v1.rs:546-597). */
+/** query.validation-limit-cancellation (properties_v1.rs). */
 function queryValidationLimitCancellation(case_: VectorCase): void {
   const invalid = withExpression(
     newQueryDefinition(domainJavaPropertiesNativeV1()),
@@ -764,7 +764,7 @@ function materializationCase(case_: VectorCase): void {
   }
 }
 
-/** materialization.canonical-styles-encodings-and-closure (properties_v1.rs:713-786). */
+/** materialization.canonical-styles-encodings-and-closure (properties_v1.rs). */
 function materializationStyles(case_: VectorCase): void {
   const readerValue = propertiesFlatMapping(caseField(case_, 'reader'));
   const readerResult = propertiesMaterializeOrFail('Reader', readerValue, propertiesMaterializationRequest('ReaderV1'));
@@ -833,7 +833,7 @@ function materializationStyles(case_: VectorCase): void {
   }
 }
 
-/** The per-limit materialization limits (properties_v1.rs:788-845). */
+/** The per-limit materialization limits (properties_v1.rs). */
 function materializationLimitsFor(name: string): MaterializationLimits | null {
   switch (name) {
     case 'max_input_nodes':
@@ -851,7 +851,7 @@ function materializationLimitsFor(name: string): MaterializationLimits | null {
   }
 }
 
-/** materialization.atomic-failures-and-limits (properties_v1.rs:788-845). */
+/** materialization.atomic-failures-and-limits (properties_v1.rs). */
 function materializationLimits(case_: VectorCase): void {
   const scalarResult: MaterializationResult<PropertiesDocument> = materializeProperties(
     stringValue('scalar'),
@@ -919,7 +919,7 @@ function editCase(case_: VectorCase): void {
   }
 }
 
-/** One committed edit output plus its source-edit count (properties_v1.rs:1048-1061). */
+/** One committed edit output plus its source-edit count (properties_v1.rs). */
 function collectEdit(
   document: PropertiesDocument,
   builder: EditTransactionBuilder,
@@ -939,7 +939,7 @@ function collectEdit(
   editCounts.push(commit.changeSet().sourceEdits().length);
 }
 
-/** edit.all-five-operations (properties_v1.rs:847-898). */
+/** edit.all-five-operations (properties_v1.rs). */
 function editAllOperations(case_: VectorCase): void {
   const source = caseField(case_, 'source') as string;
   const semanticValue = caseField(case_, 'semantic_value') as string;
@@ -1006,7 +1006,7 @@ function editAllOperations(case_: VectorCase): void {
   }
 }
 
-/** edit.dry-run-patch-proof-conflict-atomicity (properties_v1.rs:900-953). */
+/** edit.dry-run-patch-proof-conflict-atomicity (properties_v1.rs). */
 function editAuditArtifacts(case_: VectorCase): void {
   const document = parseCase(case_);
   const rename = caseField(case_, 'rename') as string;
@@ -1099,7 +1099,7 @@ function editAuditArtifacts(case_: VectorCase): void {
   }
 }
 
-/** registry.frozen-five-operation-surface (properties_v1.rs:1026-1046). */
+/** registry.frozen-five-operation-surface (properties_v1.rs). */
 function registryCase(case_: VectorCase): void {
   const profiles = caseField(case_, 'profiles') as string[];
   const operations = expectedFieldOptional(case_, 'operations') as string[];

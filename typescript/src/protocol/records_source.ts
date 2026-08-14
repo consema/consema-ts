@@ -20,7 +20,7 @@
  *  - request_from_facts :791-800 / request_from_facts_v2 :802-812
  *  - error mappings: source_error :821-831, patch_error :833-846
  * The payload dispatch decodes these records with SourceLimits /
- * SourcePatchLimits defaults (consema-rs/consema-protocol/src/payload.rs:159-170).
+ * SourcePatchLimits defaults (consema-rs/consema-protocol/src/payload.rs).
  * Python transcription: python/src/consema/protocol/records_source.py
  * (same wire spellings; both implementations pass the shared vectors).
  *
@@ -79,10 +79,10 @@ const SOURCE_SNAPSHOT_SCHEMA = 'core.source-snapshot@1';
 const SOURCE_PATCH_SCHEMA = 'core.source-patch@1';
 
 // ---------------------------------------------------------------------------
-// core.source-encoding@1 (source.rs:17-46, 497-561)
+// core.source-encoding@1 (source.rs)
 // ---------------------------------------------------------------------------
 
-/** Transferable `core.source-encoding@1` value (source.rs:17-46). */
+/** Transferable `core.source-encoding@1` value (source.rs). */
 export class SourceEncodingMessage {
   readonly #encoding: SourceEncoding;
 
@@ -90,22 +90,22 @@ export class SourceEncodingMessage {
     this.#encoding = encoding;
   }
 
-  /** Wraps one normalized source encoding (source.rs:25-28). */
+  /** Wraps one normalized source encoding (source.rs). */
   static fromEncoding(encoding: SourceEncoding): SourceEncodingMessage {
     return new SourceEncodingMessage(encoding);
   }
 
-  /** Normalized source encoding (source.rs:30-34). */
+  /** Normalized source encoding (source.rs). */
   encoding(): SourceEncoding {
     return this.#encoding;
   }
 
-  /** Encodes the exact standalone source-encoding schema (source.rs:36-40). */
+  /** Encodes the exact standalone source-encoding schema (source.rs). */
   toValue(): ObjectValue {
     return sourceEncodingValue(this.#encoding);
   }
 
-  /** Strictly decodes one canonical source-encoding value (source.rs:42-45). */
+  /** Strictly decodes one canonical source-encoding value (source.rs). */
   static fromValue(value: PortableValue): SourceEncodingMessage {
     return new SourceEncodingMessage(sourceEncodingFromValue(value, '$'));
   }
@@ -190,7 +190,7 @@ function unsignedU64(value: PortableValue, path: string): bigint {
   return number;
 }
 
-/** One host-offset field: an unsigned 64-bit Integer that fits a JS number (source.rs:449-452). */
+/** One host-offset field: an unsigned 64-bit Integer that fits a JS number (source.rs). */
 function usizeOf(value: PortableValue, path: string): number {
   const number = unsignedU64(value, path);
   if (number > BigInt(Number.MAX_SAFE_INTEGER)) {
@@ -200,7 +200,7 @@ function usizeOf(value: PortableValue, path: string): number {
 }
 
 // ---------------------------------------------------------------------------
-// v1 encoding-facts wire (source.rs:563-596, 659-679) and its guard
+// v1 encoding-facts wire (source.rs) and its guard
 // (ensure_v1_encoding_facts :633-657)
 // ---------------------------------------------------------------------------
 
@@ -222,7 +222,7 @@ function bomNameValue(bom: BomKind | null): PortableValue {
   return bom === null ? nullValue() : stringValue(bomName(bom));
 }
 
-/** The v1 wire spelling of one BOM kind (source.rs:749-755). */
+/** The v1 wire spelling of one BOM kind (source.rs). */
 function bomName(bom: BomKind): string {
   switch (bom) {
     case 'Utf8':
@@ -278,7 +278,7 @@ function optionalEncodingV1(value: PortableValue, path: string): SourceEncoding 
   return encodingFromNameV1(stringOf(value, path));
 }
 
-/** The closed v1 encoding IDs (source.rs:738-747): Windows code pages are never on the v1 wire. */
+/** The closed v1 encoding IDs (source.rs): Windows code pages are never on the v1 wire. */
 function encodingFromNameV1(name: string): SourceEncoding {
   switch (name) {
     case 'Binary':
@@ -292,7 +292,7 @@ function encodingFromNameV1(name: string): SourceEncoding {
   }
 }
 
-/** The v1 wire spelling of one encoding (source.rs:725-736). */
+/** The v1 wire spelling of one encoding (source.rs). */
 function encodingNameV1(encoding: SourceEncoding): string {
   switch (encoding.kind) {
     case 'Binary':
@@ -311,7 +311,7 @@ function encodingNameV1(encoding: SourceEncoding): string {
 }
 
 // ---------------------------------------------------------------------------
-// v2 encoding-facts wire (source.rs:598-631, 681-723): full encodings
+// v2 encoding-facts wire (source.rs): full encodings
 // (including Windows code pages) and an explicit BOM policy
 // ---------------------------------------------------------------------------
 
@@ -379,7 +379,7 @@ function optionalSourceEncodingValueV2(value: PortableValue, path: string): Sour
   return sourceEncodingFromValue(value, path);
 }
 
-/** The v1 facts guard: DetectUnicode policy and no Windows code pages (source.rs:633-657). */
+/** The v1 facts guard: DetectUnicode policy and no Windows code pages (source.rs). */
 function ensureV1EncodingFacts(facts: EncodingFacts, path: string): void {
   if (facts.bomPolicy() !== 'DetectUnicode') {
     throw invalid(path, 'core source v1 requires DetectUnicode BOM policy');
@@ -397,7 +397,7 @@ function ensureV1EncodingFacts(facts: EncodingFacts, path: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// content digest wire (source.rs:463-495)
+// content digest wire (source.rs)
 // ---------------------------------------------------------------------------
 
 function digestValue(digest: ContentDigest): ObjectValue {
@@ -434,10 +434,10 @@ function isLowercaseHex(text: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// core.source-snapshot@1 (source.rs:48-96, 241-321)
+// core.source-snapshot@1 (source.rs)
 // ---------------------------------------------------------------------------
 
-/** Transferable `core.source-snapshot@1` content fact (source.rs:48-96). */
+/** Transferable `core.source-snapshot@1` content fact (source.rs). */
 export class SourceSnapshotMessage {
   readonly #snapshot: SourceSnapshot;
 
@@ -445,23 +445,23 @@ export class SourceSnapshotMessage {
     this.#snapshot = snapshot;
   }
 
-  /** Copies one immutable snapshot into a transferable content message (source.rs:55-61). */
+  /** Copies one immutable snapshot into a transferable content message (source.rs). */
   static fromSnapshot(snapshot: SourceSnapshot): SourceSnapshotMessage {
     ensureV1EncodingFacts(snapshot.encodingFacts(), '$.encoding');
     return new SourceSnapshotMessage(snapshot);
   }
 
-  /** Verified immutable source snapshot (source.rs:63-67). */
+  /** Verified immutable source snapshot (source.rs). */
   snapshot(): SourceSnapshot {
     return this.#snapshot;
   }
 
-  /** Encodes the fixed-field PortableValue schema (source.rs:76-83). */
+  /** Encodes the fixed-field PortableValue schema (source.rs). */
   toValue(): ObjectValue {
     return sourceSnapshotValue(this.#snapshot, SOURCE_SNAPSHOT_SCHEMA, encodingValue(this.#snapshot.encodingFacts()));
   }
 
-  /** Strictly decodes and re-verifies raw bytes, digest, encoding, and decoded status (source.rs:85-95). */
+  /** Strictly decodes and re-verifies raw bytes, digest, encoding, and decoded status (source.rs). */
   static fromValue(value: PortableValue, limits: SourceLimits): SourceSnapshotMessage {
     return new SourceSnapshotMessage(
       sourceSnapshotFromValue(value, SOURCE_SNAPSHOT_SCHEMA, encodingFromValue, limits),
@@ -469,7 +469,7 @@ export class SourceSnapshotMessage {
   }
 }
 
-/** Transferable `core.source-snapshot@2` content fact (source.rs:98-146). */
+/** Transferable `core.source-snapshot@2` content fact (source.rs). */
 export class SourceSnapshotMessageV2 {
   readonly #snapshot: SourceSnapshot;
 
@@ -477,22 +477,22 @@ export class SourceSnapshotMessageV2 {
     this.#snapshot = snapshot;
   }
 
-  /** Copies one immutable snapshot into a source-v2 message (source.rs:106-112). */
+  /** Copies one immutable snapshot into a source-v2 message (source.rs). */
   static fromSnapshot(snapshot: SourceSnapshot): SourceSnapshotMessageV2 {
     return new SourceSnapshotMessageV2(snapshot);
   }
 
-  /** Verified immutable source snapshot (source.rs:114-118). */
+  /** Verified immutable source snapshot (source.rs). */
   snapshot(): SourceSnapshot {
     return this.#snapshot;
   }
 
-  /** Encodes the exact source-snapshot v2 schema (source.rs:125-132). */
+  /** Encodes the exact source-snapshot v2 schema (source.rs). */
   toValue(): ObjectValue {
     return sourceSnapshotValue(this.#snapshot, 'core.source-snapshot@2', encodingValueV2(this.#snapshot.encodingFacts()));
   }
 
-  /** Strictly decodes and re-verifies every source-v2 fact (source.rs:135-145). */
+  /** Strictly decodes and re-verifies every source-v2 fact (source.rs). */
   static fromValue(value: PortableValue, limits: SourceLimits): SourceSnapshotMessageV2 {
     return new SourceSnapshotMessageV2(
       sourceSnapshotFromValue(value, 'core.source-snapshot@2', encodingFromValueV2, limits),
@@ -541,7 +541,7 @@ function sourceSnapshotFromValue(
   return snapshot;
 }
 
-/** Rebuilds the source from wire facts under the request derived from claimed facts (source.rs:291-296). */
+/** Rebuilds the source from wire facts under the request derived from claimed facts (source.rs). */
 function buildSnapshot(raw: Uint8Array, facts: EncodingFacts, limits: SourceLimits): SourceSnapshot {
   try {
     return SourceSnapshot.fromRaw(raw, facts.resolutionRequest(), limits);
@@ -554,10 +554,10 @@ function buildSnapshot(raw: Uint8Array, facts: EncodingFacts, limits: SourceLimi
 }
 
 // ---------------------------------------------------------------------------
-// core.source-patch@1 (source.rs:148-193, 323-461)
+// core.source-patch@1 (source.rs)
 // ---------------------------------------------------------------------------
 
-/** Transferable `core.source-patch@1` verification facts (source.rs:148-193). */
+/** Transferable `core.source-patch@1` verification facts (source.rs). */
 export class SourcePatchMessage {
   readonly #patch: SourcePatch;
 
@@ -565,23 +565,23 @@ export class SourcePatchMessage {
     this.#patch = patch;
   }
 
-  /** Copies one validated source patch into a transferable message (source.rs:156-161). */
+  /** Copies one validated source patch into a transferable message (source.rs). */
   static fromPatch(patch: SourcePatch): SourcePatchMessage {
     return new SourcePatchMessage(patch);
   }
 
-  /** Validated source patch (source.rs:163-167). */
+  /** Validated source patch (source.rs). */
   patch(): SourcePatch {
     return this.#patch;
   }
 
-  /** Encodes the fixed-field PortableValue schema (source.rs:175-183). */
+  /** Encodes the fixed-field PortableValue schema (source.rs). */
   toValue(): ObjectValue {
     ensureV1EncodingFacts(this.#patch.encodingFacts(), '$.encoding');
     return sourcePatchValue(this.#patch, SOURCE_PATCH_SCHEMA, encodingValue(this.#patch.encodingFacts()));
   }
 
-  /** Strictly decodes structural patch facts without applying them to a base snapshot (source.rs:185-192). */
+  /** Strictly decodes structural patch facts without applying them to a base snapshot (source.rs). */
   static fromValue(value: PortableValue, limits: SourcePatchLimits): SourcePatchMessage {
     return new SourcePatchMessage(
       sourcePatchFromValue(value, SOURCE_PATCH_SCHEMA, encodingFromValue, limits),
@@ -589,7 +589,7 @@ export class SourcePatchMessage {
   }
 }
 
-/** Transferable `core.source-patch@2` verification facts (source.rs:196-239). */
+/** Transferable `core.source-patch@2` verification facts (source.rs). */
 export class SourcePatchMessageV2 {
   readonly #patch: SourcePatch;
 
@@ -597,22 +597,22 @@ export class SourcePatchMessageV2 {
     this.#patch = patch;
   }
 
-  /** Copies one validated source patch into a source-v2 message (source.rs:204-209). */
+  /** Copies one validated source patch into a source-v2 message (source.rs). */
   static fromPatch(patch: SourcePatch): SourcePatchMessageV2 {
     return new SourcePatchMessageV2(patch);
   }
 
-  /** Validated source patch (source.rs:211-215). */
+  /** Validated source patch (source.rs). */
   patch(): SourcePatch {
     return this.#patch;
   }
 
-  /** Encodes the exact source-patch v2 schema (source.rs:222-229). */
+  /** Encodes the exact source-patch v2 schema (source.rs). */
   toValue(): ObjectValue {
     return sourcePatchValue(this.#patch, 'core.source-patch@2', encodingValueV2(this.#patch.encodingFacts()));
   }
 
-  /** Strictly decodes structural source-patch v2 facts (source.rs:231-238). */
+  /** Strictly decodes structural source-patch v2 facts (source.rs). */
   static fromValue(value: PortableValue, limits: SourcePatchLimits): SourcePatchMessageV2 {
     return new SourcePatchMessageV2(
       sourcePatchFromValue(value, 'core.source-patch@2', encodingFromValueV2, limits),
@@ -687,10 +687,10 @@ function replacementFromValue(value: PortableValue, index: number): SourceReplac
 }
 
 // ---------------------------------------------------------------------------
-// error mappings (source.rs:821-846)
+// error mappings (source.rs)
 // ---------------------------------------------------------------------------
 
-/** The protocol mapping of a source construction failure (source.rs:821-831). */
+/** The protocol mapping of a source construction failure (source.rs). */
 function sourceError(path: string, error: SourceError): ProtocolError {
   const kind =
     error.kind === 'ResourceLimit' || error.kind === 'OffsetOverflow'
@@ -699,7 +699,7 @@ function sourceError(path: string, error: SourceError): ProtocolError {
   return new ProtocolError(kind, path, error.message);
 }
 
-/** The protocol mapping of a source-patch construction failure (source.rs:833-846). */
+/** The protocol mapping of a source-patch construction failure (source.rs). */
 function patchError(error: SourcePatchError): ProtocolError {
   const kind =
     error.kind === 'ResourceLimit' ||
@@ -712,7 +712,7 @@ function patchError(error: SourcePatchError): ProtocolError {
 }
 
 // ---------------------------------------------------------------------------
-// payload dispatch self-registration (payload.rs:159-168: the envelope
+// payload dispatch self-registration (payload.rs: the envelope
 // decodes these records with SourceLimits / SourcePatchLimits defaults)
 // ---------------------------------------------------------------------------
 

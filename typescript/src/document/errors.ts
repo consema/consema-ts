@@ -17,22 +17,22 @@
  *    core.parse.resource-limit@1           :39  (parse)
  *  - materialization codes (RFC 0004 §17, ErrorCodeRegistry v3):
  *    core.materialization.invalid-request@1 ... unsupported-style@1
- *    (consema-rs/consema-protocol/src/error_registry.rs:556-604)
+ *    (consema-rs/consema-protocol/src/error_registry.rs)
  *  - kind→code mapping authority:
- *    SourceError: consema-rs/consema-conformance/src/source_v1.rs:410-421 and
- *      consema-rs/consema-document/src/lib.rs:676-706 (FatalFormationFailure)
- *    SourcePatchError: consema-rs/consema-document/src/source_patch.rs:434-459
- *    MaterializationFailure: consema-rs/consema-document/src/materialization.rs:379-391
+ *    SourceError: consema-rs/consema-conformance/src/source_v1.rs and
+ *      consema-rs/consema-document/src/lib.rs (FatalFormationFailure)
+ *    SourcePatchError: consema-rs/consema-document/src/source_patch.rs
+ *    MaterializationFailure: consema-rs/consema-document/src/materialization.rs
  *  - the vector suite pins the codes end-to-end:
  *    conformance/vectors/source-v1.json:57,63,69,75,81,129,135,141,147,153,159,165,171
  *
  * NOTE: there are NO `core.document.*@1` error codes in the v7 registry;
  * the only `core.document.*` frozen name is the capability
- * `core.document.exact-roundtrip@1` (consema-rs/consema-protocol/src/registry.rs:513).
+ * `core.document.exact-roundtrip@1` (consema-rs/consema-protocol/src/registry.rs).
  * Document-domain failures therefore carry `core.source.*@1`,
  * `core.protocol.invalid-value@1`, or `core.materialization.*@1` codes.
  * LocationError has no registered codes at all: the vector suite compares
- * its frozen enum NAME (source_v1.rs:423-436), e.g. "NoDecodedText".
+ * its frozen enum NAME (source_v1.rs), e.g. "NoDecodedText".
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance, so the
@@ -70,10 +70,10 @@ export const codeMaterializationResourceLimit = 'core.materialization.resource-l
 export const codeMaterializationFormationFailed = 'core.materialization.formation-failed@1';
 
 // ---------------------------------------------------------------------------
-// SourceError — stable source construction failure (source.rs:668-708)
+// SourceError — stable source construction failure (source.rs)
 // ---------------------------------------------------------------------------
 
-/** Recognized but unsupported Unicode marker (source.rs:718-725). */
+/** Recognized but unsupported Unicode marker (source.rs). */
 export type UnsupportedBomKind = 'Utf32Le' | 'Utf32Be';
 
 export type SourceErrorKind =
@@ -84,10 +84,10 @@ export type SourceErrorKind =
   | 'ResourceLimit'
   | 'OffsetOverflow';
 
-/** Stable source construction failure (consema-rs/consema-document/src/source.rs:668-708). */
+/** Stable source construction failure (consema-rs/consema-document/src/source.rs). */
 export class SourceError extends Error {
   readonly kind: SourceErrorKind;
-  /** Frozen registered code (kind→code: conformance source_v1.rs:410-421; lib.rs:676-706). */
+  /** Frozen registered code (kind→code: conformance source_v1.rs; lib.rs). */
   readonly code: string;
   /** InvalidUtf8: prefix length that was valid UTF-8. */
   readonly validUpTo?: number;
@@ -141,9 +141,9 @@ export class SourceError extends Error {
 }
 
 /**
- * Kind→code mapping (conformance source_v1.rs:410-421; the `from_utf8`
+ * Kind→code mapping (conformance source_v1.rs; the `from_utf8`
  * compat path additionally maps InvalidUtf8 to core.source.invalid-utf8@1
- * per consema-rs/consema-document/src/lib.rs:676-679).
+ * per consema-rs/consema-document/src/lib.rs).
  */
 export function sourceErrorCode(kind: SourceErrorKind): string {
   switch (kind) {
@@ -162,7 +162,7 @@ export function sourceErrorCode(kind: SourceErrorKind): string {
 }
 
 // ---------------------------------------------------------------------------
-// LocationError — span, identity, or coverage failure (lib.rs:581-604)
+// LocationError — span, identity, or coverage failure (lib.rs)
 // ---------------------------------------------------------------------------
 
 /**
@@ -171,7 +171,7 @@ export function sourceErrorCode(kind: SourceErrorKind): string {
  * Frozen names: the vector suite compares these exact spellings
  * (conformance/vectors/source-v1.json:99,117 "NoDecodedText",
  * "IncompleteStructuralCoverage"; the full name table is the conformance
- * runner consema-rs/consema-conformance/src/source_v1.rs:423-436). There is no
+ * runner consema-rs/consema-conformance/src/source_v1.rs). There is no
  * registered error code for any location failure.
  */
 export type LocationErrorKind =
@@ -188,7 +188,7 @@ export type LocationErrorKind =
 
 export class LocationError extends Error {
   readonly kind: LocationErrorKind;
-  /** The frozen enum name the vector suite compares (source_v1.rs:423-436). */
+  /** The frozen enum name the vector suite compares (source_v1.rs). */
   readonly name: LocationErrorKind;
   /** No registered error code exists for location failures. */
   readonly code: undefined = undefined;
@@ -216,10 +216,10 @@ export type SourcePatchErrorKind =
   | 'ResourceLimit'
   | 'Source';
 
-/** Stable source patch construction or application failure (source_patch.rs:387-432). */
+/** Stable source patch construction or application failure (source_patch.rs). */
 export class SourcePatchError extends Error {
   readonly kind: SourcePatchErrorKind;
-  /** Frozen registered code (kind→code: source_patch.rs:434-459). */
+  /** Frozen registered code (kind→code: source_patch.rs). */
   readonly code: string;
   /** Zero-based replacement/position index for positional kinds. */
   readonly index?: number;
@@ -246,7 +246,7 @@ export class SourcePatchError extends Error {
   }
 }
 
-/** Kind→code mapping (consema-rs/consema-document/src/source_patch.rs:434-459). */
+/** Kind→code mapping (consema-rs/consema-document/src/source_patch.rs). */
 function sourcePatchErrorCode(kind: SourcePatchErrorKind, source?: SourceError): string {
   switch (kind) {
     case 'BaseMismatch':
@@ -257,7 +257,7 @@ function sourcePatchErrorCode(kind: SourcePatchErrorKind, source?: SourceError):
       return codeSourcePatchTargetMismatch;
     case 'EncodingMismatch':
       // EncodingMismatch and Source(EncodingConflict) both carry
-      // core.source.encoding-conflict@1 (source_patch.rs:442-444).
+      // core.source.encoding-conflict@1 (source_patch.rs).
       return codeSourceEncodingConflict;
     case 'ResourceLimit':
       return codeSourceResourceLimit;
@@ -275,7 +275,7 @@ function sourcePatchErrorCode(kind: SourcePatchErrorKind, source?: SourceError):
 // SourcePatchRedactionError — review-redaction selection failure
 // ---------------------------------------------------------------------------
 
-/** Review-redaction selection failure; patch bytes and application facts are unchanged (source_patch.rs:367-377). */
+/** Review-redaction selection failure; patch bytes and application facts are unchanged (source_patch.rs). */
 export type SourcePatchRedactionErrorKind = 'AllocationFailed' | 'UnknownReplacement';
 
 export class SourcePatchRedactionError extends Error {
@@ -306,7 +306,7 @@ export type UntouchedByteProofErrorKind =
   | 'DigestMismatch'
   | 'ProofMismatch';
 
-/** Proof construction or verification failure (untouched_proof.rs:134-172); no registered codes. */
+/** Proof construction or verification failure (untouched_proof.rs); no registered codes. */
 export class UntouchedByteProofError extends Error {
   readonly kind: UntouchedByteProofErrorKind;
   readonly index?: number;
@@ -321,12 +321,12 @@ export class UntouchedByteProofError extends Error {
 }
 
 // ---------------------------------------------------------------------------
-// EditPlanError — edit-plan construction failure (edit_plan.rs:199-211)
+// EditPlanError — edit-plan construction failure (edit_plan.rs)
 // ---------------------------------------------------------------------------
 
 export type EditPlanErrorKind = 'InvalidSourceId' | 'InvalidOperationSummary' | 'OperationMetadataMismatch';
 
-/** Edit-plan construction failure before a transferable plan exists (edit_plan.rs:199-211); no registered codes. */
+/** Edit-plan construction failure before a transferable plan exists (edit_plan.rs); no registered codes. */
 export class EditPlanError extends Error {
   readonly kind: EditPlanErrorKind;
   readonly index?: number;
@@ -354,14 +354,14 @@ export type MaterializationFailureKind =
   | 'ResourceLimit'
   | 'FormationFailed';
 
-/** Stable materialization failure category (materialization.rs:327-351); codes at materialization.rs:379-391. */
+/** Stable materialization failure category (materialization.rs); codes at materialization.rs. */
 export class MaterializationFailure extends Error {
   readonly kind: MaterializationFailureKind;
-  /** Frozen registered code (materialization.rs:379-391; RFC 0004 §17). */
+  /** Frozen registered code (materialization.rs; RFC 0004 §17). */
   readonly code: string;
   /** InvalidRequest / ResourceLimit: the stable reason or limit name. */
   readonly reason?: string;
-  /** Unrepresentable: stable portable input path and unrepresentable core kind (materialization.rs:340-347). */
+  /** Unrepresentable: stable portable input path and unrepresentable core kind (materialization.rs). */
   readonly path?: ValuePath;
   readonly valueKind?: Kind;
 
@@ -381,7 +381,7 @@ export class MaterializationFailure extends Error {
   }
 }
 
-/** Kind→code mapping (consema-rs/consema-document/src/materialization.rs:379-391). */
+/** Kind→code mapping (consema-rs/consema-document/src/materialization.rs). */
 export function materializationFailureCode(kind: MaterializationFailureKind): string {
   switch (kind) {
     case 'InvalidRequest':

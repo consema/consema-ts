@@ -5,7 +5,7 @@
  *  - domains and operator vocabulary: RFC 0014 §7.1 (:452-467) freezes
  *    `hcl.native-semantic-query@1` with the sixteen operators and §7.2
  *    (:483-507) freezes `hcl.lossless-syntax-query@1` with the two syntax
- *    filters; consema-rs/consema-hcl/src/query.rs:558-585 (native dispatch),
+ *    filters; consema-rs/consema-hcl/src/query.rs (native dispatch),
  *    :1189-1200 (syntax dispatch)
  *  - operator semantics: query.rs — HclMatch (:10-112, ErrorRegion carries
  *    its zero-based position :104-111), HclSyntaxMatch (:128-137), the
@@ -17,7 +17,7 @@
  *    (:962-1020: kind-is on the closed name set, is-literal, text),
  *    children/parts/elements/entries (:1016-1123), the syntax filters
  *    (kind-is, text-equals :1180-1260)
- *  - failure codes: consema-rs/consema-conformance/src/hcl_v1.rs:656-670 — the
+ *  - failure codes: consema-rs/consema-conformance/src/hcl_v1.rs — the
  *    eleven `hcl.query.*@1` spellings; argument decoding follows the
  *    conformance filter builder (:560-611: name/accessor/type/label/kind/
  *    text argument names)
@@ -59,7 +59,7 @@ import {
 // Match and failure records
 // ---------------------------------------------------------------------------
 
-/** Owned snapshot-bound HCL native semantic query match (query.rs:10-112). */
+/** Owned snapshot-bound HCL native semantic query match (query.rs). */
 export type HclMatch =
   | { readonly kind: 'Body'; readonly node: NodeRef; readonly index: number }
   | { readonly kind: 'Attribute'; readonly node: NodeRef; readonly index: number }
@@ -72,16 +72,16 @@ export type HclMatch =
       readonly node: NodeRef;
       readonly index: number;
       readonly code: string;
-      /** Zero-based position within the document's ordered error regions (query.rs:104-111). */
+      /** Zero-based position within the document's ordered error regions (query.rs). */
       readonly position: number;
     };
 
-/** Match identity node (query.rs:114-126). */
+/** Match identity node (query.rs). */
 export function hclMatchIdentity(match: HclMatch): NodeRef {
   return match.node;
 }
 
-/** Owned snapshot-bound HCL lossless syntax query match (query.rs:128-137). */
+/** Owned snapshot-bound HCL lossless syntax query match (query.rs). */
 export class HclSyntaxMatch {
   readonly #node: NodeRef;
   readonly #span: Span;
@@ -149,7 +149,7 @@ export interface HclQueryExecution<M> {
 }
 
 /**
- * Execution-time query failure (hcl_v1.rs:656-670); the domain-mismatch
+ * Execution-time query failure (hcl_v1.rs); the domain-mismatch
  * failure is the protocol QueryFailure.
  */
 export type HclQueryExecutionFailureKind =
@@ -161,7 +161,7 @@ export type HclQueryExecutionFailureKind =
 
 export class HclQueryExecutionFailure extends Error {
   readonly kind: HclQueryExecutionFailureKind;
-  /** Frozen registered code (hcl_v1.rs:656-670). */
+  /** Frozen registered code (hcl_v1.rs). */
   readonly code: string;
   /** CardinalityViolation: the requested selection and the actual match count. */
   readonly selection?: QuerySelection;
@@ -180,7 +180,7 @@ export class HclQueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (hcl_v1.rs:656-670). */
+/** Kind→code mapping (hcl_v1.rs). */
 export function hclQueryExecutionFailureCode(kind: HclQueryExecutionFailureKind): string {
   switch (kind) {
     case 'Cancelled':
@@ -293,7 +293,7 @@ function executeNativeExpression(
   }
 }
 
-/** Deterministic source-order rank of one native match (query.rs:400-423). */
+/** Deterministic source-order rank of one native match (query.rs). */
 function rankMatch(match: HclMatch, context: Context): number {
   const document = context.document();
   if (match.kind === 'ErrorRegion') {
@@ -401,7 +401,7 @@ function applyNativeOperator(
       const accessor = stringArgument(operator, 'accessor');
       for (const match of input) {
         // The accessor accepts a plain expression match or an attribute's
-        // value expression (query.rs:838-846 expression_payload).
+        // value expression (query.rs expression_payload).
         let expressionIndex: number;
         if (match.kind === 'Attribute') {
           expressionIndex = document.attributeEntity(match.index).expression;
@@ -547,7 +547,7 @@ function applyNativeOperator(
     }
     case 'hcl.error-regions': {
       // A document-level fact set emitted once from any non-empty input
-      // (query.rs:1125-1149).
+      // (query.rs).
       if (input.length > 0) {
         const regions = document.errorRegions();
         for (let position = 0; position < regions.length; position++) {
@@ -586,7 +586,7 @@ function applyNativeOperator(
   return output;
 }
 
-/** Whether one typed literal satisfies one accessor (query.rs:795-860). */
+/** Whether one typed literal satisfies one accessor (query.rs). */
 function accessorAccepts(accessor: string, literal: NonNullable<ReturnType<typeof literalValue>>): boolean {
   switch (accessor) {
     case 'as-string':

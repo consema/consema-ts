@@ -28,18 +28,17 @@
  *    json5.string.unescaped-line-separator@1     :649 (Conformance, 0.6.0)
  *    json5.syntax.invalid-identifier@1           :655 (Syntax, 0.6.0)
  *    json.projection.incomplete-document@1       :1332 (Projection, 0.13.0)
- *  - kind→code mapping authority: consema-rs/consema-json/src/projection.rs:
- *    754-765 (ProjectionFailure), consema-rs/consema-json/src/edit.rs:1299-1323
+ *  - kind→code mapping authority: consema-rs/consema-json/src/projection.rs
+ *    (ProjectionFailure), consema-rs/consema-json/src/edit.rs
  *    (EditFailure)
- *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs:643-761
+ *  - FatalFormationFailure: consema-rs/consema-document/src/lib.rs
  *    (from_diagnostic :649-654, invalid_utf8 :657-672, source_error
  *    :675-761); the parse limit names "source-bytes" | "token-count" |
- *    "nesting-depth" | "node-count" (parser.rs:78-83, 389-395, 831-837,
- *    1178-1189)
- *  - QueryExecutionFailure: consema-rs/consema-core/src/query.rs:3114-3219
+ *    "nesting-depth" | "node-count" (parser.rs 的 limit 映射)
+ *  - QueryExecutionFailure: consema-rs/consema-core/src/query.rs
  *    (ResourceLimitExceeded :3166, Cancelled :3168, CardinalityViolation
  *    :3159-3164; codes :3206-3219) and the JSON executor domain gate
- *    consema-rs/consema-json/src/query.rs:96-105 (DomainMismatch)
+ *    consema-rs/consema-json/src/query.rs (DomainMismatch)
  *
  * Design (TypeScript-idiomatic): every kind is a closed string-literal
  * union; `code` is a frozen property of every error instance so the
@@ -58,7 +57,7 @@ import type { SemanticUnavailable } from './semantic.ts';
 // JsonAccessError — typed access failure on one immutable snapshot
 // ---------------------------------------------------------------------------
 
-/** Stable typed JSON access failure (lib.rs:612-621); no registered codes. */
+/** Stable typed JSON access failure (lib.rs); no registered codes. */
 export type JsonAccessErrorKind = 'WrongSnapshot' | 'WrongRole' | 'UnknownNode';
 
 export class JsonAccessError extends Error {
@@ -77,7 +76,7 @@ export class JsonAccessError extends Error {
 // FatalFormationFailure — parse aborted before a document exists
 // ---------------------------------------------------------------------------
 
-/** Fatal parse failure: no Document exists (lib.rs:643-645). */
+/** Fatal parse failure: no Document exists (lib.rs). */
 export class FatalFormationFailure extends Error {
   readonly #diagnostics: readonly Diagnostic[];
 
@@ -87,12 +86,12 @@ export class FatalFormationFailure extends Error {
     this.#diagnostics = Object.freeze([...diagnostics]);
   }
 
-  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs:649-654). */
+  /** Creates a fatal formation failure from one format-specific diagnostic (lib.rs). */
   static fromDiagnostic(diagnostic: Diagnostic): FatalFormationFailure {
     return new FatalFormationFailure([diagnostic]);
   }
 
-  /** Invalid UTF-8 source (lib.rs:657-672; code at error_registry.rs:207). */
+  /** Invalid UTF-8 source (lib.rs; code at error_registry.rs). */
   static invalidUtf8(validUpTo: number): FatalFormationFailure {
     return new FatalFormationFailure([
       {
@@ -112,7 +111,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs:675-761). */
+  /** Converts a source-construction failure into one stable fatal diagnostic (lib.rs). */
   static sourceError(error: SourceError): FatalFormationFailure {
     if (error.kind === 'InvalidUtf8') {
       return FatalFormationFailure.invalidUtf8(error.validUpTo ?? 0);
@@ -165,7 +164,7 @@ export class FatalFormationFailure extends Error {
     ]);
   }
 
-  /** Creates a fatal resource-limit failure (parser.rs:78-83, 389-395, 831-837, 1178-1189). */
+  /** Creates a fatal resource-limit failure (parser.rs). */
   static resourceLimit(name: string, observed: number, limit: number): FatalFormationFailure {
     return FatalFormationFailure.fromDiagnostic({
       code: 'core.parse.resource-limit@1',
@@ -183,7 +182,7 @@ export class FatalFormationFailure extends Error {
     });
   }
 
-  /** Ordered fatal diagnostics (lib.rs:644-645). */
+  /** Ordered fatal diagnostics (lib.rs). */
   diagnostics(): readonly Diagnostic[] {
     return this.#diagnostics;
   }
@@ -193,7 +192,7 @@ export class FatalFormationFailure extends Error {
 // QueryExecutionFailure — stable query execution failure
 // ---------------------------------------------------------------------------
 
-/** Stable query execution failure class (query.rs:3114-3219; query.rs:96-105). */
+/** Stable query execution failure class (query.rs; query.rs). */
 export type QueryExecutionFailureKind =
   | 'DomainMismatch'
   | 'ResourceLimitExceeded'
@@ -203,7 +202,7 @@ export type QueryExecutionFailureKind =
 
 export class QueryExecutionFailure extends Error {
   readonly kind: QueryExecutionFailureKind;
-  /** Frozen registered code (query.rs:3206-3219). */
+  /** Frozen registered code (query.rs). */
   readonly code: string;
   /** DomainMismatch: the rejected domain. */
   readonly domain?: { readonly id: string; readonly version: number };
@@ -229,7 +228,7 @@ export class QueryExecutionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (query.rs:3206-3219; the json executor's DomainMismatch maps the same code). */
+/** Kind→code mapping (query.rs; the json executor's DomainMismatch maps the same code). */
 export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): string {
   switch (kind) {
     case 'DomainMismatch':
@@ -249,7 +248,7 @@ export function queryExecutionFailureCode(kind: QueryExecutionFailureKind): stri
 // ProjectionFailure — stable projection failure category
 // ---------------------------------------------------------------------------
 
-/** Stable projection failure category (projection.rs:326-355); codes at projection.rs:754-765. */
+/** Stable projection failure category (projection.rs); codes at projection.rs. */
 export type ProjectionFailureKind =
   | 'RecoveredDocument'
   | 'ConflictingPolicyRules'
@@ -262,13 +261,13 @@ export type ProjectionFailureKind =
 
 export class ProjectionFailure extends Error {
   readonly kind: ProjectionFailureKind;
-  /** Frozen registered code (projection.rs:754-765). */
+  /** Frozen registered code (projection.rs). */
   readonly code: string;
   /** DuplicateKeys / SemanticUnavailable / InvalidPolicyTarget: the source identity. */
   readonly node?: NodeRef;
-  /** SemanticUnavailable: the stable reason (projection.rs:346-352). */
+  /** SemanticUnavailable: the stable reason (projection.rs). */
   readonly reason?: SemanticUnavailable;
-  /** ResourceLimit: the stable limit name (projection.rs:353-355). */
+  /** ResourceLimit: the stable limit name (projection.rs). */
   readonly limitName?: string;
 
   constructor(
@@ -286,7 +285,7 @@ export class ProjectionFailure extends Error {
   }
 }
 
-/** Kind→code mapping (projection.rs:754-765). */
+/** Kind→code mapping (projection.rs). */
 export function projectionFailureCode(kind: ProjectionFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':
@@ -312,7 +311,7 @@ export function projectionFailureCode(kind: ProjectionFailureKind): string {
 // EditFailure — stable edit validation or commit failure
 // ---------------------------------------------------------------------------
 
-/** Stable edit validation or commit failure (edit.rs:259-299); codes at edit.rs:1299-1323. */
+/** Stable edit validation or commit failure (edit.rs); codes at edit.rs. */
 export type EditFailureKind =
   | 'RecoveredDocument'
   | 'WrongSnapshot'
@@ -336,11 +335,11 @@ export type EditFailureKind =
 
 export class EditFailure extends Error {
   readonly kind: EditFailureKind;
-  /** Frozen registered code (edit.rs:1299-1323). */
+  /** Frozen registered code (edit.rs). */
   readonly code: string;
-  /** UnsupportedSemanticValue / UnrepresentableValue: the rejected core kind (edit.rs:272, 294). */
+  /** UnsupportedSemanticValue / UnrepresentableValue: the rejected core kind (edit.rs). */
   readonly valueKind?: Kind;
-  /** ResourceLimit: the stable limit name (edit.rs:296). */
+  /** ResourceLimit: the stable limit name (edit.rs). */
   readonly limitName?: string;
 
   constructor(
@@ -356,7 +355,7 @@ export class EditFailure extends Error {
   }
 }
 
-/** Kind→code mapping (edit.rs:1299-1323). */
+/** Kind→code mapping (edit.rs). */
 export function editFailureCode(kind: EditFailureKind): string {
   switch (kind) {
     case 'RecoveredDocument':

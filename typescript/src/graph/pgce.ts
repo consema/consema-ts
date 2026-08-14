@@ -6,16 +6,16 @@
  * conformance/vectors/portable-graph-v1.json (cases pgce.empty-vector,
  * pgce.scalar-vector, pgce.reject-nonminimal-varint,
  * pgce.reject-noncanonical-node-order). Wire constants:
- *  - stream magic is the ASCII octets "PGCE" (pgce.rs:12)
- *  - version is minimal unsigned LEB128 1 (pgce.rs:14)
+ *  - stream magic is the ASCII octets "PGCE" (pgce.rs)
+ *  - version is minimal unsigned LEB128 1 (pgce.rs)
  *  - node kind octets are 0x20 (Scalar), 0x40 (Sequence), 0x41 (Mapping)
- *    (pgce.rs:16-18)
+ *    (pgce.rs)
  *  - all counts/lengths/references are minimal unsigned LEB128
  *  - root and edge references carry canonical IDs assigned in first-
- *    discovery order (pgce.rs:229-275)
+ *    discovery order (pgce.rs)
  *  - decoding revalidates canonical node numbering and re-encodes for byte
- *    equality (pgce.rs:497-506)
- *  - limits: pgce.rs:41-54 (64 MiB stream, 1,000,000 roots, 1,000,000
+ *    equality (pgce.rs)
+ *  - limits: pgce.rs (64 MiB stream, 1,000,000 roots, 1,000,000
  *    nodes, 2,000,000 edges, 1,000,000 container entries, 1 MiB tag,
  *    64 MiB scalar, depth 256)
  *
@@ -35,12 +35,12 @@ export const PGCE_MAGIC = new Uint8Array([0x50, 0x47, 0x43, 0x45]);
 /** PGCE/1 version. */
 export const PGCE_VERSION = 1n;
 
-/** Node kind octets (consema-rs/consema-graph/src/pgce.rs:16-18). */
+/** Node kind octets (consema-rs/consema-graph/src/pgce.rs). */
 export const NODE_SCALAR = 0x20;
 export const NODE_SEQUENCE = 0x40;
 export const NODE_MAPPING = 0x41;
 
-/** Bounded PGCE encode/decode limits (pgce.rs:21-54). */
+/** Bounded PGCE encode/decode limits (pgce.rs). */
 export interface PgceLimits {
   readonly maxStreamBytes: number;
   readonly maxRoots: number;
@@ -52,7 +52,7 @@ export interface PgceLimits {
   readonly maxTraversalDepth: number;
 }
 
-/** The frozen defaults (pgce.rs:41-54). */
+/** The frozen defaults (pgce.rs). */
 export function defaultPgceLimits(): PgceLimits {
   return {
     maxStreamBytes: 64 << 20,
@@ -66,7 +66,7 @@ export function defaultPgceLimits(): PgceLimits {
   };
 }
 
-/** The graph-construction limits implied by PGCE limits (pgce.rs:56-68). */
+/** The graph-construction limits implied by PGCE limits (pgce.rs). */
 function graphLimitsOf(limits: PgceLimits): Limits {
   return {
     maxRoots: limits.maxRoots,
@@ -79,7 +79,7 @@ function graphLimitsOf(limits: PgceLimits): Limits {
   };
 }
 
-/** Minimal unsigned LEB128 encoding (pgce.rs:398-410). */
+/** Minimal unsigned LEB128 encoding (pgce.rs). */
 function varintBytes(value: bigint): number[] {
   const out: number[] = [];
   let v = value;
@@ -96,7 +96,7 @@ function varintBytes(value: bigint): number[] {
   }
 }
 
-/** Encoded length of one minimal unsigned LEB128 (pgce.rs:412-419). */
+/** Encoded length of one minimal unsigned LEB128 (pgce.rs). */
 function varintSize(value: bigint): number {
   let size = 1;
   let v = value;
@@ -109,7 +109,7 @@ function varintSize(value: bigint): number {
 
 /**
  * Encodes one graph as a complete canonical PGCE/1 stream with the default
- * bounded policy (pgce.rs:219-221).
+ * bounded policy (pgce.rs).
  */
 export function encodePGCE(graph: Graph): Uint8Array {
   return encodePGCERecords(graph, defaultPgceLimits());
@@ -117,7 +117,7 @@ export function encodePGCE(graph: Graph): Uint8Array {
 
 /**
  * Encodes one complete canonical PGCE/1 stream after exact size measurement
- * (pgce.rs:224-275). Exceeding any limit throws the typed resource-limit
+ * (pgce.rs). Exceeding any limit throws the typed resource-limit
  * error with no partial output.
  */
 export function encodePGCERecords(graph: Graph, limits: PgceLimits): Uint8Array {
@@ -176,7 +176,7 @@ function textBytes(text: string): Uint8Array {
 /** The canonical first-discovery layout of a completed graph. */
 function layoutOf(graph: Graph): { order: number[]; canonicalIDs: number[] } {
   // Completed graphs traverse cleanly; a failure is an internal invariant
-  // violation (pgce.rs:521-533).
+  // violation (pgce.rs).
   return canonicalOrder(graph.nodes, graph.roots, -1);
 }
 
@@ -188,7 +188,7 @@ function canonicalId(canonicalIDs: number[], id: NodeID): number {
   return value;
 }
 
-/** Encode-side limit validation (pgce.rs:277-284). */
+/** Encode-side limit validation (pgce.rs). */
 function validateGraphLimits(graph: Graph, limits: PgceLimits): void {
   checkEncodeLimit('graph-roots', graph.roots.length, limits.maxRoots);
   checkEncodeLimit('graph-nodes', graph.nodes.length, limits.maxNodes);
@@ -206,7 +206,7 @@ function checkEncodeLimit(name: string, observed: number, limit: number): void {
   }
 }
 
-/** Exact stream size measurement (pgce.rs:286-339). */
+/** Exact stream size measurement (pgce.rs). */
 function measure(
   graph: Graph,
   canonicalIDs: number[],
@@ -264,7 +264,7 @@ function mapBuildToEncode(error: GraphError): PGCEError {
 // ---------------------------------------------------------------------------
 
 /**
- * Strictly decodes one canonical PGCE/1 stream (pgce.rs:422-507).
+ * Strictly decodes one canonical PGCE/1 stream (pgce.rs).
  */
 export function decodePGCE(stream: Uint8Array, limits: PgceLimits): Graph {
   if (stream.length > limits.maxStreamBytes) {
@@ -352,14 +352,14 @@ export function decodePGCE(stream: Uint8Array, limits: PgceLimits): Graph {
   } catch (error) {
     throw mapBuildToDecode(error as GraphError);
   }
-  // Canonical node-numbering revalidation (pgce.rs:497-501).
+  // Canonical node-numbering revalidation (pgce.rs).
   const layout = layoutOf(graph);
   for (let i = 0; i < layout.order.length; i++) {
     if (layout.order[i] !== i) {
       throw new PGCEError('NonCanonicalNodeOrder');
     }
   }
-  // Byte-identity re-encode check (pgce.rs:502-505).
+  // Byte-identity re-encode check (pgce.rs).
   let encoded: Uint8Array;
   try {
     encoded = encodePGCERecords(graph, limits);
@@ -406,7 +406,7 @@ function byteArraysEqual(a: Uint8Array, b: Uint8Array): boolean {
   return true;
 }
 
-/** Strict streaming decoder over one PGCE/1 stream (pgce.rs:509-595). */
+/** Strict streaming decoder over one PGCE/1 stream (pgce.rs). */
 class PgceDecoder {
   private readonly bytes: Uint8Array;
   private offset = 0;
@@ -436,7 +436,7 @@ class PgceDecoder {
     return value;
   }
 
-  /** Reads one unsigned varint, rejecting non-minimal forms and 64-bit overflow (pgce.rs:539-557). */
+  /** Reads one unsigned varint, rejecting non-minimal forms and 64-bit overflow (pgce.rs). */
   varint(): bigint {
     const start = this.offset;
     let value = 0n;
@@ -457,7 +457,7 @@ class PgceDecoder {
     throw new PGCEError('VarintOverflow');
   }
 
-  /** Reads one varint count and enforces the named limit (pgce.rs:559-564). */
+  /** Reads one varint count and enforces the named limit (pgce.rs). */
   count(name: string, limit: number): number {
     const value = this.varint();
     if (value > BigInt(limit)) {
@@ -466,7 +466,7 @@ class PgceDecoder {
     return Number(value);
   }
 
-  /** Reads one node reference within node_count (pgce.rs:566-574). */
+  /** Reads one node reference within node_count (pgce.rs). */
   reference(nodeCount: number): number {
     const value = this.varint();
     if (value >= BigInt(nodeCount)) {
@@ -475,7 +475,7 @@ class PgceDecoder {
     return Number(value);
   }
 
-  /** Reads one length-delimited string with the named limit and UTF-8 validation (pgce.rs:576-586). */
+  /** Reads one length-delimited string with the named limit and UTF-8 validation (pgce.rs). */
   string(limitName: string, limit: number): string {
     const length = this.count(limitName, limit);
     const bytes = this.take(length);
@@ -486,7 +486,7 @@ class PgceDecoder {
     }
   }
 
-  /** Counts edges and enforces maxEdges (pgce.rs:588-594). */
+  /** Counts edges and enforces maxEdges (pgce.rs). */
   addEdges(count: number): void {
     this.edges += count;
     if (this.edges > this.limits.maxEdges) {

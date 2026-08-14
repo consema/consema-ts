@@ -83,7 +83,7 @@ export function parseCliCommand(name: string): CliCommand | undefined {
   return (COMMANDS as readonly string[]).includes(name) ? (name as CliCommand) : undefined;
 }
 
-/** The payload schemas the command may carry (RFC 0015 §6.1 table; cli.rs:92-115). */
+/** The payload schemas the command may carry (RFC 0015 §6.1 table; cli.rs). */
 export function payloadSchemas(command: CliCommand): readonly string[] {
   switch (command) {
     case 'inspect':
@@ -117,7 +117,7 @@ export function payloadSchemas(command: CliCommand): readonly string[] {
   }
 }
 
-/** The envelope redaction facts (RFC 0015 §11.3; cli.rs:117-147). */
+/** The envelope redaction facts (RFC 0015 §11.3; cli.rs). */
 export interface Redaction {
   readonly redacted: boolean;
   readonly count: bigint;
@@ -177,7 +177,7 @@ export interface EditOperationSummary {
   readonly summary: ReadonlyMap<string, string>;
 }
 
-/** Validates a bounded summary (cli.rs:166-215). */
+/** Validates a bounded summary (cli.rs). */
 export function newEditOperationSummary(
   operation: FormatOperationId,
   summary: ReadonlyMap<string, string>,
@@ -206,7 +206,7 @@ function validSummaryName(name: string): boolean {
   return true;
 }
 
-/** The wire form of one core.source-encoding@1 record (protocol/src/source.rs:497-514). */
+/** The wire form of one core.source-encoding@1 record (protocol/src/source.rs). */
 export interface SourceEncoding {
   /** Frozen kind spelling: Binary, Utf8, Utf16Le, Utf16Be, Latin1, or WindowsCodePage. */
   readonly kind: string;
@@ -214,7 +214,7 @@ export interface SourceEncoding {
   readonly windowsCodePage?: number;
 }
 
-/** The source-patch@2 encoding facts record (protocol/src/source.rs:598-631). */
+/** The source-patch@2 encoding facts record (protocol/src/source.rs). */
 export interface EncodingFacts {
   readonly profileDefault?: SourceEncoding;
   /** "DetectUnicode" or "TreatAsContent". */
@@ -226,7 +226,7 @@ export interface EncodingFacts {
   readonly selected?: SourceEncoding;
 }
 
-/** One structural replacement of a wire source patch (source_patch.rs:31-90). */
+/** One structural replacement of a wire source patch (source_patch.rs). */
 export interface SourceReplacement {
   readonly oldStart: bigint;
   readonly oldEnd: bigint;
@@ -254,7 +254,7 @@ export interface SourcePatch {
 /** One file-level status in a core.batch-plan@1 manifest (RFC 0015 §8.2). */
 export type BatchPlanFileStatus = 'planned' | 'failed';
 
-/** One file entry of a core.batch-plan@1 manifest (cli.rs:376-541). */
+/** One file entry of a core.batch-plan@1 manifest (cli.rs). */
 export interface BatchPlanFileEntry {
   readonly path: string;
   readonly status: BatchPlanFileStatus;
@@ -268,7 +268,7 @@ export interface BatchPlanFileEntry {
 
 /**
  * Validates the per-status presence rules and the
- * `source_digest == source_patch.base_digest` cross constraint (cli.rs:389-492).
+ * `source_digest == source_patch.base_digest` cross constraint (cli.rs).
  */
 export function newBatchPlanFileEntry(
   path: string,
@@ -392,7 +392,7 @@ export function batchPlanFromValue(
   return newBatchPlanMessage(productVersion, files, registry);
 }
 
-/** Re-verifies the entry-level cross constraints (cli.rs:887-938). */
+/** Re-verifies the entry-level cross constraints (cli.rs). */
 function revalidatePlanEntry(entry: BatchPlanFileEntry, index: number, registry: ErrorCodeRegistry): void {
   const path = `$.files[${index}]`;
   switch (entry.status) {
@@ -427,7 +427,7 @@ function revalidatePlanEntry(entry: BatchPlanFileEntry, index: number, registry:
   );
 }
 
-/** Encodes one plan entry (cli.rs:1136-1206). */
+/** Encodes one plan entry (cli.rs). */
 function planEntryValue(entry: BatchPlanFileEntry, index: number): ObjectValue {
   let sourcePatch: PortableValue = wireNull();
   if (entry.sourcePatch !== undefined) {
@@ -453,7 +453,7 @@ function planEntryValue(entry: BatchPlanFileEntry, index: number): ObjectValue {
   ]);
 }
 
-/** Strictly decodes one plan entry at the value level (cli.rs:1022-1135). */
+/** Strictly decodes one plan entry at the value level (cli.rs). */
 function parsePlanEntry(value: PortableValue, index: number, registry: ErrorCodeRegistry): BatchPlanFileEntry {
   const path = `$.files[${index}]`;
   const fields = exactFields(
@@ -729,7 +729,7 @@ export interface BatchResultFileEntry {
   readonly redacted: boolean;
 }
 
-/** Validates the per-status presence rules and the closed status set (cli.rs:666-712). */
+/** Validates the per-status presence rules and the closed status set (cli.rs). */
 export function newBatchResultFileEntry(
   path: string,
   status: BatchResultFileStatus,
@@ -800,7 +800,7 @@ export function batchResultToValue(message: BatchResultMessage): ObjectValue {
   ]);
 }
 
-/** Strictly decodes core.batch-result@1 (cli.rs:801-821). */
+/** Strictly decodes core.batch-result@1 (cli.rs). */
 export function batchResultFromValue(value: PortableValue): BatchResultMessage {
   const fields = schemaFields(
     value,
@@ -877,7 +877,7 @@ export interface CliOutputMessage {
   readonly redaction: Redaction;
 }
 
-/** Validates the envelope under the semantic-model v7 error registry (cli.rs:160-220). */
+/** Validates the envelope under the semantic-model v7 error registry (cli.rs). */
 export function newCliOutputMessage(
   command: CliCommand,
   exitClass: ExitClass,
@@ -919,7 +919,7 @@ export function cliOutputToValue(message: CliOutputMessage): ObjectValue {
   ]);
 }
 
-/** Strictly decodes core.cli-output@1 under the semantic-model v7 error registry (cli.rs:288-343). */
+/** Strictly decodes core.cli-output@1 under the semantic-model v7 error registry (cli.rs). */
 export function cliOutputFromValue(value: PortableValue, registry: ErrorCodeRegistry): CliOutputMessage {
   const fields = schemaFields(
     value,
@@ -959,7 +959,7 @@ export function cliOutputFromValue(value: PortableValue, registry: ErrorCodeRegi
 
 /**
  * Requires the payload schema to match the command (RFC 0015 §6.1 table;
- * cli.rs:824-871). The failure kinds are pinned by the shared vectors:
+ * cli.rs). The failure kinds are pinned by the shared vectors:
  * WrongType for a non-object payload, MissingField for an absent schema,
  * SchemaMismatch when the schema is not the first field or is not published
  * by the command (the schema-mismatch vector pins

@@ -232,7 +232,7 @@ test('formation.recovery-never-publishes-partial-operation: Recovered is atomic 
   assert.equal(document.losslessStructuralIndex().pieces().some((piece) => piece.kind() === 'ErrorRegion'), true);
 });
 
-test('profile and encoding selection must match (lib.rs:991-1004)', () => {
+test('profile and encoding selection must match (lib.rs)', () => {
   assert.throws(
     () =>
       parse(

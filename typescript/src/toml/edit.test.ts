@@ -102,7 +102,7 @@ test('golden toml.edit.reject-unrepresentable: non-canonical NaN payload fails a
 // ---------------------------------------------------------------------------
 
 test('literal and semantic edits change only scalar spans; mappings are Replaced', () => {
-  // edit.rs:1685-1732 test shape.
+  // edit.rs test shape.
   const document = parseSource("hex = 0x2A # keep\nname = 'old'\nfloat = 1.0\n");
   const builder = new TomlEditTransactionBuilder(document);
   builder
@@ -130,7 +130,7 @@ test('literal and semantic edits change only scalar spans; mappings are Replaced
 });
 
 test('exact literal rejects trivia, containers, and extra assignments', () => {
-  // edit.rs:1819-1837 test shape: " 2", "2 # comment", "[1, 2]", "2\nother = 3"
+  // edit.rs test shape: " 2", "2 # comment", "[1, 2]", "2\nother = 3"
   // are all InvalidLiteral.
   const document = parseSource('value = 1\n');
   const target = rootItem(document, 'value').nodeRef();
@@ -150,7 +150,7 @@ test('exact literal rejects trivia, containers, and extra assignments', () => {
 });
 
 test('semantic policy boundaries reject instead of rounding', () => {
-  // edit.rs:1767-1817 test shape.
+  // edit.rs test shape.
   const document = parseSource('float = 1.0\ntime = 00:00:00\noffset = 1979-05-27T00:00:00Z\n');
   const floatTarget = rootItem(document, 'float').nodeRef();
   const incompatible = new TomlEditTransactionBuilder(document);
@@ -164,7 +164,7 @@ test('semantic policy boundaries reject instead of rounding', () => {
     (failure: TomlEditFailure) => failure.kind === 'RepresentationIncompatible',
   );
 
-  // A literal on a non-scalar (the root table) is WrongRole (edit.rs:487-489);
+  // A literal on a non-scalar (the root table) is WrongRole (edit.rs);
   // a scalar target accepts any one-scalar literal spelling.
   const container = new TomlEditTransactionBuilder(document);
   container.literalScalar(document.root().nodeRef(), new TextEncoder().encode('3'));
@@ -207,7 +207,7 @@ test('PreserveElseCanonical reports toml.edit.representation-fallback@1 on categ
 // ---------------------------------------------------------------------------
 
 test('root and standard table insertions preserve table ownership', () => {
-  // edit.rs:1839-1892 test shape.
+  // edit.rs test shape.
   const document = parseSource('root = 1\n\n[service]\nport = 80\n');
   const service = rootEntry(document, 'service').item();
 
@@ -245,7 +245,7 @@ test('root and standard table insertions preserve table ownership', () => {
 });
 
 test('inline table operations preserve exact association identity', () => {
-  // edit.rs:1894-1940 test shape.
+  // edit.rs test shape.
   const document = parseSource('point = { a = 1, b = 2 }\n');
   const point = rootItem(document, 'point');
   const entries = point.tableEntries()!;
@@ -278,7 +278,7 @@ test('inline table operations preserve exact association identity', () => {
 });
 
 test('array insert and remove cover empty and commented arrays', () => {
-  // edit.rs:1942-1977 test shape.
+  // edit.rs test shape.
   const empty = parseSource('items = [ ]\n');
   const array = rootItem(empty, 'items');
   const start = new TomlEditTransactionBuilder(empty);
@@ -311,7 +311,7 @@ test('array insert and remove cover empty and commented arrays', () => {
 });
 
 test('structural dependencies and table rules fail atomically', () => {
-  // edit.rs:1979-2093 test shape.
+  // edit.rs test shape.
   const document = parseSource('a = 1\nb = 2\n\n[service]\nport = 80\n');
   const entries = document.root().tableEntries()!;
   const a = entries.find((entry) => entry.name() === 'a')!;
@@ -407,7 +407,7 @@ test('structural dependencies and table rules fail atomically', () => {
 });
 
 test('empty standard table insertion uses its header newline and CRLF', () => {
-  // edit.rs:2095-2120 test shape.
+  // edit.rs test shape.
   const document = parseSource('[empty]\r\n[next]\r\nx = 1\r\n');
   const empty = rootEntry(document, 'empty').item();
   const builder = new TomlEditTransactionBuilder(document);
@@ -420,7 +420,7 @@ test('empty standard table insertion uses its header newline and CRLF', () => {
 });
 
 test('dry run and commit produce identical patches and target digests', () => {
-  // edit.rs:2122-2155 test shape.
+  // edit.rs test shape.
   const document = parseSource('value = 1\n');
   const builder = new TomlEditTransactionBuilder(document);
   builder.insertEntry(
@@ -445,7 +445,7 @@ test('dry run and commit produce identical patches and target digests', () => {
 });
 
 test('canonical string escaping matches the frozen table', () => {
-  // edit.rs:1516-1537 escaping table.
+  // edit.rs escaping table.
   assert.equal(canonicalString('a\nb'), '"a\\nb"');
   assert.equal(canonicalString('quote " back \\ tab \t'), '"quote \\" back \\\\ tab \\t"');
   assert.equal(canonicalString('\u0000'), '"\\u0000"');
