@@ -172,7 +172,7 @@ jobs:
           try {
             npm init -y | Out-Null
             npm install $tgz | Out-Null
-            node --input-type=module -e "import { parseDocument, profiles, formatFamilies } from '@consema/consema'; const pid = profiles().find(p => p.profile().id() === 'json.strict')?.profile(); if (!pid) throw new Error('no json.strict profile'); const d = parseDocument(new TextEncoder().encode('{\"a\":1}'), pid); if (typeof d.asJson() === 'string') throw new Error('not json'); if (formatFamilies().length !== 8) throw new Error('bad families'); console.log('package root import OK')"
+            node --input-type=module -e "import { parseDocument, profiles, formatFamilies } from '@consema/consema'; const pid = profiles().find(p => p.profile().id() === 'json.strict')?.profile(); if (!pid) throw new Error('no json.strict profile'); const d = parseDocument(new TextEncoder().encode('{`"a`":1}'), pid); if (typeof d.asJson() === 'string') throw new Error('not json'); if (formatFamilies().length !== 8) throw new Error('bad families'); console.log('package root import OK')"
             if ($LASTEXITCODE -ne 0) { throw 'package root import failed' }
           }
           finally {
