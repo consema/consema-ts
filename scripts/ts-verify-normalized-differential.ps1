@@ -1,7 +1,8 @@
 param(
     [string]$CaseFile = '',
     [string]$OutDir = '',
-    # consema-rs checkout directory (multi-repo mode); default: <repo root>\consema-rs
+    # consema-rs checkout directory (multi-repo mode); default: <repo
+    # root>\consema-rs (CI layout) or a sibling consema-rs checkout (G109)
     [string]$RustWorkspace = ''
 )
 
@@ -46,12 +47,32 @@ param(
 # ---------------------------------------------------------------------------
 
 $ErrorActionPreference = 'Stop'
+# Per-invocation unique directory suffix (G44, 2026-08-14): a fixed shared
+# capture/evidence/output/workDir path would let two concurrent runs
+# truncate or interleave each other's files and flip the SKIPPED/PASSED
+# verdicts; every default TEMP/target path below carries this nonce.
+$nonce = [Guid]::NewGuid().ToString('N')
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $tsDir = Join-Path $workspaceRoot 'typescript'
 # The Rust emitter workspace lives in the consema-rs repository checkout
 # (multi-repo mode): this repository carries the TypeScript implementation only.
-# -RustWorkspace overrides the default sibling checkout <repo root>\consema-rs.
-if (-not $RustWorkspace) { $RustWorkspace = Join-Path $workspaceRoot 'consema-rs' }
+# Default resolution (G109, adversarial audit 2026-08-13 — the old default
+# only matched the CI nested layout): <repo root>\consema-rs (CI) first,
+# then a sibling consema-rs checkout; -RustWorkspace overrides either.
+if (-not $RustWorkspace) {
+    $nested = Join-Path $workspaceRoot 'consema-rs'
+    $sibling = Join-Path (Split-Path -Parent $workspaceRoot) 'consema-rs'
+    if (Test-Path (Join-Path $nested 'Cargo.toml')) {
+        $RustWorkspace = $nested
+    }
+    elseif (Test-Path (Join-Path $sibling 'Cargo.toml')) {
+        $RustWorkspace = $sibling
+    }
+    else {
+        Write-Error "consema-rs checkout not found: tried $nested (CI multi-repo mode) and $sibling (side-by-side layout); pass -RustWorkspace explicitly"
+        exit 1
+    }
+}
 $RustWorkspace = [IO.Path]::GetFullPath($RustWorkspace)
 
 # --- repo layout sanity ------------------------------------------------------
@@ -116,7 +137,7 @@ if (-not (Test-Path $example)) {
     exit 1
 }
 if ($OutDir -eq '') {
-    $OutDir = Join-Path $targetDir 'ts-differential-normalized'
+    $OutDir = Join-Path $targetDir "ts-differential-normalized-$nonce"
 }
 # The env vars are consumed by `node --test` from the package directory, so
 # they must be absolute.
@@ -133,7 +154,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # --- TS side: forward comparison + reverse emission ---------------------------
-$tsEvidenceDir = Join-Path $targetDir 'ts-differential-normalized-ts'
+$tsEvidenceDir = Join-Path $targetDir "ts-differential-normalized-ts-$nonce"
 $tsEvidenceDir = [System.IO.Path]::GetFullPath($tsEvidenceDir)
 if (Test-Path $tsEvidenceDir) { Remove-Item $tsEvidenceDir -Recurse -Force }
 Write-Host "[3/4] running the TS differential test (normalized.test.ts) + emitting the TS evidence files -> $tsEvidenceDir"
@@ -141,7 +162,7 @@ $env:CONSEMA_DIFFERENTIAL_NORMALIZED_RUST_DIR = $OutDir
 $env:CONSEMA_DIFFERENTIAL_NORMALIZED_TS_DIR = $tsEvidenceDir
 # Capture files live outside $OutDir and $tsEvidenceDir: those directories
 # must contain only the `<case-id>.txt` evidence files.
-$logDir = Join-Path $env:TEMP 'consema-ts-normalized'
+$logDir = Join-Path $env:TEMP "consema-ts-normalized-$nonce"
 New-Item -ItemType Directory -Force $logDir | Out-Null
 $stdoutFile = Join-Path $logDir 'ts-test.stdout.txt'
 $stderrFile = Join-Path $logDir 'ts-test.stderr.txt'
