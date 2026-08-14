@@ -19,6 +19,7 @@ import { dirname, resolve } from 'node:path';
 
 import { DEFAULT_PARSE_LIMITS } from '../document/formation.ts';
 import { parseToml, TomlDocument, TomlEntry } from './document.ts';
+import { MAX_NUMBER_DIGITS } from '../core/value.ts';
 import { TomlProfile, capabilityTomlDocumentComplete, capabilityTomlDocumentLosslessSyntax } from './profile.ts';
 import { TomlFormationFailure } from './errors.ts';
 
@@ -353,6 +354,46 @@ test('node and depth limits fail with core.parse.resource-limit@1 (golden toml.r
     (failure: TomlFormationFailure) => {
       assert.equal(failure.kind, 'FatalFormationFailure');
       assert.equal(failure.code, 'core.parse.resource-limit@1');
+      return true;
+    },
+  );
+});
+
+test('number_digits over the frozen maximum is a resource-limit failure before the BigInt conversion (wave-4 magnitude cap)', () => {
+  // The digit check must fire before BigInt parsing of the literal, so an
+  // over-limit integer (decimal, hex, octal, or binary) fails with the
+  // frozen resource-limit code instead of allocating an unbounded bigint.
+  const cases = [
+    '9'.repeat(MAX_NUMBER_DIGITS + 1),
+    '0x' + 'f'.repeat(MAX_NUMBER_DIGITS + 1),
+    '0o' + '7'.repeat(MAX_NUMBER_DIGITS + 1),
+    '0b' + '1'.repeat(MAX_NUMBER_DIGITS + 1),
+  ];
+  for (const literal of cases) {
+    assert.throws(
+      () => parseSource(`value = ${literal}\n`),
+      (failure: TomlFormationFailure) => {
+        assert.equal(failure.kind, 'FatalFormationFailure');
+        assert.equal(failure.code, 'core.parse.resource-limit@1');
+        assert.equal(failure.limitName, 'number_digits');
+        assert.equal(failure.observed, MAX_NUMBER_DIGITS + 1);
+        assert.equal(failure.limit, MAX_NUMBER_DIGITS);
+        assert.equal(failure.diagnostics[0].arguments.get('name'), 'number_digits');
+        return true;
+      },
+    );
+  }
+});
+
+test('under the digit cap the i64 range check still applies', () => {
+  // A 1000-digit decimal integer is far below the digit cap but above the
+  // i64 range: it must fail as a syntax error, not as a resource limit.
+  assert.throws(
+    () => parseSource(`value = ${'9'.repeat(1000)}\n`),
+    (failure: TomlFormationFailure) => {
+      assert.equal(failure.kind, 'FatalFormationFailure');
+      assert.equal(failure.code, 'toml.parse.syntax@1');
+      assert.equal(failure.parserReason, 'integer out of range');
       return true;
     },
   );

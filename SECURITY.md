@@ -11,6 +11,7 @@ Consema 将资源上限作为执行策略，不把截断包装成成功：
 - `ProjectionLimits` 限制 value、report、provenance 和 depth；
 - `SourceLimits` 限制 raw bytes、decoded UTF-8 bytes 与 scalar/location count；
 - `SourcePatchLimits` 限制 result source、replacement count 与 patch bytes。
+- `max_number_digits`（默认 100_000，与 HCL number-digits 先例一致）限制 JSON/JSONC/JSON5、YAML 与 TOML 数字字面量的系数位与指数位；检查在 BigInt 转换与尾零剥离之前，超限以 `FatalFormationFailure`（json/yaml，`core.parse.resource-limit@1`）或 `TomlFormationFailure`（kind `ResourceLimit`）失败，core 侧 `decimalValue` 直接构造超限系数同样抛 `PVCEError`（kind `ResourceLimit`）。不崩溃、不静默截断、不回退为字符串。
 - `MaterializationLimits` 限制 input nodes/depth、output bytes、report entries 与 provenance entries。
 
 超限分别返回 `FatalFormationFailure`（parse）、`PVCEError`（kind `ResourceLimit`，PVCE/transport decode）、`QueryExecutionFailure`（kind `ResourceLimitExceeded`，query）或 failed projection；每种 typed error 携带冻结注册码（如 `core.pvce.resource-limit@1`、`core.query.resource-limit@1`）。取消不会被报告为完成。

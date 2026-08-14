@@ -16,6 +16,7 @@ import { DEFAULT_PARSE_LIMITS } from '../document/formation.ts';
 import { FatalFormationFailure } from './errors.ts';
 import { textToBytes, utf16LeBytes } from './test_helpers.ts';
 import { PROFILE_YAML12_CORE, PROFILE_YAML11_COMPAT } from './profile.ts';
+import { MAX_NUMBER_DIGITS } from '../core/value.ts';
 
 function core(source: string) {
   return parse(textToBytes(source), PROFILE_YAML12_CORE, DEFAULT_PARSE_LIMITS);
@@ -242,6 +243,75 @@ test('alias bomb — deep alias chain stays within nesting limits', () => {
       error instanceof FatalFormationFailure &&
       error.diagnostics()[0].code === 'core.parse.resource-limit@1',
   );
+});
+
+test('resource.number-digits — integer over the frozen digit maximum is fatal (wave-4 magnitude cap)', () => {
+  assert.throws(
+    () => core(`[${'9'.repeat(MAX_NUMBER_DIGITS + 1)}]\n`),
+    (error: unknown) =>
+      error instanceof FatalFormationFailure &&
+      error.diagnostics()[0].code === 'core.parse.resource-limit@1' &&
+      error.diagnostics()[0].arguments.get('name') === 'number-digits' &&
+      error.diagnostics()[0].arguments.get('limit') === String(MAX_NUMBER_DIGITS),
+  );
+});
+
+test('resource.number-digits — decimal coefficient over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () => core(`[${'1.'}${'9'.repeat(MAX_NUMBER_DIGITS + 1)}]\n`),
+    (error: unknown) =>
+      error instanceof FatalFormationFailure &&
+      error.diagnostics()[0].code === 'core.parse.resource-limit@1' &&
+      error.diagnostics()[0].arguments.get('name') === 'number-digits',
+  );
+});
+
+test('resource.number-digits — exponent over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () => core(`[1e${'9'.repeat(MAX_NUMBER_DIGITS + 1)}]\n`),
+    (error: unknown) =>
+      error instanceof FatalFormationFailure &&
+      error.diagnostics()[0].code === 'core.parse.resource-limit@1' &&
+      error.diagnostics()[0].arguments.get('name') === 'number-digits',
+  );
+});
+
+test('resource.number-digits — base-prefixed integer over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () => core(`[0x${'f'.repeat(MAX_NUMBER_DIGITS + 1)}]\n`),
+    (error: unknown) =>
+      error instanceof FatalFormationFailure &&
+      error.diagnostics()[0].code === 'core.parse.resource-limit@1' &&
+      error.diagnostics()[0].arguments.get('name') === 'number-digits',
+  );
+});
+
+test('resource.number-digits — 1.1 sexagesimal over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () =>
+      parse(
+        textToBytes(`[${'9'.repeat(MAX_NUMBER_DIGITS + 1)}:1]\n`),
+        PROFILE_YAML11_COMPAT,
+        DEFAULT_PARSE_LIMITS,
+      ),
+    (error: unknown) =>
+      error instanceof FatalFormationFailure &&
+      error.diagnostics()[0].code === 'core.parse.resource-limit@1' &&
+      error.diagnostics()[0].arguments.get('name') === 'number-digits',
+  );
+});
+
+test('resource.number-digits — exactly at the frozen maximum parses', () => {
+  const integer = core(`[${'9'.repeat(MAX_NUMBER_DIGITS)}]\n`);
+  const integerScalar = integer.document(0)!.root().sequenceItem(0)!.node().scalar()!;
+  assert.equal(integerScalar.kind(), 'Integer');
+  assert.equal(integerScalar.canonical(), '9'.repeat(MAX_NUMBER_DIGITS));
+  // A decimal coefficient at the cap strips its trailing zero in one pass
+  // (the strip must not be quadratic on large coefficients).
+  const decimal = core(`[${'9'.repeat(MAX_NUMBER_DIGITS - 1)}.0]\n`);
+  const decimalScalar = decimal.document(0)!.root().sequenceItem(0)!.node().scalar()!;
+  assert.equal(decimalScalar.kind(), 'Float');
+  assert.equal(decimalScalar.canonical(), '9'.repeat(MAX_NUMBER_DIGITS - 1));
 });
 
 test('version directive — profile conflict is fatal (lib.rs)', () => {

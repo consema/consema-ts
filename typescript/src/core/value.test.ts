@@ -30,6 +30,7 @@ import {
   entryMappingValue,
   DuplicateKeyError,
   decimalDigits,
+  MAX_NUMBER_DIGITS,
 } from './value.ts';
 import type { PortableValue } from './value.ts';
 import { equal, hash, fnv1a64 } from './equal.ts';
@@ -69,6 +70,30 @@ test('decimal normalization strips trailing zeros into the exponent', () => {
   assert.deepEqual(decimalValue(10n, 0n), { kind: 'Decimal', coefficient: 1n, exponent: 1n });
   assert.deepEqual(decimalValue(0n, 5n), { kind: 'Decimal', coefficient: 0n, exponent: 0n });
   assert.deepEqual(decimalValue(-100n, 2n), { kind: 'Decimal', coefficient: -1n, exponent: 4n });
+});
+
+test('decimal magnitude limit — a coefficient over MAX_NUMBER_DIGITS is a core resource-limit failure', () => {
+  // Wave-4 magnitude cap, aligned with the HCL number-digits precedent
+  // (hcl/limits.ts:95 maxNumberDigits 100_000).
+  assert.throws(
+    () => decimalValue(BigInt('9'.repeat(MAX_NUMBER_DIGITS + 1)), 0n),
+    (error: unknown) => error instanceof PVCEError && error.kind === 'ResourceLimit',
+  );
+  assert.throws(
+    () => decimalValue(-(10n ** BigInt(MAX_NUMBER_DIGITS)), 0n),
+    (error: unknown) => error instanceof PVCEError && error.kind === 'ResourceLimit',
+  );
+});
+
+test('decimal strip stays linear at the magnitude boundary', () => {
+  // 10^99999 has exactly MAX_NUMBER_DIGITS digits; the trailing-zero
+  // strip must normalize it by one decimal pass, not one modulo/divide
+  // iteration per zero (quadratic on large coefficients).
+  assert.deepEqual(decimalValue(10n ** BigInt(MAX_NUMBER_DIGITS - 1), 0n), {
+    kind: 'Decimal',
+    coefficient: 1n,
+    exponent: BigInt(MAX_NUMBER_DIGITS - 1),
+  });
 });
 
 test('vector value.float-signed-zero: signed zeros are not strictly equal', () => {

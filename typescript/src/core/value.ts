@@ -25,7 +25,12 @@
  * exactly, as the identity of these kinds is their bit pattern.
  */
 
-import { PVCEError, codeInvalidValue, codeInvalidTemporal } from './errors.ts';
+import {
+  PVCEError,
+  codeInvalidValue,
+  codeInvalidTemporal,
+  codeResourceLimit,
+} from './errors.ts';
 
 /** Object key entry: a unique key and its value. */
 export interface ObjectEntry {
@@ -186,22 +191,62 @@ export function integerValue(value: bigint): IntegerValue {
 }
 
 /**
+ * Frozen default maximum decimal digits of one parsed number literal —
+ * coefficient digits and exponent digits alike (the wave-4 magnitude
+ * cap, aligned with the HCL number-digits precedent, hcl/limits.ts:95
+ * maxNumberDigits 100_000). Exceeding it is a resource-limit failure,
+ * never a crash or a silent truncation.
+ */
+export const MAX_NUMBER_DIGITS = 100_000;
+
+/** Counts the ASCII decimal digit characters of `text` (signs, dots, exponent markers and underscores are skipped). */
+export function decimalDigitCount(text: string): number {
+  let count = 0;
+  for (let index = 0; index < text.length; index++) {
+    const code = text.charCodeAt(index);
+    if (code >= 0x30 && code <= 0x39) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+/**
  * Builds the canonical decimal. A zero coefficient is normalized to
  * exponent zero, and trailing decimal zeros of the coefficient are stripped
  * into the exponent (10 × 10^0 → 1 × 10^1); the Rust Decimal::new
  * normalization, consema-rs/consema-core/src/value.rs.
+ *
+ * A coefficient over MAX_NUMBER_DIGITS digits fails with the core
+ * ResourceLimit error before any strip work — the parse-side magnitude
+ * checks (json/yaml/toml) fire earlier, this guard covers direct
+ * construction.
  */
 export function decimalValue(coefficient: bigint, exponent: bigint): DecimalValue {
   if (coefficient === 0n) {
     return { kind: 'Decimal', coefficient: 0n, exponent: 0n };
   }
-  let c = coefficient;
-  let e = exponent;
-  while (c % 10n === 0n) {
-    c /= 10n;
-    e += 1n;
+  const digits = coefficient.toString();
+  const digitCount = digits.startsWith('-') ? digits.length - 1 : digits.length;
+  if (digitCount > MAX_NUMBER_DIGITS) {
+    throw new PVCEError('ResourceLimit', codeResourceLimit, { field: 'number-digits' });
   }
-  return { kind: 'Decimal', coefficient: c, exponent: e };
+  // Efficient trailing-zero strip: one decimal pass and one bounded
+  // re-parse instead of the O(digits) modulo/divide loop (each iteration
+  // of which is O(digit-count) itself — quadratic on large coefficients).
+  let end = digits.length;
+  while (end > 1 && digits.charCodeAt(end - 1) === 0x30) {
+    end -= 1;
+  }
+  const stripped = digits.length - end;
+  if (stripped > 0) {
+    return {
+      kind: 'Decimal',
+      coefficient: BigInt(digits.slice(0, end)),
+      exponent: exponent + BigInt(stripped),
+    };
+  }
+  return { kind: 'Decimal', coefficient, exponent };
 }
 
 /** Exact IEEE-754 binary32 datum from its raw uint32 bit pattern. */

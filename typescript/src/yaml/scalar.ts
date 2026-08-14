@@ -31,6 +31,8 @@
 
 import type { YamlProfile } from './profile.ts';
 import type { YamlScalarKind, YamlScalarStyle } from './semantic.ts';
+import { FatalFormationFailure } from './errors.ts';
+import { MAX_NUMBER_DIGITS, decimalDigitCount } from '../core/value.ts';
 
 /** tag:yaml.org,2002:null (native.rs). */
 export const TAG_NULL = 'tag:yaml.org,2002:null';
@@ -350,6 +352,22 @@ function exponentIndex(value: string): number {
 }
 
 /**
+ * Fails scalar resolution when a number literal exceeds the frozen
+ * maximum digit count (coefficient and exponent alike, core/value.ts
+ * MAX_NUMBER_DIGITS, aligned with the HCL number-digits precedent). The
+ * check runs before any BigInt conversion or bigint accumulation so an
+ * over-limit literal costs only a linear scan; the failure is the frozen
+ * resource-limit error — never a crash, and never a silent fallback to a
+ * String scalar.
+ */
+function requireNumberDigits(text: string): void {
+  const observed = decimalDigitCount(text);
+  if (observed > MAX_NUMBER_DIGITS) {
+    throw FatalFormationFailure.resourceLimit('number-digits', observed, MAX_NUMBER_DIGITS);
+  }
+}
+
+/**
  * Decimal::parse_json_number (consema-rs/consema-core/src/value.rs)
  * with Decimal::new normalization (:277-292): trailing zeros of the
  * coefficient move into the exponent. The explicit exponent accepts an
@@ -365,12 +383,6 @@ export function parseJsonNumber(text: string): { coefficient: bigint; exponent: 
   if (signed === '' || (signed.startsWith('-') && signed.length === 1)) {
     return null;
   }
-  let exponent: bigint;
-  try {
-    exponent = BigInt(signed);
-  } catch {
-    return null;
-  }
   if (mantissa === '') {
     return null;
   }
@@ -380,6 +392,17 @@ export function parseJsonNumber(text: string): { coefficient: bigint; exponent: 
   const whole = dot === -1 ? unsigned : unsigned.slice(0, dot);
   const fraction = dot === -1 ? '' : unsigned.slice(dot + 1);
   if (whole === '' || !isAsciiDigits(whole) || !isAsciiDigits(fraction)) {
+    return null;
+  }
+  // Magnitude checks before any BigInt conversion: an over-limit
+  // coefficient or exponent is a resource-limit failure, never a crash
+  // or a silent fallback to a String scalar.
+  requireNumberDigits(signed);
+  requireNumberDigits(whole + fraction);
+  let exponent: bigint;
+  try {
+    exponent = BigInt(signed);
+  } catch {
     return null;
   }
   let coefficient: bigint;
@@ -400,13 +423,23 @@ export function normalizeDecimal(coefficient: bigint, exponent: bigint): {
   if (coefficient === 0n) {
     return { coefficient, exponent: 0n };
   }
-  let c = coefficient;
-  let e = exponent;
-  while (c % 10n === 0n) {
-    c /= 10n;
-    e += 1n;
+  const digits = coefficient.toString();
+  const digitCount = digits.startsWith('-') ? digits.length - 1 : digits.length;
+  if (digitCount > MAX_NUMBER_DIGITS) {
+    throw FatalFormationFailure.resourceLimit('number-digits', digitCount, MAX_NUMBER_DIGITS);
   }
-  return { coefficient: c, exponent: e };
+  // Efficient trailing-zero strip: one decimal pass and one bounded
+  // re-parse instead of the O(digits) modulo/divide loop (each iteration
+  // of which is O(digit-count) itself — quadratic on large coefficients).
+  let end = digits.length;
+  while (end > 1 && digits.charCodeAt(end - 1) === 0x30) {
+    end -= 1;
+  }
+  const stripped = digits.length - end;
+  if (stripped > 0) {
+    return { coefficient: BigInt(digits.slice(0, end)), exponent: exponent + BigInt(stripped) };
+  }
+  return { coefficient, exponent };
 }
 
 /** decimal_canonical (native.rs). */
@@ -674,21 +707,21 @@ export function parseSexagesimalInteger(sign: number, value: string): string | n
   if (first === '' || !allChars(first, isAsciiDigit)) {
     return null;
   }
+  for (let index = 1; index < parts.length; index++) {
+    const part = parts[index];
+    if (part === '' || part.length > 2 || !isAsciiDigits(part) || Number(part) > 59) {
+      return null;
+    }
+  }
+  // Magnitude check before any bigint accumulation (native.rs).
+  requireNumberDigits(value);
   let magnitude = parseBaseMagnitude(first, 10);
   if (magnitude === null) {
     return null;
   }
   let count = 0;
   for (let index = 1; index < parts.length; index++) {
-    const part = parts[index];
-    if (part === '' || part.length > 2 || !isAsciiDigits(part)) {
-      return null;
-    }
-    const component = Number(part);
-    if (component > 59) {
-      return null;
-    }
-    magnitude = magnitude * 60n + BigInt(component);
+    magnitude = magnitude * 60n + BigInt(Number(parts[index]));
     count += 1;
   }
   if (count === 0) {
@@ -721,20 +754,11 @@ export function parseSexagesimalFloat(value: string): string | null {
   if (parts.length === 0) {
     return null;
   }
-  let magnitude = parseBaseMagnitude(parts[0], 10);
-  if (magnitude === null) {
-    return null;
-  }
   for (let index = 1; index < parts.length; index++) {
     const part = parts[index];
-    if (part === '' || !isAsciiDigits(part)) {
+    if (part === '' || !isAsciiDigits(part) || Number(part) > 59) {
       return null;
     }
-    const component = Number(part);
-    if (component > 59) {
-      return null;
-    }
-    magnitude = magnitude * 60n + BigInt(component);
   }
   if (wholeText === '' || !isAsciiDigits(wholeText)) {
     return null;
@@ -742,6 +766,15 @@ export function parseSexagesimalFloat(value: string): string | null {
   const whole = Number(wholeText);
   if (whole > 59) {
     return null;
+  }
+  // Magnitude check before any bigint accumulation (native.rs).
+  requireNumberDigits(unsigned);
+  let magnitude = parseBaseMagnitude(parts[0], 10);
+  if (magnitude === null) {
+    return null;
+  }
+  for (let index = 1; index < parts.length; index++) {
+    magnitude = magnitude * 60n + BigInt(Number(parts[index]));
   }
   magnitude = magnitude * 60n + BigInt(whole);
   const coefficient = BigInt((sign < 0 ? '-' : '') + magnitude.toString() + fraction);
@@ -752,12 +785,21 @@ function parseBaseMagnitude(value: string, base: number): bigint | null {
   if (value === '') {
     return null;
   }
-  let magnitude = 0n;
-  for (const character of value) {
-    const digit = parseInt(character, base);
+  let digits = 0;
+  for (let index = 0; index < value.length; index++) {
+    const digit = parseInt(value[index], base);
     if (Number.isNaN(digit)) {
       return null;
     }
+    digits += 1;
+  }
+  // Magnitude check before the O(digits²) accumulation loop (native.rs).
+  if (digits > MAX_NUMBER_DIGITS) {
+    throw FatalFormationFailure.resourceLimit('number-digits', digits, MAX_NUMBER_DIGITS);
+  }
+  let magnitude = 0n;
+  for (let index = 0; index < value.length; index++) {
+    const digit = parseInt(value[index], base);
     magnitude = magnitude * BigInt(base) + BigInt(digit);
   }
   return magnitude;

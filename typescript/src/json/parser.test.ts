@@ -34,6 +34,7 @@ import { PROFILE_JSON5_STANDARD, PROFILE_JSONC_BOUNDED, PROFILE_JSON_STRICT } fr
 import type { SemanticAvailability } from '../json/index.ts';
 import { DEFAULT_PARSE_LIMITS } from '../document/formation.ts';
 import type { ParseLimits } from '../document/formation.ts';
+import { MAX_NUMBER_DIGITS } from '../core/value.ts';
 
 function bytes(source: string): Uint8Array {
   return new TextEncoder().encode(source);
@@ -317,4 +318,69 @@ test('resource.parse-token-limit: exceeding max token count is fatal (v1.json:17
       return true;
     },
   );
+});
+
+test('resource.number-digits: integer over the frozen digit maximum is fatal (wave-4 magnitude cap)', () => {
+  assert.throws(
+    () => parseStrict('9'.repeat(MAX_NUMBER_DIGITS + 1)),
+    (error: unknown) => {
+      assert.ok(error instanceof FatalFormationFailure);
+      const diagnostics = error.diagnostics();
+      assert.equal(diagnostics[0].code, 'core.parse.resource-limit@1');
+      assert.equal(diagnostics[0].arguments.get('name'), 'number-digits');
+      assert.equal(diagnostics[0].arguments.get('limit'), String(MAX_NUMBER_DIGITS));
+      return true;
+    },
+  );
+});
+
+test('resource.number-digits: decimal coefficient over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () => parse5('1.' + '9'.repeat(MAX_NUMBER_DIGITS + 1)),
+    (error: unknown) => {
+      assert.ok(error instanceof FatalFormationFailure);
+      const diagnostics = error.diagnostics();
+      assert.equal(diagnostics[0].code, 'core.parse.resource-limit@1');
+      assert.equal(diagnostics[0].arguments.get('name'), 'number-digits');
+      return true;
+    },
+  );
+});
+
+test('resource.number-digits: exponent over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () => parse5('1e' + '9'.repeat(MAX_NUMBER_DIGITS + 1)),
+    (error: unknown) => {
+      assert.ok(error instanceof FatalFormationFailure);
+      const diagnostics = error.diagnostics();
+      assert.equal(diagnostics[0].code, 'core.parse.resource-limit@1');
+      assert.equal(diagnostics[0].arguments.get('name'), 'number-digits');
+      return true;
+    },
+  );
+});
+
+test('resource.number-digits: JSON5 hex literal over the frozen digit maximum is fatal', () => {
+  assert.throws(
+    () => parse5('0x' + 'f'.repeat(MAX_NUMBER_DIGITS + 1)),
+    (error: unknown) => {
+      assert.ok(error instanceof FatalFormationFailure);
+      const diagnostics = error.diagnostics();
+      assert.equal(diagnostics[0].code, 'core.parse.resource-limit@1');
+      assert.equal(diagnostics[0].arguments.get('name'), 'number-digits');
+      return true;
+    },
+  );
+});
+
+test('resource.number-digits: exactly at the frozen maximum parses', () => {
+  const integer = parseStrict('9'.repeat(MAX_NUMBER_DIGITS));
+  assert.equal(integer.formationStatus(), 'Complete');
+  assert.equal(availableValue(integer.root().kind()), 'Integer');
+  const decimal = parse5('9'.repeat(MAX_NUMBER_DIGITS - 1) + '.0');
+  assert.equal(decimal.formationStatus(), 'Complete');
+  assert.equal(availableValue(decimal.root().kind()), 'Decimal');
+  const exponent = parse5('1e' + '9'.repeat(MAX_NUMBER_DIGITS));
+  assert.equal(exponent.formationStatus(), 'Complete');
+  assert.equal(availableValue(exponent.root().kind()), 'Decimal');
 });

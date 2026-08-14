@@ -48,6 +48,7 @@
 import { DocumentAuthority, Span } from '../document/identity.ts';
 import type { ParseLimits } from '../document/formation.ts';
 import { TomlFormationFailure } from './errors.ts';
+import { MAX_NUMBER_DIGITS } from '../core/value.ts';
 
 // ---------------------------------------------------------------------------
 // Native datum model (lib.rs)
@@ -1285,7 +1286,15 @@ class Parser {
 
   /** Builds an i64-bound integer item; `prefix` re-attaches 0x/0o/0b for BigInt parsing. */
   #integerOrFail(prefix: string, digits: string, start: number, end: number): ItemEntityKind {
-    const value = BigInt(prefix + digits.replace(/_/g, ''));
+    const cleaned = digits.replace(/_/g, '');
+    // Magnitude check before the BigInt conversion: an over-limit literal
+    // is the frozen resource-limit failure, never a crash or a silent
+    // truncation (core/value.ts MAX_NUMBER_DIGITS, aligned with the HCL
+    // number-digits precedent). The i64 range check below is preserved.
+    if (cleaned.length > MAX_NUMBER_DIGITS) {
+      this.#resourceLimit('number_digits', cleaned.length, MAX_NUMBER_DIGITS);
+    }
+    const value = BigInt(prefix + cleaned);
     if (value < I64_MIN || value > I64_MAX) {
       return this.#fail('integer out of range', start, end);
     }

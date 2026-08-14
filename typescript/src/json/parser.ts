@@ -45,7 +45,7 @@ import { SourceSnapshot } from '../document/source.ts';
 import { diagnostic, sortDiagnostics } from '../document/diagnostic.ts';
 import type { Diagnostic } from '../document/diagnostic.ts';
 import type { FormationStatus, ParseLimits } from '../document/formation.ts';
-import { decimalValue } from '../core/value.ts';
+import { decimalValue, decimalDigitCount, MAX_NUMBER_DIGITS } from '../core/value.ts';
 import { SourceError } from '../document/errors.ts';
 import { FatalFormationFailure } from './errors.ts';
 import { JsonDocument } from './document.ts';
@@ -838,6 +838,21 @@ function validJson5Number(text: string): boolean {
 // Number decoding (parser.rs)
 // ---------------------------------------------------------------------------
 
+/**
+ * Fails the parse when a number literal exceeds the frozen maximum digit
+ * count (coefficient and exponent alike, core/value.ts MAX_NUMBER_DIGITS,
+ * aligned with the HCL number-digits precedent). The check runs before
+ * any BigInt conversion so an over-limit literal costs only a linear
+ * scan; the failure is the frozen resource-limit error, never a crash or
+ * a silent truncation.
+ */
+function requireNumberDigits(text: string): void {
+  const observed = decimalDigitCount(text);
+  if (observed > MAX_NUMBER_DIGITS) {
+    throw FatalFormationFailure.resourceLimit('number-digits', observed, MAX_NUMBER_DIGITS);
+  }
+}
+
 /** Exact JSON5 number semantics: non-finite bits, hex, normalized decimal/integer (parser.rs). */
 function parseJson5Number(text: string): InternalValueKind {
   const negative = text.startsWith('-');
@@ -852,7 +867,22 @@ function parseJson5Number(text: string): InternalValueKind {
     return { kind: 'BinaryFloat64', bits: negative ? 0xfff8000000000000n : 0x7ff8000000000000n };
   }
   if (unsigned.startsWith('0x') || unsigned.startsWith('0X')) {
-    const magnitude = BigInt('0x' + unsigned.slice(2));
+    const hex = unsigned.slice(2);
+    let hexDigits = 0;
+    for (let index = 0; index < hex.length; index++) {
+      const code = hex.charCodeAt(index);
+      if (
+        (code >= 0x30 && code <= 0x39) ||
+        (code >= 0x41 && code <= 0x46) ||
+        (code >= 0x61 && code <= 0x66)
+      ) {
+        hexDigits += 1;
+      }
+    }
+    if (hexDigits > MAX_NUMBER_DIGITS) {
+      throw FatalFormationFailure.resourceLimit('number-digits', hexDigits, MAX_NUMBER_DIGITS);
+    }
+    const magnitude = BigInt('0x' + hex);
     return { kind: 'Integer', value: negative ? -magnitude : magnitude };
   }
   let normalized = negative ? '-' + unsigned : unsigned;
@@ -868,6 +898,7 @@ function parseJson5Number(text: string): InternalValueKind {
     const { coefficient, exponent } = parseJsonDecimal(normalized);
     return { kind: 'Decimal', coefficient, exponent };
   }
+  requireNumberDigits(normalized);
   return { kind: 'Integer', value: BigInt(normalized) };
 }
 
@@ -880,6 +911,8 @@ function parseJsonDecimal(text: string): { coefficient: bigint; exponent: bigint
   const digits =
     (dotIndex === -1 ? mantissa : mantissa.slice(0, dotIndex) + mantissa.slice(dotIndex + 1));
   const fractionDigits = dotIndex === -1 ? 0 : mantissa.length - dotIndex - 1;
+  requireNumberDigits(exponentText);
+  requireNumberDigits(digits);
   const exponent = (exponentText === '' ? 0n : BigInt(exponentText)) - BigInt(fractionDigits);
   const value = decimalValue(BigInt(digits), exponent);
   return { coefficient: value.coefficient, exponent: value.exponent };
@@ -1300,6 +1333,7 @@ class Parser {
           const decimal = parseJsonDecimal(token.text);
           kind = { kind: 'Decimal', coefficient: decimal.coefficient, exponent: decimal.exponent };
         } else {
+          requireNumberDigits(token.text);
           kind = { kind: 'Integer', value: BigInt(token.text) };
         }
         return this.allocScalar(token, kind);
