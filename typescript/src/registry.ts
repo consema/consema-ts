@@ -633,11 +633,21 @@ export type ConsemaDocument =
 
 /**
  * Parses one snapshot under an exact profile id through the single facade
- * parse entry (lib.rs registry::parse_document :201-308). Per-format
- * encoding selection and limits use the frozen profile defaults (the
- * properties reader profile uses an explicit UTF-8 selection because its
- * contract has no profile default). An unknown profile id returns the same
- * failure the typed adapters do: resolve ids against `profiles()` first.
+ * parse entry (consema-rs consema/src/lib.rs, module `registry`,
+ * `parse_document` — symbol-anchored, W3-12). Per-format encoding
+ * selection and limits use the frozen profile defaults (the properties
+ * reader profile uses an explicit UTF-8 selection because its contract
+ * has no profile default). An unknown profile id returns the same failure
+ * the typed adapters do: resolve ids against `profiles()` first.
+ *
+ * W3-43 (R6, evidence 2026-08-14): the default branch throws
+ * `core.source.encoding-conflict@1` — the same frozen code the Rust
+ * reference implementation uses for the same input (consema-rs
+ * consema/src/lib.rs `parse_document` default branch, Diagnostic with
+ * core.source.encoding-conflict@1 / Encoding / Error; the CLI-level
+ * `profile_by_id` resolver in consema-rs consema/src/bin/consema/
+ * registry.rs returns None for unknown ids without a frozen code).
+ * Verified against consema-rs current HEAD; no new frozen code added.
  */
 export function parseDocument(source: Uint8Array, profile: ProfileId): Document {
   switch (profile.id()) {

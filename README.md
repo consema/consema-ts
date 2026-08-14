@@ -65,14 +65,16 @@ console.log(new TextDecoder().decode(edited.render()));
 
 ## API 摘要
 
-核心面一行式（签名即 `typescript/src/` 的 tsc 类型面，typedoc 文档构建未接线，见 RELEASING.md §5；八个格式家族各有独立的 `parse*` / `execute*Query` / `project*` / `materialize*` 模块内入口；`convert*` 为根级统一入口，见 `src/convert.ts`，无家族级 convert 导出）：
+核心面一行式（签名即 `typescript/src/` 的 tsc 类型面，typedoc 文档构建未接线，见 RELEASING.md §5；八个格式家族各有独立的 `parse*` / `execute*Query` / `project*` / `materialize*` 模块内入口；`convert*` 为根级统一入口，见 `src/convert.ts`，无家族级 convert 导出）。
 
-| 操作 | 包根 facade 入口（`@consema/consema` 直接 import；query / project / edit / materialize 为家族模块内导出，包根暂不 re-export） |
+**包根可导入符号**（`@consema/consema` 直接 import）：`parseDocument` / `Document` / `formatFamilies` / `profiles` / `queryDomains` / `formatOperationRegistry` / `FormatProfile` / `convert*` / `ConversionResult`（以及 core / graph / protocol 域记录）。签名中的类型名（`ProfileId`、`JsonDocument`、`ProjectionRequest`、`MaterializationRequest`、`JsonQueryResult` 等）属 `typescript/src/` **模块内声明**，包根不 re-export 类型——实例一律经包根入口获得（如 `profiles()` 返回 `FormatProfile[]`、取其 `.profile()` 得 `ProfileId`），类型注解经模块内导入（npm `exports` 仅暴露包根，见 RELEASING.md §4；W3-43 分列注记，2026-08-14）：
+
+| 操作 | 包根 facade 入口（`@consema/consema` 直接 import） |
 | --- | --- |
-| parse | `parseDocument(source: Uint8Array, profile: ProfileId) -> Document` |
-| convert | `convertJson(source: JsonDocument, projectionRequest: JsonProjectionRequest, materializationRequest: MaterializationRequest) -> ConversionResult`（另有 convertToml / convertYaml / convertIni / convertProperties / convertXml / convertPlist / convertHcl，签名结构相同） |
-| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile: ProfileId)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表；`profiles()` 返回 `FormatProfile[]`，取其 `.profile()` 得 `ProfileId`，直接作为 `formatOperationRegistry` 的 profile 参数） |
-| query / project / edit / materialize | 模块内导出（包根暂不 re-export，1.0.0-rc 不擅自扩导出）：`executeJsonQuery(executable, document, limits, cancellation) -> JsonQueryResult<JsonMatch>`（`src/json/query.ts`）、`project(document, request) -> ProjectionResult`（`src/json/projection.ts`）、`materialize(value, request) -> MaterializationResult<JsonDocument>`（`src/json/materialization.ts`）、`EditTransactionBuilder(document)` + `commitEdits(document, transaction) -> EditCommit`（`src/json/edit.ts`） |
+| parse | `parseDocument(source: Uint8Array, profile) -> Document`（profile 为 `ProfileId` 实例，见上注记） |
+| convert | `convertJson(source, projectionRequest, materializationRequest) -> ConversionResult`（另有 convertToml / convertYaml / convertIni / convertProperties / convertXml / convertPlist / convertHcl，签名结构相同；参数类型见上注记） |
+| registry | `formatFamilies()` / `profiles()` / `queryDomains()` / `formatOperationRegistry(profile)`（8 家族 / 16 profiles / 21 查询域 / 16 操作注册表） |
+| query / project / edit / materialize | **模块内入口**（包根暂不 re-export，1.0.0-rc 不擅自扩导出）：`executeJsonQuery(executable, document, limits, cancellation) -> JsonQueryResult<JsonMatch>`（`src/json/query.ts`）、`project(document, request) -> ProjectionResult`（`src/json/projection.ts`）、`materialize(value, request) -> MaterializationResult<JsonDocument>`（`src/json/materialization.ts`）、`EditTransactionBuilder(document)` + `commitEdits(document, transaction) -> EditCommit`（`src/json/edit.ts`） |
 
 **发布形态。** 包发布编译产物：`prepack` 先构建（tsc → `typescript/dist/`，`.js` + `.d.ts` 同源生成），`main`/`types`/`exports` 均指向 `dist/`——消费方无需任何 tsconfig 前置（Node ≥ 26 与常规打包器均可直接 import 包根，Node 的类型剥离不作用于 node_modules，源码直发不可行，见 RELEASING.md §4）。发布物含 LICENSE 全文，不含任何 `*.test.ts` 编译产物与
 `test_helpers`/`test_decode`（不进构建面，CI 打包门禁按该清单断言）；dev

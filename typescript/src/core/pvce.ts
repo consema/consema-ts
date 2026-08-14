@@ -62,7 +62,11 @@ import type {
 import { PVCEError, pvceError } from './errors.ts';
 
 /** PVCE/1 stream magic (ASCII "PVCE"). */
-export const MAGIC = new Uint8Array([0x50, 0x56, 0x43, 0x45]);
+// W3-43: explicit `Uint8Array` annotation — without it tsc 5.9's d.ts emit
+// infers the TS 5.7+ generic `Uint8Array<ArrayBuffer>`, which contradicts
+// the self-contained d.ts claim (README §发布形态; dist is rebuilt by the
+// build, never hand-edited).
+export const MAGIC: Uint8Array = new Uint8Array([0x50, 0x56, 0x43, 0x45]);
 /** PVCE/1 version. */
 export const VERSION = 1n;
 

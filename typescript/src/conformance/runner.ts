@@ -20,6 +20,7 @@
 
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, realpathSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { exitCode } from '../protocol/exit_class.ts';
 import type { VectorCase } from './helpers.ts';
@@ -128,7 +129,10 @@ export interface VectorFile {
 
 /** Reads and validates one vector file. */
 export function loadVectorFile(file: string, dir: string): VectorFile {
-  const bytes = readFileSync(`${dir}${file}`);
+  // W3-43: join (not `${dir}${file}`) — dir is a public parameter and may
+  // arrive without a trailing separator; the concatenation silently
+  // misresolved such inputs.
+  const bytes = readFileSync(join(dir, file));
   const parsed = JSON.parse(new TextDecoder('utf-8').decode(bytes)) as {
     suite?: unknown;
     semantic_model?: unknown;
@@ -218,7 +222,7 @@ export function computeAggregateDigest(dir = vectorsDir()): DigestResult {
   const builder: string[] = [];
   let cases = 0;
   for (const file of SUITE_FILES) {
-    const bytes = readFileSync(`${dir}${file}`);
+    const bytes = readFileSync(join(dir, file));
     const fileCases = (loadVectorFile(file, dir)).cases.length;
     cases += fileCases;
     builder.push(`${file}:${createHash('sha256').update(bytes).digest('hex')}`);
@@ -368,12 +372,22 @@ export function runAll(dir = vectorsDir()): RunResult {
 
 /**
  * Prints the per-suite report and returns the process exit code (RFC 0015
- * §5.1 six exit classes): success 0 / usage 1 / data 2 / limit 3 /
- * precondition 4 / internal 5. The conformance CLI reaches usage
- * (unexpected positional arguments), data (case/digest/inventory
- * failures, including missing vector data), limit (resource-limit
- * failures during execution — defensive: per-case limit failures are
- * reported as failed cases) and internal (unclassified runner errors).
+ * §5.1 six exit classes; W3-43 — classification paths as implemented):
+ * success 0 / usage 1 / data 2 / limit 3 / precondition 4 / internal 5.
+ * The conformance CLI reaches:
+ *  - usage (1): unexpected positional arguments (argv.length > 3);
+ *  - data (2): input-read failures as classified by isInputReadFailure
+ *    (ENOENT from the vectors directory or any read, or an error whose
+ *    message contains "missing vector file" — not every inventory
+ *    problem), and digest/case-count mismatches or failed cases after a
+ *    run;
+ *  - limit (3): typed resource-limit failures during runAll, as
+ *    classified by isLimitFailure (per-case limit failures are reported
+ *    as failed cases and end in data, not limit);
+ *  - internal (5): everything else, including vector structure-validation
+ *    errors (a non-consema.* suite id, a case without an id, ...).
+ * precondition (4) is part of the RFC 0015 §5.1 vocabulary but this CLI
+ * never returns it.
  */
 export function main(argv: readonly string[]): number {
   if (argv.length > 3) {

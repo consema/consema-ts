@@ -31,7 +31,8 @@ import type { Graph, NodeID, Limits } from './graph.ts';
 import { GraphError, PGCEError } from './errors.ts';
 
 /** PGCE/1 stream magic (ASCII "PGCE"). */
-export const PGCE_MAGIC = new Uint8Array([0x50, 0x47, 0x43, 0x45]);
+// W3-43: explicit `Uint8Array` annotation — see src/core/pvce.ts MAGIC.
+export const PGCE_MAGIC: Uint8Array = new Uint8Array([0x50, 0x47, 0x43, 0x45]);
 /** PGCE/1 version. */
 export const PGCE_VERSION = 1n;
 
