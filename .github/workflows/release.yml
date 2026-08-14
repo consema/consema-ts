@@ -84,20 +84,24 @@ jobs:
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
 
-      # Release guard (G71, 2026-08-14): the tag must point at origin/main
-      # HEAD — a tag pushed from a stale or divergent commit must not
-      # publish old code (same gate as the consema-go/consema-rs/consema-py
-      # release.yml verify steps).
-      - name: verify tag points at main HEAD
+      # Release guard (G71, 2026-08-14; same gate shape as the
+      # consema-go/consema-rs/consema-py release.yml verify steps): the tag
+      # must point at a commit on origin/main — a tag pushed from a stale or
+      # divergent commit must not publish old code. The workflow runs after
+      # the push, when origin/main may already have advanced past the tag's
+      # commit, so a realtime HEAD comparison would fail a legitimately
+      # pushed tag; ancestry is used instead (git merge-base --is-ancestor,
+      # W3-28: the tag's commit is fixed at push time via $GITHUB_SHA).
+      - name: verify tag points at a commit on origin/main
         shell: bash
         run: |
           set -euo pipefail
           git fetch origin main --quiet
-          if [[ "$(git rev-parse HEAD)" != "$(git rev-parse FETCH_HEAD)" ]]; then
-            echo "::error::tag $GITHUB_REF_NAME does not point at origin/main HEAD"
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "::error::tag $GITHUB_REF_NAME does not point at a commit on origin/main"
             exit 1
           fi
-          echo "tag $GITHUB_REF_NAME points at origin/main HEAD"
+          echo "tag $GITHUB_REF_NAME points at a commit on origin/main"
       # Release guard (rc 前六角色审计 P1, 2026-08-12): the tag minus the
       # leading v must equal the package.json version, otherwise a mismatched
       # tag could publish the wrong version to npm.
