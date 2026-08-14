@@ -134,7 +134,29 @@ jobs:
             exit 1
           fi
           echo "running $files test files"
-          node --test "src/**/*.test.ts"
+          out="$(node --test "src/**/*.test.ts")" || exit 1
+          echo "$out"
+          # Skip upper bound (R47, 2026-08-15): the full suite's only
+          # documented skips are the differential tests without their golden
+          # env vars (5 tests in 3 files as of wave 4 — byte_parity /
+          # normalized / exchange). A new silent skip (env-dependent
+          # skipIf, fixture-missing branch) or an expanded differential
+          # skip face must redden the gate, not pass green: "documented
+          # skip = success" only holds inside the documented inventory.
+          # The summary line is the LAST 'skipped N' occurrence in the
+          # output (the per-suite conformance lines report '0 skipped'
+          # earlier; the terminal summary block reports the real count with
+          # a non-ASCII info marker, so the parse anchors on the count).
+          skipped="$(grep -oE 'skipped [0-9]+' <<<"$out" | tail -1 | awk '{print $2}')"
+          if [ -z "$skipped" ]; then
+            echo "::error::cannot parse the node --test skip summary ('skipped N' missing from the output)"
+            exit 1
+          fi
+          if [ "$skipped" -gt 5 ]; then
+            echo "::error::$skipped tests skipped (documented upper bound 5 = the differential tests without their golden env vars); a new silent skip must be reviewed, not shipped"
+            exit 1
+          fi
+          echo "full suite: $skipped documented skips (upper bound 5)"
       # Zero-runtime-dependency policy (§1.3): package.json declares only
       # devDependencies, so `npm ls --omit=dev` must show an empty tree.
       - name: zero-dependency assertion (npm ls --omit=dev must be empty)
@@ -157,18 +179,38 @@ jobs:
       # module importing 'typescript' or '@types/node' would install clean
       # and fail only in the consumer's package. Every src import must be a
       # relative path or a node: builtin.
+      #
+      # Regex coverage (R46, 2026-08-15): the original pattern only matched
+      # `from '…'` and `import('…')` literal forms. The extended gate also
+      # covers (a) side-effect imports (`import 'x'`), (b) dynamic imports
+      # with a bare specifier (`import('typescript')`) and variable
+      # arguments (`import(name)` — a runtime dynamic import of a
+      # non-literal cannot be verified statically; the TS type-query form
+      # `import('../../rel.ts').Type` in annotations is allowed — it always
+      # carries a literal relative specifier), (c) require calls
+      # (`require('x')` / `import x = require('y')` — the package is ESM
+      # with static imports; zero require( in the tree), and (d) relative
+      # specifiers resolving into node_modules (`../node_modules/...` —
+      # npm ci installs the full devDependency tree, so such an import
+      # would pass npm ls/tsc and break only in the consumer). All four
+      # bypass forms had zero instances at wave 4 — the gate rejects them
+      # to keep it that way.
       - name: src import surface must be relative or node builtins
         working-directory: typescript
         shell: bash
         run: |
           set -euo pipefail
-          bad="$(grep -rP --include='*.ts' -Hno "(?:from|import\()\s+['\"](?!\./|\.\./|node:)[^'\"]+" src || true)"
+          # One -P pattern: grep -P rejects multiple -e alternatives ("the -P
+          # option only supports a single pattern"), and a broken grep would
+          # be swallowed by `|| true` into a silently-green gate (rehearsal
+          # finding, 2026-08-15) — the alternation is therefore inline.
+          bad="$(grep -rP --include='*.ts' -Hno "(?:from|import)\s+['\"](?!\./|\.\./|node:)[^'\"]+|import\s*\(\s*['\"](?!\./|\.\./|node:)[^'\"]+|import\s*\(\s*[^'\"]|require\s*\(|['\"](?:\.\.?/)+node_modules/" src || true)"
           if [ -n "$bad" ]; then
-            echo "::error::src imports a bare specifier (devDependency leak into the consumer import surface):"
+            echo "::error::src imports a bare specifier or a node_modules-resolving path (devDependency leak into the consumer import surface):"
             echo "$bad"
             exit 1
           fi
-          echo "src import surface: only relative and node: specifiers"
+          echo "src import surface: only relative and node: specifiers (no require/dynamic-import/node_modules forms)"
 
   # Coverage gate (gate plan §4 M3 standing toolchain; roadmap §18.3
   # "Coverage 不替代语义证明"): node 26's built-in test coverage
@@ -247,11 +289,16 @@ jobs:
   # CI even when the lockfile is untouched. The matrix pins exact versions
   # (a floating 5.8.x/5.9.x range would resolve a different patch on each
   # run and detach the "verified" claim from what actually ran). Versions
-  # verified locally (2026-08-12): 5.8.3 and 5.9.2 both compile the tree
-  # clean with @types/node 26.2.0. The install rewrites the committed
-  # package-lock.json and the package.json devDependencies entry
-  # (typescript) — ephemeral drift only, the legs never commit, and the
-  # check runs against the installed compiler.
+  # verified locally: 5.8.3 and 5.9.2 (2026-08-12, @types/node 26.2.0) and
+  # 5.9.3 (2026-08-15, wave-4 R26) all compile the tree clean. The lockfile
+  # gate below closes the drift hole: every job's npm ci installs the
+  # lockfile-resolved compiler (currently 5.9.3), which emits the shipped
+  # .d.ts — so the resolved version must be in the verified set, and a
+  # future re-resolution must be locally verified before it is accepted.
+  # The install rewrites the committed package-lock.json and the
+  # package.json devDependencies entry (typescript) — ephemeral drift only,
+  # the legs never commit, and the check runs against the installed
+  # compiler.
   ts-compiler-matrix:
     name: tsc --noEmit (typescript ${{ matrix.ts }})
     runs-on: ubuntu-latest
@@ -272,6 +319,24 @@ jobs:
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
+      # R26 (2026-08-15): the lockfile-resolved typescript version is what
+      # every other job compiles and ships with (ts-gates check, prepack
+      # build, emitted .d.ts), so it must be inside the verified compiler
+      # set — not just the matrix legs.
+      - name: lockfile-resolved typescript must be in the verified compiler set
+        working-directory: typescript
+        shell: bash
+        run: |
+          set -euo pipefail
+          resolved="$(node -p "require('./package-lock.json').packages['node_modules/typescript'].version")"
+          case "$resolved" in
+            5.8.3|5.9.2|5.9.3) ;;
+            *)
+              echo "::error::lockfile resolves typescript $resolved, outside the verified compiler set (5.8.3 / 5.9.2 / 5.9.3 — R26): the resolved compiler emits the shipped .d.ts, so a new resolution must be locally verified (tsc --noEmit + build) before it is accepted"
+              exit 1
+              ;;
+          esac
+          echo "lockfile typescript $resolved is in the verified compiler set (5.8.3 / 5.9.2 / 5.9.3)"
       - name: npm install -D typescript@${{ matrix.ts }} (compiler matrix leg)
         working-directory: typescript
         run: npm install -D "typescript@${{ matrix.ts }}"
@@ -473,11 +538,15 @@ jobs:
         working-directory: typescript
         run: npm audit
 
-  # Version-consistency gate (tokio check-readme pattern): the README
-  # "Version:" line must equal the typescript/package.json version, so a
-  # version bump that forgets the README fails CI.
+  # Version-consistency gate (tokio check-readme pattern): the
+  # typescript/package.json version must ride the train in every hard-coded
+  # pin — (1) the README "Version:" line, (2) the bug_report.yml template's
+  # "当前 <version>" note, (3) the CLI-record fixture literals in
+  # typescript/src/protocol/cli.test.ts (7 product_version pin sites, R36,
+  # 2026-08-15). A bump that forgets any of them fails CI. The job name
+  # below reflects the full coverage (R26, 2026-08-15).
   check-version-consistency:
-    name: check README version vs package.json (version consistency)
+    name: check version consistency (README + bug_report template + CLI fixtures)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -510,16 +579,38 @@ jobs:
             exit 1
           }
           echo "README version consistent with package.json: $version"
+      # Test-fixture version pins (R36, 2026-08-15): the CLI-record tests
+      # pin productVersion literals in typescript/src/protocol/cli.test.ts
+      # (7 sites as of wave 4); a train bump that forgets the fixture must
+      # fail CI too. Lower bound = the wave-4 pin-site count; the fixture
+      # itself is not changed by this gate.
+      - name: assert the CLI fixture carries the current version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -m1 '"version"' typescript/package.json | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+          pins=$(grep -oF "'$version'" typescript/src/protocol/cli.test.ts | wc -l)
+          if [ "$pins" -lt 7 ]; then
+            echo "::error::typescript/src/protocol/cli.test.ts has $pins current-version literal(s), want at least 7 (R36 pin sites)"
+            exit 1
+          fi
+          echo "cli.test.ts carries the current version ($pins pin sites)"
 
   # SDK examples gate: typescript/examples/sdk_chain.ts is the committed
   # five-language SDK chain example (parse -> native query -> best-exact
   # projection -> semantic edit -> canonical materialization -> TOML
   # conversion; language-neutral contract reference: consema repository
-  # https://github.com/consema/consema/blob/main/docs/cookbook.md). node 26 runs .ts files natively, and the example must
-  # exit 0. The example is a pure SDK chain (no conformance data), so no
+  # https://github.com/consema/consema/blob/main/docs/cookbook.md), and
+  # typescript/quickstart.ts is the committed copy of the root README
+  # quick-start fence (R6, 2026-08-15 — the kt-style fence gate below makes
+  # the "粘贴版与入库版一致" claim enforced, not asserted). node 26 runs
+  # .ts files natively, and each example must exit 0 with its output
+  # asserted (the sdk_chain run must reach the final conversion step — an
+  # early silent return would exit 0 while the chain never runs, G37
+  # lesson). The examples are pure SDK chains (no conformance data), so no
   # multi-repo checkout or provision step is needed.
   examples:
-    name: examples (node examples/sdk_chain.ts)
+    name: examples (fence + sdk_chain + quickstart)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -536,9 +627,55 @@ jobs:
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
-      - name: node examples/sdk_chain.ts (must exit 0)
+      # Knit-style doc-example gate (R6, 2026-08-15; mirrors the
+      # consema-kt ci-kotlin.yml fence step): the README ```ts quick-start
+      # fence must equal the committed typescript/quickstart.ts body (both
+      # sides normalized for CRLF and trimmed), so the README snippet can
+      # never drift from what CI actually runs.
+      - name: README quick-start fence must match typescript/quickstart.ts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $readme = Get-Content (Join-Path $env:GITHUB_WORKSPACE 'README.md') -Raw
+          $m = [regex]::Match($readme, '(?s)```ts\r?\n(.*?)\r?\n```')
+          if (-not $m.Success) {
+            throw 'README.md quick-start fence (```ts ... ```) not found'
+          }
+          $fence = ($m.Groups[1].Value -replace "`r", '').Trim()
+          $file = Get-Content (Join-Path $env:GITHUB_WORKSPACE 'typescript/quickstart.ts') -Raw
+          $body = ($file -replace "`r", '').Trim()
+          if ($fence -ne $body) {
+            throw 'README quick-start fence must equal typescript/quickstart.ts (after CRLF normalization and trim)'
+          }
+          Write-Output 'README quick-start fence matches typescript/quickstart.ts'
+      # Output assertion (R47, 2026-08-15): the sdk_chain example must
+      # actually reach the final conversion step — a broken early return
+      # exits 0 while the chain never runs, so the exit code alone is not
+      # evidence (G37 lesson, same as the runner CLI smoke step).
+      - name: node examples/sdk_chain.ts (must exit 0, output asserted)
         working-directory: typescript
-        run: node examples/sdk_chain.ts
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$(node examples/sdk_chain.ts)"
+          echo "$out"
+          echo "$out" | grep -q "convert to toml.canonical-document:" || {
+            echo "::error::sdk_chain.ts did not reach the final TOML conversion step — a silent early return would exit 0 while the chain never runs"
+            exit 1
+          }
+      - name: node quickstart.ts (committed quick-start, must exit 0)
+        working-directory: typescript
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$(node quickstart.ts)"
+          echo "$out"
+          # The quick start must render the edited document (final step of
+          # the parse -> query -> edit -> render chain).
+          echo "$out" | grep -q '{"a":1,"b":{"c":42}}' || {
+            echo "::error::quickstart.ts did not print the edited render — a silent early return would exit 0 while the chain never runs"
+            exit 1
+          }
 
   # L5 packaging gate (five-language-ci-design.md §1.1 package row / §5.3
   # L5 row): `npm pack` must succeed (prepack builds dist/) and the tarball

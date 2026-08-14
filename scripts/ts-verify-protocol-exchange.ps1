@@ -216,5 +216,20 @@ if ($verifyCode -ne 0) {
     Write-Error "the Rust verify mode found divergences or failed (exit $verifyCode)"
     exit $verifyCode
 }
+# The reverse leg must not be an exit-code-only assertion: the Rust verify
+# mode prints a per-run summary ('emit_protocol_exchange (verify): N accept
+# cases and M reject cases verified into <dir>', consema-rs
+# emit_protocol_exchange.rs), and an exit 0 from a broken entry that never
+# ran the verification would silently pass. Assert the summary line in the
+# captured log (same strength as the forward leg and as the normalized
+# harness's reverse leg, R47, 2026-08-15).
+$reverseSummary = [regex]::Match((Get-Content $reverseLog -Raw), 'emit_protocol_exchange \(verify\): \d+ accept cases and \d+ reject cases verified')
+if ($reverseSummary.Success) {
+    Write-Host "RESULT (reverse): $($reverseSummary.Value)"
+}
+else {
+    Write-Error 'cannot find the Rust verify-mode summary line (emit_protocol_exchange (verify): N accept cases and M reject cases verified) in the verify output'
+    exit 1
+}
 Write-Host "bidirectional protocol exchange verification complete (exit 0)"
 exit 0

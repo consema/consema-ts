@@ -85,24 +85,33 @@ jobs:
           $count = @(Get-ChildItem -LiteralPath $target -Recurse -File).Count
           Write-Output "provisioned conformance/: $count files"
 
-      # Release guard (G71, 2026-08-14; same gate shape as the
-      # consema-go/consema-rs/consema-py release.yml verify steps): the tag
-      # must point at a commit on origin/main — a tag pushed from a stale or
-      # divergent commit must not publish old code. The workflow runs after
-      # the push, when origin/main may already have advanced past the tag's
-      # commit, so a realtime HEAD comparison would fail a legitimately
-      # pushed tag; ancestry is used instead (git merge-base --is-ancestor,
-      # W3-28: the tag's commit is fixed at push time via $GITHUB_SHA).
+      # Release guard (G71, 2026-08-14; R7 peel fix, 2026-08-15; same gate
+      # shape as the consema-go/consema-rs/consema-py release.yml verify
+      # steps): the tag must point at a commit on origin/main — a tag pushed
+      # from a stale or divergent commit must not publish old code. The
+      # workflow runs after the push, when origin/main may already have
+      # advanced past the tag's commit, so a realtime HEAD comparison would
+      # fail a legitimately pushed tag; ancestry is used instead
+      # (git merge-base --is-ancestor, W3-28: the tag's commit is fixed at
+      # push time via $GITHUB_SHA). R7: for an annotated-tag push,
+      # GITHUB_SHA is the tag OBJECT sha, not the peeled commit — whether a
+      # given git then accepts it (recent gits peel internally; older ones
+      # fail with 'fatal: not a commit') is version-dependent, so the
+      # explicit ^{commit} peel makes the guard correct on every git
+      # version and for both tag forms (locally preplayed 2026-08-15:
+      # lightweight/annotated x tip/ancestor/off-main all decide
+      # correctly).
       - name: verify tag points at a commit on origin/main
         shell: bash
         run: |
           set -euo pipefail
           git fetch origin main --quiet
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+          tag_commit="$(git rev-parse "$GITHUB_SHA^{commit}")"
+          if ! git merge-base --is-ancestor "$tag_commit" FETCH_HEAD; then
             echo "::error::tag $GITHUB_REF_NAME does not point at a commit on origin/main"
             exit 1
           fi
-          echo "tag $GITHUB_REF_NAME points at a commit on origin/main"
+          echo "tag $GITHUB_REF_NAME points at a commit on origin/main ($tag_commit)"
       # Release guard (rc 前六角色审计 P1, 2026-08-12): the tag minus the
       # leading v must equal the package.json version, otherwise a mismatched
       # tag could publish the wrong version to npm.
@@ -121,6 +130,27 @@ jobs:
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
+      # Zero-dependency assertion on the release path (R45, 2026-08-15):
+      # the zero-runtime-dependency gate in ci-typescript.yml runs only on
+      # main-branch push / PR (its `on:` has no tag trigger), and the G71
+      # guard allows any ancestor commit of main to be tagged — so the
+      # release path must assert the empty dependency tree itself, right
+      # before publishing (same step shape as the ts-gates job).
+      - name: zero-dependency assertion (npm ls --omit=dev must be empty)
+        working-directory: typescript
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = npm ls --omit=dev --json 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            throw "npm ls --omit=dev failed (exit $LASTEXITCODE)"
+          }
+          $tree = $out | ConvertFrom-Json
+          $deps = $tree.dependencies
+          if ($null -ne $deps -and @($deps.PSObject.Properties).Count -gt 0) {
+            throw "runtime dependencies found: $($deps.PSObject.Properties.Name -join ', ')"
+          }
+          Write-Output 'zero runtime dependencies: npm ls --omit=dev shows none'
       - name: npm run check (tsc --noEmit, strict)
         working-directory: typescript
         run: npm run check
