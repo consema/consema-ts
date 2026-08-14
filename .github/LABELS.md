@@ -18,7 +18,7 @@ complements the human-chosen `kind:` label.
 | `kind: docs`    | `0075ca` | Documentation-only change                                          |
 | `kind: chore`   | `5319e7` | Maintenance: tooling, CI, dependencies, refactor without behavior change |
 | `kind: release` | `fbca04` | Release preparation / version bump                                 |
-| `area: core`    | `d93f0b` | Implementation / authoritative content (repo source tree)          |
+| `area: core`    | `d93f0b` | Implementation / authoritative content (repo source tree: `typescript/**`; root meta files `LICENSE`/`.gitignore`/`.gitattributes`) |
 | `area: ci`      | `bfd4f2` | CI / tooling: `.github/**`, `scripts/**`                           |
 | `area: docs`    | `c2e0c6` | Documentation: `*.md`, `docs/**`                                   |
 | `needs-info`    | `f9d0c4` | Issues awaiting information: the stale workflow (`only-labels: needs-info`) target（已落地：2026-08-14 `gh label edit "needs-info" --color f9d0c4`，线上与本表一致，G101） |
