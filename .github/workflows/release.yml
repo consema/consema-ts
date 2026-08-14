@@ -145,7 +145,15 @@ jobs:
           echo "release-path npm test: differential legs are documented skips (no Rust emitter in release); CI ts-differential covers them"
       - name: npm publish --dry-run (packaging validation before the real publish)
         working-directory: typescript
-        run: npm publish --dry-run --access public --tag rc
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          if [[ "$version" == *-* ]]; then
+            npm publish --dry-run --access public --tag rc
+          else
+            npm publish --dry-run --access public
+          fi
       # Clean-install package-root import smoke (G33, 2026-08-14): verify
       # the tarball is importable from a fresh consumer install right before
       # publishing (same step as the CI ts-package job).
@@ -171,13 +179,23 @@ jobs:
             Pop-Location
             Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
           }
-      # 1.0.0-rc.1 is a prerelease: npm 11 requires an explicit dist-tag for
-      # prerelease versions (publish without --tag fails), and the rc
-      # dist-tag is the convention for release candidates — consumers
-      # install `@consema/consema@rc` until GA (then `latest`, no --tag;
-      # wave-2 discovery 2026-08-14, verified with npm publish --dry-run).
-      - name: npm publish (provenance, public access, rc dist-tag)
+      # Dist-tag branch (W3-43, 2026-08-14; RELEASING.md §1 step 4): npm 11
+      # requires an explicit dist-tag for prerelease versions (publish
+      # without --tag fails) — a version with a prerelease suffix (e.g.
+      # 1.0.0-rc.1) publishes to the rc dist-tag (`@consema/consema@rc`);
+      # a GA version (no `-` segment, e.g. 1.0.0) omits --tag and npm
+      # assigns `latest` (wave-2 discovery 2026-08-14, both branches
+      # preplayed locally with npm publish --dry-run, W3-43).
+      - name: npm publish (provenance, public access; prerelease -> rc dist-tag, GA -> latest)
         working-directory: typescript
-        run: npm publish --provenance --access public --tag rc
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p "require('./package.json').version")"
+          if [[ "$version" == *-* ]]; then
+            npm publish --provenance --access public --tag rc
+          else
+            npm publish --provenance --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
