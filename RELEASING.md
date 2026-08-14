@@ -17,8 +17,8 @@ tag 推送后 `.github/workflows/release.yml` 自动发布 `@consema/consema`
    consema 仓库根 `CHANGELOG.md`（真实变更记录；`https://github.com/consema/consema/blob/main/docs/CHANGELOG.md` 只是勘误）。
 3. **质量门禁全绿**：main 分支 CI `check (all gates green)` 全绿
    （清单见各仓 ci 配置）。
-4. **打 tag 并推送**（发布动作的唯一触发点；tag 必须指向 main HEAD，
-   否则 release.yml 的守卫拒绝发布陈旧代码）：
+4. **打 tag 并推送**（发布动作的唯一触发点；tag 必须指向 main 历史
+   上的 commit，否则 release.yml 的守卫拒绝发布陈旧或分歧代码）：
    ```bash
    git tag vX.Y.Z
    git push origin vX.Y.Z
@@ -26,7 +26,9 @@ tag 推送后 `.github/workflows/release.yml` 自动发布 `@consema/consema`
    发布 workflow 会先 provision conformance 数据（多仓 checkout 模式，与
    CI 一致；`npm test` 的 conformance runner 按仓库相对路径读
    `conformance/`），再依次执行两个发布守卫：tag 必须指向 origin/main
-   HEAD（G71, 2026-08-14）；tag 去掉 `v` 前缀必须等于
+   历史上的 commit（G71, 2026-08-14；`git merge-base --is-ancestor`
+   祖先判定，W3-28——main 在 tag 推送后前进不会拒绝合法 tag）；tag
+   去掉 `v` 前缀必须等于
    `typescript/package.json` 的 version（不一致即 exit 1 中止；provision
    步骤在校验之前，与 release.yml 的步骤顺序一致），最后执行
    npm ci / check / test / pack + 干净目录安装 import 冒烟 /
