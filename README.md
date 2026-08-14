@@ -18,7 +18,12 @@ check-version-consistency job 断言与 README 一致）。
 npm install @consema/consema（当前版本见上方 Version: 行；发布后可用）
 ```
 
-下面示例是**仓库内演示**（导入走 `typescript/` 目录内相对路径；发布后包消费者从 `@consema/consema` 包根导入，见下方 API 摘要）。把内容保存为 `typescript/quickstart.ts`（node ≥ 26 原生运行 TS，无需构建）后执行 `cd typescript && node quickstart.ts`（一个 JSON 文档走完 parse → query → edit → render 四条链）：
+下面示例为**人工同步**（2026-08-14，对齐波 2 G32 决策）：仅保可运行——导入走
+`typescript/` 目录内相对路径（仓库内演示；发布后包消费者从 `@consema/consema`
+包根导入，见下方 API 摘要；示例文件本身不随包发布）。把内容保存为
+`typescript/quickstart.ts`（node ≥ 26 原生运行 TS，无需构建）后执行
+`cd typescript && node quickstart.ts`（一个 JSON 文档走完 parse → query → edit
+→ render 四条链）：
 
 ```ts
 import { integerValue } from './src/core/value.ts';
