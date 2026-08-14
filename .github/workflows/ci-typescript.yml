@@ -36,7 +36,9 @@
 # whose conformance/vectors + conformance/differential case sets and the
 # toml.corpus.cargo-manifest fixture conformance/fixtures/toml/Cargo.toml
 # are the single authority; the conformance checkout is pinned to the
-# commit carrying the cfd6e296 519-case inventory, 096e5f8) beside this
+# commit carrying the cfd6e296 519-case inventory, 9aa6597 — the
+# 2026-08-15 wave-4 R5 unified provision pin (mother-repo HEAD with all
+# wave-3/wave-4 manifest+conformance fixes)) beside this
 # repository and copies the conformance data into the workspace root (the
 # runner and the differential harnesses resolve conformance/* by
 # repository-relative path). The differential job additionally checks out
@@ -81,7 +83,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: 096e5f840ecc714912db779706fd881405b92308 # cfd6e296 519-case conformance data pin
+          ref: 9aa65976d51d27f93afcffca957475368a69e93b # wave-4 unified provision pin (mother-repo HEAD; fc-manifest sha256 3fdf9a77)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -97,6 +99,7 @@ jobs:
           if (-not (Test-Path -LiteralPath $source)) {
             throw "conformance data not found in the consema checkout: $source"
           }
+          if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
@@ -189,7 +192,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: 096e5f840ecc714912db779706fd881405b92308 # cfd6e296 519-case conformance data pin
+          ref: 9aa65976d51d27f93afcffca957475368a69e93b # wave-4 unified provision pin (mother-repo HEAD; fc-manifest sha256 3fdf9a77)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -205,6 +208,7 @@ jobs:
           if (-not (Test-Path -LiteralPath $source)) {
             throw "conformance data not found in the consema checkout: $source"
           }
+          if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
@@ -287,7 +291,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: 096e5f840ecc714912db779706fd881405b92308 # cfd6e296 519-case conformance data pin
+          ref: 9aa65976d51d27f93afcffca957475368a69e93b # wave-4 unified provision pin (mother-repo HEAD; fc-manifest sha256 3fdf9a77)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -303,6 +307,7 @@ jobs:
           if (-not (Test-Path -LiteralPath $source)) {
             throw "conformance data not found in the consema checkout: $source"
           }
+          if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
@@ -372,7 +377,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: 096e5f840ecc714912db779706fd881405b92308 # cfd6e296 519-case conformance data pin
+          ref: 9aa65976d51d27f93afcffca957475368a69e93b # wave-4 unified provision pin (mother-repo HEAD; fc-manifest sha256 3fdf9a77)
           path: consema-repo
       # G70 (adversarial audit, 2026-08-14): the Rust emitter toolchain is
       # pinned to 1.97.1 — the version this harness was locally verified
@@ -397,6 +402,7 @@ jobs:
           if (-not (Test-Path -LiteralPath $source)) {
             throw "conformance data not found in the consema checkout: $source"
           }
+          if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
           Copy-Item -LiteralPath $source -Destination $target -Recurse -Force
           # The toml.corpus.cargo-manifest case reads the committed fixture
           # conformance/fixtures/toml/Cargo.toml (single authority), which is
