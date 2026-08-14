@@ -3,7 +3,7 @@
  *
  * authority: the Rust CONTRACTS_V1..V7 registries
  * (consema-rs/consema-protocol/src/contract.rs), transcribed verbatim in
- * consema-go/go/protocol/contract.go:289-473 (cross-reference). The registry pins the
+ * consema-go/go/protocol/contract.go (cross-reference，行号可能漂移，以符号名为锚). The registry pins the
  * semantic-model v1-v7 sets of 16/18/25/25/30/38/41 contracts; the test
  * battery re-pins the counts and sortedness. The envelope
  * `core.protocol-message@1` follows contract.rs.

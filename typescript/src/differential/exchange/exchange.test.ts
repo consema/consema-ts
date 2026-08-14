@@ -28,6 +28,7 @@ import {
   TS_DIR_ENV,
   defaultCasesFile,
   loadCaseFile,
+  missingDataReason,
   runExchange,
   verifyAcceptCanonical,
 } from './exchange.ts';
@@ -36,7 +37,12 @@ import { defaultProtocolLimits } from '../../protocol/limits.ts';
 /** The environment variable naming the Rust exchange directory. */
 const RUST_DIR_ENV = 'CONSEMA_EXCHANGE_RUST_DIR';
 
-test('exchange: case file integrity (manifest, count, ids, coverage)', () => {
+test('exchange: case file integrity (manifest, count, ids, coverage)', (t) => {
+  const reason = missingDataReason();
+  if (reason !== undefined) {
+    t.skip(reason);
+    return;
+  }
   const cases = loadCaseFile(defaultCasesFile());
   assert.equal(cases.length, 83, 'the differential input set has 83 cases');
   const seen = new Set<string>();
@@ -62,6 +68,11 @@ test('exchange: case file integrity (manifest, count, ids, coverage)', () => {
 });
 
 test('exchange: TS codecs decode every accept case canonically', (t) => {
+  const reason = missingDataReason();
+  if (reason !== undefined) {
+    t.skip(reason);
+    return;
+  }
   // The TS-side canonicality check of the whole accept set (the Go
   // loadCaseFile strict check, kept per-case so divergences are reported
   // precisely). This is the documented protocol-layer surface: any

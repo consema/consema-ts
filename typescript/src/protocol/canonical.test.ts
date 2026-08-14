@@ -50,6 +50,43 @@ test('vector protocol.json.null-vector: null encodes to the frozen envelope byte
   assert.equal(equal(decoded, nullValue()), true);
 });
 
+test('W4-18 (R11): integer magnitude bound mirrors the Rust parse_integer (2049/2466/3074 digits)', () => {
+  // The Rust reference (value_transport.rs parse_integer) caps the text at
+  // maxIntegerBytes × 3 + 2 characters and the magnitude at
+  // maxIntegerBytes bytes (1024 bytes ≈ 2466 decimal digits). The old TS
+  // 2048-digit cap rejected 2049..2466-digit integers the Rust side parses.
+  const integerWire = (digits: string): string =>
+    `{"schema":"core.portable-value-json@1","value":{"type":"Integer","value":"${digits}"}}`;
+  const nines = (count: number): string => '9'.repeat(count);
+  // 2049 digits: within the text cap and the 1024-byte magnitude bound.
+  const small = DecodeJSON(new TextEncoder().encode(integerWire(nines(2049))), LIMITS);
+  assert.equal(small.kind, 'Integer');
+  // 2466 digits: magnitude is exactly 1024 bytes — must parse (the old cap
+  // rejected this; the Rust side parses it).
+  const boundary = DecodeJSON(new TextEncoder().encode(integerWire(nines(2466))), LIMITS);
+  assert.equal(boundary.kind, 'Integer');
+  assert.equal(boundary.value.toString().length, 2466);
+  // 3074 digits: inside the text cap (3074 = 1024×3+2) but the magnitude is
+  // 1277 bytes — the magnitude check must reject it with the resource limit.
+  assert.throws(
+    () => DecodeJSON(new TextEncoder().encode(integerWire(nines(3074))), LIMITS),
+    (error: unknown) => (error as ProtocolError).kind === 'ResourceLimit',
+    '3074-digit integer exceeds the magnitude bound',
+  );
+  // 3075 digits: beyond the text cap itself.
+  assert.throws(
+    () => DecodeJSON(new TextEncoder().encode(integerWire(nines(3075))), LIMITS),
+    (error: unknown) => (error as ProtocolError).kind === 'ResourceLimit',
+    '3075-digit integer exceeds the text cap',
+  );
+  // The encode side applies the same magnitude bound (Rust integer()).
+  assert.throws(
+    () => EncodeJSON(integerValue(BigInt(nines(3074))), LIMITS),
+    (error: unknown) => (error as ProtocolError).kind === 'ResourceLimit',
+    'encode rejects a 3074-digit integer magnitude',
+  );
+});
+
 test('all fifteen kinds round-trip byte-exactly', () => {
   const date = dateValue(-12345n, 2, 28);
   const time = timeValue(23, 59, 58, decimalValue(125n, -3n));
@@ -135,7 +172,7 @@ test('documented divergence (Rust wins): non-canonical decimals are rejected via
   // The Rust decoder re-encodes the decoded VALUE (value_transport.rs),
   // so {"coefficient":"10","exponent":"0"} normalizes to 1e1 and the
   // re-encode differs from the input. The Go implementation re-encodes the
-  // parse tree and would accept this input (consema-go/go/protocol/canonical.go:487-512);
+  // parse tree and would accept this input (consema-go/go/protocol/canonical.go，行号可能漂移，以符号名为锚);
   // TypeScript follows Rust. Recorded for the parity review.
   const input =
     '{"schema":"core.portable-value-json@1","value":{"type":"Decimal","coefficient":"10","exponent":"0"}}';

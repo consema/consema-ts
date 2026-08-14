@@ -284,7 +284,7 @@ export function isSeverity(value: string): value is Severity {
 
 /**
  * The frozen process-local-handle rejection at the externalization boundary
- * (protocol_records.py:43-49; diagnostic.rs bind_location). A
+ * (protocol_records.py，行号可能漂移，以符号名为锚; diagnostic.rs bind_location). A
  * process-local identity that cannot be replaced by a stable caller
  * locator/source binding is rejected with this fixed code.
  */

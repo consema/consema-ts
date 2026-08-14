@@ -300,7 +300,7 @@ const KIND_BYTES = 'Bytes';
 
 /**
  * The domain/operator validation table (query.rs; transcribed into
- * consema-go/go/protocol/query_validate.go:169-361). The generic rows (core.take,
+ * consema-go/go/protocol/query_validate.go，行号可能漂移，以符号名为锚). The generic rows (core.take,
  * core.distinct-by-identity) are domain-agnostic and resolved separately.
  */
 const OPERATOR_TABLE = new Map<string, OperatorSpec>([

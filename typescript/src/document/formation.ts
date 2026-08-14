@@ -9,7 +9,7 @@
  *  - ParseLimits fields and defaults: consema-rs/consema-document/src/lib.rs
  *    max_source_bytes 64 MiB, max_nesting_depth 256,
  *    max_token_count 2_000_000, max_node_count 1_000_000,
- *    max_diagnostics 10_000 (cross-checked by consema-go/go/document/limits.go:5-29)
+ *    max_diagnostics 10_000 (cross-checked by consema-go/go/document/limits.go，行号可能漂移，以符号名为锚)
  *
  * Design (TypeScript-idiomatic): FormationStatus is a closed string-literal
  * union — the compiler proves closure on any exhaustive switch. ParseLimits
@@ -38,7 +38,7 @@ export interface ParseLimits {
   readonly maxDiagnostics: number;
 }
 
-/** The frozen defaults (lib.rs; consema-go/go/document/limits.go:21-28). */
+/** The frozen defaults (lib.rs; consema-go/go/document/limits.go，行号可能漂移，以符号名为锚). */
 export const DEFAULT_PARSE_LIMITS: Readonly<ParseLimits> = Object.freeze({
   maxSourceBytes: 64 * 1024 * 1024,
   maxNestingDepth: 256,

@@ -500,7 +500,14 @@ function objectField(value: PortableValue, name: string): PortableValue | undefi
   return value.entries.find((entry) => entry.key === name)?.value;
 }
 
-/** Converts one exact decimal to its double value (materialization.rs). */
+/** Converts one exact decimal to its double value (materialization.rs).
+ * Single-round conversion (W4-17/R42): the string form
+ * `${coefficient}e${exponent}` goes through the ECMAScript ToNumber
+ * correctly-rounded conversion (IEEE 754 round-to-nearest), instead of the
+ * old two-step `Number(coefficient) * 10**exponent` arithmetic that
+ * double-rounds and can produce a 1-ULP wrong double (7.038531e-26 →
+ * 7.038530999999999e-26). Out-of-range input fails atomically (null):
+ * coefficient outside the safe-integer range, or |exponent| > 308. */
 function decimalToF64(coefficient: bigint, exponent: bigint): number | null {
   if (coefficient > BigInt(Number.MAX_SAFE_INTEGER) || coefficient < -BigInt(Number.MAX_SAFE_INTEGER)) {
     return null;
@@ -508,13 +515,7 @@ function decimalToF64(coefficient: bigint, exponent: bigint): number | null {
   if (exponent > 308n || exponent < -308n) {
     return null;
   }
-  let value = Number(coefficient);
-  if (exponent > 0n) {
-    value *= 10 ** Number(exponent);
-  } else if (exponent < 0n) {
-    value /= 10 ** Number(-exponent);
-  }
-  return value;
+  return Number(`${coefficient}e${exponent}`);
 }
 
 /** Strictly decodes one even-length hex string (materialization.rs). */

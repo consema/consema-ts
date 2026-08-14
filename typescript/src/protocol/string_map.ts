@@ -3,7 +3,7 @@
  *
  * authority: the Rust BTreeMap ordering of string maps in protocol records
  * (diagnostic.rs arguments; registry.rs preconditions); consema-go/go/protocol/
- * diagnostic.go:406-418 (cross-reference).
+ * diagnostic.go (cross-reference，行号可能漂移，以符号名为锚).
  */
 
 import type { ObjectValue, PortableValue } from '../core/value.ts';

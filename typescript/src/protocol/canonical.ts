@@ -405,15 +405,37 @@ function jsonParseInteger(node: JsonNode, path: string, limits: ProtocolLimits):
   if (!/^-?\d+$/.test(text)) {
     throw protocolError('InvalidValue', path, 'invalid integer');
   }
-  const magnitude = text.replace('-', '');
-  if (magnitude.length > limits.maxIntegerBytes * 2) {
-    throw resource(path, 'integer bytes');
+  // W4-18 (R11): the integer resource bound mirrors the Rust reference
+  // implementation (consema-rs/consema-protocol/src/value_transport.rs
+  // parse_integer): a text-length cap of maxIntegerBytes × 3 + 2 characters
+  // first, then a magnitude byte-length check (1024 bytes ≈ 2466 decimal
+  // digits). The old `magnitude.length > maxIntegerBytes × 2` (2048 digits)
+  // rejected 2049..2466-digit integers the Rust side parses fine — the same
+  // wire record decoded differently across languages.
+  if (text.length > limits.maxIntegerBytes * 3 + 2) {
+    throw resource(path, 'integer decimal digits');
   }
+  let value: bigint;
   try {
-    return BigInt(text);
+    value = BigInt(text);
   } catch {
     throw protocolError('InvalidValue', path, 'invalid integer');
   }
+  if (bigintMagnitudeBytes(value) > limits.maxIntegerBytes) {
+    throw resource(path, 'integer magnitude');
+  }
+  return value;
+}
+
+/** The big-endian magnitude byte length of one bigint (value_transport.rs magnitude().len()). */
+function bigintMagnitudeBytes(value: bigint): number {
+  let magnitude = value < 0n ? -value : value;
+  let bytes = 0;
+  while (magnitude > 0n) {
+    bytes += 1;
+    magnitude >>= 8n;
+  }
+  return bytes;
 }
 
 // ---------------------------------------------------------------------------
@@ -524,6 +546,12 @@ class JsonEncoderState {
 
   /** Emits one bigint as a quoted canonical decimal string (Rust integer(), value_transport.rs). */
   integer(value: bigint): void {
+    // W4-18 (R11): the encode side mirrors the Rust integer() magnitude
+    // bound (value_transport.rs) — a magnitude over maxIntegerBytes fails
+    // with the resource limit instead of emitting an out-of-budget text.
+    if (bigintMagnitudeBytes(value) > this.limits.maxIntegerBytes) {
+      throw resource('$', 'integer magnitude');
+    }
     this.push('"');
     this.push(value.toString());
     this.push('"');
@@ -1096,7 +1124,7 @@ function hexBytes(hex: string): Uint8Array {
  * Documented divergence note (Rust wins, per the language-neutral parity
  * rule): the Rust decoder re-encodes the DECODED VALUE and compares it to
  * the input bytes (value_transport.rs). The Go implementation
- * re-encodes the parse tree instead (consema-go/go/protocol/canonical.go:487-512),
+ * re-encodes the parse tree instead (consema-go/go/protocol/canonical.go，行号可能漂移，以符号名为锚),
  * which accepts non-canonical decimal spellings (e.g.
  * {"coefficient":"10","exponent":"0"}) that Rust rejects after decimal
  * normalization. TypeScript follows Rust: the decoded decimal is normalized

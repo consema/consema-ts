@@ -12,7 +12,7 @@
  * executor: the Input roots, graph.reachable-nodes first-discovery
  * traversal, the association operators, and the StructureOrderMerge
  * canonical-rank merge). The failure spellings follow the vectors
- * (queryFailureName, python core_query.py:29-45); the registered codes follow
+ * (queryFailureName, python core_query.py，行号可能漂移，以符号名为锚); the registered codes follow
  * the error registry (src/protocol/error_registry.ts:205-220).
  *
  * Design (TypeScript-idiomatic): the validation-time QueryFailure union of
@@ -22,11 +22,14 @@
  * (the Python reference is eager); the ordered-result cursors are lazy over
  * the materialized stream, mirroring the Rust cursor terminal states.
  *
- * Documented deviations: (1) the Rust lazy step counter (max_steps
- * accounting per pull) is not mirrored — execution enforces the expression
- * depth limit 256 and the max_results bounds, which is the observable
- * surface of the published vectors; (2) the Rust try-operators silently
- * drop role-unmatched values while the Python reference raises
+ * Documented deviations: (1) max_steps is enforced, but the account is
+ * the eager analog of the Rust per-pull counter (W4-19/R12): the TS
+ * executor materializes the whole stream, so one step is charged per
+ * match emitted by each expression-tree node instead of per lazy pull —
+ * the bound semantics (an over-limit query fails with
+ * core.query.resource-limit@1) hold, the exact step counts differ from
+ * the Rust pull counts; (2) the Rust try-operators silently drop
+ * role-unmatched values while the Python reference raises
  * RequiredTypeMismatch — the Python behavior is kept (the vectors do not
  * exercise the difference); (3) distinct-by-identity over portable values
  * deduplicates by object reference of the match value (the Python id()
@@ -40,7 +43,7 @@ import type { Graph, NodeID } from '../graph/graph.ts';
 import { nodeAt, canonicalOrder, defaultLimits } from '../graph/graph.ts';
 
 // ---------------------------------------------------------------------------
-// Failure model (query.rs; python core_query.py:29-45)
+// Failure model (query.rs; python core_query.py，行号可能漂移，以符号名为锚)
 // ---------------------------------------------------------------------------
 
 /** One query failure kind, including the execution-time kinds the
@@ -73,7 +76,7 @@ const EXECUTION_FAILURE_CODES: Record<QueryExecutionFailureKind, string> = {
   TargetUnavailable: 'core.query.target-unavailable@1',
 };
 
-/** The stable vector spelling of one query failure kind (python core_query.py:29-45). */
+/** The stable vector spelling of one query failure kind (python core_query.py，行号可能漂移，以符号名为锚). */
 export function queryFailureName(kind: QueryExecutionFailureKind): string {
   return kind;
 }
@@ -151,7 +154,7 @@ export class CancellationToken implements CancellationTokenLike {
 // Ordered results and cursors
 // ---------------------------------------------------------------------------
 
-/** One ordered result of the portable-value domain (python core_query.py:47-67). */
+/** One ordered result of the portable-value domain (python core_query.py，行号可能漂移，以符号名为锚). */
 export interface OrderedResult {
   readonly kind: 'Value' | 'ObjectEntry' | 'EntryMappingEntry';
   readonly ordinal: number;
@@ -165,7 +168,7 @@ export type TerminalState = 'Completed' | 'Cancelled' | 'Failed';
 
 /**
  * The ordered cursor over the materialized portable-value stream with a
- * max_results bound (python core_query.py:70-119). The advance that would
+ * max_results bound (python core_query.py，行号可能漂移，以符号名为锚). The advance that would
  * exceed the bound stops the stream with a Failed terminal; cancellation
  * requested before the next advance stops it with Cancelled.
  */
@@ -209,7 +212,7 @@ export class PortableCursor {
     return this.index;
   }
 
-  /** The terminal state of the stream (python core_query.py:110-119). */
+  /** The terminal state of the stream (python core_query.py，行号可能漂移，以符号名为锚). */
   terminalState(): TerminalState {
     if (this.cancelled) {
       return 'Cancelled';
@@ -272,19 +275,40 @@ export class OrderedCursor<T> {
 }
 
 // ---------------------------------------------------------------------------
-// The portable-value executor (python core_query.py:122-296; query.rs)
+// The portable-value executor (python core_query.py，行号可能漂移，以符号名为锚; query.rs)
 // ---------------------------------------------------------------------------
 
 /** The expression depth limit: a deeper operator tree fails with
- * ResourceLimitExceeded (python core_query.py:161-162). */
+ * ResourceLimitExceeded (python core_query.py，行号可能漂移，以符号名为锚). */
 const MAX_EXPRESSION_DEPTH = 256;
+
+/** The max_steps account (query.rs LazyContext::step — W4-19/R12).
+ * One step is charged per match emitted by each expression-tree node; the
+ * account saturates at the bound and the next over-limit emission fails
+ * with ResourceLimitExceeded. */
+interface StepBudget {
+  steps: number;
+  maxSteps: number;
+}
+
+/** Charges one emitted result stream against the step budget (query.rs
+ * steps.saturating_add(1) per pull — the eager analog counts per emitted
+ * match); over-limit fails with ResourceLimitExceeded. */
+function accountResults<T>(results: readonly T[], budget: StepBudget): T[] {
+  if (budget.steps + results.length > budget.maxSteps) {
+    throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
+  }
+  budget.steps += results.length;
+  return results as T[];
+}
 
 /**
  * Executes one validated expression over a core value and returns the
  * ordered result stream. The root is the first standard result and may not
  * bypass max_results (the Rust RootCounter, query.rs); a stream
- * longer than max_results fails with ResourceLimitExceeded; cancellation
- * fails with Cancelled.
+ * longer than max_results fails with ResourceLimitExceeded; the max_steps
+ * budget is charged per emitted match and over-limit fails with
+ * ResourceLimitExceeded (W4-19/R12); cancellation fails with Cancelled.
  */
 export function executePortable(
   value: PortableValue,
@@ -295,10 +319,11 @@ export function executePortable(
   if (token.isCancelled()) {
     throw new QueryExecutionFailure({ kind: 'Cancelled' });
   }
-  if (limits.maxResults < 1) {
+  if (limits.maxResults < 1 || limits.maxSteps < 1) {
     throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
   }
-  const matches = evaluateExpression(value, expression, 0);
+  const budget: StepBudget = { steps: 0, maxSteps: limits.maxSteps };
+  const matches = evaluateExpression(value, expression, 0, budget);
   if (matches.length > limits.maxResults) {
     throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
   }
@@ -307,7 +332,7 @@ export function executePortable(
 
 /**
  * Returns a lazy ordered pull cursor over one portable-value query
- * (python core_query.py:470-504; query.rs). Definition and
+ * (python core_query.py，行号可能漂移，以符号名为锚; query.rs). Definition and
  * capability errors are the caller's validation concern; mid-stream the
  * max_results bound surfaces a Failed terminal.
  */
@@ -317,39 +342,44 @@ export function executePortableCursor(
   maxResults?: number,
   cancelled = false,
 ): PortableCursor {
-  const matches = evaluateExpression(value, expression, 0);
+  // The cursor materializes the stream eagerly; the materialization runs
+  // under the frozen default max_steps budget (W4-19/R12).
+  const budget: StepBudget = { steps: 0, maxSteps: defaultQueryExecutionLimits().maxSteps };
+  const matches = evaluateExpression(value, expression, 0, budget);
   return new PortableCursor(matches, maxResults, cancelled, 'Completed');
 }
 
 /** Recursively evaluates an expression tree over one root value
- * (python core_query.py:158-183). */
+ * (python core_query.py，行号可能漂移，以符号名为锚); every node output is charged against
+ * the step budget (W4-19/R12). */
 function evaluateExpression(
   value: PortableValue,
   expression: QueryExpression,
   depth: number,
+  budget: StepBudget,
 ): OrderedResult[] {
   if (depth > MAX_EXPRESSION_DEPTH) {
     throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
   }
   switch (expression.kind) {
     case 'Input':
-      return [{ kind: 'Value', ordinal: 0, value }];
+      return accountResults([{ kind: 'Value', ordinal: 0, value }], budget);
     case 'Apply': {
-      const inputs = evaluateExpression(value, expression.input, depth + 1);
-      return applyOperator(expression.operator, inputs);
+      const inputs = evaluateExpression(value, expression.input, depth + 1, budget);
+      return accountResults(applyOperator(expression.operator, inputs), budget);
     }
     case 'Concat': {
       const results: OrderedResult[] = [];
       for (const branch of expression.branches) {
-        results.push(...evaluateExpression(value, branch, depth + 1));
+        results.push(...evaluateExpression(value, branch, depth + 1, budget));
       }
-      return results;
+      return accountResults(results, budget);
     }
     case 'StructureOrderMerge': {
       // The structural-identity-order merge of the Python reference:
       // branch-by-branch round-robin over the longest first branch.
       const branches = expression.branches.map((branch) =>
-        evaluateExpression(value, branch, depth + 1),
+        evaluateExpression(value, branch, depth + 1, budget),
       );
       const merged: OrderedResult[] = [];
       if (branches.length > 0) {
@@ -361,13 +391,13 @@ function evaluateExpression(
           }
         }
       }
-      return merged;
+      return accountResults(merged, budget);
     }
   }
 }
 
 /** The domain-agnostic stream operators and the per-match operator table
- * (python core_query.py:186-261; query.rs). */
+ * (python core_query.py，行号可能漂移，以符号名为锚; query.rs). */
 function applyOperator(operator: OperatorCall, inputs: OrderedResult[]): OrderedResult[] {
   if (operator.id === 'core.take') {
     return inputs.slice(0, integerArgument(operator, 'count'));
@@ -393,7 +423,7 @@ function applyOperator(operator: OperatorCall, inputs: OrderedResult[]): Ordered
   return results;
 }
 
-/** One operator applied to one match (python core_query.py:207-261). */
+/** One operator applied to one match (python core_query.py，行号可能漂移，以符号名为锚). */
 function applyOne(operator: OperatorCall, match: OrderedResult): OrderedResult[] {
   switch (operator.id) {
     case 'core.try-object-entries': {
@@ -470,7 +500,7 @@ function applyOne(operator: OperatorCall, match: OrderedResult): OrderedResult[]
 }
 
 /** The RequiredTypeMismatch failure of the kind-guarded operators
- * (python core_query.py:264-270). */
+ * (python core_query.py，行号可能漂移，以符号名为锚). */
 function requiredTypeMismatch(operator: OperatorCall, kind: string): QueryExecutionFailure {
   return new QueryExecutionFailure({
     kind: 'RequiredTypeMismatch',
@@ -479,7 +509,7 @@ function requiredTypeMismatch(operator: OperatorCall, kind: string): QueryExecut
   });
 }
 
-/** Role composition guard (python core_query.py:273-278). */
+/** Role composition guard (python core_query.py，行号可能漂移，以符号名为锚). */
 function requireRole(
   match: OrderedResult,
   role: 'ObjectEntry' | 'EntryMappingEntry',
@@ -490,7 +520,7 @@ function requireRole(
   }
 }
 
-/** The required string operator argument (python core_query.py:281-287). */
+/** The required string operator argument (python core_query.py，行号可能漂移，以符号名为锚). */
 function stringArgument(operator: OperatorCall, name: string): string {
   const value = operator.arguments.get(name);
   if (value === undefined || value.kind !== 'String') {
@@ -503,7 +533,7 @@ function stringArgument(operator: OperatorCall, name: string): string {
   return value.value;
 }
 
-/** The required integer operator argument (python core_query.py:290-296). */
+/** The required integer operator argument (python core_query.py，行号可能漂移，以符号名为锚). */
 function integerArgument(operator: OperatorCall, name: string): number {
   const value = operator.arguments.get(name);
   if (value === undefined || value.kind !== 'Integer') {
@@ -539,7 +569,8 @@ export type GraphOrderedResult =
 
 /** Executes one validated portable-graph expression over a built graph
  * (query.rs): the Input expression yields one Node match per root in
- * root order, then the operator chain runs with the max_results bound. */
+ * root order, then the operator chain runs with the max_results and
+ * max_steps bounds (W4-19/R12). */
 export function executeGraph(
   graph: Graph,
   expression: QueryExpression,
@@ -549,11 +580,15 @@ export function executeGraph(
   if (token.isCancelled()) {
     throw new QueryExecutionFailure({ kind: 'Cancelled' });
   }
+  if (limits.maxResults < 1 || limits.maxSteps < 1) {
+    throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
+  }
   const roots = graph.roots.map((node): GraphOrderedResult => ({ kind: 'GraphNode', node }));
   if (roots.length > limits.maxResults) {
     throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
   }
-  const matches = evaluateGraphExpression(graph, expression, roots, 0);
+  const budget: StepBudget = { steps: 0, maxSteps: limits.maxSteps };
+  const matches = evaluateGraphExpression(graph, expression, roots, 0, budget);
   if (matches.length > limits.maxResults) {
     throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
   }
@@ -561,36 +596,38 @@ export function executeGraph(
 }
 
 /** Recursively evaluates a graph expression over the root matches
- * (query.rs). */
+ * (query.rs); every node output is charged against the step budget
+ * (W4-19/R12). */
 function evaluateGraphExpression(
   graph: Graph,
   expression: QueryExpression,
   inputs: GraphOrderedResult[],
   depth: number,
+  budget: StepBudget,
 ): GraphOrderedResult[] {
   if (depth > MAX_EXPRESSION_DEPTH) {
     throw new QueryExecutionFailure({ kind: 'ResourceLimitExceeded' });
   }
   switch (expression.kind) {
     case 'Input':
-      return [...inputs];
+      return accountResults([...inputs], budget);
     case 'Apply': {
-      const values = evaluateGraphExpression(graph, expression.input, inputs, depth + 1);
-      return applyGraphOperator(graph, expression.operator, values);
+      const values = evaluateGraphExpression(graph, expression.input, inputs, depth + 1, budget);
+      return accountResults(applyGraphOperator(graph, expression.operator, values), budget);
     }
     case 'Concat': {
       const output: GraphOrderedResult[] = [];
       for (const branch of expression.branches) {
-        output.push(...evaluateGraphExpression(graph, branch, inputs, depth + 1));
+        output.push(...evaluateGraphExpression(graph, branch, inputs, depth + 1, budget));
       }
-      return output;
+      return accountResults(output, budget);
     }
     case 'StructureOrderMerge': {
       // The Rust merge sorts the branch union by canonical node rank and
       // deduplicates by match identity (query.rs).
       const output: GraphOrderedResult[] = [];
       for (const branch of expression.branches) {
-        output.push(...evaluateGraphExpression(graph, branch, inputs, depth + 1));
+        output.push(...evaluateGraphExpression(graph, branch, inputs, depth + 1, budget));
       }
       const canonical = canonicalOrder(graph.nodes, graph.roots, defaultLimits().maxTraversalDepth);
       const rank = (match: GraphOrderedResult): [number, number, number] => {
@@ -605,14 +642,17 @@ function evaluateGraphExpression(
       };
       output.sort((left, right) => compareTuple(rank(left), rank(right)));
       const seen = new Set<string>();
-      return output.filter((value) => {
-        const key = graphMatchIdentity(value);
-        if (seen.has(key)) {
-          return false;
-        }
-        seen.add(key);
-        return true;
-      });
+      return accountResults(
+        output.filter((value) => {
+          const key = graphMatchIdentity(value);
+          if (seen.has(key)) {
+            return false;
+          }
+          seen.add(key);
+          return true;
+        }),
+        budget,
+      );
     }
   }
 }
@@ -652,7 +692,7 @@ function applyGraphOperator(
     }
     case 'graph.reachable-nodes': {
       // The canonical first-discovery traversal with one shared visited set
-      // over all inputs (query.rs; portable_graph_v1.py:391-402).
+      // over all inputs (query.rs; portable_graph_v1.py，行号可能漂移，以符号名为锚).
       const seen = new Set<string>();
       for (const match of inputs) {
         requireGraphNode(match, operator);
@@ -751,7 +791,7 @@ function applyGraphOperator(
   }
 }
 
-/** The GraphNode role guard (portable_graph_v1.py:345-352). */
+/** The GraphNode role guard (portable_graph_v1.py，行号可能漂移，以符号名为锚). */
 function requireGraphNode(
   match: GraphOrderedResult,
   operator: OperatorCall,
@@ -778,7 +818,7 @@ function nodeIdentityKey(node: NodeID): string {
 }
 
 /** Children in reverse order so the DFS pop visits them forward
- * (query.rs; portable_graph_v1.py:284-298). */
+ * (query.rs; portable_graph_v1.py，行号可能漂移，以符号名为锚). */
 function outgoingReverse(graph: Graph, id: NodeID): NodeID[] {
   const node = nodeAt(graph, id);
   if (node === undefined) {

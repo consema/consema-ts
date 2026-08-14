@@ -18,6 +18,7 @@
 
 import { FatalFormationFailure } from './json/errors.ts';
 import { diagnostic } from './document/diagnostic.ts';
+import { codeMaterializationUnsupportedProfile } from './document/errors.ts';
 import type { Diagnostic } from './document/diagnostic.ts';
 import { FormatFamilyId, ProfileId } from './document/profile.ts';
 import type { FormationStatus } from './document/formation.ts';
@@ -637,17 +638,26 @@ export type ConsemaDocument =
  * `parse_document` — symbol-anchored, W3-12). Per-format encoding
  * selection and limits use the frozen profile defaults (the properties
  * reader profile uses an explicit UTF-8 selection because its contract
- * has no profile default). An unknown profile id returns the same failure
- * the typed adapters do: resolve ids against `profiles()` first.
+ * has no profile default). An unknown profile id fails with the frozen
+ * `core.materialization.unsupported-profile@1` (the requested profile is
+ * unavailable): resolve ids against `profiles()` first.
  *
- * W3-43 (R6, evidence 2026-08-14): the default branch throws
- * `core.source.encoding-conflict@1` — the same frozen code the Rust
- * reference implementation uses for the same input (consema-rs
- * consema/src/lib.rs `parse_document` default branch, Diagnostic with
- * core.source.encoding-conflict@1 / Encoding / Error; the CLI-level
- * `profile_by_id` resolver in consema-rs consema/src/bin/consema/
- * registry.rs returns None for unknown ids without a frozen code).
- * Verified against consema-rs current HEAD; no new frozen code added.
+ * W4-15 (R1, evidence 2026-08-15): the default branch previously threw
+ * `core.source.encoding-conflict@1` — an encoding-facts-conflict code
+ * (error_registry v7 defines it as『Source encoding facts conflict』), a
+ * semantic mismatch for an unknown profile id. Per the wave-4 R1 ruling
+ * (五仓统一), the code is chosen from the frozen v1-v7 187-code registry —
+ * no new frozen code is added (a dedicated code is v8, post-1.0.0).
+ * Candidate sweep of the v7 registry (typescript/src/protocol/
+ * error_registry.ts): the only frozen code whose name is literally
+ * 「unsupported-profile」is `core.materialization.unsupported-profile@1`
+ * (Materialization, 0.5.0,『Requested materialization profile is
+ * unavailable』); the alternative `core.protocol.unknown-contract@1`
+ * (Encoding, 0.3.0) names contracts, not profiles. Chosen:
+ * `core.materialization.unsupported-profile@1` — the semantically closest
+ * 「未知/不支持 profile」code. The Rust reference implementation's
+ * parse_document default branch still reports encoding-conflict for the
+ * same input (consema-rs consema/src/lib.rs, W4 跨仓家族同步中).
  */
 export function parseDocument(source: Uint8Array, profile: ProfileId): Document {
   switch (profile.id()) {
@@ -690,7 +700,7 @@ export function parseDocument(source: Uint8Array, profile: ProfileId): Document 
       return Document.parseHcl(source, hclProfileFor('hcl.tfvars'), hclProfileDefaultEncoding(), DEFAULT_HCL_PARSE_LIMITS);
     default:
       throw FatalFormationFailure.fromDiagnostic(
-        diagnostic('core.source.encoding-conflict@1', 'Encoding', 'Error', null, 0n),
+        diagnostic(codeMaterializationUnsupportedProfile, 'Materialization', 'Error', null, 0n),
       );
   }
 }

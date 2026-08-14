@@ -24,7 +24,7 @@
  *     by field (exit 1 on any divergence).
  */
 
-import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { PortableValue } from '../../core/value.ts';
 import { nullValue, integerValue, decimalValue, stringValue, binaryFloat64Value, entryMappingValue } from '../../core/value.ts';
@@ -249,6 +249,16 @@ export function repoRootDir(): string {
 /** The provisioned differential case file. */
 export function defaultCasesFile(): string {
   return `${repoRootDir()}conformance/differential/normalized/cases.json`;
+}
+
+/** The documented-skip reason when the shared conformance data is not
+ * provisioned beside this repository (a fresh clone without the provision
+ * step); undefined when the data is present (W4-21/R49, the py
+ * case_files.missing_data_reason form). */
+export function missingDataReason(): string | undefined {
+  return existsSync(defaultCasesFile())
+    ? undefined
+    : 'conformance/differential/normalized/cases.json is not provisioned (run the conformance provision step): documented skip, never silent';
 }
 
 /** Loads and validates the provisioned case set (manifest, count, ids). */

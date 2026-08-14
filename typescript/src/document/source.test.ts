@@ -394,7 +394,7 @@ test('cp1252 C1 control positions decode to their U+00xx scalars', () => {
   // Intent: a code-page source decodes under the code page, never under a
   // Unicode encoding, so arbitrary byte values are content or malformed
   // sentinels — never re-interpreted. cp1252 0x81 maps to U+0081 (C1
-  // control, consema-go/go/document/cp1252_table.go:15) and stays one scalar.
+  // control, consema-go/go/document/cp1252_table.go，行号可能漂移，以符号名为锚) and stays one scalar.
   const page = windowsCodePageEncoding(WindowsCodePage.fromNumber(1252)!);
   const snapshot = SourceSnapshot.fromRaw(
     decodeHex('81'),

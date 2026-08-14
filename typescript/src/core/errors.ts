@@ -13,7 +13,7 @@
  * ("core.pvce.expected-core@1"); TypeScript represents the extension root
  * (a plain record), so both kinds are reachable here. The Go implementation
  * has no ExtendedValue type and rejects 0x7f as unknown-tag (documented
- * reachable-code difference; consema-go/go/core/errors.go:13-20).
+ * reachable-code difference; consema-go/go/core/errors.go，行号可能漂移，以符号名为锚).
  *
  * Design (TypeScript-idiomatic): the kind is a closed string-literal union;
  * `code` is a frozen property of every error instance, so the RFC 0016 §6

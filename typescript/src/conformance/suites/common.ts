@@ -5,7 +5,7 @@
  * documented skip with capability + reason, never silent).
  */
 
-import { Document, parseDocument } from '../../registry.ts';
+import { Document, parseDocument, profiles } from '../../registry.ts';
 import { ProfileId } from '../../document/profile.ts';
 import {
   ConformanceFailure,
@@ -34,10 +34,29 @@ export function skip(capability: string, reason: string): never {
   throw new SkippedCase(capability, reason);
 }
 
-/** Parses bytes under a vector profile id ("json.strict@1") through the root facade. */
+/** Parses bytes under a vector profile id ("json.strict@1") through the root facade.
+ * W4-22 (R52-related): the `profile@version` spelling is matched exactly
+ * against the frozen profile inventory — an unknown profile id or a
+ * version the registry does not publish fails loudly (the same discipline
+ * as v1.ts profileOf), never silently downgraded to @1 semantics. */
 export function parseBytes(bytes: Uint8Array, profileId: string): Document {
-  const [id] = profileId.split('@');
-  return parseDocument(bytes, new ProfileId(id, 1));
+  const at = profileId.lastIndexOf('@');
+  if (at <= 0 || at === profileId.length - 1) {
+    fail(`unknown profile ${profileId}`);
+  }
+  const id = profileId.slice(0, at);
+  const versionText = profileId.slice(at + 1);
+  if (!/^\d+$/.test(versionText)) {
+    fail(`unknown profile ${profileId}`);
+  }
+  const version = Number(versionText);
+  const known = profiles().some(
+    (entry) => entry.profile().id() === id && entry.profile().version() === version,
+  );
+  if (!known) {
+    fail(`unknown profile ${profileId}`);
+  }
+  return parseDocument(bytes, new ProfileId(id, version));
 }
 
 /** Parses the case `source` (or `source_hex`) under `input.profile`. */

@@ -28,7 +28,7 @@
  * records fail with core.pvce.nested-extended@1 and a core-only decode of an
  * extension root fails with core.pvce.expected-core@1, exactly as in Rust
  * (the Go codec has no ExtendedValue type and rejects 0x7f as unknown-tag —
- * documented reachable-code difference, consema-go/go/core/errors.go:13-20).
+ * documented reachable-code difference, consema-go/go/core/errors.go，行号可能漂移，以符号名为锚).
  *
  * Design (TypeScript-idiomatic): a small growable ByteWriter for encoding
  * and an offset Reader over Uint8Array for strict decoding; resource limits

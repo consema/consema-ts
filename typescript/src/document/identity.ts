@@ -2,7 +2,8 @@
  * Immutable source snapshots, structural locations, and change facts —
  * the process-local identity surface of the document domain.
  *
- * authority: consema-rs/consema-document/src/lib.rs
+ * authority: consema-rs/consema-document/src/lib.rs（:N-M 区间引用，
+ * 行号可能漂移，以符号名为锚）
  *  - SnapshotIdentity: :41-51 (opaque u64 identity of exactly one
  *    immutable document snapshot; never serialized, RFC 0003 §3)
  *  - DocumentAuthority: :53-110 (fresh identities, node/span issuance,

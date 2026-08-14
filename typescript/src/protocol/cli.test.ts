@@ -9,6 +9,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { ErrorCodeRegistry } from './error_registry.ts';
 import {
@@ -38,6 +39,15 @@ import { integerValue } from '../core/value.ts';
 
 const V7 = new ErrorCodeRegistry(7);
 const LIMITS = defaultProtocolLimits();
+
+/** The package version — the single source of truth for the envelope's
+ * product_version fixtures (W4-22/R36-related): the version-consistency
+ * gate pins typescript/package.json against the README Version line, so
+ * the fixtures here derive from it instead of hardcoding a version that
+ * could drift unnoticed on the next version-train bump. */
+const PACKAGE_VERSION = (
+  JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf-8')) as { version: string }
+).version;
 
 const SHA256_OF_EMPTY = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
@@ -141,7 +151,7 @@ test('batch plans and results round-trip through the value and JSON levels', () 
     [newDiagnostic('cli.data.io@1', 'Encoding', 'Error', undefined, [], new Map(), [], [], 0n, V7)],
     V7,
   );
-  const plan = newBatchPlanMessage('1.0.0-rc.1', [planned, failed], V7);
+  const plan = newBatchPlanMessage(PACKAGE_VERSION, [planned, failed], V7);
   const value = batchPlanToValue(plan);
   const decoded = batchPlanFromValue(value, V7);
   assert.equal(decoded.files.length, 2);
@@ -150,7 +160,7 @@ test('batch plans and results round-trip through the value and JSON levels', () 
   assert.equal(decoded.files[1].failureCode, 'cli.data.io@1');
 
   const resultEntry = newBatchResultFileEntry('app.conf', 'completed', undefined, digest, false);
-  const result = newBatchResultMessage('1.0.0-rc.1', [resultEntry]);
+  const result = newBatchResultMessage(PACKAGE_VERSION, [resultEntry]);
   const resultValue = batchResultToValue(result);
   const resultDecoded = batchResultFromValue(resultValue);
   assert.equal(resultDecoded.files[0].status, 'completed');
@@ -178,13 +188,13 @@ test('the envelope validates command closure, payload schema, and version shape'
     kind: 'Object' as const,
     entries: [
       { key: 'schema', value: { kind: 'String' as const, value: 'core.batch-plan@1' } },
-      { key: 'product_version', value: { kind: 'String' as const, value: '1.0.0-rc.1' } },
+      { key: 'product_version', value: { kind: 'String' as const, value: PACKAGE_VERSION } },
       { key: 'command', value: { kind: 'String' as const, value: 'plan' } },
       { key: 'files', value: { kind: 'Sequence' as const, items: [] as never[] } },
     ],
   };
   const redaction = newRedaction(false, 0n);
-  const message = newCliOutputMessage('plan', 'success', '1.0.0-rc.1', payload, [], redaction, V7);
+  const message = newCliOutputMessage('plan', 'success', PACKAGE_VERSION, payload, [], redaction, V7);
   assert.equal(message.command, 'plan');
   // A mismatched payload schema is rejected with SchemaMismatch (the Rust
   // validate_payload_schema choice, cli.rs; the shared vector
@@ -197,7 +207,7 @@ test('the envelope validates command closure, payload schema, and version shape'
     ],
   };
   assert.throws(
-    () => newCliOutputMessage('plan', 'success', '1.0.0-rc.1', wrongPayload, [], redaction, V7),
+    () => newCliOutputMessage('plan', 'success', PACKAGE_VERSION, wrongPayload, [], redaction, V7),
     (error: unknown) => (error as ProtocolError).code === 'core.protocol.schema-mismatch@1',
   );
   assert.throws(
@@ -212,12 +222,12 @@ test('the envelope round-trips through canonical JSON (RFC 0015 §4.4 form)', ()
       { key: 'schema', value: { kind: 'String' as const, value: 'core.batch-plan@1' } },
     ],
   };
-  const message = newCliOutputMessage('plan', 'success', '1.0.0-rc.1', payload, [], newRedaction(false, 0n), V7);
+  const message = newCliOutputMessage('plan', 'success', PACKAGE_VERSION, payload, [], newRedaction(false, 0n), V7);
   const bytes = EncodeJSON(cliOutputToValue(message), LIMITS);
   const decoded = cliOutputFromValue(DecodeJSON(bytes, LIMITS), V7);
   assert.equal(decoded.command, 'plan');
   assert.equal(decoded.exitClass, 'success');
-  assert.equal(decoded.productVersion, '1.0.0-rc.1');
+  assert.equal(decoded.productVersion, PACKAGE_VERSION);
   // The envelope's fixed field order (RFC 0015 §4.1).
   const value = cliOutputToValue(message);
   assert.deepEqual(

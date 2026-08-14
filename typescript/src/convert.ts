@@ -363,7 +363,18 @@ function materializeTarget(value: PortableValue, request: MaterializationRequest
       break;
     case 'hcl.native':
     case 'hcl.tfvars':
-      result = materializeHcl(portableToHclRecord(value) as HclBodyRecordInput, request);
+      try {
+        result = materializeHcl(portableToHclRecord(value) as HclBodyRecordInput, request);
+      } catch (error) {
+        // The record pre-conversion (portableToHclRecord) refuses values
+        // the target cannot represent by throwing MaterializationFailure
+        // (W4-17/R42: an out-of-range Decimal); surface it as a Failed
+        // conversion like every other family's materialization failure.
+        if (error instanceof MaterializationFailure) {
+          return ConversionFailure.materializationFailed(error);
+        }
+        throw error;
+      }
       break;
     case 'xml.1.0-safe':
       result = materializeXml(value, request);
@@ -582,7 +593,15 @@ function portableToHclRecord(value: PortableValue): unknown {
     case 'Integer':
       return value.value;
     case 'Decimal':
-      return Number(value.coefficient) * 10 ** Number(value.exponent);
+      // Single-round conversion (W4-17/R42): the string form goes through
+      // the ECMAScript correctly-rounded ToNumber instead of the old
+      // two-step multiply/divide that double-rounds (1-ULP wrong double).
+      // Out-of-range decimals (coefficient outside the safe-integer range
+      // or |exponent| > 308) fail atomically with Unrepresentable — the
+      // README「默认拒绝信息损失」commitment (same-family precedent:
+      // toml/materialization.ts exactNanoseconds) instead of silent
+      // rounding.
+      return hclDecimalToF64(value.coefficient, value.exponent);
     case 'String':
       return value.value;
     case 'Sequence':
@@ -609,6 +628,22 @@ function portableToHclRecord(value: PortableValue): unknown {
     case 'OffsetDateTime':
       throw new Error(`internal: hcl record cannot carry ${value.kind}`);
   }
+}
+
+/**
+ * Converts one exact decimal to the plain-JS number of the `hcl.body@1`
+ * record spelling (RFC 0014 §9). Correctly-rounded single-pass conversion;
+ * values the double cannot represent fail atomically with
+ * Unrepresentable (W4-17/R42).
+ */
+function hclDecimalToF64(coefficient: bigint, exponent: bigint): number {
+  if (coefficient > BigInt(Number.MAX_SAFE_INTEGER) || coefficient < -BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new MaterializationFailure('Unrepresentable', { valueKind: 'Decimal' });
+  }
+  if (exponent > 308n || exponent < -308n) {
+    throw new MaterializationFailure('Unrepresentable', { valueKind: 'Decimal' });
+  }
+  return Number(`${coefficient}e${exponent}`);
 }
 
 function hclFidelity(fidelity: HclProjectionFidelity): ConversionFidelity {

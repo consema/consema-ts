@@ -223,7 +223,7 @@ function bindExpression(domain: QueryDomain, expression: QueryExpression): Execu
   return bound.query;
 }
 
-/** Executes one ordered native-query call chain (plist_v1.py:996-1009). */
+/** Executes one ordered native-query call chain (plist_v1.py，行号可能漂移，以符号名为锚). */
 function executeNative(document: PlistDocument, calls: readonly OperatorCall[]): PlistQueryResult<PlistMatch> {
   return executePlistNativeQuery(
     bindExpression(domainPlistNativeV1(), expressionFor(calls)),
@@ -233,7 +233,7 @@ function executeNative(document: PlistDocument, calls: readonly OperatorCall[]):
   );
 }
 
-/** Executes one ordered binary-structure call chain (plist_v1.py:1179-1191). */
+/** Executes one ordered binary-structure call chain (plist_v1.py，行号可能漂移，以符号名为锚). */
 function executeBinaryStructure(document: PlistDocument, calls: readonly OperatorCall[]): PlistQueryResult<PlistBinaryMatch> {
   return executePlistBinaryQuery(
     bindExpression(domainPlistBinaryStructureV1(), expressionFor(calls)),
@@ -243,7 +243,7 @@ function executeBinaryStructure(document: PlistDocument, calls: readonly Operato
   );
 }
 
-/** Ordered dictionary-entry keys of one native match list (plist_v1.py:1011-1016). */
+/** Ordered dictionary-entry keys of one native match list (plist_v1.py，行号可能漂移，以符号名为锚). */
 function dictEntryKeys(matches: readonly PlistMatch[]): string[] {
   const keys: string[] = [];
   for (const item of matches) {
@@ -254,7 +254,7 @@ function dictEntryKeys(matches: readonly PlistMatch[]): string[] {
   return keys;
 }
 
-/** Number of duplicate-key groups among the dictionary-entry matches (plist_v1.py:1019-1024). */
+/** Number of duplicate-key groups among the dictionary-entry matches (plist_v1.py，行号可能漂移，以符号名为锚). */
 function duplicateKeyGroups(matches: readonly PlistMatch[]): number {
   const counts = new Map<string, number>();
   for (const key of dictEntryKeys(matches)) {
@@ -269,7 +269,7 @@ function duplicateKeyGroups(matches: readonly PlistMatch[]): number {
   return groups;
 }
 
-/** Value payload of one value-bearing match (plist_v1.py:1026-1035). */
+/** Value payload of one value-bearing match (plist_v1.py，行号可能漂移，以符号名为锚). */
 function matchPayload(match: PlistMatch): { readonly value: PlistValueRef; readonly kind: PlistValueKind } | null {
   if (match.kind === 'Value' || match.kind === 'DictEntry' || match.kind === 'ArrayElement') {
     return { value: match.value, kind: match.valueKind };
@@ -277,7 +277,7 @@ function matchPayload(match: PlistMatch): { readonly value: PlistValueRef; reado
   return null;
 }
 
-/** Asserts the typed-accessor matches (plist_v1.py:1037-1064). */
+/** Asserts the typed-accessor matches (plist_v1.py，行号可能漂移，以符号名为锚). */
 function assertTypedMatches(
   document: PlistDocument,
   matches: readonly PlistMatch[],
@@ -327,7 +327,7 @@ function queryCase(case_: VectorCase): void {
   fail(`unknown query domain ${domain}`);
 }
 
-/** plist.native-semantic-query@1 (plist_v1.py:1078-1121). */
+/** plist.native-semantic-query@1 (plist_v1.py，行号可能漂移，以符号名为锚). */
 function nativeQueryCase(case_: VectorCase): void {
   const document = parseCase(case_);
   if (document.formationStatus() !== 'Complete') {
@@ -368,7 +368,7 @@ function nativeQueryCase(case_: VectorCase): void {
   }
 }
 
-/** plist.native-semantic-query@1 samples (plist_v1.py:1124-1176). */
+/** plist.native-semantic-query@1 samples (plist_v1.py，行号可能漂移，以符号名为锚). */
 function nativeQuerySamples(
   case_: VectorCase,
   document: PlistDocument,
@@ -412,7 +412,7 @@ function nativeQuerySamples(
   }
 }
 
-/** Asserts one u64 expectation field (plist_v1.py:293-299). */
+/** Asserts one u64 expectation field (plist_v1.py，行号可能漂移，以符号名为锚). */
 function assertU64Field(case_: VectorCase, name: string, actual: number): void {
   const expected = expectedFieldOptional(case_, name) as number | undefined;
   if (expected !== undefined && actual !== expected) {
@@ -420,7 +420,7 @@ function assertU64Field(case_: VectorCase, name: string, actual: number): void {
   }
 }
 
-/** plist.binary-structure-query@1 (plist_v1.py:1194-1273). */
+/** plist.binary-structure-query@1 (plist_v1.py，行号可能漂移，以符号名为锚). */
 function binaryStructureQueryCase(case_: VectorCase): void {
   const document = parseCase(case_);
   if (document.formationStatus() !== 'Complete') {
@@ -501,7 +501,7 @@ function binaryStructureQueryCase(case_: VectorCase): void {
 // Projection (plist.projection@1; RFC 0013 §9)
 // ---------------------------------------------------------------------------
 
-/** The vector spelling of one projected value's kind (plist_v1.py:1281-1304). */
+/** The vector spelling of one projected value's kind (plist_v1.py，行号可能漂移，以符号名为锚). */
 function portableKindName(value: PortableValue): string | null {
   switch (value.kind) {
     case 'Object': {
@@ -534,7 +534,7 @@ function portableKindName(value: PortableValue): string | null {
   }
 }
 
-/** Ordered (key, value) pairs of one projected dict value (plist_v1.py:1307-1312). */
+/** Ordered (key, value) pairs of one projected dict value (plist_v1.py，行号可能漂移，以符号名为锚). */
 function mappingEntries(value: PortableValue): [string, PortableValue][] {
   if (value.kind === 'EntryMapping') {
     return value.entries.map((entry) => [entry.key.kind === 'String' ? entry.key.value : '', entry.value]);
@@ -553,7 +553,7 @@ function objectField(value: PortableValue, name: string): PortableValue | undefi
   return value.entries.find((entry) => entry.key === name)?.value;
 }
 
-/** The mapping entry value under one key; `undefined` when absent (plist_v1.py:1381-1385). */
+/** The mapping entry value under one key; `undefined` when absent (plist_v1.py，行号可能漂移，以符号名为锚). */
 function findMappingEntry(value: PortableValue, key: string): PortableValue | undefined {
   for (const [entryKey, item] of mappingEntries(value)) {
     if (entryKey === key) {
@@ -563,7 +563,7 @@ function findMappingEntry(value: PortableValue, key: string): PortableValue | un
   return undefined;
 }
 
-/** Asserts one projected leaf against its vector descriptor (plist_v1.py:1315-1367). */
+/** Asserts one projected leaf against its vector descriptor (plist_v1.py，行号可能漂移，以符号名为锚). */
 function assertLeaf(
   actual: PortableValue,
   expected: { kind: string; text?: string; value?: number | boolean; hex?: string; seconds?: number },
@@ -651,7 +651,7 @@ function assertLeaf(
   }
 }
 
-/** The projection request of one vector sample (plist_v1.py:1370-1378). */
+/** The projection request of one vector sample (plist_v1.py，行号可能漂移，以符号名为锚). */
 function projectionRequest(sample: { collision_policy?: string }): ProjectionRequest {
   const collision = sample.collision_policy;
   if (collision === 'Reject') {
@@ -742,7 +742,7 @@ function projectionCase(case_: VectorCase): void {
   }
 }
 
-/** plist.projection@1 samples (plist_v1.py:1450-1520). */
+/** plist.projection@1 samples (plist_v1.py，行号可能漂移，以符号名为锚). */
 function projectionSamples(case_: VectorCase, samples: readonly { source?: string; hex?: string; profile?: string; collision_policy?: string }[]): void {
   const fidelities = expectedFieldOptional(case_, 'fidelities') as string[] | undefined;
   const codes = expectedFieldOptional(case_, 'codes') as (string | null)[] | undefined;
@@ -813,7 +813,7 @@ function projectionSamples(case_: VectorCase, samples: readonly { source?: strin
 // Materialization (plist.materialization@1; RFC 0013 §10)
 // ---------------------------------------------------------------------------
 
-/** The canonical materialization request of one style (plist_v1.py:1582-1599). */
+/** The canonical materialization request of one style (plist_v1.py，行号可能漂移，以符号名为锚). */
 function materializationRequest(style: string): MaterializationRequest | null {
   if (style === 'plist.xml-canonical@1') {
     return new MaterializationRequest(new ProfileId('plist.xml', 1), new MaterializationStyleId('plist.xml-canonical', 1));
@@ -828,7 +828,7 @@ function materializationRequest(style: string): MaterializationRequest | null {
 
 /**
  * Converts one order-preserving decoded JSON structure into a
- * PortableValue, preserving member order (plist_v1.py:1528-1551). The
+ * PortableValue, preserving member order (plist_v1.py，行号可能漂移，以符号名为锚). The
  * vector records are read with JSON.parse, whose object key order is the
  * file order, so the ordered association facts survive without the
  * re-decoding pass the Python loader needs.
@@ -871,7 +871,7 @@ function orderedValue(raw: unknown): PortableValue {
   return objectValue(entries);
 }
 
-/** Non-container object count of one binary document (plist_v1.py:302-314). */
+/** Non-container object count of one binary document (plist_v1.py，行号可能漂移，以符号名为锚). */
 function scalarObjects(document: PlistDocument): number {
   const facts = document.binaryFacts();
   if (facts === null) {
@@ -923,7 +923,7 @@ function materializationCase(case_: VectorCase): void {
   }
 }
 
-/** plist.materialization@1 samples (plist_v1.py:1668-1764). */
+/** plist.materialization@1 samples (plist_v1.py，行号可能漂移，以符号名为锚). */
 function materializationSamples(case_: VectorCase, samples: readonly unknown[]): void {
   const canonicalHex = expectedFieldOptional(case_, 'canonical_hex') as string | undefined;
   const conversionRender = expectedFieldOptional(case_, 'conversion_render') as string | undefined;
@@ -1435,7 +1435,7 @@ function convertDocument(document: PlistDocument, target: 'XmlV1' | 'BinaryV1'):
 // Edit (plist.edit@1; RFC 0013 §11)
 // ---------------------------------------------------------------------------
 
-/** One edit path from a vector operation (plist_v1.py:1847-1870). */
+/** One edit path from a vector operation (plist_v1.py，行号可能漂移，以符号名为锚). */
 function editPath(operation: Record<string, unknown>): EditPath | null {
   const path = operation['path'] as unknown[] | undefined;
   if (path !== undefined) {
@@ -1458,7 +1458,7 @@ function editPath(operation: Record<string, unknown>): EditPath | null {
   return null;
 }
 
-/** One typed edit value from a vector descriptor (plist_v1.py:1879-1941). */
+/** One typed edit value from a vector descriptor (plist_v1.py，行号可能漂移，以符号名为锚). */
 function editValue(value: Record<string, unknown> | undefined): EditValue | null {
   if (value === undefined) {
     return null;
@@ -1522,7 +1522,7 @@ function editValue(value: Record<string, unknown> | undefined): EditValue | null
   }
 }
 
-/** One transaction from the vector operations (plist_v1.py:1944-2001). */
+/** One transaction from the vector operations (plist_v1.py，行号可能漂移，以符号名为锚). */
 function buildTransaction(document: PlistDocument, operations: readonly Record<string, unknown>[]): EditTransaction {
   const builder = new EditTransactionBuilder(document);
   for (const operation of operations) {
@@ -1599,7 +1599,7 @@ function buildTransaction(document: PlistDocument, operations: readonly Record<s
   return builder.build();
 }
 
-/** Reparses one committed document under its own profile (plist_v1.py:2004-2007). */
+/** Reparses one committed document under its own profile (plist_v1.py，行号可能漂移，以符号名为锚). */
 function reparse(document: PlistDocument): PlistDocument {
   const profile = document.profileInternal() === 'BinaryV1' ? ('BinaryV1' as const) : ('XmlV1' as const);
   return parse(document.render(), profile, PROFILE_DEFAULT_ENCODING, DEFAULT_PLIST_PARSE_LIMITS);
@@ -1619,7 +1619,7 @@ function sourcePatchLimits(document: PlistDocument): SourcePatchLimits {
   };
 }
 
-/** Asserts one string sequence expectation (plist_v1.py:282-290). */
+/** Asserts one string sequence expectation (plist_v1.py，行号可能漂移，以符号名为锚). */
 function assertStrings(actual: readonly string[], expected: readonly string[], what: string): void {
   if (actual.length !== expected.length) {
     fail(`${what} count differs`);
@@ -1631,7 +1631,7 @@ function assertStrings(actual: readonly string[], expected: readonly string[], w
   }
 }
 
-/** The native value of one root dict entry by key; `null` when absent (plist_v1.py:201-214). */
+/** The native value of one root dict entry by key; `null` when absent (plist_v1.py，行号可能漂移，以符号名为锚). */
 function entryByKey(committed: PlistDocument, root: PlistValue | null | undefined, name: string): PlistValue | null {
   const native = committed.document();
   if (native === null || root === null || root === undefined || root.kind !== 'Dict') {
@@ -1645,7 +1645,7 @@ function entryByKey(committed: PlistDocument, root: PlistValue | null | undefine
   return null;
 }
 
-/** Asserts one scalar native value against its vector descriptor (plist_v1.py:263-279). */
+/** Asserts one scalar native value against its vector descriptor (plist_v1.py，行号可能漂移，以符号名为锚). */
 function compareScalarValue(value: PlistValue | null | undefined, expected: string | number | boolean): void {
   if (typeof expected === 'string') {
     if (value?.kind !== 'String' || value.text !== expected) {
@@ -1662,7 +1662,7 @@ function compareScalarValue(value: PlistValue | null | undefined, expected: stri
   }
 }
 
-/** Asserts the committed native model against the vector facts (plist_v1.py:2009-2091). */
+/** Asserts the committed native model against the vector facts (plist_v1.py，行号可能漂移，以符号名为锚). */
 function assertEditNative(case_: VectorCase, committed: PlistDocument): void {
   const native = committed.document();
   const root = native?.get(native.root());
@@ -1799,7 +1799,7 @@ function editCase(case_: VectorCase): void {
   assertEditNative(case_, committed);
 }
 
-/** plist.edit@1 conflicts (plist_v1.py:2154-2194). */
+/** plist.edit@1 conflicts (plist_v1.py，行号可能漂移，以符号名为锚). */
 function editConflicts(case_: VectorCase, samples: readonly Record<string, unknown>[]): void {
   const codes = expectedField(case_, 'codes') as string[];
   if (samples.length !== codes.length) {
@@ -1847,7 +1847,7 @@ function editConflicts(case_: VectorCase, samples: readonly Record<string, unkno
 // Conversion (plist.conversion@1; RFC 0013 §7)
 // ---------------------------------------------------------------------------
 
-/** plist.conversion@1 (plist_v1.py:1779-1831). */
+/** plist.conversion@1 (plist_v1.py，行号可能漂移，以符号名为锚). */
 function conversionCase(case_: VectorCase): void {
   const document = parseCase(case_);
   if (document.formationStatus() !== 'Complete') {

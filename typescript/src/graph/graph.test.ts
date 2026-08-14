@@ -135,7 +135,7 @@ test('resource limits are enforced per field', () => {
   rooted.defineScalar(b, STR, 'y');
   rooted.pushRoot(a);
   // The Rust and Go authorities enforce graph-roots eagerly at push time
-  // (consema-rs/consema-graph/src/lib.rs; consema-go/go/graph/graph.go:261-267),
+  // (consema-rs/consema-graph/src/lib.rs; consema-go/go/graph/graph.go，行号可能漂移，以符号名为锚),
   // not at build(); build() only checks definitions, reachability, and depth.
   assert.throws(() => rooted.pushRoot(b), (e: unknown) => {
     const error = e as GraphError;

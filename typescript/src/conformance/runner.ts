@@ -71,6 +71,35 @@ export const SUITE_FILES: readonly string[] = Object.freeze([
   'yaml-v1.json',
 ]);
 
+/** The frozen per-suite schema facts (W4-16/R4): the exact suite id and
+ * the semantic-model identifier declared by the vectors — empty when the
+ * suite carries no declaration. A vector file whose suite id or declared
+ * semantic_model differs from the pin fails as suite.schema; a declaration
+ * without a pin also fails (the pin table is the authority, a stale table
+ * must not pass silently). This is the ts side of the vendored
+ * conformance/README.md claim「每个 runner 固定校验 suite/schema/
+ * semantic-model」. */
+export const SUITE_SCHEMA: Readonly<Record<string, { suiteId: string; semanticModel?: string }>> = Object.freeze({
+  'v1.json': { suiteId: 'consema.conformance@1' },
+  'toml-v1.json': { suiteId: 'consema.toml.conformance@1' },
+  'protocol-v1.json': { suiteId: 'consema.protocol.conformance@1', semanticModel: 'core.semantic-model@1' },
+  'source-v1.json': { suiteId: 'consema.source.conformance@1', semanticModel: 'core.semantic-model@2' },
+  'syntax-query-v1.json': { suiteId: 'consema.syntax-query.conformance@1', semanticModel: 'core.semantic-model@2' },
+  'protocol-v2.json': { suiteId: 'consema.protocol.conformance@2', semanticModel: 'core.semantic-model@2' },
+  'operations-v1.json': { suiteId: 'consema.operations.conformance@1', semanticModel: 'core.semantic-model@3' },
+  'json-family-v2.json': { suiteId: 'consema.json-family.conformance@2', semanticModel: 'core.semantic-model@4' },
+  'portable-graph-v1.json': { suiteId: 'consema.portable-graph.conformance@1' },
+  'semantic-model-v5.json': { suiteId: 'consema.semantic-model-v5.conformance@1', semanticModel: 'core.semantic-model@5' },
+  'yaml-v1.json': { suiteId: 'consema.yaml.conformance@1' },
+  'semantic-model-v6.json': { suiteId: 'consema.semantic-model-v6.conformance@1', semanticModel: 'core.semantic-model@6' },
+  'ini-v1.json': { suiteId: 'consema.ini.conformance@1' },
+  'java-properties-v1.json': { suiteId: 'consema.java-properties.conformance@1' },
+  'xml-1-0-safe-v1.json': { suiteId: 'consema.xml-1-0-safe.conformance@1', semanticModel: 'core.semantic-model@6' },
+  'plist-v1.json': { suiteId: 'consema.plist.conformance@1', semanticModel: 'core.semantic-model@6' },
+  'hcl-v1.json': { suiteId: 'consema.hcl.conformance@1', semanticModel: 'core.semantic-model@6' },
+  'cli-v1.json': { suiteId: 'consema.cli.conformance@1', semanticModel: 'core.semantic-model@7' },
+});
+
 /** The per-suite case counts pinned by conformance/README.md. */
 export const SUITE_EXPECTED_COUNTS: Readonly<Record<string, number>> = Object.freeze({
   'cli-v1.json': 40,
@@ -93,8 +122,54 @@ export const SUITE_EXPECTED_COUNTS: Readonly<Record<string, number>> = Object.fr
   'yaml-v1.json': 31,
 });
 
-/** The recorded aggregate digest (https://github.com/consema/consema/blob/main/docs/fc-manifest-0.13.0.json — 键 aggregate_sha256). */
-export const RECORDED_AGGREGATE_DIGEST = 'cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a';
+/**
+ * The provisioned fc-manifest record (conformance/fc-manifest-0.13.0.json,
+ * provisioned beside the vectors — W4-13/R10). Returns undefined when the
+ * manifest is not provisioned (documented skip); a present-but-malformed
+ * manifest fails loudly, never silently.
+ */
+export function loadManifestRecord(): Record<string, unknown> | undefined {
+  const path = `${repoRootDir()}conformance/fc-manifest-0.13.0.json`;
+  let bytes: Buffer;
+  try {
+    bytes = readFileSync(path);
+  } catch (error) {
+    if ((error as { code?: unknown } | null)?.code === 'ENOENT') {
+      return undefined;
+    }
+    throw error;
+  }
+  const parsed = JSON.parse(new TextDecoder('utf-8').decode(bytes)) as Record<string, unknown>;
+  if (typeof parsed.digests !== 'object' || parsed.digests === null) {
+    throw new Error('fc-manifest-0.13.0.json: digests record missing or malformed');
+  }
+  return parsed;
+}
+
+/** The frozen conformance-suite inventory record read from the provisioned
+ * fc-manifest (键 conformance_suite: suites / cases / aggregate_sha256 —
+ * the manifest is the single authority; W4-13/R10). Returns undefined when
+ * the manifest is not provisioned (documented skip). */
+export function recordedConformanceSuite(): { suites: number; cases: number; aggregateDigest: string } | undefined {
+  const manifest = loadManifestRecord();
+  if (manifest === undefined) {
+    return undefined;
+  }
+  const digests = manifest.digests as {
+    conformance_suite?: { suites?: unknown; cases?: unknown; aggregate_sha256?: unknown };
+  };
+  const suite = digests?.conformance_suite;
+  const suites = suite?.suites;
+  const cases = suite?.cases;
+  const digest = suite?.aggregate_sha256;
+  if (typeof suites !== 'number' || typeof cases !== 'number') {
+    throw new Error('fc-manifest-0.13.0.json: conformance_suite.suites/cases missing or malformed');
+  }
+  if (typeof digest !== 'string' || !/^[0-9a-f]{64}$/.test(digest)) {
+    throw new Error('fc-manifest-0.13.0.json: conformance_suite.aggregate_sha256 missing or malformed');
+  }
+  return { suites, cases, aggregateDigest: digest };
+}
 
 /** The repository-relative vectors directory (resolved from this file). */
 export function vectorsDir(): string {
@@ -253,6 +328,9 @@ export interface RunResult {
   readonly reports: readonly SuiteReport[];
   readonly digest: DigestResult;
   readonly digestOk: boolean;
+  /** Set when the fc-manifest record is not provisioned: the digest and
+   * inventory assertions cannot run (documented skip, never silent). */
+  readonly digestSkipped?: string;
   readonly totalCases: number;
   readonly passed: number;
   readonly failed: number;
@@ -298,6 +376,29 @@ export function runSuiteFile(file: VectorFile): SuiteReport {
       `${file.file}: case count ${file.cases.length} != published ${expected} (a silent skip would corrupt the inventory)`,
     );
   }
+  // W4-16 (R4): the frozen suite/schema/semantic-model validation —
+  // an unpinned file, a drifted suite id, or a drifted semantic-model
+  // declaration fails loudly (suite.schema, the go runner's failure id).
+  const schema = SUITE_SCHEMA[file.file];
+  if (schema === undefined) {
+    throw new Error(`${file.file}: no published suite schema pin (a new suite file must be pinned)`);
+  }
+  if (file.suite !== schema.suiteId) {
+    throw new Error(
+      `${file.file}: suite.schema — suite id ${JSON.stringify(file.suite)} != published ${schema.suiteId}`,
+    );
+  }
+  if (schema.semanticModel !== undefined) {
+    if (file.semanticModel !== schema.semanticModel) {
+      throw new Error(
+        `${file.file}: suite.schema — semantic-model ${JSON.stringify(file.semanticModel)} != published ${schema.semanticModel}`,
+      );
+    }
+  } else if (file.semanticModel !== undefined) {
+    throw new Error(
+      `${file.file}: suite.schema — vector declares semantic_model ${JSON.stringify(file.semanticModel)} but the published schema pins none (pin-table drift)`,
+    );
+  }
   const executor = executors[file.file];
   if (executor === undefined) {
     throw new Error(`${file.file}: no TS suite executor registered`);
@@ -332,10 +433,15 @@ export function runSuiteFile(file: VectorFile): SuiteReport {
 
 export { SkippedCase };
 
-/** Runs all 18 suites and the digest/count assertions. */
+/** Runs all 18 suites and the digest/count assertions. The recorded
+ * digest/suites/cases come from the provisioned fc-manifest (W4-13/R10):
+ * with the manifest present the assertions run against it (a hardcoded
+ * literal would go unnoticed when the vectors drift — mother-repo ci.yml
+ * design); without it the digest assertion is a documented skip. */
 export function runAll(dir = vectorsDir()): RunResult {
   const files = loadVectors(dir);
   const digest = computeAggregateDigest(dir);
+  const recorded = recordedConformanceSuite();
   const reports = files.map((file) => runSuiteFile(file));
   let passed = 0;
   let failed = 0;
@@ -355,10 +461,26 @@ export function runAll(dir = vectorsDir()): RunResult {
       }
     }
   }
+  if (recorded === undefined) {
+    return {
+      reports,
+      digest,
+      digestOk: false,
+      digestSkipped:
+        'conformance/fc-manifest-0.13.0.json is not provisioned: the digest and 18/519 inventory assertions are a documented skip',
+      totalCases: digest.cases,
+      passed,
+      failed,
+      skipped,
+    };
+  }
   return {
     reports,
     digest,
-    digestOk: digest.digest === RECORDED_AGGREGATE_DIGEST && digest.suites === 18 && digest.cases === 519,
+    digestOk:
+      digest.digest === recorded.aggregateDigest &&
+      digest.suites === recorded.suites &&
+      digest.cases === recorded.cases,
     totalCases: digest.cases,
     passed,
     failed,
@@ -375,7 +497,10 @@ export function runAll(dir = vectorsDir()): RunResult {
  * §5.1 six exit classes; W3-43 — classification paths as implemented):
  * success 0 / usage 1 / data 2 / limit 3 / precondition 4 / internal 5.
  * The conformance CLI reaches:
- *  - usage (1): unexpected positional arguments (argv.length > 3);
+ *  - usage (1): unexpected positional arguments (argv.length > 3) or a
+ *    single unknown option-like argument (one positional starting with
+ *    `-`, e.g. `--help` — RFC 0015 §5.1 usage class includes
+ *    unknown-argument; W4-22);
  *  - data (2): input-read failures as classified by isInputReadFailure
  *    (ENOENT from the vectors directory or any read, or an error whose
  *    message contains "missing vector file" — not every inventory
@@ -390,7 +515,7 @@ export function runAll(dir = vectorsDir()): RunResult {
  * never returns it.
  */
 export function main(argv: readonly string[]): number {
-  if (argv.length > 3) {
+  if (argv.length > 3 || (argv.length === 3 && argv[2].startsWith('-'))) {
     console.error('consema conformance: usage: consema-conformance [vectors-dir]');
     return exitCode('usage');
   }
@@ -421,15 +546,25 @@ export function main(argv: readonly string[]): number {
       }
     }
   }
-  console.log(
-    `aggregate digest: ${result.digest.digest} ${result.digestOk ? 'match' : `MISMATCH (recorded ${RECORDED_AGGREGATE_DIGEST})`}`,
-  );
+  if (result.digestSkipped !== undefined) {
+    console.log(`aggregate digest: SKIP (${result.digestSkipped})`);
+  } else {
+    console.log(`aggregate digest: ${result.digest.digest} ${result.digestOk ? 'match' : 'MISMATCH (recorded in fc-manifest-0.13.0.json)'}`);
+  }
   console.log(`suites: ${result.digest.suites}, cases: ${result.totalCases}`);
   console.log(`total: ${result.passed} passed, ${result.skipped} skipped, ${result.failed} failed`);
   // G67 (2026-08-14): the frozen inventory is 519 cases at L5 — every case
   // must execute and pass; a skipped case (passed < 519) is not success.
   // passed === 519 with cases === 519 implies skipped === 0 and failed === 0.
-  if (!result.digestOk || result.failed > 0 || result.digest.cases !== 519 || result.passed !== 519) {
+  // The digest assertion itself is a documented skip when the fc-manifest
+  // record is not provisioned (W4-13/R10) — the case-count and pass
+  // assertions below still run.
+  if (
+    (!result.digestOk && result.digestSkipped === undefined) ||
+    result.failed > 0 ||
+    result.digest.cases !== 519 ||
+    result.passed !== 519
+  ) {
     return exitCode('data');
   }
   return exitCode('success');

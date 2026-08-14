@@ -11,7 +11,7 @@
  *    - a tokenizer-level failure jumps the stream to the end of the input
  *      (xmlparser Stream::jump_to_end), so the recovery region is always
  *      the final decoded byte and tokenization stops
- *      (parser.rs; consema-go/go/xml/parser.go:153-161)
+ *      (parser.rs; consema-go/go/xml/parser.go，行号可能漂移，以符号名为锚)
  *    - EOF between tokens is a clean end; EOF inside a construct is a
  *      tokenizer error (xmlparser next() loop)
  *    - top-level (outside the root) whitespace is skipped without a token;
@@ -352,7 +352,7 @@ class XmlParser {
           // A tokenizer error jumps the stream to the end of the document
           // (xmlparser Stream::jump_to_end), so the recovery region is
           // always the final decoded byte and tokenization stops
-          // (parser.rs; consema-go/go/xml/parser.go:153-161).
+          // (parser.rs; consema-go/go/xml/parser.go，行号可能漂移，以符号名为锚).
           this.#recoverErrorRegion(text.length - 1, text.length);
           stopped = true;
           break;

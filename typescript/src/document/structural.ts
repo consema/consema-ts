@@ -1,7 +1,8 @@
 /**
  * Exhaustive source coverage: text structural pieces and binary regions.
  *
- * authority: consema-rs/consema-document/src/lib.rs
+ * authority: consema-rs/consema-document/src/lib.rs（:N-M 区间引用，
+ * 行号可能漂移，以符号名为锚）
  *  - StructuralPieceKind :413-422 (Token | Trivia | ErrorRegion)
  *  - StructuralPiece :424-449
  *  - LosslessStructuralIndex :451-490 (no-gap/no-overlap/final-length

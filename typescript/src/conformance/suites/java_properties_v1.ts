@@ -717,7 +717,7 @@ function propertiesFlatMapping(descriptor: unknown): PortableValue {
   );
 }
 
-/** The canonical style request of one profile (java_properties_v1.py:255-266). */
+/** The canonical style request of one profile (java_properties_v1.py，行号可能漂移，以符号名为锚). */
 function propertiesMaterializationRequest(profile: PropertiesProfile): MaterializationRequest {
   if (profile === 'Latin1V1') {
     return new MaterializationRequest(

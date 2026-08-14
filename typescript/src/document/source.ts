@@ -11,6 +11,7 @@
  *    (:124-141)
  *  - vectors: conformance/vectors/source-v1.json (all 28 cases)
  *  - Rust (byte/registry arbitration): consema-rs/consema-document/src/source.rs
+ *    （:N-M 区间引用，行号可能漂移，以符号名为锚）
  *    — ContentDigest :15-54, WindowsCodePage :56-119, SourceEncoding :121-155,
  *    BomPolicy :157-165, BomKind :166-187, EncodingRequest :189-260,
  *    EncodingFacts :262-379, SourceLimits :381-409, DecodedPosition :411-422,
@@ -904,16 +905,16 @@ function decodeLatin1(bytes: Uint8Array, limits: SourceLimits): string {
 
 /**
  * Decodes one frozen Windows code page strictly (source.rs;
- * consema-go/go/document/source.go:571-712).
+ * consema-go/go/document/source.go，行号可能漂移，以符号名为锚).
  *
  * cp65001 decodes as strict UTF-8; the ten single-byte pages (874,
  * 1250-1258) decode through the frozen encoding_rs-derived tables with the
  * malformed sentinel 0xFFFF failing the whole source (InvalidSequence);
  * cp932 decodes through the frozen single-scalar two-byte table
- * (consema-go/go/document/source.go:612-649, 714-722; cp932_table.ts). The remaining
+ * (consema-go/go/document/source.go cp932 解码段，行号可能漂移，以符号名为锚; cp932_table.ts). The remaining
  * multi-byte pages 936, 949, 950 are recognized but not decoded and are
  * rejected with InvalidSequence at byte 0 — Go documents the same
- * rejection for 936, 949, 950 (consema-go/go/document/source.go:574-588);
+ * rejection for 936, 949, 950 (consema-go/go/document/source.go，行号可能漂移，以符号名为锚);
  * Rust decodes all four through encoding_rs. Recorded divergence (G104,
  * 2026-08-14): no vector case covers 936/949/950, and the divergence from
  * the Rust reference implementation is disclosed here rather than hidden
@@ -966,10 +967,11 @@ function decodeCodePage(
 }
 
 /**
- * Decodes cp932 exactly as consema-go/go/document/source.go:612-649: ASCII single
- * bytes, half-width katakana 0xA1-0xDF, and the frozen single-scalar
- * two-byte table (an unknown or truncated two-byte code fails the whole
- * source with InvalidSequence at the lead byte).
+ * Decodes cp932 exactly as consema-go/go/document/source.go (cp932 解码段，
+ * 行号可能漂移，以符号名为锚): ASCII single bytes, half-width katakana
+ * 0xA1-0xDF, and the frozen single-scalar two-byte table (an unknown or
+ * truncated two-byte code fails the whole source with InvalidSequence at
+ * the lead byte).
  */
 function decodeCP932(
   bytes: Uint8Array,
@@ -1113,7 +1115,7 @@ function advancePosition(
  * Code pages decode to fixed raw widths: the single-byte pages (874,
  * 1250-1258) are width 1, cp65001 is the UTF-8 width, and cp932 is width 1
  * for ASCII and half-width katakana (0xA1-0xDF → 0xFF61-0xFF9F) and width 2
- * for every two-byte table scalar (consema-go/go/document/source.go:612-649).
+ * for every two-byte table scalar (consema-go/go/document/source.go，行号可能漂移，以符号名为锚).
  */
 function rawStepWidth(encoding: SourceEncoding, character: string): number {
   switch (encoding.kind) {

@@ -34,6 +34,11 @@ import { ProjectionRequestBuilder } from './json/projection.ts';
 import { TomlProjectionRequest } from './toml/projection.ts';
 import { ValueProjectionRequest } from './yaml/projection.ts';
 import { parse as parseYaml } from './yaml/parser.ts';
+import { convertHcl } from './convert.ts';
+import { parseHcl, profileDefaultEncoding } from './hcl/document.ts';
+import { HclProfile } from './hcl/profile.ts';
+import { hclParseLimits } from './hcl/limits.ts';
+import { HclProjectionRequest } from './hcl/projection.ts';
 
 const SMALL_LIMITS = {
   maxSourceBytes: 1_000_000,
@@ -151,8 +156,14 @@ test('parseDocument round trips every profile', () => {
   }
   assert.throws(
     () => parseDocument(utf8('x'), new ProfileId('example.unknown', 1)),
-    /formation/i,
-    'unknown profile id fails',
+    (error: unknown) => {
+      // W4-15 (R1): an unknown profile id fails with the frozen
+      // core.materialization.unsupported-profile@1 (the requested profile
+      // is unavailable), not the encoding-facts-conflict code.
+      const failure = error as { diagnostics?: () => readonly { code: string }[] };
+      return failure.diagnostics?.()[0]?.code === 'core.materialization.unsupported-profile@1';
+    },
+    'unknown profile id fails with the unsupported-profile code',
   );
 });
 
@@ -190,6 +201,40 @@ test('convertJson to TOML composes both stages with an exact report', () => {
   assert.equal(complete.report().overallFidelity(), 'Exact');
   assert.equal(complete.report().sourceProfile().id(), 'json.strict');
   assert.equal(complete.report().targetProfile().id(), 'toml.1.0');
+});
+
+function hclSource(text: string) {
+  return parseHcl(utf8(text), HclProfile.NATIVE_V1, profileDefaultEncoding(), hclParseLimits());
+}
+
+function hclConversionRequest() {
+  return new MaterializationRequest(
+    new ProfileId('hcl.native', 1),
+    new MaterializationStyleId('hcl.canonical-document', 1),
+  ).withNewline('Lf');
+}
+
+test('W4-17/R42: convertHcl converts a decimal by single-round rounding (7.038531e-26)', () => {
+  // The HCL body projection carries decimals through the record conversion
+  // (portableToHclRecord); the old two-step conversion double-rounded
+  // 7038531e-32 to 7.038530999999999e-26 (1 ULP off). The single-pass
+  // conversion must spell the correctly-rounded 7.038531e-26.
+  const result = convertHcl(hclSource('ratio = 7.038531e-26\n'), new HclProjectionRequest(), hclConversionRequest());
+  assert.equal(result.kind, 'Complete');
+  const rendered = new TextDecoder('utf-8').decode(result.value.document().render());
+  assert.ok(rendered.includes('0.00000000000000000000000007038531'), `spelling ${JSON.stringify(rendered)}`);
+  assert.ok(!rendered.includes('7.038530999999999'), 'the double-rounded spelling must not appear');
+});
+
+test('W4-17/R42: convertHcl refuses decimals the double cannot represent', () => {
+  // |exponent| > 308 and a coefficient outside the safe-integer range fail
+  // atomically (Unrepresentable) instead of silently rounding.
+  for (const source of ['a = 1e-1000\n', 'a = 9007199254740992.5\n', 'a = 100000000000000000.5\n']) {
+    const result = convertHcl(hclSource(source), new HclProjectionRequest(), hclConversionRequest());
+    assert.equal(result.kind, 'Failed', `${source.trim()} must fail atomically`);
+    assert.equal(result.value.kind, 'MaterializationFailed', `${source.trim()} failure class`);
+    assert.equal(result.value.materialization?.kind, 'Unrepresentable', `${source.trim()} failure kind`);
+  }
 });
 
 test('convertToml to JSON is exact', () => {

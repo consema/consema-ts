@@ -18,7 +18,7 @@ import assert from 'node:assert/strict';
 import { materialize, plistMaterializationFailureCode, parseDefault } from './index.ts';
 import { MaterializationRequest, MaterializationStyleId } from '../document/materialization.ts';
 import { ProfileId } from '../document/profile.ts';
-import { integerValue, stringValue } from '../core/value.ts';
+import { decimalValue, integerValue, stringValue } from '../core/value.ts';
 import type { PortableValue } from '../core/value.ts';
 
 function xmlRequest(): MaterializationRequest {
@@ -237,4 +237,44 @@ test('closure: the binary materialization reparses its exact output Complete (RF
   const reparsed = parseDefault(result.value.document().render(), 'BinaryV1');
   assert.equal(reparsed.formationStatus(), 'Complete');
   assert.ok(reparsed.document()!.equals(result.value.document().document()!));
+});
+
+function decimalRecord(coefficient: bigint, exponent: bigint): PortableValue {
+  return {
+    kind: 'Object',
+    entries: [
+      { key: 'record', value: stringValue('plist.value-tree@1') },
+      { key: 'root', value: decimalValue(coefficient, exponent) },
+    ],
+  };
+}
+
+test('W4-17/R42: decimal -> double is a single correctly-rounded conversion (7.038531e-26)', () => {
+  // The old two-step conversion (Number(coefficient) * 10**exponent)
+  // double-rounded 7038531e-32 to 7.038530999999999e-26 (1 ULP off);
+  // the single-pass conversion must emit the correctly-rounded 7.038531e-26.
+  const result = materialize(decimalRecord(7038531n, -32n), xmlRequest());
+  assert.equal(result.kind, 'Complete');
+  const rendered = new TextDecoder('utf-8').decode(result.value.document().render());
+  assert.ok(rendered.includes('<real>7.038531e-26</real>'), `spelling ${JSON.stringify(rendered)}`);
+  assert.ok(!rendered.includes('7.038530999999999'), 'the double-rounded spelling must not appear');
+});
+
+test('W4-17/R42: |exponent| > 308 fails atomically (1e1000 / 1e-1000)', () => {
+  for (const [coefficient, exponent] of [
+    [1n, 1000n],
+    [1n, -1000n],
+  ] as const) {
+    const result = materialize(decimalRecord(coefficient, exponent), xmlRequest());
+    assert.equal(result.kind, 'Failed', `1e${exponent} must fail atomically`);
+    assert.equal(
+      plistMaterializationFailureCode(result.value.failure()),
+      'plist.materialization.unrepresentable@1',
+      `1e${exponent} failure code`,
+    );
+  }
+  // Coefficient outside the safe-integer range is also atomic.
+  const big = materialize(decimalRecord(9007199254740993n, 0n), xmlRequest());
+  assert.equal(big.kind, 'Failed');
+  assert.equal(plistMaterializationFailureCode(big.value.failure()), 'plist.materialization.unrepresentable@1');
 });

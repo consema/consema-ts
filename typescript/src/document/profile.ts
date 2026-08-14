@@ -1,7 +1,8 @@
 /**
  * Stable namespaced identifiers: profiles and format families.
  *
- * authority: consema-rs/consema-document/src/lib.rs
+ * authority: consema-rs/consema-document/src/lib.rs（:N-M 区间引用，
+ * 行号可能漂移，以符号名为锚）
  *  - FormatFamilyId: :344-372 (namespaced format family contract)
  *  - ProfileId: :374-402 (immutable named language profile)
  *  - profile spellings frozen by RFC 0004 §4 ("json.strict@1",

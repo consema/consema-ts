@@ -229,7 +229,7 @@ test('encode and decode enforce limits atomically', () => {
   );
   // A scalar root sits at depth 0 and fits maxTraversalDepth: 0; a root
   // sequence with a scalar child reaches depth 1 (the Go authority's
-  // TestDecodeRejectsTraversalDepthLimit shape, consema-go/go/graph/pgce_test.go:482-505).
+  // TestDecodeRejectsTraversalDepthLimit shape, consema-go/go/graph/pgce_test.go，行号可能漂移，以符号名为锚).
   const deepBuilder = new Builder(defaultLimits());
   const deepRoot = deepBuilder.reserveNode();
   const deepChild = deepBuilder.reserveNode();

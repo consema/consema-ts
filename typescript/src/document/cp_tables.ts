@@ -3,7 +3,7 @@
  *
  * authority: the tables are transcribed verbatim from the Go generated
  * tables, which were generated from the encoding_rs 0.8.35 authority
- * (consema-go/go/document/cp1252_table.go:1-9: every byte of the ten single-byte
+ * (consema-go/go/document/cp1252_table.go — every byte of the ten single-byte
  * pages decoded through the exact Rust reference path
  * decode_to_string_without_replacement, one byte per call; C1 control
  * positions map to their U+00xx scalars; the sentinel 0xFFFF marks a byte
@@ -11,18 +11,18 @@
  * pages through encoding_rs directly (consema-rs/consema-document/src/source.rs
  * (cp 表区间); the Go transcription is the only in-repo tabular form.
  * Go cross-reference for the sentinel semantics and decode loop:
- * consema-go/go/document/source.go:654-712.
+ * consema-go/go/document/source.go，行号可能漂移，以符号名为锚.
  *
  * Table layout (every table is 128 entries): entry index i maps raw byte
  * (0x80 + i) to its Unicode scalar; 0xFFFF is the malformed sentinel that
  * fails the whole source with InvalidSequence at that byte offset
- * (consema-go/go/document/source.go:696-702).
+ * (consema-go/go/document/source.go，行号可能漂移，以符号名为锚).
  */
 
-/** Malformed byte sentinel: encoding_rs 0.8.35 decodes this byte as Malformed (consema-go/go/document/source.go:651-654). */
+/** Malformed byte sentinel: encoding_rs 0.8.35 decodes this byte as Malformed (consema-go/go/document/source.go，行号可能漂移，以符号名为锚). */
 export const MALFORMED_BYTE_SENTINEL = 0xffff;
 
-/** cp874 table (consema-go/go/document/cp874_table.go:14-31). */
+/** cp874 table (consema-go/go/document/cp874_table.go，行号可能漂移，以符号名为锚). */
 export const CP874_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x0082, 0x0083, 0x0084, 0x2026, 0x0086, 0x0087,
   0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,
@@ -42,7 +42,7 @@ export const CP874_TABLE: readonly number[] = [
   0x0e58, 0x0e59, 0x0e5a, 0x0e5b, 0xffff, 0xffff, 0xffff, 0xffff,
 ];
 
-/** cp1250 table (consema-go/go/document/cp1250_table.go:14-31). */
+/** cp1250 table (consema-go/go/document/cp1250_table.go，行号可能漂移，以符号名为锚). */
 export const CP1250_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0083, 0x201e, 0x2026, 0x2020, 0x2021,
   0x0088, 0x2030, 0x0160, 0x2039, 0x015a, 0x0164, 0x017d, 0x0179,
@@ -62,7 +62,7 @@ export const CP1250_TABLE: readonly number[] = [
   0x0159, 0x016f, 0x00fa, 0x0171, 0x00fc, 0x00fd, 0x0163, 0x02d9,
 ];
 
-/** cp1251 table (consema-go/go/document/cp1251_table.go:14-31). */
+/** cp1251 table (consema-go/go/document/cp1251_table.go，行号可能漂移，以符号名为锚). */
 export const CP1251_TABLE: readonly number[] = [
   0x0402, 0x0403, 0x201a, 0x0453, 0x201e, 0x2026, 0x2020, 0x2021,
   0x20ac, 0x2030, 0x0409, 0x2039, 0x040a, 0x040c, 0x040b, 0x040f,
@@ -82,7 +82,7 @@ export const CP1251_TABLE: readonly number[] = [
   0x0448, 0x0449, 0x044a, 0x044b, 0x044c, 0x044d, 0x044e, 0x044f,
 ];
 
-/** cp1252 table (consema-go/go/document/cp1252_table.go:14-31). */
+/** cp1252 table (consema-go/go/document/cp1252_table.go，行号可能漂移，以符号名为锚). */
 export const CP1252_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
   0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x017d, 0x008f,
@@ -102,7 +102,7 @@ export const CP1252_TABLE: readonly number[] = [
   0x00f8, 0x00f9, 0x00fa, 0x00fb, 0x00fc, 0x00fd, 0x00fe, 0x00ff,
 ];
 
-/** cp1253 table (consema-go/go/document/cp1253_table.go:14-31). */
+/** cp1253 table (consema-go/go/document/cp1253_table.go，行号可能漂移，以符号名为锚). */
 export const CP1253_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
   0x0088, 0x2030, 0x008a, 0x2039, 0x008c, 0x008d, 0x008e, 0x008f,
@@ -122,7 +122,7 @@ export const CP1253_TABLE: readonly number[] = [
   0x03c8, 0x03c9, 0x03ca, 0x03cb, 0x03cc, 0x03cd, 0x03ce, 0xffff,
 ];
 
-/** cp1254 table (consema-go/go/document/cp1254_table.go:14-31). */
+/** cp1254 table (consema-go/go/document/cp1254_table.go，行号可能漂移，以符号名为锚). */
 export const CP1254_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
   0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x008e, 0x008f,
@@ -142,7 +142,7 @@ export const CP1254_TABLE: readonly number[] = [
   0x00f8, 0x00f9, 0x00fa, 0x00fb, 0x00fc, 0x0131, 0x015f, 0x00ff,
 ];
 
-/** cp1255 table (consema-go/go/document/cp1255_table.go:14-31). */
+/** cp1255 table (consema-go/go/document/cp1255_table.go，行号可能漂移，以符号名为锚). */
 export const CP1255_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
   0x02c6, 0x2030, 0x008a, 0x2039, 0x008c, 0x008d, 0x008e, 0x008f,
@@ -162,7 +162,7 @@ export const CP1255_TABLE: readonly number[] = [
   0x05e8, 0x05e9, 0x05ea, 0xffff, 0xffff, 0x200e, 0x200f, 0xffff,
 ];
 
-/** cp1256 table (consema-go/go/document/cp1256_table.go:14-31). */
+/** cp1256 table (consema-go/go/document/cp1256_table.go，行号可能漂移，以符号名为锚). */
 export const CP1256_TABLE: readonly number[] = [
   0x20ac, 0x067e, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
   0x02c6, 0x2030, 0x0679, 0x2039, 0x0152, 0x0686, 0x0698, 0x0688,
@@ -182,7 +182,7 @@ export const CP1256_TABLE: readonly number[] = [
   0x0651, 0x00f9, 0x0652, 0x00fb, 0x00fc, 0x200e, 0x200f, 0x06d2,
 ];
 
-/** cp1257 table (consema-go/go/document/cp1257_table.go:14-31). */
+/** cp1257 table (consema-go/go/document/cp1257_table.go，行号可能漂移，以符号名为锚). */
 export const CP1257_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0083, 0x201e, 0x2026, 0x2020, 0x2021,
   0x0088, 0x2030, 0x008a, 0x2039, 0x008c, 0x00a8, 0x02c7, 0x00b8,
@@ -202,7 +202,7 @@ export const CP1257_TABLE: readonly number[] = [
   0x0173, 0x0142, 0x015b, 0x016b, 0x00fc, 0x017c, 0x017e, 0x02d9,
 ];
 
-/** cp1258 table (consema-go/go/document/cp1258_table.go:14-31). */
+/** cp1258 table (consema-go/go/document/cp1258_table.go，行号可能漂移，以符号名为锚). */
 export const CP1258_TABLE: readonly number[] = [
   0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
   0x02c6, 0x2030, 0x008a, 0x2039, 0x0152, 0x008d, 0x008e, 0x008f,
@@ -225,7 +225,7 @@ export const CP1258_TABLE: readonly number[] = [
 /**
  * Resolves the frozen single-byte table for one code page number, or null
  * for pages decoded by another path (932, 936, 949, 950, 65001).
- * (consema-go/go/document/source.go:577-588.)
+ * (consema-go/go/document/source.go，行号可能漂移，以符号名为锚.)
  */
 export function singleByteTableFor(pageNumber: number): readonly number[] | null {
   switch (pageNumber) {

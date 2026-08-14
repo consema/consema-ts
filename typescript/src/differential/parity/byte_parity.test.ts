@@ -24,13 +24,19 @@ import {
   MIN_CASE_COUNT,
   defaultCasesFile,
   loadCaseFile,
+  missingDataReason,
   runByteParity,
 } from './byte_parity.ts';
 
 /** The environment variable naming the Rust golden byte directory. */
 const RUST_DIR_ENV = 'CONSEMA_DIFFERENTIAL_RUST_DIR';
 
-test('byte parity: case file integrity (manifest, count, ids, kinds)', () => {
+test('byte parity: case file integrity (manifest, count, ids, kinds)', (t) => {
+  const reason = missingDataReason();
+  if (reason !== undefined) {
+    t.skip(reason);
+    return;
+  }
   const cases = loadCaseFile(defaultCasesFile());
   assert.equal(cases.length, 68, 'the differential input set has 68 cases');
   const seen = new Set<string>();

@@ -8,7 +8,7 @@
  * consema-rs/consema-document/src/materialization.rs;
  * consema-rs/consema-document/src/source_patch.rs;
  * consema-rs/consema-document/src/source.rs.
- * Cross-checked by consema-go/go/document/limits.go:5-58.
+ * Cross-checked by consema-go/go/document/limits.go，行号可能漂移，以符号名为锚.
  */
 
 import { test } from 'node:test';
@@ -42,7 +42,7 @@ test('FormationStatus is closed over Complete and Recovered (lib.rs)', () => {
   assert.notEqual('Complete' as FormationStatus, 'Recovered' as FormationStatus);
 });
 
-test('ParseLimits defaults are the frozen values (lib.rs; consema-go/go/document/limits.go:21-28)', () => {
+test('ParseLimits defaults are the frozen values (lib.rs; consema-go/go/document/limits.go)', () => {
   assert.equal(DEFAULT_PARSE_LIMITS.maxSourceBytes, 64 * 1024 * 1024);
   assert.equal(DEFAULT_PARSE_LIMITS.maxNestingDepth, 256);
   assert.equal(DEFAULT_PARSE_LIMITS.maxTokenCount, 2_000_000);
@@ -62,7 +62,7 @@ test('SourcePatchLimits defaults are the frozen values (source_patch.rs)', () =>
   assert.equal(DEFAULT_SOURCE_PATCH_LIMITS.source.maxRawBytes, 64 * 1024 * 1024);
 });
 
-test('MaterializationLimits defaults are the frozen values (materialization.rs; consema-go/go/document/limits.go:50-58)', () => {
+test('MaterializationLimits defaults are the frozen values (materialization.rs; consema-go/go/document/limits.go)', () => {
   assert.equal(DEFAULT_MATERIALIZATION_LIMITS.maxInputNodes, 1_000_000);
   assert.equal(DEFAULT_MATERIALIZATION_LIMITS.maxOutputBytes, 64 * 1024 * 1024);
   assert.equal(DEFAULT_MATERIALIZATION_LIMITS.maxDepth, 256);

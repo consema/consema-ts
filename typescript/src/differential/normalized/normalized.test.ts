@@ -35,6 +35,7 @@ import {
   defaultCasesFile,
   emitFactsToDir,
   loadCaseFile,
+  missingDataReason,
   readEvidenceFile,
   runCase,
   runNormalizedForward,
@@ -43,7 +44,12 @@ import {
 /** The environment variable naming the Rust golden evidence directory. */
 const RUST_DIR_ENV = 'CONSEMA_DIFFERENTIAL_NORMALIZED_RUST_DIR';
 
-test('normalized: case file integrity (manifest, count, ids)', () => {
+test('normalized: case file integrity (manifest, count, ids)', (t) => {
+  const reason = missingDataReason();
+  if (reason !== undefined) {
+    t.skip(reason);
+    return;
+  }
   const cases = loadCaseFile(defaultCasesFile());
   assert.equal(cases.length, 108, 'the differential input set has 108 cases');
   const seen = new Set<string>();
@@ -84,7 +90,12 @@ test('normalized: TS evidence files emit into CONSEMA_DIFFERENTIAL_NORMALIZED_TS
   t.diagnostic(`emitted ${emitted} TS normalized results into ${tsDir}`);
 });
 
-test('normalized: emitted format round-trips through the forward reader', () => {
+test('normalized: emitted format round-trips through the forward reader', (t) => {
+  const reason = missingDataReason();
+  if (reason !== undefined) {
+    t.skip(reason);
+    return;
+  }
   const cases = loadCaseFile(defaultCasesFile());
   const dir = mkdtempSync(join(tmpdir(), 'consema-ts-normalized-'));
   try {

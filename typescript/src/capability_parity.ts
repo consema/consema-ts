@@ -14,21 +14,93 @@
  * registry through the root facade (`src/registry.ts`) and each code
  * through the v7 error-code registry, so a "Rust only" capability (one the
  * facade cannot resolve) fails here instead of passing silently.
+ *
+ * W4-13 (R10): the six headline inventory counts are read from the
+ * provisioned fc-manifest (conformance/fc-manifest-0.13.0.json,
+ * provisioned beside the vectors) at assertion time — the manifest is the
+ * single authority. A hardcoded literal snapshot would go unnoticed when
+ * the manifest inventory changes (the exact failure mode this gate exists
+ * to catch). When the manifest is not provisioned the test is a documented
+ * skip (never silent); a present-but-malformed manifest fails loudly.
  */
 
 import { formatFamilies, profiles, queryDomains, formatOperationRegistry } from './registry.ts';
 import { ContractRegistry } from './protocol/contract.ts';
 import { ErrorCodeRegistry } from './protocol/error_registry.ts';
+import { loadManifestRecord } from './conformance/runner.ts';
 
-/** The frozen manifest inventory (fc-manifest-0.13.0.json — 键 capability_set / contract_registry). */
-export const MANIFEST_FAMILY_COUNT = 8;
-export const MANIFEST_PROFILE_COUNT = 16;
-export const MANIFEST_QUERY_DOMAIN_COUNT = 21;
-export const MANIFEST_OPERATION_REGISTRY_COUNT = 16;
-export const MANIFEST_ERROR_CODE_COUNT = 187;
-export const MANIFEST_CONTRACT_COUNT = 41;
+/** The frozen manifest inventory counts (fc-manifest-0.13.0.json — 键
+ * capability_set / contract_registry, parsed from the pinned value
+ * spellings). */
+export interface ManifestInventoryCounts {
+  readonly families: number;
+  readonly profiles: number;
+  readonly queryDomains: number;
+  readonly operationRegistries: number;
+  readonly errorCodes: number;
+  readonly contracts: number;
+}
 
-/** The per-family frozen operation counts (fc-manifest-0.13.0.json F-5). */
+/**
+ * Reads the six frozen inventory counts from the provisioned fc-manifest.
+ * Returns undefined when the manifest is not provisioned (documented skip);
+ * a present-but-malformed manifest, or a value spelling that no longer
+ * matches the pinned parse, fails loudly — never silently.
+ */
+export function manifestInventoryCounts(): ManifestInventoryCounts | undefined {
+  const manifest = loadManifestRecord();
+  if (manifest === undefined) {
+    return undefined;
+  }
+  const digests = manifest.digests as {
+    capability_set?: { value?: unknown };
+    contract_registry?: { value?: unknown };
+  };
+  const capability = digests?.capability_set;
+  const contracts = digests?.contract_registry;
+  const capabilityText = capability?.value;
+  const contractText = contracts?.value;
+  if (typeof capabilityText !== 'string' || typeof contractText !== 'string') {
+    throw new Error('fc-manifest-0.13.0.json: capability_set / contract_registry value records missing or malformed');
+  }
+  const capabilityMatch =
+    /^(\d+) families \/ (\d+) profiles \/ (\d+) query domains \/ (\d+) operation registries \/ (\d+) error codes$/.exec(
+      capabilityText,
+    );
+  const contractMatch = /^semantic-model v\d+：(\d+) 条 contract \/ (\d+) 个 error code$/.exec(contractText);
+  if (capabilityMatch === null || contractMatch === null) {
+    throw new Error(
+      'fc-manifest-0.13.0.json: capability_set / contract_registry value spelling changed (the parse is pinned to the frozen spelling; update the pin with the manifest)',
+    );
+  }
+  const errorCodes = Number(capabilityMatch[5]);
+  if (errorCodes !== Number(contractMatch[2])) {
+    throw new Error(
+      `fc-manifest-0.13.0.json: capability_set error codes (${errorCodes}) disagree with contract_registry (${contractMatch[2]})`,
+    );
+  }
+  return {
+    families: Number(capabilityMatch[1]),
+    profiles: Number(capabilityMatch[2]),
+    queryDomains: Number(capabilityMatch[3]),
+    operationRegistries: Number(capabilityMatch[4]),
+    errorCodes,
+    contracts: Number(contractMatch[1]),
+  };
+}
+
+/** The documented-skip reason when the fc-manifest is not provisioned
+ * (W4-13/R10); undefined when the parity check can run. */
+export function capabilityParitySkippedReason(): string | undefined {
+  if (loadManifestRecord() === undefined) {
+    return 'fc-manifest-0.13.0.json is not provisioned (run the conformance provision step): capability parity is a documented skip';
+  }
+  return undefined;
+}
+
+/** The per-family frozen operation counts (fc-manifest-0.13.0.json F-5
+ * evidence prose — not machine-readable in the manifest; transcribed
+ * verbatim, drift of these counts fails here). */
 export const MANIFEST_OPERATION_COUNTS: Readonly<Record<string, number>> = Object.freeze({
   json: 8,
   toml: 7,
@@ -49,9 +121,17 @@ export interface ParityFailure {
 
 /**
  * Asserts the TS mandatory capability set against the manifest. Returns the
- * list of failures (empty when the TS surface is in parity).
+ * list of failures (empty when the TS surface is in parity). Throws when
+ * the fc-manifest is not provisioned — the caller must check
+ * capabilityParitySkippedReason() first (documented skip, never silent).
  */
 export function capabilityParityFailures(): ParityFailure[] {
+  const counts = manifestInventoryCounts();
+  if (counts === undefined) {
+    throw new Error(
+      'capability parity: fc-manifest-0.13.0.json is not provisioned — this check must be a documented skip (never silent)',
+    );
+  }
   const failures: ParityFailure[] = [];
   const fail = (fact: string, expected: string, observed: string): void => {
     failures.push({ fact, expected, observed });
@@ -59,8 +139,8 @@ export function capabilityParityFailures(): ParityFailure[] {
 
   // 8 format families, each resolving its profile inventory.
   const families = formatFamilies();
-  if (families.length !== MANIFEST_FAMILY_COUNT) {
-    fail('families', String(MANIFEST_FAMILY_COUNT), String(families.length));
+  if (families.length !== counts.families) {
+    fail('families', String(counts.families), String(families.length));
   }
   const expectedFamilies = ['hcl', 'ini', 'java-properties', 'json', 'plist', 'toml', 'xml', 'yaml'];
   for (const id of expectedFamilies) {
@@ -71,8 +151,8 @@ export function capabilityParityFailures(): ParityFailure[] {
 
   // 16 profiles, each resolving an operation registry (no "Rust only" profile).
   const profileList = profiles();
-  if (profileList.length !== MANIFEST_PROFILE_COUNT) {
-    fail('profiles', String(MANIFEST_PROFILE_COUNT), String(profileList.length));
+  if (profileList.length !== counts.profiles) {
+    fail('profiles', String(counts.profiles), String(profileList.length));
   }
   for (const entry of profileList) {
     const registry = formatOperationRegistry(entry.profile());
@@ -83,8 +163,8 @@ export function capabilityParityFailures(): ParityFailure[] {
 
   // 21 query domains.
   const domains = queryDomains();
-  if (domains.length !== MANIFEST_QUERY_DOMAIN_COUNT) {
-    fail('query domains', String(MANIFEST_QUERY_DOMAIN_COUNT), String(domains.length));
+  if (domains.length !== counts.queryDomains) {
+    fail('query domains', String(counts.queryDomains), String(domains.length));
   }
 
   // 16 operation registries (one per profile) and the per-family operation
@@ -112,20 +192,20 @@ export function capabilityParityFailures(): ParityFailure[] {
       fail(`operations of family ${family}`, String(manifestCount), String(count));
     }
   }
-  if (registryCount !== MANIFEST_OPERATION_REGISTRY_COUNT) {
-    fail('operation registries', String(MANIFEST_OPERATION_REGISTRY_COUNT), String(registryCount));
+  if (registryCount !== counts.operationRegistries) {
+    fail('operation registries', String(counts.operationRegistries), String(registryCount));
   }
 
   // 187 error codes under semantic-model v7.
   const codes = new ErrorCodeRegistry(7).codes();
-  if (codes.length !== MANIFEST_ERROR_CODE_COUNT) {
-    fail('error codes (v7)', String(MANIFEST_ERROR_CODE_COUNT), String(codes.length));
+  if (codes.length !== counts.errorCodes) {
+    fail('error codes (v7)', String(counts.errorCodes), String(codes.length));
   }
 
   // 41 contracts under semantic-model v7.
   const contracts = new ContractRegistry(7).contracts();
-  if (contracts.length !== MANIFEST_CONTRACT_COUNT) {
-    fail('contracts (v7)', String(MANIFEST_CONTRACT_COUNT), String(contracts.length));
+  if (contracts.length !== counts.contracts) {
+    fail('contracts (v7)', String(counts.contracts), String(contracts.length));
   }
 
   return failures;
@@ -133,7 +213,8 @@ export function capabilityParityFailures(): ParityFailure[] {
 
 /**
  * Runs the parity assertion; throws with every failure listed when the TS
- * surface drifts from the manifest.
+ * surface drifts from the manifest (or when the manifest is not
+ * provisioned — check capabilityParitySkippedReason() first).
  */
 export function assertCapabilityParity(): void {
   const failures = capabilityParityFailures();

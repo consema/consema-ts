@@ -190,7 +190,7 @@ test('strict equality is kind-identity plus canonical content equality', () => {
 });
 
 test('hash is FNV-1a over the canonical PVCE/1 encoding', () => {
-  // The hash contract: consema-go/go/core/equal.go:125-138. Golden FNV-1a check on
+  // The hash contract: consema-go/go/core/equal.go，行号可能漂移，以符号名为锚. Golden FNV-1a check on
   // "PVCE\x01\x00\x00" (the null vector, conformance/vectors/v1.json
   // pvce.null-vector) via the raw FNV-1a function.
   const bytes = encode(nullValue());

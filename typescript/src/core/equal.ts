@@ -10,7 +10,7 @@
  * `kind` discriminant — the compiler guarantees the switch is total over the
  * closed fifteen kinds, so no unknown-kind fallback can silently accept
  * anything. `hash` is FNV-1a (64-bit, mod 2^64) over the canonical PVCE/1
- * encoding of the value (consema-go/go/core/equal.go:125-138), so equal values always
+ * encoding of the value (consema-go/go/core/equal.go，行号可能漂移，以符号名为锚), so equal values always
  * hash equal and the hash is order- and duplicates-sensitive. BigInt is used
  * for the 64-bit hash arithmetic to avoid signed 32-bit overflow pitfalls.
  */
@@ -145,7 +145,7 @@ export function equal(a: PortableValue, b: PortableValue): boolean {
 /**
  * Deterministic 64-bit hash consistent with `equal`: equal values always
  * hash equal. Defined as FNV-1a over the canonical PVCE/1 encoding of the
- * value (consema-go/go/core/equal.go:125-138), so equal values encode identically and
+ * value (consema-go/go/core/equal.go，行号可能漂移，以符号名为锚), so equal values encode identically and
  * the hash is order- and duplicates-sensitive. Returns 0n for a value the
  * codec rejects (canonical values always encode, so this is unreachable in
  * practice).

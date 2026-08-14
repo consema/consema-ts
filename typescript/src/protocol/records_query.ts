@@ -5,7 +5,7 @@
  * (:54-124), ProtocolQueryMatch (:126-144), QueryResultMessage (:146-327);
  * the `core.query-definition@1` codec mirrors consema-core query.rs
  * (to_protocol_value/from_protocol_value) with the Python
- * QueryDefinitionCodec (consema/protocol/query.py:1202-1340) as the
+ * QueryDefinitionCodec (consema/protocol/query.py，行号可能漂移，以符号名为锚) as the
  * runner-side cross-reference. The value-path/association-location records
  * come from records_value_path.ts (already implemented).
  *
