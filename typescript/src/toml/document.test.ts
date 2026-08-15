@@ -135,6 +135,38 @@ test('golden toml.native.float-signed-zero: 0.0 and -0.0 keep their exact bit pa
   assert.equal(negative.asFloatBits()!.toString(16).padStart(16, '0'), '8000000000000000');
 });
 
+test('decimal float overflow to +inf is a syntax error; finite, -inf overflow, and underflow match toml_edit 0.22.27', () => {
+  // toml_edit 0.22.27 numbers.rs: the float value parser verifies
+  // `*f != f64::INFINITY`, so decimal overflow to +inf is rejected while
+  // overflow to -inf and underflow to zero are accepted (measured against
+  // consema-rs; py parser.py mirrors the same rule).
+  for (const source of [
+    'x = 1e999999\n',
+    'x = 1e309\n',
+    'x = 1e3080\n',
+    'x = 1.5e999999\n',
+    'x = +1e999999\n',
+    'x = 9e99999\n',
+  ]) {
+    assert.throws(
+      () => parseSource(source),
+      (failure: TomlFormationFailure) => failure.code === 'toml.parse.syntax@1',
+      `syntax failure expected for ${JSON.stringify(source)}`,
+    );
+  }
+  // 1e308 is the largest finite order of magnitude; 1.7976931348623157e+308
+  // is f64::MAX (both accepted by toml_edit and by Number()).
+  const document = parseSource('finite = 1e308\nmax = 1.7976931348623157e+308\n');
+  assert.equal(rootEntry(document, 'finite').item().asFloatBits(), f64Bits(1e308));
+  assert.equal(rootEntry(document, 'max').item().asFloatBits(), f64Bits(1.7976931348623157e308));
+  // Overflow to -inf is accepted (measured rs bits 0xfff0000000000000),
+  // as are underflow to zero and the smallest subnormal.
+  const accepted = parseSource('neg = -1e999999\nzero = 1e-999999\ntiny = 5e-324\n');
+  assert.equal(rootEntry(accepted, 'neg').item().asFloatBits(), 0xfff0000000000000n);
+  assert.equal(rootEntry(accepted, 'zero').item().asFloatBits(), 0n);
+  assert.equal(rootEntry(accepted, 'tiny').item().asFloatBits(), 1n);
+});
+
 test('formation closure: every valid document family shape forms Complete', () => {
   // Closure over the native item categories (RFC 0001 §2: strings,
   // integers, floats, booleans, four temporals, arrays, inline tables,

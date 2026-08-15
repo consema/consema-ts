@@ -1274,7 +1274,16 @@ class Parser {
       if (match === null) {
         return this.#fail('invalid float', start, end);
       }
-      const bits = f64ToBits(Number(token.replace(/_/g, '')));
+      const value = Number(token.replace(/_/g, ''));
+      if (value === Infinity) {
+        // toml_edit 0.22.27 numbers.rs: the float value parser verifies
+        // `*f != f64::INFINITY`, so decimal overflow to +inf (1e309,
+        // 1e999999) is a syntax error, while overflow to -inf and
+        // underflow to zero are accepted (measured; py parser.py mirrors
+        // this). Literal inf/nan tokens never reach this path.
+        return this.#fail('invalid float', start, end);
+      }
+      const bits = f64ToBits(value);
       return { kind: 'Float', bits };
     }
     const digits = DEC_INT_RE.exec(token);
