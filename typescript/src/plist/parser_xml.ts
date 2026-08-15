@@ -49,6 +49,7 @@ import {
 import type { PlistElementKind, PlistSyntaxKind } from './syntax.ts';
 import { FatalFormationFailure } from './errors.ts';
 import type { PlistParseLimits } from './profile.ts';
+import { MAX_NUMBER_DIGITS } from '../core/value.ts';
 import { PlistDocument } from './document.ts';
 import {
   PlistArenaError,
@@ -449,6 +450,48 @@ function decodeUtf8Slice(bytes: Uint8Array, start: number, end: number): string 
 // ---------------------------------------------------------------------------
 // Value grammar helpers (parser_xml.rs)
 // ---------------------------------------------------------------------------
+
+/**
+ * Digit count of an `<integer>` element (decimal, or hex digits after a
+ * 0x/0X prefix), mirroring parsePlistInteger's scanning: whitespace is
+ * skipped, one optional sign, then the base prefix, then the digit run
+ * (W5-28, 2026-08-15 — the digit-magnitude guard must count the digits
+ * the way the grammar reads them, so the limit check cannot be bypassed
+ * by sign/whitespace/prefix shapes).
+ */
+function plistIntegerDigitCount(content: string): number {
+  let index = 0;
+  let count = 0;
+  let hex = false;
+  let seenDigit = false;
+  while (index < content.length) {
+    const ch = content[index];
+    if (isWsChar(ch)) {
+      index += 1;
+      continue;
+    }
+    if (!seenDigit && (ch === '-' || ch === '+')) {
+      index += 1;
+      continue;
+    }
+    if (!seenDigit && ch === '0' && index + 1 < content.length) {
+      const next = content[index + 1];
+      if (next === 'x' || next === 'X') {
+        hex = true;
+        index += 2;
+        continue;
+      }
+    }
+    if (hex ? /[0-9a-fA-F]/.test(ch) : /[0-9]/.test(ch)) {
+      seenDigit = true;
+      count += 1;
+      index += 1;
+      continue;
+    }
+    break;
+  }
+  return count;
+}
 
 /** Signed 64-bit integer grammar (RFC 0013 §4.5). */
 export function parsePlistInteger(content: string): bigint | null {
@@ -1390,6 +1433,21 @@ class Parser {
             ['element', 'integer'],
           ]);
           return null;
+        }
+        // W5-28 (2026-08-15): digit-magnitude guard BEFORE the BigInt
+        // conversion — the JSON/TOML/YAML/HCL faces enforce
+        // MAX_NUMBER_DIGITS=100_000 before arbitrary-precision work
+        // (SECURITY.md "max_number_digits…检查在 BigInt 转换与尾零剥离
+        // 之前"); the plist XML integer face previously constructed
+        // BigInt over the whole digit string with no bound (the wave-4
+        // P1 digit-magnitude family's leftover instance).
+        const integerDigits = plistIntegerDigitCount(frame.content);
+        if (integerDigits > MAX_NUMBER_DIGITS) {
+          throw FatalFormationFailure.resourceLimit(
+            'number-digits',
+            integerDigits,
+            MAX_NUMBER_DIGITS,
+          );
         }
         const value = parsePlistInteger(frame.content);
         if (value !== null) {

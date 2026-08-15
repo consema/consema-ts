@@ -821,7 +821,15 @@ export function closureParseLimits(limits: MaterializationLimits): HclParseLimit
     maxBodyItemCount: limits.maxInputNodes * 2,
     maxIdentifierLen: limits.maxOutputBytes,
     maxStringLen: limits.maxOutputBytes,
-    maxNumberDigits: limits.maxOutputBytes,
+    // W5-38 (2026-08-15): the closure reparse must be at least as strict
+    // as the frozen parse path — maxOutputBytes (64 MiB default, ~67M
+    // digits) admitted materialized outputs no parse could produce (a
+    // record carrying an arbitrarily large bigint integer renders into
+    // the output bytes and the closure accepted it). The frozen
+    // parse-side bound is maxNumberDigits 100_000 (hcl/limits.ts — keep
+    // in sync); an over-budget output now fails the closure reparse
+    // atomically (FormationFailed, no Document / partial bytes).
+    maxNumberDigits: 100_000,
     maxTemplateLen: limits.maxOutputBytes,
     maxTemplateInterpolations: limits.maxInputNodes,
     maxHeredocLines: limits.maxOutputBytes,

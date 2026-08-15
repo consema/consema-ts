@@ -32,6 +32,7 @@ import {
   PlistReal,
   PlistValueRef,
 } from './index.ts';
+import { MAX_NUMBER_DIGITS } from '../core/value.ts';
 
 /** UTF-8 bytes of one source string. */
 function bytes(source: string): Uint8Array {
@@ -160,6 +161,28 @@ test('plist.xml-formation.integer-matrix: decimal/hex grammar and the signed 64-
       assert.equal((value as { kind: 'Integer'; value: bigint }).value, expectedIntegers[index]);
     }
   }
+});
+
+test('hardening: an <integer> with more than MAX_NUMBER_DIGITS digits is a resource-limit failure, never a BigInt build (W5-28)', () => {
+  // The digit-magnitude guard runs BEFORE the arbitrary-precision BigInt
+  // construction — the wave-4 P1 digit-magnitude family's leftover
+  // instance (JSON/TOML/YAML/HCL all enforce MAX_NUMBER_DIGITS first).
+  const oversized = `<plist version="1.0"><integer>${'9'.repeat(MAX_NUMBER_DIGITS + 1)}</integer></plist>`;
+  assert.throws(() => {
+    parseDefault(bytes(oversized), 'XmlV1');
+  }, FatalFormationFailure);
+  // Hex digits count base-aware (hex counts hex digit characters,
+  // matching the JSON number_token_digits semantics).
+  const oversizedHex = `<plist version="1.0"><integer>0x${'f'.repeat(MAX_NUMBER_DIGITS + 1)}</integer></plist>`;
+  assert.throws(() => {
+    parseDefault(bytes(oversizedHex), 'XmlV1');
+  }, FatalFormationFailure);
+  // The boundary (exactly MAX_NUMBER_DIGITS digits) passes the guard and
+  // falls through to the signed-64-bit range check: recovered integer.
+  const boundary = `<plist version="1.0"><integer>${'9'.repeat(MAX_NUMBER_DIGITS)}</integer></plist>`;
+  const document = parseDefault(bytes(boundary), 'XmlV1');
+  assert.equal(document.formationStatus(), 'Recovered');
+  assert.ok(diagnosticCodes(document).includes('plist.parse.integer@1'));
 });
 
 test('plist.xml-formation.real-special-values: nan/-inf/+infinity are admitted (plist-v1.json:238-252)', () => {

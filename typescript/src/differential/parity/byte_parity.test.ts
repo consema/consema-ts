@@ -49,6 +49,11 @@ test('byte parity: case file integrity (manifest, count, ids, kinds)', (t) => {
   for (const kind of ALL_KIND_NAMES) {
     assert.ok(kinds.has(kind), `case set does not cover kind ${kind}`);
   }
+  // W5-29: the reverse direction — an unknown kind in the case file is a
+  // closed-vocabulary drift and must fail the integrity test.
+  for (const kind of kinds) {
+    assert.ok(ALL_KIND_NAMES.includes(kind), `case set declares unknown kind ${JSON.stringify(kind)}`);
+  }
 });
 
 test('byte parity: TS encoders match the Rust golden bytes for 68/68 cases', (t) => {

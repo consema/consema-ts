@@ -154,6 +154,15 @@ export function loadCaseFile(file: string): FileCase[] {
       throw new Error(`case set does not cover kind ${kind} (kinds metadata)`);
     }
   }
+  // W5-29 (2026-08-15): the reverse direction — the vocabulary is closed,
+  // so an unknown kind in the case file is a boundary drift the module
+  // must reject, not silently carry into the goldens (a 16th kind with a
+  // same-wave golden regeneration would otherwise be invisible here).
+  for (const kind of kinds) {
+    if (!ALL_KIND_NAMES.includes(kind)) {
+      throw new Error(`case set declares unknown kind ${JSON.stringify(kind)} (kinds metadata — the fifteen-kind vocabulary is closed, ALL_KIND_NAMES)`);
+    }
+  }
   return cases;
 }
 

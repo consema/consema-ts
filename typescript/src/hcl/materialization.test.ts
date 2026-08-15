@@ -149,6 +149,34 @@ test('golden hcl.materialization.unrepresentable: tfvars blocks and invalid reco
   assert.equal(render(native), 'server "x" {\n  a = 1\n}\n');
 });
 
+test('golden hcl.materialization.digit-bound: an over-limit bigint integer record fails atomically (W5-38)', () => {
+  // The closure reparse enforces the frozen parse-side bound
+  // maxNumberDigits=100_000 (hcl/limits.ts), so a record carrying a
+  // >100_000-digit integer cannot materialize an output no parse could
+  // produce — the closure fails and the result contains no Document and
+  // no partial bytes.
+  const oversized: HclBodyRecordInput = {
+    record: 'hcl.body@1',
+    items: [
+      { kind: 'attribute', name: 'huge', value: { kind: 'integer', value: BigInt('9'.repeat(100_000 + 1)) } },
+    ],
+  };
+  const result = materializeHcl(oversized, request('hcl.native@1'));
+  assert.equal(result.kind, 'Failed');
+  if (result.kind === 'Failed') {
+    assert.equal(result.value.failure().kind, 'FormationFailed');
+  }
+  // The boundary (exactly 100_000 digits) still materializes — the bound
+  // is inclusive, matching the parse-side freeze.
+  const boundary: HclBodyRecordInput = {
+    record: 'hcl.body@1',
+    items: [
+      { kind: 'attribute', name: 'huge', value: { kind: 'integer', value: BigInt('9'.repeat(100_000)) } },
+    ],
+  };
+  assert.equal(materializeHcl(boundary, request('hcl.native@1')).kind, 'Complete');
+});
+
 test('golden hcl.materialization.typed-member-form: the raw typed member spelling materializes identically', () => {
   // conformance/vectors/hcl-v1.json:1413-1460 (id hcl.materialization.typed-
   // member-form; the raw form the projection publishes).
