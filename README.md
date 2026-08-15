@@ -96,7 +96,7 @@ harness 模块（conformance runner、differential、capability_parity 等）随
 - `scripts/`：跨语言差分验证脚本（byte parity / normalized differential /
   protocol exchange）。脚本构建 consema-rs 的 Rust emitter 并对拍 TypeScript 实现；
   Rust 侧来自 consema-rs 仓 checkout（CI 多仓模式），conformance 数据来自规范仓 checkout。
-- `.github/workflows/ci-typescript.yml`：10 个 job——ts-gates（type + 单测 +
+- `.github/workflows/ci-typescript.yml`：CI 门禁（job 数以最近 CI run 为准，GitHub Actions）——ts-gates（type + 单测 +
   零依赖）、coverage、ts-compiler-matrix、ts-conformance（conformance
   runner 门禁，18 suites / 519 cases）、ts-differential（TS-Rust 差分门禁，
   windows-latest 多仓 checkout）、npm-audit（npm advisory 常设审计）、
