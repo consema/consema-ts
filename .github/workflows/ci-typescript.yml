@@ -6,10 +6,13 @@
 # built-in test coverage (60% line threshold); ts-compiler-matrix re-runs
 # `tsc --noEmit` under the 5.8/5.9 compiler line (zod mode) so newer-only
 # compiler usage fails CI; ts-conformance runs the TS runner over the 18
-# shared suites / 519 cases (the aggregate digest cfd6e296…, the 18/519
-# inventory and the per-suite counts are pinned in the runner,
-# typescript/src/conformance/runner.ts, §2.2/§4.2 — runner.test.ts asserts
-# them); ts-package runs the L5 packaging gate (npm pack — the tarball must
+# shared suites / 519 cases (the aggregate digest cfd6e296… is the spec
+# repo's recorded value: the runner computes the digest and compares it to
+# the provisioned fc-manifest record — a documented skip when the manifest
+# is not provisioned, W4-13/R10; the 18/519 inventory and the per-suite
+# counts are pinned in the runner, typescript/src/conformance/runner.ts,
+# §2.2/§4.2 — runner.test.ts asserts them);
+# ts-package runs the L5 packaging gate (npm pack — the tarball must
 # contain the published dist/ entry points and the LICENSE text, and zero
 # test-only files, §1.1 package row / §5.3 L5 row; G33/G35, 2026-08-14);
 # npm-audit runs the
@@ -128,8 +131,11 @@ jobs:
       # so this runs the identical suite as `npm test` (unit tests +
       # conformance + capability parity; differential tests report documented
       # skips without their golden env vars). node --test exits 0 even when
-      # the glob matches nothing ("tests 0"), so the zero-match guard below
-      # asserts a real lower bound before running.
+      # the glob matches nothing ("tests 0" — measured 2026-08-15), so the
+      # find count below only proves *.test.ts files exist on disk; the real
+      # zero-match guard is the executed test count parsed from the run's
+      # output after it (a glob drift would otherwise pass the find count
+      # while node runs zero tests).
       - name: node --test (full suite, src/**/*.test.ts)
         working-directory: typescript
         shell: bash
@@ -143,6 +149,24 @@ jobs:
           echo "running $files test files"
           out="$(node --test "src/**/*.test.ts")" || exit 1
           echo "$out"
+          # Executed-count lower bound (G36, hardened 2026-08-15): the find
+          # count above proves *.test.ts files exist on disk, NOT that the
+          # --test glob matches them — a glob that matches nothing exits 0
+          # with "tests 0" (measured), so the guard must read the actual
+          # executed count from the spec-reporter summary (the LAST 'tests
+          # N' occurrence; per-file lines like "(6 tests)" put the number
+          # before the word, and the terminal summary block is last, so
+          # tail -1 anchors like the 'skipped N' parse below).
+          tests="$(grep -oE 'tests [0-9]+' <<<"$out" | tail -1 | awk '{print $2}')"
+          if [ -z "$tests" ]; then
+            echo "::error::cannot parse the node --test summary ('tests N' missing from the output)"
+            exit 1
+          fi
+          if [ "$tests" -lt 1 ]; then
+            echo "::error::node --test executed 0 tests although $files *.test.ts files exist on disk — the --test glob 'src/**/*.test.ts' matched nothing (glob drift must be fixed, not shipped green)"
+            exit 1
+          fi
+          echo "node --test executed $tests tests across $files test files"
           # Skip upper bound (R47, 2026-08-15): the full suite's documented
           # skips are (a) the differential tests without their golden env
           # vars (5 tests in 3 files as of wave 4 — byte_parity /
@@ -286,9 +310,13 @@ jobs:
       # Glob form (node 26 resolves --test arguments as glob patterns) with
       # the coverage switch and the 60% line threshold: the run fails (exit
       # 1) when line coverage of the loaded src/ modules drops below 60%.
-      # node --test exits 0 even when the glob matches nothing, so the
-      # zero-match guard below asserts a real lower bound before running
-      # (same guard as the ts-gates job; G36, 2026-08-14).
+      # node --test exits 0 even when the glob matches nothing, and the
+      # coverage report then prints a false "all files 100.00" of nothing
+      # (measured 2026-08-15) — the 60% threshold cannot catch it, so the
+      # find count below only proves *.test.ts files exist on disk and the
+      # real zero-match guard is the executed test count parsed from the
+      # run's output after it (same guard as the ts-gates job; G36,
+      # 2026-08-14).
       - name: node --test with built-in coverage (lines >= 60%)
         working-directory: typescript
         shell: bash
@@ -300,7 +328,25 @@ jobs:
             exit 1
           fi
           echo "running $files test files"
-          node --test --experimental-test-coverage --test-coverage-lines=60 "src/**/*.test.ts"
+          out="$(node --test --experimental-test-coverage --test-coverage-lines=60 "src/**/*.test.ts")" || exit 1
+          echo "$out"
+          # Executed-count lower bound (G36, hardened 2026-08-15): a --test
+          # glob that matches nothing exits 0 with "tests 0" and a false
+          # coverage "all files 100.00" of nothing (measured), so the guard
+          # reads the actual executed count from the spec-reporter summary
+          # (the coverage table rows carry no 'tests N' text; the LAST
+          # 'tests N' occurrence is the terminal summary block, anchored
+          # like the ts-gates job).
+          tests="$(grep -oE 'tests [0-9]+' <<<"$out" | tail -1 | awk '{print $2}')"
+          if [ -z "$tests" ]; then
+            echo "::error::cannot parse the node --test summary ('tests N' missing from the output)"
+            exit 1
+          fi
+          if [ "$tests" -lt 1 ]; then
+            echo "::error::node --test --experimental-test-coverage executed 0 tests although $files *.test.ts files exist on disk — the coverage report would be a false green (100.00 of nothing); the glob 'src/**/*.test.ts' matched nothing"
+            exit 1
+          fi
+          echo "coverage run: $tests tests across $files test files"
 
   # TS compiler matrix (zod mode): the repo pins typescript ~5.9.0
   # (package.json devDependencies); this job reinstalls the compiler at each
@@ -411,15 +457,23 @@ jobs:
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
-      # The runner (typescript/src/conformance/runner.ts) verifies the
+      # The runner (typescript/src/conformance/runner.ts) computes the
       # aggregate digest
-      # cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a
-      # (fc-manifest-0.13.0.json — 键 aggregate_sha256 / note), the 18 suites
-      # / 519 cases inventory, the per-suite counts, and executes every case
-      # (zero failures, documented skips only) — the §4.2 hard pins live in
-      # the runner; runner.test.ts asserts them. Glob form: node 26 resolves
-      # --test arguments as glob patterns, not directories; the zero-match
-      # guard below asserts a real lower bound (G36, 2026-08-14).
+      # (cfd6e296da5b22b62d37b076d35bf6bbf58b0678ceddb37eea51a8b47200ab6a
+      # is the spec repo's recorded value) and — when the fc-manifest record
+      # is provisioned — verifies it against the recorded digest
+      # (fc-manifest-0.13.0.json — 键 aggregate_sha256 / note). The CI
+      # provision step deliberately does not copy the manifest (W4-13/R10),
+      # so the recorded-digest comparison is a documented skip in CI — the
+      # digest value is never compared here; the 18 suites / 519 cases
+      # inventory, the per-suite counts and the 519-pass execution (zero
+      # failures) are the hard pins, asserted by the runner, runner.test.ts
+      # and the CLI smoke below. Glob form: node 26 resolves --test
+      # arguments as glob patterns, not directories; a glob that matches
+      # nothing exits 0 with "tests 0" (measured 2026-08-15), so the find
+      # count below only proves *.test.ts files exist on disk and the real
+      # zero-match guard is the executed test count parsed from the run's
+      # output (G36, 2026-08-14).
       - name: run the conformance runner (node --test glob)
         working-directory: typescript
         shell: bash
@@ -431,7 +485,23 @@ jobs:
             exit 1
           fi
           echo "running $files test files"
-          node --test "src/conformance/**/*.test.ts"
+          out="$(node --test "src/conformance/**/*.test.ts")" || exit 1
+          echo "$out"
+          # Executed-count lower bound (G36, hardened 2026-08-15): same
+          # guard as ts-gates — the find count only proves files exist on
+          # disk; the executed 'tests N' from the spec-reporter summary is
+          # the real zero-match assertion (a glob drift would otherwise pass
+          # the find count while node runs zero tests and exits 0).
+          tests="$(grep -oE 'tests [0-9]+' <<<"$out" | tail -1 | awk '{print $2}')"
+          if [ -z "$tests" ]; then
+            echo "::error::cannot parse the node --test summary ('tests N' missing from the output)"
+            exit 1
+          fi
+          if [ "$tests" -lt 1 ]; then
+            echo "::error::node --test executed 0 tests although $files *.test.ts files exist under src/conformance — the --test glob 'src/conformance/**/*.test.ts' matched nothing (glob drift must be fixed, not shipped green)"
+            exit 1
+          fi
+          echo "node --test executed $tests tests across $files test files"
       # Runner CLI smoke test (node src/conformance/runner.ts): the CLI
       # entry (main(), typescript/src/conformance/runner.ts) must actually
       # run in CI — 18 suites / 519 cases, exit 0 (RFC 0015 §5.1 success

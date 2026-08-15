@@ -132,10 +132,16 @@ npm run test:differential   # byte parity / normalized / protocol exchange
                             # documented skip, never silent)
 ```
 
-conformance runner 钉定 18 suites / 519 cases 与聚合 digest
-`cfd6e296…`（`typescript/src/conformance/runner.ts`，按仓库相对路径读
-`conformance/vectors/`）；`runner.test.ts` 断言之，CI ts-conformance job
-跑 519/519。
+conformance runner 钉定 18 suites / 519 cases 与每套 case 数
+（`typescript/src/conformance/runner.ts`，按仓库相对路径读
+`conformance/vectors/`），519 cases 全部执行且零失败（G67 硬断言）；
+`runner.test.ts` 断言 18/519 清单、每套计数与 519 全过——CI ts-gates /
+ts-conformance job 实际执行这些断言。聚合 digest `cfd6e296…` 的比对读
+provision 的 `conformance/fc-manifest-0.13.0.json` 记录（W4-13/R10
+口径）：CI provision 只复制母仓 `conformance/`（manifest 位于母仓
+`docs/fc-manifest-0.13.0.json`，不在 provision 范围内），故该比对在 CI
+是 documented skip、从不执行；digest 值由母仓 manifest 记录维护，本仓
+代码不硬钉该值。
 
 ### 编译器线扩展评估（记录，非验证声称）
 
