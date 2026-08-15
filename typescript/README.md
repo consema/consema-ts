@@ -72,7 +72,8 @@ typed adapters. Those modules and the types in their signatures
 (`ProfileId`, `JsonDocument`, `ProjectionRequest`,
 `MaterializationRequest`, `JsonQueryResult`, ...) are **not importable
 from the package**: the `exports` map exposes only the package root and
-the tarball ships `dist/` + LICENSE only (no `.ts` sources), so a
+the tarball ships `dist/` + LICENSE (plus `package.json` and this README,
+which npm always includes; no `.ts` sources), so a
 module-internal import (e.g. `@consema/consema/dist/document/profile.js`)
 throws ERR_PACKAGE_PATH_NOT_EXPORTED (R23, 2026-08-15). For annotations,
 import the package-root re-exported types instead — `ConversionResult`,
@@ -93,12 +94,13 @@ yet.
   (https://github.com/consema/consema).
 - Cross-language consistency is enforced by the 18 suites / 519 cases
   conformance gate and the TS-Rust differential gates. Known documented
-  fork: on the CP936/CP949/CP950 Windows code pages the TS implementation
-  rejects invalid sequences with `core.source.invalid-sequence@1` while
-  the Rust reference decodes them (encoding_rs). The fork is recorded in
-  the source comment at `typescript/src/document/source.ts` — this
-  disclosure ships here because that comment does not ship in the package
-  (R28, 2026-08-15).
+  fork: the multi-byte Windows code pages CP936/CP949/CP950 are
+  recognized but not decoded — any input under one of these pages fails
+  parsing with `core.source.invalid-sequence@1` at byte 0 (not just
+  invalid sequences), while the Rust reference decodes them
+  (encoding_rs). The fork is recorded in the source comment at
+  `typescript/src/document/source.ts` — this disclosure ships here
+  because that comment does not ship in the package (R28, 2026-08-15).
 - Compatibility and support policy: RFC 0020.
 
 ## License

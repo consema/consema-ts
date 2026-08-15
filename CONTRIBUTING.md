@@ -53,8 +53,9 @@ npm test             # node --test "src/**/*.test.ts" (glob form, node 26)
 `.github/workflows/ci-typescript.yml`：type（`tsc --noEmit` strict）/
 单测 / 零依赖门禁、conformance runner 门禁（18 suites / 519 cases）与
 TS-Rust 差分门禁（windows-latest 多仓 checkout）。push 到 main 或 PR 均
-触发；PR 另受 pr-labels.yml 的 kind 标签门禁约束（标签见规范仓
-.github/LABELS.md）。
+触发；PR 由 pr-labels.yml 检查 kind 标签（标签见规范仓
+.github/LABELS.md；如实注记 2026-08-15：该检查不在分支保护必选之列，
+合并阻断以必选聚合门禁 `check (all gates green)` 为准）。
 
 ## 发布与安全
 

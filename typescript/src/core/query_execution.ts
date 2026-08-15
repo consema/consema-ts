@@ -11,8 +11,9 @@
  * :3206-3221) and consema-rs/consema-graph/src/query.rs (the portable-graph
  * executor: the Input roots, graph.reachable-nodes first-discovery
  * traversal, the association operators, and the StructureOrderMerge
- * canonical-rank merge). The failure spellings follow the vectors
- * (queryFailureName, python core_query.py，行号可能漂移，以符号名为锚); the registered codes follow
+ * canonical-rank merge). 行号可能漂移，以符号名为锚（consema-rs 为活源码，
+ * 行号区间为写就时点快照，跨仓引用以符号名定位）. The failure spellings follow
+ * the vectors (queryFailureName, python core_query.py，行号可能漂移，以符号名为锚); the registered codes follow
  * the error registry (src/protocol/error_registry.ts:205-220).
  *
  * Design (TypeScript-idiomatic): the validation-time QueryFailure union of

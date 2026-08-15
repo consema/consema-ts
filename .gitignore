@@ -1,6 +1,13 @@
 # consema-ts: minimal .gitignore for the split repository.
-node_modules/
-*.pyc
+# All patterns are anchored (leading slash / repository-root): an
+# unanchored pattern (e.g. *.tgz) would silently ignore a future
+# committed fixture at any depth (e.g. a packaging-shape baseline in
+# conformance/) with zero CI signal (wave-5 adversarial finding
+# 2026-08-15).
+/typescript/node_modules/
+# No python sources exist in this repository; the former non-anchored
+# *.pyc rule was removed (it matched nothing and would have silently
+# ignored a future python fixture anywhere in the tree).
 
 # IDE / OS artifacts
 .idea/
@@ -16,8 +23,10 @@ Thumbs.db
 # root (/conformance/): the provisioned data directory only.
 /conformance/
 
-# npm pack artifacts
-*.tgz
+# npm pack artifacts (npm pack runs in typescript/; anchored — a
+# non-anchored *.tgz would silently ignore a future .tgz fixture at any
+# depth).
+/typescript/*.tgz
 
 # Build output of the published package (typescript/tsconfig.build.json emits
 # into typescript/dist at pack time via the prepack script; never committed).

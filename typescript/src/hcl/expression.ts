@@ -3,7 +3,9 @@
  * literal-complete boundary, and the structural fingerprint (RFC 0014 §4.3-
  * §4.6, §6, §8).
  *
- * authority: consema-rs/consema-hcl/src/expression.rs —
+ * authority: consema-rs/consema-hcl/src/expression.rs — 行号可能漂移，
+ * 以符号名为锚（consema-rs 为活源码，行号区间为写就时点快照，跨仓引用
+ * 以符号名定位）：
  *  - HclExpressionKind :200-313 (the closed variant set), kind names
  *    :561-642 (the stable spellings "number"/"boolean"/"null"/"template"/
  *    "function-call"/"variable-ref"/"traversal"/"unary"/"binary"/

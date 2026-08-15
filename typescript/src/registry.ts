@@ -655,9 +655,11 @@ export type ConsemaDocument =
  * unavailable』); the alternative `core.protocol.unknown-contract@1`
  * (Encoding, 0.3.0) names contracts, not profiles. Chosen:
  * `core.materialization.unsupported-profile@1` — the semantically closest
- * 「未知/不支持 profile」code. The Rust reference implementation's
- * parse_document default branch still reports encoding-conflict for the
- * same input (consema-rs consema/src/lib.rs, W4 跨仓家族同步中).
+ * 「未知/不支持 profile」code. The Rust reference implementation aligned
+ * to the same code in the wave-4 R1 commit 657d854 (2026-08-15) —
+ * consema-rs consema/src/lib.rs parse_document default branch reports
+ * `core.materialization.unsupported-profile@1` with a test assertion; no
+ * cross-repo divergence remains on this point (verified 2026-08-15).
  */
 export function parseDocument(source: Uint8Array, profile: ProfileId): Document {
   switch (profile.id()) {

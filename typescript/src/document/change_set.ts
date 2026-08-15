@@ -11,6 +11,8 @@
  *    diagnostics; ChangeSet remains the document-level change fact while
  *    SourcePatch remains the portable raw-byte application fact,
  *    RFC 0004 §16)
+ * 行号可能漂移，以符号名为锚（consema-rs 为活源码，行号区间为写就时点
+ * 快照，跨仓引用以符号名定位）
  *
  * Design (TypeScript-idiomatic): a plain immutable record. The Rust
  * constructor is doc(hidden) and trusts "already ordered validated facts";
