@@ -55,7 +55,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: ccc99430a6e3003bc1b0830d81cbad245323f0a4 # wave-4 R5 unified provision pin, F2 re-anchored to mother-repo HEAD (fc-manifest sha256 5cb4ab51)
+          ref: ccc99430a6e3003bc1b0830d81cbad245323f0a4 # wave-4 R5 unified provision pin (deliberate snapshot at wave-4 close; the mother-repo HEAD has since advanced to 4ede284 — the pin stays because it carries the provisioned cfd6e296 conformance inventory, fc-manifest sha256 5cb4ab51)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -71,6 +71,11 @@ jobs:
       # provision conformance data from the consema spec repository
       # (the runner test resolves conformance/* by repository-relative path;
       # identical step to the ts-gates job of ci-typescript.yml).
+      # The fc-manifest digest record (docs/fc-manifest-0.13.0.json in the
+      # spec repo) is deliberately NOT copied (W4-13/R10), so the runner's
+      # aggregate-digest / 18-519 inventory-vs-manifest assertions are a
+      # documented skip on the release path too — the 519-case execution
+      # itself runs for real (W5-9, 2026-08-15).
       - name: provision conformance data from the consema spec repository
         shell: pwsh
         run: |
@@ -127,6 +132,53 @@ jobs:
             exit 1
           fi
           echo "tag $GITHUB_REF_NAME matches package.json version $manifest"
+      # Release-path version-consistency + import-surface re-run (W5-14,
+      # 2026-08-15; twin of the ci-typescript.yml check-version-consistency
+      # job and the ts-gates G96 step — keep the two in sync): the tag
+      # trigger does not run the main-branch CI jobs, and the G71 ancestor
+      # guard allows tagging any ancestor commit, so a partially-bumped
+      # commit (package.json bumped, README / bug_report template not) or
+      # a devDependency-leaking import could otherwise publish with those
+      # surfaces stale.
+      - name: verify version consistency (README Version line + bug_report template + CLI fixture dynamic form + G96 import surface)
+        working-directory: typescript
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -m1 '"version"' package.json | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+          if [ -z "$version" ]; then
+            echo "::error::no 'version' found in package.json"
+            exit 1
+          fi
+          readme_version=$(grep -m1 '^Version: ' ../README.md | sed -E 's/^Version: ([^（]+).*/\1/')
+          if [[ "$readme_version" != "$version" ]]; then
+            echo "::error::README.md Version line ($readme_version) != package.json version ($version)"
+            exit 1
+          fi
+          grep -qF "version（当前 $version）" ../.github/ISSUE_TEMPLATE/bug_report.yml || {
+            echo "::error::.github/ISSUE_TEMPLATE/bug_report.yml does not declare the current version"
+            exit 1
+          }
+          fixture=src/protocol/cli.test.ts
+          grep -qF "'../../package.json'" "$fixture" || {
+            echo "::error::$fixture lost the package.json version derivation (R36 dynamic form — the fixture must never spell the current version)"
+            exit 1
+          }
+          if grep -qF "$version" "$fixture"; then
+            echo "::error::$fixture hardcodes the current version '$version' (R36 dynamic form requires derivation from package.json)"
+            exit 1
+          fi
+          bad="$(grep -rP --include='*.ts' -Hno "(?<!['\"])(?:from|import)\s*['\"](?!\./|\.\./|node:)[^'\"]+|import\s*\(\s*['\"](?!\./|\.\./|node:)[^'\"]+|import\s*\(\s*[^'\"]|require\s*\(|['\"](?:\.\.?/)+node_modules/|createRequire\s*\(\s*import\.meta\.url\s*\)\s*\(\s*['\"](?!\./|\.\./|node:)[^'\"]+|import\.meta\.resolve\s*\(\s*['\"](?!\./|\.\./|node:)[^'\"]+" src)" && grep_exit=0 || grep_exit=$?
+          if [ "$grep_exit" -ne 0 ] && [ "$grep_exit" -ne 1 ]; then
+            echo "::error::the import-surface grep failed (exit $grep_exit)"
+            exit 1
+          fi
+          if [ -n "$bad" ]; then
+            echo "::error::src imports a bare specifier or a node_modules-resolving path (devDependency leak into the consumer import surface):"
+            echo "$bad"
+            exit 1
+          fi
+          echo "version surfaces consistent + import surface clean: $version"
       - name: npm ci (lockfile-driven install)
         working-directory: typescript
         run: npm ci
@@ -167,13 +219,36 @@ jobs:
             exit 1
           fi
           echo "running $files test files"
-          npm test
-          # G72 (2026-08-14) explicit disclosure: the three differential
-          # tests (byte parity / normalized / protocol exchange) run in
-          # documented-skip mode on the release path — no consema-rs Rust
-          # emitter checkout here, so no CONSEMA_* golden env vars are set.
-          # The differential gate is covered by the CI ts-differential job.
-          echo "release-path npm test: differential legs are documented skips (no Rust emitter in release); CI ts-differential covers them"
+          # W5-35: print the captured output on failure too (a failing
+          # release-path test run must not be a red job with zero
+          # diagnostics).
+          out="$(npm test 2>&1)" && test_exit=0 || test_exit=$?
+          if [ "$test_exit" -ne 0 ]; then
+            echo "::error::npm test failed (exit $test_exit) — diagnostics above:"
+            echo "$out"
+            exit 1
+          fi
+          echo "$out"
+          # G72 disclosure + skip-inventory assertion (W5-1/7, 2026-08-15):
+          # on the release path the documented skips are exactly 9 — the
+          # five differential tests (byte parity 1 + normalized 2 +
+          # protocol exchange 2) without their CONSEMA_* golden env vars,
+          # plus the four capability-parity tests without the provisioned
+          # fc-manifest. The old disclosure counted "three differential
+          # tests" and omitted the parity tests entirely, and the release
+          # path had no skip-count gate at all (unlike the ci-typescript.yml
+          # ts-gates job, R47/W5-21). The differential gate is covered by
+          # the CI ts-differential job.
+          skipped="$(grep -oE 'skipped [0-9]+' <<<"$out" | tail -1 | awk '{print $2}')"
+          if [ -z "$skipped" ]; then
+            echo "::error::cannot parse the node --test skip summary ('skipped N' missing from the output)"
+            exit 1
+          fi
+          if [ "$skipped" -ne 9 ]; then
+            echo "::error::$skipped tests skipped on the release path (expected exactly 9 = 5 differential without their golden env vars + 4 capability parity without the provisioned fc-manifest); a skip inventory drift must be reviewed, not shipped"
+            exit 1
+          fi
+          echo "release-path npm test: $skipped documented skips (5 differential + 4 capability parity, exact); CI ts-differential covers the differential legs"
       - name: npm publish --dry-run (packaging validation before the real publish)
         working-directory: typescript
         shell: bash
@@ -193,12 +268,20 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $tmp = Join-Path $env:RUNNER_TEMP ('consema-ts-install-' + [guid]::NewGuid().ToString('N'))
-          New-Item -ItemType Directory -Force (Join-Path $tmp 'app') | Out-Null
-          $packed = npm pack --pack-destination $tmp --json
+          # The tarball is packed into a persistent directory and its path
+          # recorded for the publish step: W5-27 publishes THIS exact
+          # tarball (npm publish <tarball> does not rebuild), so the tested
+          # bytes are the published bytes — previously the publish step
+          # re-ran prepack and shipped a third, never-tested build.
+          $tarballDir = Join-Path $env:RUNNER_TEMP 'consema-ts-publish'
+          New-Item -ItemType Directory -Force $tarballDir | Out-Null
+          $packed = npm pack --pack-destination $tarballDir --json
           if ($LASTEXITCODE -ne 0) { throw 'npm pack failed' }
           $pkg = @($packed | ConvertFrom-Json)[0]
-          $tgz = Join-Path $tmp $pkg.filename
+          $tgz = Join-Path $tarballDir $pkg.filename
+          Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'consema-ts-publish-tgz-path.txt') -Value $tgz
+          $tmp = Join-Path $env:RUNNER_TEMP ('consema-ts-install-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Force (Join-Path $tmp 'app') | Out-Null
           Push-Location (Join-Path $tmp 'app')
           try {
             npm init -y | Out-Null
@@ -223,10 +306,25 @@ jobs:
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
+          # W5-27 (2026-08-15): publish the exact tarball the clean-install
+          # smoke tested — `npm publish <tarball>` publishes the file as-is
+          # without re-running prepack, so the tested bytes are the
+          # published bytes (previously the publish step re-built dist and
+          # shipped a third, never-tested build).
+          tgz_path_file="$RUNNER_TEMP/consema-ts-publish-tgz-path.txt"
+          if [ ! -f "$tgz_path_file" ]; then
+            echo "::error::the smoke step's tarball path record is missing ($tgz_path_file) — the clean-install smoke must run before publish"
+            exit 1
+          fi
+          tgz="$(cat "$tgz_path_file")"
+          if [ ! -f "$tgz" ]; then
+            echo "::error::the smoke-tested tarball is missing: $tgz"
+            exit 1
+          fi
           if [[ "$version" == *-* ]]; then
-            npm publish --provenance --access public --tag rc
+            npm publish "$tgz" --provenance --access public --tag rc
           else
-            npm publish --provenance --access public
+            npm publish "$tgz" --provenance --access public
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
