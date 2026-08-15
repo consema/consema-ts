@@ -109,13 +109,13 @@ harness 模块（conformance runner、differential、capability_parity 等）随
 本地运行前在仓库根 provision 数据。**数据源必须钉定**（波 4 R5/R22，2026-08-15；
 F2 再锚）：
 并排检出规范仓 consema 后，先 checkout 到本仓 CI 钉定的统一 provision commit
-（当前 `ccc9943`——ci-typescript.yml / release.yml 各多仓 checkout 的 `ref:`
+（当前 `db821cd`——ci-typescript.yml / release.yml 各多仓 checkout 的 `ref:`
 与此一致；该 commit 的 `docs/fc-manifest-0.13.0.json` 文件 sha256 为
-`5cb4ab51…`），再复制——母仓 main 前进（尤其向量变更的 re-vendor 窗口期）后，
+`af27d599…`），再复制——母仓 main 前进（尤其向量变更的 re-vendor 窗口期）后，
 按任意 HEAD 取数得到的 conformance 数据与 CI 验证的数据不是同一文件：
 
 ```powershell
-git -C ..\consema checkout ccc99430a6e3003bc1b0830d81cbad245323f0a4
+git -C ..\consema checkout db821cdf463d0542fa166d61d7e28cec46812bbc
 if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
 Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
 ```

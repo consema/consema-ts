@@ -20,10 +20,10 @@ suites）在[规范仓](https://github.com/consema/consema)。
 `conformance/vectors/`（数据缺失即 ENOENT 失败）。本地运行前在仓库根
 provision 数据——数据源必须钉定（波 4 R5/R22，2026-08-15；F2 再锚）：并排检出规范仓
 consema 后先 checkout 到本仓 CI 钉定的统一 provision commit（当前
-`ccc9943`，与 ci-typescript.yml / release.yml 的 `ref:` 一致）再复制：
+`db821cd`，与 ci-typescript.yml / release.yml 的 `ref:` 一致）再复制：
 
 ```powershell
-git -C ..\consema checkout ccc99430a6e3003bc1b0830d81cbad245323f0a4
+git -C ..\consema checkout db821cdf463d0542fa166d61d7e28cec46812bbc
 if (Test-Path .\conformance) { Remove-Item .\conformance -Recurse -Force }
 Copy-Item -LiteralPath '..\consema\conformance' -Destination '.\conformance' -Recurse -Force
 ```

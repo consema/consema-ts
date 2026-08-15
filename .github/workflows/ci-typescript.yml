@@ -39,13 +39,12 @@
 # whose conformance/vectors + conformance/differential case sets and the
 # toml.corpus.cargo-manifest fixture conformance/fixtures/toml/Cargo.toml
 # are the single authority; the conformance checkout is pinned to the
-# commit carrying the cfd6e296 519-case inventory, ccc9943 — the
-# 2026-08-15 wave-4 R5 unified provision pin, a deliberate snapshot of the
-# mother repo at wave-4 close (F2 re-anchored it while ccc9943 was the
-# HEAD; the mother-repo HEAD has since advanced to 4ede284 — the pin stays
-# because it carries the provisioned cfd6e296 conformance inventory; after
-# b8bf4cb's R40 field-anchor evidence rework, manifest digest
-# 5cb4ab51…)) beside this
+# commit carrying the cfd6e296 519-case inventory, db821cd — the
+# 2026-08-15 wave-5 close unified provision pin (db821cd was the
+# mother-repo HEAD at the wave-5 close; the pin carries the provisioned
+# cfd6e296 conformance inventory and the fc-manifest sha256 af27d599;
+# after b8bf4cb's R40 field-anchor evidence rework and the wave-5
+# vendored-copy reality note, manifest digest af27d599…)) beside this
 # repository and copies the conformance data into the workspace root (the
 # runner and the differential harnesses resolve conformance/* by
 # repository-relative path). The differential job additionally checks out
@@ -90,7 +89,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: ccc99430a6e3003bc1b0830d81cbad245323f0a4 # wave-4 R5 unified provision pin (deliberate snapshot at wave-4 close; the mother-repo HEAD has since advanced to 4ede284 — the pin stays because it carries the provisioned cfd6e296 conformance inventory, fc-manifest sha256 5cb4ab51)
+          ref: db821cdf463d0542fa166d61d7e28cec46812bbc # wave-5 close unified provision pin (db821cd = mother-repo HEAD at the wave-5 close carrying the provisioned cfd6e296 conformance inventory, fc-manifest sha256 af27d599)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -114,8 +113,8 @@ jobs:
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
           # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
           # workspace, so no provision-time manifest sha256 assertion is added
-          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
-          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # here (contrast go/py/kt: they copy it and assert sha256 af27d599
+          # at the wave-5 close unified provision pin db821cd); ts's
           # aggregate-digest / 18-519 inventory assertions are runtime
           # assertions in runner.ts / runner.test.ts against the provisioned
           # conformance data (W4-13/R10 — documented skip when the manifest
@@ -313,7 +312,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: ccc99430a6e3003bc1b0830d81cbad245323f0a4 # wave-4 R5 unified provision pin (deliberate snapshot at wave-4 close; the mother-repo HEAD has since advanced to 4ede284 — the pin stays because it carries the provisioned cfd6e296 conformance inventory, fc-manifest sha256 5cb4ab51)
+          ref: db821cdf463d0542fa166d61d7e28cec46812bbc # wave-5 close unified provision pin (db821cd = mother-repo HEAD at the wave-5 close carrying the provisioned cfd6e296 conformance inventory, fc-manifest sha256 af27d599)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -337,8 +336,8 @@ jobs:
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
           # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
           # workspace, so no provision-time manifest sha256 assertion is added
-          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
-          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # here (contrast go/py/kt: they copy it and assert sha256 af27d599
+          # at the wave-5 close unified provision pin db821cd); ts's
           # aggregate-digest / 18-519 inventory assertions are runtime
           # assertions in runner.ts / runner.test.ts against the provisioned
           # conformance data (W4-13/R10 — documented skip when the manifest
@@ -463,7 +462,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: ccc99430a6e3003bc1b0830d81cbad245323f0a4 # wave-4 R5 unified provision pin (deliberate snapshot at wave-4 close; the mother-repo HEAD has since advanced to 4ede284 — the pin stays because it carries the provisioned cfd6e296 conformance inventory, fc-manifest sha256 5cb4ab51)
+          ref: db821cdf463d0542fa166d61d7e28cec46812bbc # wave-5 close unified provision pin (db821cd = mother-repo HEAD at the wave-5 close carrying the provisioned cfd6e296 conformance inventory, fc-manifest sha256 af27d599)
           path: consema-repo
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -487,8 +486,8 @@ jobs:
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
           # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
           # workspace, so no provision-time manifest sha256 assertion is added
-          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
-          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # here (contrast go/py/kt: they copy it and assert sha256 af27d599
+          # at the wave-5 close unified provision pin db821cd); ts's
           # aggregate-digest / 18-519 inventory assertions are runtime
           # assertions in runner.ts / runner.test.ts against the provisioned
           # conformance data (W4-13/R10 — documented skip when the manifest
@@ -587,7 +586,7 @@ jobs:
         with:
           persist-credentials: false
           repository: consema/consema
-          ref: ccc99430a6e3003bc1b0830d81cbad245323f0a4 # wave-4 R5 unified provision pin (deliberate snapshot at wave-4 close; the mother-repo HEAD has since advanced to 4ede284 — the pin stays because it carries the provisioned cfd6e296 conformance inventory, fc-manifest sha256 5cb4ab51)
+          ref: db821cdf463d0542fa166d61d7e28cec46812bbc # wave-5 close unified provision pin (db821cd = mother-repo HEAD at the wave-5 close carrying the provisioned cfd6e296 conformance inventory, fc-manifest sha256 af27d599)
           path: consema-repo
       # G70 (adversarial audit, 2026-08-14): the Rust emitter toolchain is
       # pinned to 1.97.1 — the version this harness was locally verified
@@ -626,8 +625,8 @@ jobs:
           # Cargo.toml is provisioned anymore. The fc-manifest digest record
           # (docs/fc-manifest-0.13.0.json) is deliberately not copied into the
           # workspace, so no provision-time manifest sha256 assertion is added
-          # here (contrast go/py/kt: they copy it and assert sha256 5cb4ab51
-          # at the wave-4 R5 unified provision pin ccc9943); ts's
+          # here (contrast go/py/kt: they copy it and assert sha256 af27d599
+          # at the wave-5 close unified provision pin db821cd); ts's
           # aggregate-digest / 18-519 inventory assertions are runtime
           # assertions in runner.ts / runner.test.ts against the provisioned
           # conformance data (W4-13/R10 — documented skip when the manifest
