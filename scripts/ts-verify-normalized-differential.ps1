@@ -43,7 +43,11 @@ param(
 # Requirements: cargo (or $env:CONSEMA_CARGO) and node (or $env:CONSEMA_NODE)
 # on PATH; the Rust workspace is the consema-rs checkout (<repo root>\consema-rs
 # by default, -RustWorkspace overrides). Windows PowerShell 5.1 compatible, no
-# third-party dependencies.
+# third-party dependencies. OS status (2026-08-15): all paths are forward-slash
+# forms and the emitter binary lookup falls back from the .exe name to the
+# extensionless name, so POSIX + pwsh 7 hosts can run the scripts too; the CI
+# differential job (windows-latest) is the only OS that is continuously
+# exercised, POSIX is expected-but-not-CI-verified.
 # ---------------------------------------------------------------------------
 
 $ErrorActionPreference = 'Stop'
@@ -93,7 +97,7 @@ if (-not (Get-Command $node -ErrorAction SilentlyContinue)) {
 
 # --- case set ----------------------------------------------------------------
 if ($CaseFile -eq '') {
-    $CaseFile = Join-Path $workspaceRoot 'conformance\differential\normalized\cases.json'
+    $CaseFile = Join-Path $workspaceRoot 'conformance/differential/normalized/cases.json'
 }
 if (-not (Test-Path $CaseFile)) {
     Write-Error "normalized differential case file not found: $CaseFile"
@@ -131,9 +135,13 @@ $ErrorActionPreference = $previousEap
 if ($buildCode -ne 0) { exit $buildCode }
 
 $targetDir = if ($env:CARGO_TARGET_DIR) { $env:CARGO_TARGET_DIR } else { Join-Path $RustWorkspace 'target' }
-$example = Join-Path $targetDir 'debug\examples\emit_normalized_results.exe'
+# Platform-neutral binary lookup: Windows builds produce emit_*.exe, POSIX
+# builds produce extensionless binaries; try the .exe name first, then the
+# bare name (paths are forward-slash forms throughout).
+$exampleBase = Join-Path $targetDir 'debug/examples/emit_normalized_results'
+$example = if (Test-Path "$exampleBase.exe") { "$exampleBase.exe" } else { $exampleBase }
 if (-not (Test-Path $example)) {
-    Write-Error "Rust example binary not found: $example"
+    Write-Error "Rust example binary not found: $example (looked for '$exampleBase.exe' and '$exampleBase')"
     exit 1
 }
 if ($OutDir -eq '') {
@@ -175,7 +183,7 @@ $previousEap = $ErrorActionPreference
 $ErrorActionPreference = 'Continue'
 Push-Location $tsDir
 try {
-    & $node --test 'src\differential\normalized\**\*.test.ts' 1> $stdoutFile 2> $stderrFile
+    & $node --test 'src/differential/normalized/**/*.test.ts' 1> $stdoutFile 2> $stderrFile
     $testCode = $LASTEXITCODE
 }
 finally {
@@ -188,14 +196,21 @@ if (Test-Path $stderrFile) {
 }
 
 # The differential test must have RUN (not skipped) and passed; the TS
-# emitter must have RUN too.
+# emitter must have RUN too. The skip markers are counted, not matched
+# once, and the error is attribution-neutral: both normalized tests (the
+# forward comparison and the reverse emitter) skip on the same env-var
+# marker, so a single occurrence cannot be attributed to one test (W5-24,
+# 2026-08-15) — any occurrence means the harness's env vars were not
+# wired, and the count says how many tests skipped.
 $output = Get-Content $stdoutFile -Raw
-if ($output -match 'CONSEMA_DIFFERENTIAL_NORMALIZED_RUST_DIR is not set') {
-    Write-Error 'the differential test skipped: the Rust evidence directory was not provisioned'
+$rustDirSkips = @([regex]::Matches($output, 'CONSEMA_DIFFERENTIAL_NORMALIZED_RUST_DIR is not set')).Count
+if ($rustDirSkips -gt 0) {
+    Write-Error "$rustDirSkips of the normalized tests skipped on CONSEMA_DIFFERENTIAL_NORMALIZED_RUST_DIR — the harness requires every test to run (forward comparison and reverse emitter); see the captured output above"
     exit 1
 }
-if ($output -match 'CONSEMA_DIFFERENTIAL_NORMALIZED_TS_DIR is not set') {
-    Write-Error 'the TS evidence emitter skipped: the TS evidence directory was not provisioned'
+$tsDirSkips = @([regex]::Matches($output, 'CONSEMA_DIFFERENTIAL_NORMALIZED_TS_DIR is not set')).Count
+if ($tsDirSkips -gt 0) {
+    Write-Error "$tsDirSkips of the normalized tests skipped on CONSEMA_DIFFERENTIAL_NORMALIZED_TS_DIR — the harness requires the TS evidence emitter to run; see the captured output above"
     exit 1
 }
 $summary = [regex]::Match($output, 'normalized-result differential: \d+/\d+ equal')

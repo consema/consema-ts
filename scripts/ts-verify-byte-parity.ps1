@@ -26,7 +26,11 @@ param(
 # Requirements: cargo (or $env:CONSEMA_CARGO) and node (or $env:CONSEMA_NODE)
 # on PATH; the Rust workspace is the consema-rs checkout (<repo root>\consema-rs
 # by default, -RustWorkspace overrides). Windows PowerShell 5.1 compatible, no
-# third-party dependencies.
+# third-party dependencies. OS status (2026-08-15): all paths are forward-slash
+# forms and the emitter binary lookup falls back from the .exe name to the
+# extensionless name, so POSIX + pwsh 7 hosts can run the scripts too; the CI
+# differential job (windows-latest) is the only OS that is continuously
+# exercised, POSIX is expected-but-not-CI-verified.
 # ---------------------------------------------------------------------------
 
 $ErrorActionPreference = 'Stop'
@@ -76,7 +80,7 @@ if (-not (Get-Command $node -ErrorAction SilentlyContinue)) {
 
 # --- case set ----------------------------------------------------------------
 if ($CaseFile -eq '') {
-    $CaseFile = Join-Path $workspaceRoot 'conformance\differential\cases.json'
+    $CaseFile = Join-Path $workspaceRoot 'conformance/differential/cases.json'
 }
 if (-not (Test-Path $CaseFile)) {
     Write-Error "differential case file not found: $CaseFile"
@@ -114,9 +118,13 @@ $ErrorActionPreference = $previousEap
 if ($buildCode -ne 0) { exit $buildCode }
 
 $targetDir = if ($env:CARGO_TARGET_DIR) { $env:CARGO_TARGET_DIR } else { Join-Path $RustWorkspace 'target' }
-$example = Join-Path $targetDir 'debug\examples\emit_parity_bytes.exe'
+# Platform-neutral binary lookup: Windows builds produce emit_*.exe, POSIX
+# builds produce extensionless binaries; try the .exe name first, then the
+# bare name (paths are forward-slash forms throughout).
+$exampleBase = Join-Path $targetDir 'debug/examples/emit_parity_bytes'
+$example = if (Test-Path "$exampleBase.exe") { "$exampleBase.exe" } else { $exampleBase }
 if (-not (Test-Path $example)) {
-    Write-Error "Rust example binary not found: $example"
+    Write-Error "Rust example binary not found: $example (looked for '$exampleBase.exe' and '$exampleBase')"
     exit 1
 }
 if ($OutDir -eq '') {
@@ -153,7 +161,7 @@ $previousEap = $ErrorActionPreference
 $ErrorActionPreference = 'Continue'
 Push-Location $tsDir
 try {
-    & $node --test 'src\differential\parity\**\*.test.ts' 1> $stdoutFile 2> $stderrFile
+    & $node --test 'src/differential/parity/**/*.test.ts' 1> $stdoutFile 2> $stderrFile
     $testCode = $LASTEXITCODE
 }
 finally {
